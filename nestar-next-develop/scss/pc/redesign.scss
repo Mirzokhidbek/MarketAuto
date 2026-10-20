@@ -348,12 +348,15 @@
 			letter-spacing: -0.02em;
 			color: $ma-dark !important;
 		}
-		span {
+		> span {
 			margin-top: 4px;
 			font-family: $ma-font;
 			font-size: 15px !important;
 			color: $ma-muted !important;
 			opacity: 1;
+		}
+		.ma-breadcrumb {
+			margin-bottom: 8px;
 		}
 	}
 }

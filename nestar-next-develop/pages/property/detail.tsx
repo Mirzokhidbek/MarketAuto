@@ -94,8 +94,12 @@ const PropertyDetail: NextPage = ({ carSeo }: any) => {
 	// a server-rendered photo can fail before React attaches onError: check after mount
 	useEffect(() => {
 		const img = mainImageRef.current;
-		if (img && img.complete && img.naturalWidth === 0 && slideImage) setFailedImages((prev) => [...prev, slideImage]);
-	}, [slideImage]);
+		if (!img || !slideImage) return;
+		const fail = () => setFailedImages((prev) => (prev.includes(slideImage) ? prev : [...prev, slideImage]));
+		if (img.complete && img.naturalWidth === 0) return fail();
+		img.addEventListener('error', fail);
+		return () => img.removeEventListener('error', fail);
+	}, [slideImage, property?._id]);
 	const [showPhone, setShowPhone] = useState<boolean>(false);
 	const [destinationProperties, setDestinationProperties] = useState<Property[]>([]);
 
