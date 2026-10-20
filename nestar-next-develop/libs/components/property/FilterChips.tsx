@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'next-i18next';
 import CloseIcon from '@mui/icons-material/Close';
-import { formatCountry, formatEnumLabel, formatMileage } from '../../utils';
+import { countryName, formatEnumLabel, formatMileage } from '../../utils';
 import { usePrice } from '../../hooks/usePrice';
 
 interface FilterChipsProps {
@@ -34,7 +34,7 @@ const FilterChips = ({ search, defaults, onChange }: FilterChipsProps) => {
 			chips.push({ key: `${key}-${value}`, label: format(value), remove: () => onChange(without(key, value)) }),
 		);
 
-	list('countryList', (value) => formatCountry(value, t));
+	list('countryList', (value) => countryName(value, t));
 	list('brandList', (value) => formatEnumLabel(value, t));
 	list('typeList', (value) => formatEnumLabel(value, t));
 	list('fuelList', (value) => formatEnumLabel(value, t));
