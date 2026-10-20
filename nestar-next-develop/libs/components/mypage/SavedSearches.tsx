@@ -8,7 +8,7 @@ import NotificationsActiveOutlinedIcon from '@mui/icons-material/NotificationsAc
 import { GET_SAVED_SEARCHES } from '../../../apollo/user/query';
 import { REMOVE_SAVED_SEARCH } from '../../../apollo/user/mutation';
 import { sweetConfirmAlert, sweetErrorHandling } from '../../sweetAlert';
-import { formatCountry, formatEnumLabel } from '../../utils';
+import { countryName, formatEnumLabel } from '../../utils';
 import EmptyState from '../common/EmptyState';
 import { T } from '../../types/common';
 
@@ -17,7 +17,7 @@ const describe = (search: T, t: any): string => {
 	const parts: string[] = [];
 	if (search.brandList?.length) parts.push(search.brandList.map((item: string) => formatEnumLabel(item, t)).join(', '));
 	if (search.model) parts.push(search.model);
-	if (search.countryList?.length) parts.push(search.countryList.map((item: string) => formatCountry(item, t)).join(', '));
+	if (search.countryList?.length) parts.push(search.countryList.map((item: string) => countryName(item, t)).join(', '));
 	if (search.typeList?.length) parts.push(search.typeList.map((item: string) => formatEnumLabel(item, t)).join(', '));
 	if (search.yearsRange) parts.push(`${search.yearsRange.start}–${search.yearsRange.end}`);
 	if (search.pricesRange?.end && search.pricesRange.end < 2000000) parts.push(`≤ $${search.pricesRange.end.toLocaleString('en-US')}`);

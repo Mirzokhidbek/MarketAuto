@@ -146,6 +146,10 @@
 .ma-list-layout {
 	grid-template-columns: 264px minmax(0, 1fr);
 	gap: 40px;
+	@media (max-width: 1100px) {
+		grid-template-columns: 240px minmax(0, 1fr);
+		gap: 28px;
+	}
 }
 
 // the filter column is part of the page, separated by a rule
@@ -223,6 +227,10 @@
 	&__layout {
 		grid-template-columns: minmax(0, 1fr) 340px;
 		gap: 40px;
+		@media (max-width: 1100px) {
+			grid-template-columns: minmax(0, 1fr) 300px;
+			gap: 28px;
+		}
 	}
 	&__main {
 		gap: 0;
@@ -425,6 +433,10 @@
 }
 
 @media (max-width: 900px) {
+	.ma-list-layout {
+		grid-template-columns: 1fr;
+		gap: 20px;
+	}
 	.ma-filter {
 		padding: 0 0 16px;
 		border-right: none;
