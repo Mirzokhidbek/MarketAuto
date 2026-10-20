@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 import Seo from '../common/Seo';
@@ -111,17 +112,28 @@ const withLayoutBasic = (Component: any) => {
 						<Top />
 					</Stack>
 
-					<Stack
-						className={`header-basic ${authHeader && 'auth'}`}
-						style={{
-							backgroundImage: `url(${memoizedValues.bgImage})`,
-							backgroundSize: 'cover',
-							boxShadow: 'inset 10px 40px 150px 40px rgb(24 22 36)',
-						}}
-					>
+					{/* page title on white; "Home / X" descriptions are shown as a real breadcrumb above it */}
+					<Stack className={`header-basic ${authHeader && 'auth'}`}>
 						<Stack className={'container'}>
-							<strong>{t(memoizedValues.title)}</strong>
-							<span>{t(memoizedValues.desc)}</span>
+							{memoizedValues.desc.startsWith('Home / ') ? (
+								<>
+									<nav className={'ma-breadcrumb'} aria-label={'breadcrumb'}>
+										<Link href={'/'}>{t('Home')}</Link>
+										<span>/</span>
+										<em>{t(memoizedValues.title)}</em>
+									</nav>
+									<strong role={'heading'} aria-level={1}>
+										{t(memoizedValues.title)}
+									</strong>
+								</>
+							) : (
+								<>
+									<strong role={'heading'} aria-level={1}>
+										{t(memoizedValues.title)}
+									</strong>
+									<span>{t(memoizedValues.desc)}</span>
+								</>
+							)}
 						</Stack>
 					</Stack>
 

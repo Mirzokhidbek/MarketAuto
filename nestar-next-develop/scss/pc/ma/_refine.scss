@@ -23,6 +23,8 @@
 	grid-template-areas:
 		'avatar name'
 		'avatar meta'
+		'trust trust'
+		'addr addr'
 		'stats stats'
 		'action action';
 	align-items: center;
@@ -64,10 +66,18 @@
 		justify-self: start;
 	}
 	// trust lines and address are secondary: smaller, under the name
-	.ma-trust,
+	.ma-trust {
+		grid-area: trust;
+		margin: 12px 0 0;
+		flex-direction: column;
+		align-items: flex-start;
+		li {
+			justify-content: flex-start;
+		}
+	}
 	&__address {
-		grid-column: 1 / -1;
-		margin-top: 10px;
+		grid-area: addr;
+		margin-top: 6px;
 	}
 	&__stats {
 		grid-area: stats;
@@ -138,6 +148,25 @@
 	}
 }
 
+/* ---------- underline tabs inside pages (community, my cars, FAQ) ---------- */
+.ma-tabs--underline {
+	gap: 0 24px;
+	flex-wrap: nowrap;
+	overflow-x: auto;
+	scrollbar-width: none;
+	&::-webkit-scrollbar {
+		display: none;
+	}
+	.ma-tab {
+		flex-shrink: 0;
+		height: 42px;
+		&.is-active {
+			color: $ma-dark;
+			border-bottom-color: $ma-dark;
+		}
+	}
+}
+
 /* ---------- search page ---------- */
 .ma-list-page {
 	padding: 32px 0 80px;
@@ -146,6 +175,10 @@
 .ma-list-layout {
 	grid-template-columns: 264px minmax(0, 1fr);
 	gap: 40px;
+	@media (max-width: 1100px) {
+		grid-template-columns: 240px minmax(0, 1fr);
+		gap: 28px;
+	}
 }
 
 // the filter column is part of the page, separated by a rule
@@ -223,6 +256,10 @@
 	&__layout {
 		grid-template-columns: minmax(0, 1fr) 340px;
 		gap: 40px;
+		@media (max-width: 1100px) {
+			grid-template-columns: minmax(0, 1fr) 300px;
+			gap: 28px;
+		}
 	}
 	&__main {
 		gap: 0;
@@ -410,6 +447,17 @@
 	}
 }
 
+/* ---------- sign in / sign up ---------- */
+// the brand side is the same flat ink as the sellers band on the home page; no glow
+.ma-auth__card {
+	border-radius: $ma-radius-lg;
+	box-shadow: none;
+	border: 1px solid $ma-border;
+}
+.ma-auth__brand {
+	background: $ma-dark !important;
+}
+
 /* ---------- tablet & phone ---------- */
 @media (max-width: 1100px) {
 	.ma-keyspecs {
@@ -425,6 +473,10 @@
 }
 
 @media (max-width: 900px) {
+	.ma-list-layout {
+		grid-template-columns: 1fr;
+		gap: 20px;
+	}
 	.ma-filter {
 		padding: 0 0 16px;
 		border-right: none;

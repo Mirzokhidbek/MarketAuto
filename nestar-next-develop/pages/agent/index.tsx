@@ -110,7 +110,6 @@ const AgentList: NextPage = ({ initialInput, ...props }: any) => {
 			<div className={'ma-container'}>
 				<div className={'ma-results__bar'}>
 					<div>
-						<h2>{t('Sellers')}</h2>
 						<span>
 							{total || 0} {t('sellers found')}
 						</span>

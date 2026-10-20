@@ -31,7 +31,8 @@ import { PropertiesInquiry } from '../../types/property/property.input';
 import { useRouter } from 'next/router';
 import CancelRoundedIcon from '@mui/icons-material/CancelRounded';
 import { propertyMileage, propertyYears } from '../../config';
-import { formatCountry, formatEnumLabel, formatMileage } from '../../utils';
+import { formatEnumLabel, formatMileage } from '../../utils';
+import Origin from '../common/Origin';
 import SearchIcon from '@mui/icons-material/Search';
 import { useTranslation } from 'next-i18next';
 
@@ -447,7 +448,7 @@ const Filter = (props: FilterType) => {
 		items: string[],
 		selected: string[] | undefined,
 		onChange: (e: any) => void,
-		format: (item: string) => string = (item) => formatEnumLabel(item, t),
+		format: (item: string) => React.ReactNode = (item) => formatEnumLabel(item, t),
 	) => (
 		<details className={'ma-filter__group'} open>
 			<summary>{t(title)}</summary>
@@ -536,7 +537,7 @@ const Filter = (props: FilterType) => {
 				Object.values(CarCountry),
 				searchFilter?.search?.countryList,
 				(e) => carListSelectHandler(e, 'countryList'),
-				(item: string) => formatCountry(item, t),
+				(item: string) => <Origin country={item} />,
 			)}
 			{checkList('Brand', Object.values(CarBrand), searchFilter?.search?.brandList, (e) =>
 				carListSelectHandler(e, 'brandList'),

@@ -29,7 +29,11 @@ const CarCard = ({ property, onLike }: CarCardProps) => {
 	// a server-rendered <img> can fail before React attaches onError: check once after mount
 	useEffect(() => {
 		const img = imageRef.current;
-		if (img && img.complete && img.naturalWidth === 0) setImageFailed(true);
+		if (!img) return;
+		const fail = () => setImageFailed(true);
+		if (img.complete && img.naturalWidth === 0) return fail();
+		img.addEventListener('error', fail);
+		return () => img.removeEventListener('error', fail);
 	}, [property._id]);
 	const image = property.propertyImages?.[0];
 	const liked = !!property.meLiked?.[0]?.myFavorite;

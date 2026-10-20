@@ -125,7 +125,6 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 			<div className={'ma-container'}>
 				<div className={'ma-results__bar'}>
 					<div>
-						<h2>{t('Community')}</h2>
 						<span>{t('News, reviews and stories from car owners')}</span>
 					</div>
 					<button
