@@ -18,7 +18,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { Property } from '../../../types/property/property';
 import { PropertyStatus } from '../../../enums/property.enum';
 import { REACT_APP_API_URL } from '../../../config';
-import { formatCarPlace, formatterStr } from '../../../utils';
+import { formatCarPlace, formatEnumLabel, formatterStr } from '../../../utils';
 
 interface PropertyPanelListType {
 	properties: Property[];
@@ -63,14 +63,20 @@ export const PropertyPanelList = ({
 						const title = (
 							<Stack direction={'row'} alignItems={'center'} gap={1.5}>
 								{image ? (
-									<img className={'ma-admin-thumb'} src={`${REACT_APP_API_URL}/${image}`} alt={''} />
+									<img
+										className={'ma-admin-thumb'}
+										src={`${REACT_APP_API_URL}/${image}`}
+										alt={''}
+										// missing file: keep the grey placeholder box instead of a broken-image icon
+										onError={(e) => (e.currentTarget.style.visibility = 'hidden')}
+									/>
 								) : (
 									<span className={'ma-admin-thumb'} />
 								)}
 								<span>
 									<strong>{property.propertyTitle}</strong>
 									<Typography variant="caption" display="block" color="text.secondary">
-										{property.carBrand} · {property.carYear} · {property._id}
+										{formatEnumLabel(property.carBrand)} · {property.carYear} · {property._id}
 									</Typography>
 								</span>
 							</Stack>
