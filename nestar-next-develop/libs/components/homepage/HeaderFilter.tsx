@@ -321,17 +321,24 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 				<Stack className={'search-box'}>
 					<Stack className={'select-box'}>
 						<Box component={'div'} className={`box ${openLocation ? 'on' : ''}`} onClick={locationStateChangeHandler}>
-							<span>{searchFilter?.search?.locationList ? formatEnumLabel(searchFilter?.search?.locationList[0]) : t('City')} </span>
+							<span>
+								{searchFilter?.search?.locationList
+									? formatEnumLabel(searchFilter?.search?.locationList[0])
+									: t('City')}{' '}
+							</span>
 							<ExpandMoreIcon />
 						</Box>
 						<Box className={`box ${openType ? 'on' : ''}`} onClick={typeStateChangeHandler}>
-							<span> {searchFilter?.search?.typeList ? formatEnumLabel(searchFilter?.search?.typeList[0]) : t('Body type')} </span>
+							<span>
+								{' '}
+								{searchFilter?.search?.typeList
+									? formatEnumLabel(searchFilter?.search?.typeList[0])
+									: t('Body type')}{' '}
+							</span>
 							<ExpandMoreIcon />
 						</Box>
 						<Box className={`box ${openRooms ? 'on' : ''}`} onClick={roomStateChangeHandler}>
-								{searchFilter?.search?.brandList
-									? formatEnumLabel(searchFilter?.search?.brandList[0])
-									: t('Brand')}
+							{searchFilter?.search?.brandList ? formatEnumLabel(searchFilter?.search?.brandList[0]) : t('Brand')}
 							<ExpandMoreIcon />
 						</Box>
 					</Stack>
@@ -350,7 +357,11 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 						{propertyLocation.map((location: string) => {
 							return (
 								<div onClick={() => propertyLocationSelectHandler(location)} key={location}>
-									<img src={`img/banner/cities/${location}.webp`} alt="" onError={(e: any) => (e.currentTarget.style.display = 'none')} />
+									<img
+										src={`img/banner/cities/${location}.webp`}
+										alt=""
+										onError={(e: any) => (e.currentTarget.style.display = 'none')}
+									/>
 									<span>{formatEnumLabel(location)}</span>
 								</div>
 							);

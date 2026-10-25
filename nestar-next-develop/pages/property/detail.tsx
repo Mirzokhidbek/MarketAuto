@@ -261,7 +261,8 @@ const PropertyDetail: NextPage = ({ initialComment, ...props }: any) => {
 											<img src="/img/icons/calendar.svg" alt="" /> <Typography>{property?.carYear}</Typography>
 										</Stack>
 										<Stack className="option">
-											<img src="/img/icons/speedometer.svg" alt="" /> <Typography>{formatMileage(property?.carMileage)}</Typography>
+											<img src="/img/icons/speedometer.svg" alt="" />{' '}
+											<Typography>{formatMileage(property?.carMileage)}</Typography>
 										</Stack>
 										<Stack className="option">
 											<img src="/img/icons/gearbox.svg" alt="" />{' '}
@@ -438,7 +439,9 @@ const PropertyDetail: NextPage = ({ initialComment, ...props }: any) => {
 									<Stack className={'map-box'}>
 										<iframe
 											src={`https://www.google.com/maps?q=${encodeURIComponent(
-												`${property?.propertyAddress ?? ''}, ${formatEnumLabel(property?.propertyLocation)}, Uzbekistan`,
+												`${property?.propertyAddress ?? ''}, ${formatEnumLabel(
+													property?.propertyLocation,
+												)}, Uzbekistan`,
 											)}&output=embed`}
 											width="100%"
 											height="100%"
@@ -568,7 +571,9 @@ const PropertyDetail: NextPage = ({ initialComment, ...props }: any) => {
 								</Stack>
 								<Stack className={'info-box'}>
 									<Typography className={'sub-title'}>Message</Typography>
-									<textarea placeholder={'Hello, I am interested in \n' + '[' + (property?.propertyTitle ?? 'this car') + ']'}></textarea>
+									<textarea
+										placeholder={'Hello, I am interested in \n' + '[' + (property?.propertyTitle ?? 'this car') + ']'}
+									></textarea>
 								</Stack>
 								<Stack className={'info-box'}>
 									<Button className={'send-message'}>
