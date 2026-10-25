@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
 import Link from 'next/link';
 import { articleCategoryLabels } from '../../libs/utils';
-import withLayoutBasic from '../../libs/components/layout/LayoutBasic';
+import withLayoutFull from '../../libs/components/layout/LayoutFull';
 import { Pagination } from '@mui/material';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
@@ -103,6 +103,7 @@ const CommunityDetail: NextPage = ({ initialInput, ...props }: T) => {
 		variables: {
 			input: searchFilter,
 		},
+		skip: !searchFilter?.search?.commentRefId,
 		notifyOnNetworkStatusChange: true,
 		onCompleted(data: any) {
 			setComments(data.getComments.list);
@@ -402,4 +403,14 @@ const CommunityDetail: NextPage = ({ initialInput, ...props }: T) => {
 	);
 };
 
-export default withLayoutBasic(CommunityDetail);
+CommunityDetail.defaultProps = {
+	initialInput: {
+		page: 1,
+		limit: 5,
+		sort: 'createdAt',
+		direction: 'DESC',
+		search: { commentRefId: '' },
+	},
+};
+
+export default withLayoutFull(CommunityDetail);
