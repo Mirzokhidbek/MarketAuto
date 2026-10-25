@@ -56,7 +56,7 @@ const AgentCard = (props: AgentCardProps) => {
 								query: { agentId: 'id' },
 							}}
 						>
-							<strong>{agent?.memberFullName ?? agent?.memberNick}</strong>
+							<strong>{agent?.memberFullName || agent?.memberNick}</strong>
 						</Link>
 						<span>Dealer</span>
 					</Box>

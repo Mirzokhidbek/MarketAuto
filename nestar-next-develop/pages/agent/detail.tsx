@@ -208,7 +208,7 @@ const AgentDetail: NextPage = ({ initialInput, initialComment, ...props }: any) 
 						/>
 						<div className={'ma-profile-card__info'}>
 							<span className={'ma-badge ma-badge--primary'}>{t('Dealer')}</span>
-							<h1>{agent.memberFullName ?? agent.memberNick}</h1>
+							<h1>{agent.memberFullName || agent.memberNick}</h1>
 							<div className={'ma-detail__meta'}>
 								{agent.memberAddress && <span>{agent.memberAddress}</span>}
 								<span>

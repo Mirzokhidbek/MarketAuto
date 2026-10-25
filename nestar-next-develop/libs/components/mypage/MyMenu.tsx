@@ -73,7 +73,7 @@ const MyMenu = () => {
 					alt={user?.memberNick}
 				/>
 				<div>
-					<strong>{user?.memberFullName ?? user?.memberNick}</strong>
+					<strong>{user?.memberFullName || user?.memberNick}</strong>
 					<span>{formatPhone(user?.memberPhone)}</span>
 					<em className={'ma-badge ma-badge--primary'}>
 						{t(isSeller ? 'Seller' : user?.memberType === 'ADMIN' ? 'Admin' : 'Buyer')}

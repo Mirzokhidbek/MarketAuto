@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import { NextPage } from 'next';
-import useDeviceDetect from '../../libs/hooks/useDeviceDetect';
-import withLayoutBasic from '../../libs/components/layout/LayoutBasic';
+import withLayoutFull from '../../libs/components/layout/LayoutFull';
 import { Stack } from '@mui/material';
 import MemberMenu from '../../libs/components/member/MemberMenu';
 import MemberProperties from '../../libs/components/member/MemberProperties';
@@ -23,7 +22,6 @@ export const getStaticProps = async ({ locale }: any) => ({
 });
 
 const MemberPage: NextPage = () => {
-	const device = useDeviceDetect();
 	const router = useRouter();
 	const category: any = router.query?.category;
 	const user = useReactiveVar(userVar);
@@ -111,45 +109,33 @@ const MemberPage: NextPage = () => {
 		}
 	};
 
-	if (device === 'mobile') {
-		return <>MEMBER PAGE MOBILE</>;
-	} else {
-		return (
-			<div id="member-page" style={{ position: 'relative' }}>
-				<div className="container">
-					<Stack className={'member-page'}>
-						<Stack className={'back-frame'}>
-							<Stack className={'left-config'}>
-								<MemberMenu subscribeHandler={subscribeHandler} unsubscribeHandler={unsubscribeHandler} />
-							</Stack>
-							<Stack className="main-config" mb={'76px'}>
-								<Stack className={'list-config'}>
-									{category === 'properties' && <MemberProperties />}
-									{category === 'followers' && (
-										<MemberFollowers
-											subscribeHandler={subscribeHandler}
-											unsubscribeHandler={unsubscribeHandler}
-											likeMemberHandler={likeMemberHandler}
-											redirectToMemberPageHandler={redirectToMemberPageHandler}
-										/>
-									)}
-									{category === 'followings' && (
-										<MemberFollowings
-											subscribeHandler={subscribeHandler}
-											unsubscribeHandler={unsubscribeHandler}
-											likeMemberHandler={likeMemberHandler}
-											redirectToMemberPageHandler={redirectToMemberPageHandler}
-										/>
-									)}
-									{category === 'articles' && <MemberArticles />}
-								</Stack>
-							</Stack>
-						</Stack>
-					</Stack>
-				</div>
+	return (
+		<div id="member-page" className={'ma-page ma-account'}>
+			<div className={'ma-container ma-account__layout'}>
+				<MemberMenu subscribeHandler={subscribeHandler} unsubscribeHandler={unsubscribeHandler} />
+				<section className={'ma-account__content'}>
+					{category === 'properties' && <MemberProperties />}
+					{category === 'followers' && (
+						<MemberFollowers
+							subscribeHandler={subscribeHandler}
+							unsubscribeHandler={unsubscribeHandler}
+							likeMemberHandler={likeMemberHandler}
+							redirectToMemberPageHandler={redirectToMemberPageHandler}
+						/>
+					)}
+					{category === 'followings' && (
+						<MemberFollowings
+							subscribeHandler={subscribeHandler}
+							unsubscribeHandler={unsubscribeHandler}
+							likeMemberHandler={likeMemberHandler}
+							redirectToMemberPageHandler={redirectToMemberPageHandler}
+						/>
+					)}
+					{category === 'articles' && <MemberArticles />}
+				</section>
 			</div>
-		);
-	}
+		</div>
+	);
 };
 
-export default withLayoutBasic(MemberPage);
+export default withLayoutFull(MemberPage);

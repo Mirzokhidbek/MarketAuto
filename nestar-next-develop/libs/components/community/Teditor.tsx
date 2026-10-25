@@ -1,3 +1,4 @@
+import { useTranslation } from 'next-i18next';
 import React, { useMemo, useRef, useState } from 'react';
 import { Box, Button, FormControl, MenuItem, Stack, Typography, Select, TextField } from '@mui/material';
 import { BoardArticleCategory } from '../../enums/board-article.enum';
@@ -14,6 +15,7 @@ import { Message } from '../../enums/common.enum';
 import { sweetErrorHandling, sweetTopSuccessAlert } from '../../sweetAlert';
 
 const TuiEditor = () => {
+	const { t } = useTranslation('common');
 	const editorRef = useRef<Editor>(null),
 		token = getJwtToken(),
 		router = useRouter();
@@ -97,7 +99,7 @@ const TuiEditor = () => {
 				},
 			});
 
-			await sweetTopSuccessAlert('Article is created successfully', 700);
+			await sweetTopSuccessAlert(t('Article published successfully') as string, 700);
 			await router.push({
 				pathname: '/mypage',
 				query: {
@@ -117,46 +119,28 @@ const TuiEditor = () => {
 	};
 
 	return (
-		<Stack>
-			<Stack direction="row" style={{ margin: '40px' }} justifyContent="space-evenly">
-				<Box component={'div'} className={'form_row'} style={{ width: '300px' }}>
-					<Typography style={{ color: '#7f838d', margin: '10px' }} variant="h3">
-						Category
-					</Typography>
-					<FormControl sx={{ width: '100%', background: 'white' }}>
-						<Select
-							value={articleCategory}
-							onChange={changeCategoryHandler}
-							displayEmpty
-							inputProps={{ 'aria-label': 'Without label' }}
-						>
-							<MenuItem value={BoardArticleCategory.FREE}>
-								<span>Free</span>
-							</MenuItem>
-							<MenuItem value={BoardArticleCategory.HUMOR}>Humor</MenuItem>
-							<MenuItem value={BoardArticleCategory.NEWS}>News</MenuItem>
-							<MenuItem value={BoardArticleCategory.RECOMMEND}>Recommendation</MenuItem>
-						</Select>
-					</FormControl>
-				</Box>
-				<Box component={'div'} style={{ width: '300px', flexDirection: 'column' }}>
-					<Typography style={{ color: '#7f838d', margin: '10px' }} variant="h3">
-						Title
-					</Typography>
-					<TextField
-						onChange={articleTitleHandler}
-						id="filled-basic"
-						label="Type Title"
-						style={{ width: '300px', background: 'white' }}
-					/>
-				</Box>
-			</Stack>
+		<div className={'ma-editor'}>
+			<div className={'ma-form-grid'}>
+				<label className={'ma-input'}>
+					<span>{t('Category')}</span>
+					<select value={articleCategory} onChange={changeCategoryHandler as any}>
+						<option value={BoardArticleCategory.NEWS}>{t('Car News')}</option>
+						<option value={BoardArticleCategory.RECOMMEND}>{t('Reviews & Tips')}</option>
+						<option value={BoardArticleCategory.FREE}>{t('Free Talk')}</option>
+						<option value={BoardArticleCategory.HUMOR}>{t('Humor')}</option>
+					</select>
+				</label>
+				<label className={'ma-input'}>
+					<span>{t('Title')}</span>
+					<input type="text" placeholder={t('Article title') as string} onChange={articleTitleHandler as any} />
+				</label>
+			</div>
 
 			<Editor
-				initialValue={'Type here'}
-				placeholder={'Type here'}
+				initialValue={''}
+				placeholder={t('Write your article here...') as string}
 				previewStyle={'vertical'}
-				height={'640px'}
+				height={'520px'}
 				// @ts-ignore
 				initialEditType={'WYSIWYG'}
 				toolbarItems={[
@@ -177,17 +161,12 @@ const TuiEditor = () => {
 				}}
 			/>
 
-			<Stack direction="row" justifyContent="center">
-				<Button
-					variant="contained"
-					color="primary"
-					style={{ margin: '30px', width: '250px', height: '45px' }}
-					onClick={handleRegisterButton}
-				>
-					Register
-				</Button>
-			</Stack>
-		</Stack>
+			<div className={'ma-form-actions'}>
+				<button className={'ma-btn ma-btn--primary'} onClick={handleRegisterButton}>
+					{t('Publish article')}
+				</button>
+			</div>
+		</div>
 	);
 };
 
