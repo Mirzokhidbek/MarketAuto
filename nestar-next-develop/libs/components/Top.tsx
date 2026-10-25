@@ -146,10 +146,10 @@ const Top = () => {
 					<div>{t('Home')}</div>
 				</Link>
 				<Link href={'/property'}>
-					<div>{t('Properties')}</div>
+					<div>{t('Cars')}</div>
 				</Link>
 				<Link href={'/agent'}>
-					<div> {t('Agents')} </div>
+					<div> {t('Dealers')} </div>
 				</Link>
 				<Link href={'/community?articleCategory=FREE'}>
 					<div> {t('Community')} </div>
@@ -174,10 +174,10 @@ const Top = () => {
 								<div>{t('Home')}</div>
 							</Link>
 							<Link href={'/property'}>
-								<div>{t('Properties')}</div>
+								<div>{t('Cars')}</div>
 							</Link>
 							<Link href={'/agent'}>
-								<div> {t('Agents')} </div>
+								<div> {t('Dealers')} </div>
 							</Link>
 							<Link href={'/community?articleCategory=FREE'}>
 								<div> {t('Community')} </div>
@@ -257,15 +257,15 @@ const Top = () => {
 										/>
 										{t('English')}
 									</MenuItem>
-									<MenuItem disableRipple onClick={langChoice} id="kr">
+									<MenuItem disableRipple onClick={langChoice} id="uz">
 										<img
 											className="img-flag"
-											src={'/img/flag/langkr.png'}
+											src={'/img/flag/languz.png'}
 											onClick={langChoice}
 											id="uz"
-											alt={'koreanFlag'}
+											alt={'uzbekFlag'}
 										/>
-										{t('Korean')}
+										{t('Uzbek')}
 									</MenuItem>
 									<MenuItem disableRipple onClick={langChoice} id="ru">
 										<img

@@ -200,7 +200,7 @@ const PropertyDetail: NextPage = ({ initialComment, ...props }: any) => {
 	}
 
 	if (device === 'mobile') {
-		return <div>PROPERTY DETAIL PAGE</div>;
+		return <div>CAR DETAIL PAGE</div>;
 	} else {
 		return (
 			<div id={'property-detail-page'}>
@@ -599,8 +599,8 @@ const PropertyDetail: NextPage = ({ initialComment, ...props }: any) => {
 							<Stack className={'similar-properties-config'}>
 								<Stack className={'title-pagination-box'}>
 									<Stack className={'title-box'}>
-										<Typography className={'main-title'}>Destination Property</Typography>
-										<Typography className={'sub-title'}>Aliquam lacinia diam quis lacus euismod</Typography>
+										<Typography className={'main-title'}>Similar Cars</Typography>
+										<Typography className={'sub-title'}>Other cars you may like</Typography>
 									</Stack>
 									<Stack className={'pagination-box'}>
 										<WestIcon className={'swiper-similar-prev'} />

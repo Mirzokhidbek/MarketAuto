@@ -51,7 +51,7 @@ export const PropertyCard = (props: PropertyCardProps) => {
 	};
 
 	if (device === 'mobile') {
-		return <div>MOBILE PROPERTY CARD</div>;
+		return <div>MOBILE CAR CARD</div>;
 	} else
 		return (
 			<Stack className="property-card-box">
