@@ -13,11 +13,12 @@ import {
 	IconButton,
 } from '@mui/material';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
-import { PropertyLocation, PropertyType } from '../../enums/property.enum';
+import { CarBrand, CarFuel, CarTransmission, PropertyLocation, PropertyType } from '../../enums/property.enum';
 import { PropertiesInquiry } from '../../types/property/property.input';
 import { useRouter } from 'next/router';
 import CancelRoundedIcon from '@mui/icons-material/CancelRounded';
-import { propertySquare } from '../../config';
+import { propertyMileage, propertyYears } from '../../config';
+import { formatEnumLabel, formatMileage } from '../../utils';
 import RefreshIcon from '@mui/icons-material/Refresh';
 
 const MenuProps = {
@@ -27,6 +28,11 @@ const MenuProps = {
 		},
 	},
 };
+
+type CarListKey = 'brandList' | 'fuelList' | 'transmissionList';
+type CarRangeKey = 'yearsRange' | 'mileageRange';
+
+const carYears: number[] = propertyYears.map((year: string) => Number(year));
 
 interface FilterType {
 	searchFilter: PropertiesInquiry;
@@ -88,50 +94,21 @@ const Filter = (props: FilterType) => {
 				.then();
 		}
 
-		if (searchFilter?.search?.roomsList?.length == 0) {
-			delete searchFilter.search.roomsList;
-			router
-				.push(
-					`/property?input=${JSON.stringify({
-						...searchFilter,
-						search: {
-							...searchFilter.search,
-						},
-					})}`,
-					`/property?input=${JSON.stringify({
-						...searchFilter,
-						search: {
-							...searchFilter.search,
-						},
-					})}`,
-					{ scroll: false },
-				)
-				.then();
-		}
+		(['brandList', 'fuelList', 'transmissionList'] as CarListKey[]).forEach((key) => {
+			if (searchFilter?.search?.[key]?.length == 0) {
+				delete searchFilter.search[key];
+				router
+					.push(
+						`/property?input=${JSON.stringify(searchFilter)}`,
+						`/property?input=${JSON.stringify(searchFilter)}`,
+						{ scroll: false },
+					)
+					.then();
+			}
+		});
 
 		if (searchFilter?.search?.options?.length == 0) {
 			delete searchFilter.search.options;
-			router
-				.push(
-					`/property?input=${JSON.stringify({
-						...searchFilter,
-						search: {
-							...searchFilter.search,
-						},
-					})}`,
-					`/property?input=${JSON.stringify({
-						...searchFilter,
-						search: {
-							...searchFilter.search,
-						},
-					})}`,
-					{ scroll: false },
-				)
-				.then();
-		}
-
-		if (searchFilter?.search?.bedsList?.length == 0) {
-			delete searchFilter.search.bedsList;
 			router
 				.push(
 					`/property?input=${JSON.stringify({
@@ -253,64 +230,26 @@ const Filter = (props: FilterType) => {
 		[searchFilter],
 	);
 
-	const propertyRoomSelectHandler = useCallback(
-		async (number: Number) => {
+	const carListSelectHandler = useCallback(
+		async (e: any, key: CarListKey) => {
 			try {
-				if (number != 0) {
-					if (searchFilter?.search?.roomsList?.includes(number)) {
-						await router.push(
-							`/property?input=${JSON.stringify({
-								...searchFilter,
-								search: {
-									...searchFilter.search,
-									roomsList: searchFilter?.search?.roomsList?.filter((item: Number) => item !== number),
-								},
-							})}`,
-							`/property?input=${JSON.stringify({
-								...searchFilter,
-								search: {
-									...searchFilter.search,
-									roomsList: searchFilter?.search?.roomsList?.filter((item: Number) => item !== number),
-								},
-							})}`,
-							{ scroll: false },
-						);
-					} else {
-						await router.push(
-							`/property?input=${JSON.stringify({
-								...searchFilter,
-								search: { ...searchFilter.search, roomsList: [...(searchFilter?.search?.roomsList || []), number] },
-							})}`,
-							`/property?input=${JSON.stringify({
-								...searchFilter,
-								search: { ...searchFilter.search, roomsList: [...(searchFilter?.search?.roomsList || []), number] },
-							})}`,
-							{ scroll: false },
-						);
-					}
-				} else {
-					delete searchFilter?.search.roomsList;
-					setSearchFilter({ ...searchFilter });
-					await router.push(
-						`/property?input=${JSON.stringify({
-							...searchFilter,
-							search: {
-								...searchFilter.search,
-							},
-						})}`,
-						`/property?input=${JSON.stringify({
-							...searchFilter,
-							search: {
-								...searchFilter.search,
-							},
-						})}`,
-						{ scroll: false },
-					);
-				}
-
-				console.log('propertyRoomSelectHandler:', number);
+				const isChecked = e.target.checked;
+				const value = e.target.value;
+				const current: string[] = searchFilter?.search?.[key] || [];
+				const nextFilter = {
+					...searchFilter,
+					search: {
+						...searchFilter.search,
+						[key]: isChecked ? [...current, value] : current.filter((item: string) => item !== value),
+					},
+				};
+			await router.push(
+				`/property?input=${JSON.stringify(nextFilter)}`,
+				`/property?input=${JSON.stringify(nextFilter)}`,
+				{ scroll: false },
+			);
 			} catch (err: any) {
-				console.log('ERROR, propertyRoomSelectHandler:', err);
+				console.log('ERROR, carListSelectHandler:', err);
 			}
 		},
 		[searchFilter],
@@ -361,109 +300,22 @@ const Filter = (props: FilterType) => {
 		[searchFilter],
 	);
 
-	const propertyBedSelectHandler = useCallback(
-		async (number: Number) => {
+	const carRangeHandler = useCallback(
+		async (value: number, type: 'start' | 'end', key: CarRangeKey) => {
 			try {
-				if (number != 0) {
-					if (searchFilter?.search?.bedsList?.includes(number)) {
-						await router.push(
-							`/property?input=${JSON.stringify({
-								...searchFilter,
-								search: {
-									...searchFilter.search,
-									bedsList: searchFilter?.search?.bedsList?.filter((item: Number) => item !== number),
-								},
-							})}`,
-							`/property?input=${JSON.stringify({
-								...searchFilter,
-								search: {
-									...searchFilter.search,
-									bedsList: searchFilter?.search?.bedsList?.filter((item: Number) => item !== number),
-								},
-							})}`,
-							{ scroll: false },
-						);
-					} else {
-						await router.push(
-							`/property?input=${JSON.stringify({
-								...searchFilter,
-								search: { ...searchFilter.search, bedsList: [...(searchFilter?.search?.bedsList || []), number] },
-							})}`,
-							`/property?input=${JSON.stringify({
-								...searchFilter,
-								search: { ...searchFilter.search, bedsList: [...(searchFilter?.search?.bedsList || []), number] },
-							})}`,
-							{ scroll: false },
-						);
-					}
-				} else {
-					delete searchFilter?.search.bedsList;
-					setSearchFilter({ ...searchFilter });
-					await router.push(
-						`/property?input=${JSON.stringify({
-							...searchFilter,
-							search: {
-								...searchFilter.search,
-							},
-						})}`,
-						`/property?input=${JSON.stringify({
-							...searchFilter,
-							search: {
-								...searchFilter.search,
-							},
-						})}`,
-						{ scroll: false },
-					);
-				}
-
-				console.log('propertyBedSelectHandler:', number);
+				const defaults = key === 'yearsRange' ? carYears : propertyMileage;
+				const current = searchFilter?.search?.[key] ?? { start: defaults[0], end: defaults[defaults.length - 1] };
+				const nextFilter = {
+					...searchFilter,
+					search: { ...searchFilter.search, [key]: { ...current, [type]: value } },
+				};
+			await router.push(
+				`/property?input=${JSON.stringify(nextFilter)}`,
+				`/property?input=${JSON.stringify(nextFilter)}`,
+				{ scroll: false },
+			);
 			} catch (err: any) {
-				console.log('ERROR, propertyBedSelectHandler:', err);
-			}
-		},
-		[searchFilter],
-	);
-
-	const propertySquareHandler = useCallback(
-		async (e: any, type: string) => {
-			const value = e.target.value;
-
-			if (type == 'start') {
-				await router.push(
-					`/property?input=${JSON.stringify({
-						...searchFilter,
-						search: {
-							...searchFilter.search,
-							squaresRange: { ...searchFilter.search.squaresRange, start: value },
-						},
-					})}`,
-					`/property?input=${JSON.stringify({
-						...searchFilter,
-						search: {
-							...searchFilter.search,
-							squaresRange: { ...searchFilter.search.squaresRange, start: value },
-						},
-					})}`,
-					{ scroll: false },
-				);
-			} else {
-				await router.push(
-					`/property?input=${JSON.stringify({
-						...searchFilter,
-						search: {
-							...searchFilter.search,
-							squaresRange: { ...searchFilter.search.squaresRange, end: value },
-						},
-					})}`,
-					`/property?input=${JSON.stringify({
-						...searchFilter,
-						search: {
-							...searchFilter.search,
-							squaresRange: { ...searchFilter.search.squaresRange, end: value },
-						},
-					})}`,
-					{ scroll: false },
-				);
+				console.log('ERROR, carRangeHandler:', err);
 			}
 		},
 		[searchFilter],
@@ -526,12 +378,12 @@ const Filter = (props: FilterType) => {
 	};
 
 	if (device === 'mobile') {
-		return <div>PROPERTIES FILTER</div>;
+		return <div>CARS FILTER</div>;
 	} else {
 		return (
 			<Stack className={'filter-main'}>
 				<Stack className={'find-your-home'} mb={'40px'}>
-					<Typography className={'title-main'}>Find Your Home</Typography>
+					<Typography className={'title-main'}>Find Your Car</Typography>
 					<Stack className={'input-box'}>
 						<OutlinedInput
 							value={searchText}
@@ -571,7 +423,7 @@ const Filter = (props: FilterType) => {
 				</Stack>
 				<Stack className={'find-your-home'} mb={'30px'}>
 					<p className={'title'} style={{ textShadow: '0px 3px 4px #b9b9b9' }}>
-						Location
+						City
 					</p>
 					<Stack
 						className={`property-location`}
@@ -596,7 +448,7 @@ const Filter = (props: FilterType) => {
 										onChange={propertyLocationSelectHandler}
 									/>
 									<label htmlFor={location} style={{ cursor: 'pointer' }}>
-										<Typography className="property-type">{location}</Typography>
+										<Typography className="property-type">{formatEnumLabel(location)}</Typography>
 									</label>
 								</Stack>
 							);
@@ -604,7 +456,7 @@ const Filter = (props: FilterType) => {
 					</Stack>
 				</Stack>
 				<Stack className={'find-your-home'} mb={'30px'}>
-					<Typography className={'title'}>Property Type</Typography>
+					<Typography className={'title'}>Body Type</Typography>
 					{propertyType.map((type: string) => (
 						<Stack className={'input-box'} key={type}>
 							<Checkbox
@@ -617,138 +469,72 @@ const Filter = (props: FilterType) => {
 								checked={(searchFilter?.search?.typeList || []).includes(type as PropertyType)}
 							/>
 							<label style={{ cursor: 'pointer' }}>
-								<Typography className="property_type">{type}</Typography>
+								<Typography className="property_type">{formatEnumLabel(type)}</Typography>
 							</label>
 						</Stack>
 					))}
 				</Stack>
 				<Stack className={'find-your-home'} mb={'30px'}>
-					<Typography className={'title'}>Rooms</Typography>
-					<Stack className="button-group">
-						<Button
-							sx={{
-								borderRadius: '12px 0 0 12px',
-								border: !searchFilter?.search?.roomsList ? '2px solid #181A20' : '1px solid #b9b9b9',
-							}}
-							onClick={() => propertyRoomSelectHandler(0)}
-						>
-							Any
-						</Button>
-						<Button
-							sx={{
-								borderRadius: 0,
-								border: searchFilter?.search?.roomsList?.includes(1) ? '2px solid #181A20' : '1px solid #b9b9b9',
-								borderLeft: searchFilter?.search?.roomsList?.includes(1) ? undefined : 'none',
-							}}
-							onClick={() => propertyRoomSelectHandler(1)}
-						>
-							1
-						</Button>
-						<Button
-							sx={{
-								borderRadius: 0,
-								border: searchFilter?.search?.roomsList?.includes(2) ? '2px solid #181A20' : '1px solid #b9b9b9',
-								borderLeft: searchFilter?.search?.roomsList?.includes(2) ? undefined : 'none',
-							}}
-							onClick={() => propertyRoomSelectHandler(2)}
-						>
-							2
-						</Button>
-						<Button
-							sx={{
-								borderRadius: 0,
-								border: searchFilter?.search?.roomsList?.includes(3) ? '2px solid #181A20' : '1px solid #b9b9b9',
-								borderLeft: searchFilter?.search?.roomsList?.includes(3) ? undefined : 'none',
-							}}
-							onClick={() => propertyRoomSelectHandler(3)}
-						>
-							3
-						</Button>
-						<Button
-							sx={{
-								borderRadius: 0,
-								border: searchFilter?.search?.roomsList?.includes(4) ? '2px solid #181A20' : '1px solid #b9b9b9',
-								borderLeft: searchFilter?.search?.roomsList?.includes(4) ? undefined : 'none',
-								borderRight: searchFilter?.search?.roomsList?.includes(4) ? undefined : 'none',
-							}}
-							onClick={() => propertyRoomSelectHandler(4)}
-						>
-							4
-						</Button>
-						<Button
-							sx={{
-								borderRadius: '0 12px 12px 0',
-								border: searchFilter?.search?.roomsList?.includes(5) ? '2px solid #181A20' : '1px solid #b9b9b9',
-							}}
-							onClick={() => propertyRoomSelectHandler(5)}
-						>
-							5+
-						</Button>
+					<Typography className={'title'}>Brand</Typography>
+					<Stack style={{ maxHeight: '253px', overflowY: 'auto' }}>
+						{Object.values(CarBrand).map((item: string) => (
+							<Stack className={'input-box'} key={item}>
+								<Checkbox
+									id={item}
+									className="property-checkbox"
+									color="default"
+									size="small"
+									value={item}
+									onChange={(e: any) => carListSelectHandler(e, 'brandList')}
+									checked={(searchFilter?.search?.brandList || []).includes(item as CarBrand)}
+								/>
+								<label htmlFor={item} style={{ cursor: 'pointer' }}>
+									<Typography className="property_type">{formatEnumLabel(item)}</Typography>
+								</label>
+							</Stack>
+						))}
 					</Stack>
 				</Stack>
 				<Stack className={'find-your-home'} mb={'30px'}>
-					<Typography className={'title'}>Bedrooms</Typography>
-					<Stack className="button-group">
-						<Button
-							sx={{
-								borderRadius: '12px 0 0 12px',
-								border: !searchFilter?.search?.bedsList ? '2px solid #181A20' : '1px solid #b9b9b9',
-							}}
-							onClick={() => propertyBedSelectHandler(0)}
-						>
-							Any
-						</Button>
-						<Button
-							sx={{
-								borderRadius: 0,
-								border: searchFilter?.search?.bedsList?.includes(1) ? '2px solid #181A20' : '1px solid #b9b9b9',
-								borderLeft: searchFilter?.search?.bedsList?.includes(1) ? undefined : 'none',
-							}}
-							onClick={() => propertyBedSelectHandler(1)}
-						>
-							1
-						</Button>
-						<Button
-							sx={{
-								borderRadius: 0,
-								border: searchFilter?.search?.bedsList?.includes(2) ? '2px solid #181A20' : '1px solid #b9b9b9',
-								borderLeft: searchFilter?.search?.bedsList?.includes(2) ? undefined : 'none',
-							}}
-							onClick={() => propertyBedSelectHandler(2)}
-						>
-							2
-						</Button>
-						<Button
-							sx={{
-								borderRadius: 0,
-								border: searchFilter?.search?.bedsList?.includes(3) ? '2px solid #181A20' : '1px solid #b9b9b9',
-								borderLeft: searchFilter?.search?.bedsList?.includes(3) ? undefined : 'none',
-							}}
-							onClick={() => propertyBedSelectHandler(3)}
-						>
-							3
-						</Button>
-						<Button
-							sx={{
-								borderRadius: 0,
-								border: searchFilter?.search?.bedsList?.includes(4) ? '2px solid #181A20' : '1px solid #b9b9b9',
-								borderLeft: searchFilter?.search?.bedsList?.includes(4) ? undefined : 'none',
-								// borderRight: false ? undefined : 'none',
-							}}
-							onClick={() => propertyBedSelectHandler(4)}
-						>
-							4
-						</Button>
-						<Button
-							sx={{
-								borderRadius: '0 12px 12px 0',
-								border: searchFilter?.search?.bedsList?.includes(5) ? '2px solid #181A20' : '1px solid #b9b9b9',
-								borderLeft: searchFilter?.search?.bedsList?.includes(5) ? undefined : 'none',
-							}}
-							onClick={() => propertyBedSelectHandler(5)}
-						>
-							5+
-						</Button>
+					<Typography className={'title'}>Fuel</Typography>
+					<Stack style={{ maxHeight: '253px', overflowY: 'auto' }}>
+						{Object.values(CarFuel).map((item: string) => (
+							<Stack className={'input-box'} key={item}>
+								<Checkbox
+									id={item}
+									className="property-checkbox"
+									color="default"
+									size="small"
+									value={item}
+									onChange={(e: any) => carListSelectHandler(e, 'fuelList')}
+									checked={(searchFilter?.search?.fuelList || []).includes(item as CarFuel)}
+								/>
+								<label htmlFor={item} style={{ cursor: 'pointer' }}>
+									<Typography className="property_type">{formatEnumLabel(item)}</Typography>
+								</label>
+							</Stack>
+						))}
+					</Stack>
+				</Stack>
+				<Stack className={'find-your-home'} mb={'30px'}>
+					<Typography className={'title'}>Transmission</Typography>
+					<Stack style={{ maxHeight: '253px', overflowY: 'auto' }}>
+						{Object.values(CarTransmission).map((item: string) => (
+							<Stack className={'input-box'} key={item}>
+								<Checkbox
+									id={item}
+									className="property-checkbox"
+									color="default"
+									size="small"
+									value={item}
+									onChange={(e: any) => carListSelectHandler(e, 'transmissionList')}
+									checked={(searchFilter?.search?.transmissionList || []).includes(item as CarTransmission)}
+								/>
+								<label htmlFor={item} style={{ cursor: 'pointer' }}>
+									<Typography className="property_type">{formatEnumLabel(item)}</Typography>
+								</label>
+							</Stack>
+						))}
 					</Stack>
 				</Stack>
 				<Stack className={'find-your-home'} mb={'30px'}>
@@ -783,47 +569,71 @@ const Filter = (props: FilterType) => {
 					</Stack>
 				</Stack>
 				<Stack className={'find-your-home'} mb={'30px'}>
-					<Typography className={'title'}>Square meter</Typography>
+					<Typography className={'title'}>Year</Typography>
 					<Stack className="square-year-input">
 						<FormControl>
-							<InputLabel id="demo-simple-select-label">Min</InputLabel>
+							<InputLabel>Min</InputLabel>
 							<Select
-								labelId="demo-simple-select-label"
-								id="demo-simple-select"
-								value={searchFilter?.search?.squaresRange?.start ?? 0}
+								value={searchFilter?.search?.yearsRange?.start ?? carYears[0]}
 								label="Min"
-								onChange={(e: any) => propertySquareHandler(e, 'start')}
+								onChange={(e: any) => carRangeHandler(e.target.value, 'start', 'yearsRange')}
 								MenuProps={MenuProps}
 							>
-								{propertySquare.map((square: number) => (
-									<MenuItem
-										value={square}
-										disabled={(searchFilter?.search?.squaresRange?.end || 0) < square}
-										key={square}
-									>
-										{square}
+								{carYears.map((item: number) => (
+									<MenuItem value={item} disabled={(searchFilter?.search?.yearsRange?.end ?? carYears[carYears.length - 1]) < item} key={item}>
+										{item}
 									</MenuItem>
 								))}
 							</Select>
 						</FormControl>
 						<div className="central-divider"></div>
 						<FormControl>
-							<InputLabel id="demo-simple-select-label">Max</InputLabel>
+							<InputLabel>Max</InputLabel>
 							<Select
-								labelId="demo-simple-select-label"
-								id="demo-simple-select"
-								value={searchFilter?.search?.squaresRange?.end ?? 500}
+								value={searchFilter?.search?.yearsRange?.end ?? carYears[carYears.length - 1]}
 								label="Max"
-								onChange={(e: any) => propertySquareHandler(e, 'end')}
+								onChange={(e: any) => carRangeHandler(e.target.value, 'end', 'yearsRange')}
 								MenuProps={MenuProps}
 							>
-								{propertySquare.map((square: number) => (
-									<MenuItem
-										value={square}
-										disabled={(searchFilter?.search?.squaresRange?.start || 0) > square}
-										key={square}
-									>
-										{square}
+								{carYears.map((item: number) => (
+									<MenuItem value={item} disabled={(searchFilter?.search?.yearsRange?.start ?? carYears[0]) > item} key={item}>
+										{item}
+									</MenuItem>
+								))}
+							</Select>
+						</FormControl>
+					</Stack>
+				</Stack>
+				<Stack className={'find-your-home'} mb={'30px'}>
+					<Typography className={'title'}>Mileage</Typography>
+					<Stack className="square-year-input">
+						<FormControl>
+							<InputLabel>Min</InputLabel>
+							<Select
+								value={searchFilter?.search?.mileageRange?.start ?? propertyMileage[0]}
+								label="Min"
+								onChange={(e: any) => carRangeHandler(e.target.value, 'start', 'mileageRange')}
+								MenuProps={MenuProps}
+							>
+								{propertyMileage.map((item: number) => (
+									<MenuItem value={item} disabled={(searchFilter?.search?.mileageRange?.end ?? propertyMileage[propertyMileage.length - 1]) < item} key={item}>
+										{formatMileage(item)}
+									</MenuItem>
+								))}
+							</Select>
+						</FormControl>
+						<div className="central-divider"></div>
+						<FormControl>
+							<InputLabel>Max</InputLabel>
+							<Select
+								value={searchFilter?.search?.mileageRange?.end ?? propertyMileage[propertyMileage.length - 1]}
+								label="Max"
+								onChange={(e: any) => carRangeHandler(e.target.value, 'end', 'mileageRange')}
+								MenuProps={MenuProps}
+							>
+								{propertyMileage.map((item: number) => (
+									<MenuItem value={item} disabled={(searchFilter?.search?.mileageRange?.start ?? propertyMileage[0]) > item} key={item}>
+										{formatMileage(item)}
 									</MenuItem>
 								))}
 							</Select>

@@ -137,24 +137,28 @@ export class PropertyService {
 		const {
 			memberId,
 			locationList,
-			roomsList,
-			bedsList,
 			typeList,
+			brandList,
+			fuelList,
+			transmissionList,
 			periodsRange,
 			pricesRange,
-			squaresRange,
+			yearsRange,
+			mileageRange,
 			options,
 			text,
 		} = input.search;
 		if (memberId) match.memberId = shapeIntoMongoObjectId(memberId);
 		if (locationList && locationList.length) match.propertyLocation = { $in: locationList };
-		if (roomsList && roomsList.length) match.propertyRooms = { $in: roomsList };
-		if (bedsList && bedsList.length) match.propertyBeds = { $in: bedsList };
 		if (typeList && typeList.length) match.propertyType = { $in: typeList };
+		if (brandList && brandList.length) match.carBrand = { $in: brandList };
+		if (fuelList && fuelList.length) match.carFuel = { $in: fuelList };
+		if (transmissionList && transmissionList.length) match.carTransmission = { $in: transmissionList };
 
 		if (pricesRange) match.propertyPrice = { $gte: pricesRange.start, $lte: pricesRange.end };
 		if (periodsRange) match.createdAt = { $gte: periodsRange.start, $lte: periodsRange.end };
-		if (squaresRange) match.propertySquare = { $gte: squaresRange.start, $lte: squaresRange.end };
+		if (yearsRange) match.carYear = { $gte: yearsRange.start, $lte: yearsRange.end };
+		if (mileageRange) match.carMileage = { $gte: mileageRange.start, $lte: mileageRange.end };
 
 		if (text) match.propertyTitle = { $regex: new RegExp(text, 'i') };
 		if (options) {

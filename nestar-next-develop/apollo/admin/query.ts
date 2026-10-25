@@ -53,9 +53,13 @@ export const GET_ALL_PROPERTIES_BY_ADMIN = gql`
 				propertyAddress
 				propertyTitle
 				propertyPrice
-				propertySquare
-				propertyBeds
-				propertyRooms
+				carBrand
+				carModel
+				carYear
+				carMileage
+				carFuel
+				carTransmission
+				carColor
 				propertyViews
 				propertyLikes
 				propertyImages
@@ -65,7 +69,6 @@ export const GET_ALL_PROPERTIES_BY_ADMIN = gql`
 				memberId
 				soldAt
 				deletedAt
-				constructedAt
 				createdAt
 				updatedAt
 				memberData {

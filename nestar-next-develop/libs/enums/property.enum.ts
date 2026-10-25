@@ -1,7 +1,13 @@
+/** Car body type **/
 export enum PropertyType {
-	APARTMENT = 'APARTMENT',
-	VILLA = 'VILLA',
-	HOUSE = 'HOUSE',
+	SEDAN = 'SEDAN',
+	SUV = 'SUV',
+	HATCHBACK = 'HATCHBACK',
+	MINIVAN = 'MINIVAN',
+	PICKUP = 'PICKUP',
+	COUPE = 'COUPE',
+	WAGON = 'WAGON',
+	CONVERTIBLE = 'CONVERTIBLE',
 }
 
 export enum PropertyStatus {
@@ -11,13 +17,52 @@ export enum PropertyStatus {
 }
 
 export enum PropertyLocation {
-	SEOUL = 'SEOUL',
-	BUSAN = 'BUSAN',
-	INCHEON = 'INCHEON',
-	DAEGU = 'DAEGU',
-	GYEONGJU = 'GYEONGJU',
-	GWANGJU = 'GWANGJU',
-	CHONJU = 'CHONJU',
-	DAEJON = 'DAEJON',
-	JEJU = 'JEJU',
+	TASHKENT = 'TASHKENT',
+	TASHKENT_REGION = 'TASHKENT_REGION',
+	SAMARKAND = 'SAMARKAND',
+	BUKHARA = 'BUKHARA',
+	ANDIJAN = 'ANDIJAN',
+	NAMANGAN = 'NAMANGAN',
+	FERGANA = 'FERGANA',
+	NAVOI = 'NAVOI',
+	KARSHI = 'KARSHI',
+	TERMEZ = 'TERMEZ',
+	JIZZAKH = 'JIZZAKH',
+	GULISTAN = 'GULISTAN',
+	URGENCH = 'URGENCH',
+	NUKUS = 'NUKUS',
+}
+
+export enum CarBrand {
+	CHEVROLET = 'CHEVROLET',
+	KIA = 'KIA',
+	HYUNDAI = 'HYUNDAI',
+	TOYOTA = 'TOYOTA',
+	BYD = 'BYD',
+	CHERY = 'CHERY',
+	HAVAL = 'HAVAL',
+	LADA = 'LADA',
+	NISSAN = 'NISSAN',
+	HONDA = 'HONDA',
+	VOLKSWAGEN = 'VOLKSWAGEN',
+	MERCEDES_BENZ = 'MERCEDES_BENZ',
+	BMW = 'BMW',
+	AUDI = 'AUDI',
+	LEXUS = 'LEXUS',
+	OTHER = 'OTHER',
+}
+
+export enum CarFuel {
+	PETROL = 'PETROL',
+	DIESEL = 'DIESEL',
+	GAS = 'GAS',
+	HYBRID = 'HYBRID',
+	ELECTRIC = 'ELECTRIC',
+}
+
+export enum CarTransmission {
+	MANUAL = 'MANUAL',
+	AUTOMATIC = 'AUTOMATIC',
+	ROBOT = 'ROBOT',
+	CVT = 'CVT',
 }

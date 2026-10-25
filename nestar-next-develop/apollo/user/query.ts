@@ -92,9 +92,13 @@ export const GET_PROPERTY = gql`
 			propertyAddress
 			propertyTitle
 			propertyPrice
-			propertySquare
-			propertyBeds
-			propertyRooms
+			carBrand
+			carModel
+			carYear
+			carMileage
+			carFuel
+			carTransmission
+			carColor
 			propertyViews
 			propertyLikes
 			propertyImages
@@ -104,7 +108,6 @@ export const GET_PROPERTY = gql`
 			memberId
 			soldAt
 			deletedAt
-			constructedAt
 			createdAt
 			updatedAt
 			memberData {
@@ -148,9 +151,13 @@ export const GET_PROPERTIES = gql`
 				propertyAddress
 				propertyTitle
 				propertyPrice
-				propertySquare
-				propertyBeds
-				propertyRooms
+				carBrand
+				carModel
+				carYear
+				carMileage
+				carFuel
+				carTransmission
+				carColor
 				propertyViews
 				propertyLikes
 				propertyRank
@@ -161,7 +168,6 @@ export const GET_PROPERTIES = gql`
 				memberId
 				soldAt
 				deletedAt
-				constructedAt
 				createdAt
 				updatedAt
 				memberData {
@@ -210,9 +216,13 @@ export const GET_AGENT_PROPERTIES = gql`
 				propertyAddress
 				propertyTitle
 				propertyPrice
-				propertySquare
-				propertyBeds
-				propertyRooms
+				carBrand
+				carModel
+				carYear
+				carMileage
+				carFuel
+				carTransmission
+				carColor
 				propertyViews
 				propertyLikes
 				propertyImages
@@ -222,7 +232,6 @@ export const GET_AGENT_PROPERTIES = gql`
 				memberId
 				soldAt
 				deletedAt
-				constructedAt
 				createdAt
 				updatedAt
 			}
@@ -244,9 +253,13 @@ export const GET_FAVORITES = gql`
 				propertyAddress
 				propertyTitle
 				propertyPrice
-				propertySquare
-				propertyBeds
-				propertyRooms
+				carBrand
+				carModel
+				carYear
+				carMileage
+				carFuel
+				carTransmission
+				carColor
 				propertyViews
 				propertyLikes
 				propertyComments
@@ -258,7 +271,6 @@ export const GET_FAVORITES = gql`
 				memberId
 				soldAt
 				deletedAt
-				constructedAt
 				createdAt
 				updatedAt
 				memberData {
@@ -307,9 +319,13 @@ export const GET_VISITED = gql`
 				propertyAddress
 				propertyTitle
 				propertyPrice
-				propertySquare
-				propertyBeds
-				propertyRooms
+				carBrand
+				carModel
+				carYear
+				carMileage
+				carFuel
+				carTransmission
+				carColor
 				propertyViews
 				propertyLikes
 				propertyComments
@@ -321,7 +337,6 @@ export const GET_VISITED = gql`
 				memberId
 				soldAt
 				deletedAt
-				constructedAt
 				createdAt
 				updatedAt
 				memberData {

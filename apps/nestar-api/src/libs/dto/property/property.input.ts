@@ -1,6 +1,13 @@
 import { Field, InputType, Int } from '@nestjs/graphql';
-import { IsIn, IsInt, IsNotEmpty, IsOptional, Length, Min } from 'class-validator';
-import { PropertyLocation, PropertyStatus, PropertyType } from '../../enums/property.enum';
+import { IsIn, IsInt, IsNotEmpty, IsOptional, Length, Max, Min } from 'class-validator';
+import {
+	CarBrand,
+	CarFuel,
+	CarTransmission,
+	PropertyLocation,
+	PropertyStatus,
+	PropertyType,
+} from '../../enums/property.enum';
 import { Direction } from '../../enums/common.enum';
 import { availableOptions, availablePropertySorts } from '../../config';
 import type { ObjectId } from 'mongoose';
@@ -30,20 +37,39 @@ export class PropertyInput {
 	propertyPrice!: number;
 
 	@IsNotEmpty()
-	@Field(() => Number)
-	propertySquare!: number;
+	@Field(() => CarBrand)
+	carBrand!: CarBrand;
+
+	@IsNotEmpty()
+	@Length(1, 50)
+	@Field(() => String)
+	carModel!: string;
 
 	@IsNotEmpty()
 	@IsInt()
-	@Min(1)
+	@Min(1950)
+	@Max(2100)
 	@Field(() => Int)
-	propertyBeds!: number;
+	carYear!: number;
 
 	@IsNotEmpty()
 	@IsInt()
-	@Min(1)
+	@Min(0)
 	@Field(() => Int)
-	propertyRooms!: number;
+	carMileage!: number;
+
+	@IsNotEmpty()
+	@Field(() => CarFuel)
+	carFuel!: CarFuel;
+
+	@IsNotEmpty()
+	@Field(() => CarTransmission)
+	carTransmission!: CarTransmission;
+
+	@IsOptional()
+	@Length(2, 30)
+	@Field(() => String, { nullable: true })
+	carColor?: string;
 
 	@IsNotEmpty()
 	@Field(() => [String])
@@ -63,10 +89,6 @@ export class PropertyInput {
 	propertyRent?: boolean;
 
 	memberId?: ObjectId;
-
-	@IsOptional()
-	@Field(() => Date, { nullable: true })
-	constructedAt?: Date;
 }
 
 @InputType()
@@ -79,7 +101,16 @@ export class PricesRange {
 }
 
 @InputType()
-export class SquaresRange {
+export class YearsRange {
+	@Field(() => Int)
+	start!: number;
+
+	@Field(() => Int)
+	end!: number;
+}
+
+@InputType()
+export class MileageRange {
 	@Field(() => Int)
 	start!: number;
 
@@ -111,12 +142,16 @@ class PISearch {
 	typeList?: PropertyType[];
 
 	@IsOptional()
-	@Field(() => [Int], { nullable: true })
-	roomsList?: number[];
+	@Field(() => [CarBrand], { nullable: true })
+	brandList?: CarBrand[];
 
 	@IsOptional()
-	@Field(() => [Int], { nullable: true })
-	bedsList?: number[];
+	@Field(() => [CarFuel], { nullable: true })
+	fuelList?: CarFuel[];
+
+	@IsOptional()
+	@Field(() => [CarTransmission], { nullable: true })
+	transmissionList?: CarTransmission[];
 
 	@IsOptional()
 	@IsIn(availableOptions, { each: true })
@@ -132,8 +167,12 @@ class PISearch {
 	periodsRange?: PeriodsRange;
 
 	@IsOptional()
-	@Field(() => SquaresRange, { nullable: true })
-	squaresRange?: SquaresRange;
+	@Field(() => YearsRange, { nullable: true })
+	yearsRange?: YearsRange;
+
+	@IsOptional()
+	@Field(() => MileageRange, { nullable: true })
+	mileageRange?: MileageRange;
 
 	@IsOptional()
 	@Field(() => String, { nullable: true })

@@ -1,4 +1,11 @@
-import { PropertyLocation, PropertyStatus, PropertyType } from '../../enums/property.enum';
+import {
+	CarBrand,
+	CarFuel,
+	CarTransmission,
+	PropertyLocation,
+	PropertyStatus,
+	PropertyType,
+} from '../../enums/property.enum';
 
 export interface PropertyUpdate {
 	_id: string;
@@ -8,14 +15,17 @@ export interface PropertyUpdate {
 	propertyAddress?: string;
 	propertyTitle?: string;
 	propertyPrice?: number;
-	propertySquare?: number;
-	propertyBeds?: number;
-	propertyRooms?: number;
+	carBrand?: CarBrand;
+	carModel?: string;
+	carYear?: number;
+	carMileage?: number;
+	carFuel?: CarFuel;
+	carTransmission?: CarTransmission;
+	carColor?: string;
 	propertyImages?: string[];
 	propertyDesc?: string;
 	propertyBarter?: boolean;
 	propertyRent?: boolean;
 	soldAt?: Date;
 	deletedAt?: Date;
-	constructedAt?: Date;
 }
