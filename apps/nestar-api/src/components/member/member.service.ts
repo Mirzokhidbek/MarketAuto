@@ -2,7 +2,7 @@ import { BadRequestException, Injectable, InternalServerErrorException } from '@
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, ObjectId } from 'mongoose';
 import { Member, Members } from '../../libs/dto/member/member';
-import { AgentsInquiry, LoginInput, MemberInput, MembersInquiry } from '../../libs/dto/member/member.input';
+import { AgentsInquiry, LoginInput, MemberInput, MembersInquiry, PasswordInput } from '../../libs/dto/member/member.input';
 import { Direction, Message } from '../../libs/enums/common.enum';
 import { MemberStatus, MemberType } from '../../libs/enums/member.enum';
 import { AuthService } from '../auth/auth.service';
@@ -14,7 +14,7 @@ import { LikeInput } from '../../libs/dto/like/like.input';
 import { LikeGroup } from '../../libs/enums/like.enum';
 import { LikeService } from '../like/like.service';
 import { Follower, Following, MeFollowed } from '../../libs/dto/follow/follow';
-import { lookupAuthMemberLiked } from '../../libs/config';
+import { lookupAuthMemberLiked, searchRegex } from '../../libs/config';
 
 @Injectable()
 export class MemberService {
@@ -79,6 +79,24 @@ export class MemberService {
 		return result;
 	}
 
+	public async changePassword(memberId: ObjectId, input: PasswordInput): Promise<Member> {
+		const member: Member | null = await this.memberModel
+			.findOne({ _id: memberId, memberStatus: MemberStatus.ACTIVE })
+			.select('+memberPassword')
+			.exec();
+		if (!member) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+
+		const isMatch = await this.authService.comparePasswords(input.currentPassword, member.memberPassword!);
+		if (!isMatch) throw new BadRequestException(Message.WRONG_CURRENT_PASSWORD);
+
+		const memberPassword = await this.authService.hashPassword(input.newPassword);
+		const result = await this.memberModel.findByIdAndUpdate(memberId, { memberPassword }, { new: true }).exec();
+		if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED);
+
+		result.accessToken = await this.authService.createToken(result);
+		return result;
+	}
+
 	public async getMember(memberId: ObjectId | null, targetId: ObjectId): Promise<Member> {
 		const search: T = {
 			_id: targetId,
@@ -122,7 +140,7 @@ export class MemberService {
 		};
 		const sort: T = { [input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC };
 
-		if (text) match.memberNick = { $regex: new RegExp(text, 'i') };
+		if (text) match.memberNick = { $regex: searchRegex(text) };
 		console.log('match:', match);
 
 		const result = (await this.memberModel
@@ -148,6 +166,7 @@ export class MemberService {
 	}
 
 	public async likeTargetMember(memberId: ObjectId, likeRefId: ObjectId): Promise<Member> {
+		if (String(memberId) === String(likeRefId)) throw new BadRequestException(Message.SELF_LIKE_DENIED);
 		const target: Member | null = await this.memberModel
 			.findOne({ _id: likeRefId, memberStatus: MemberStatus.ACTIVE })
 			.exec();
@@ -174,7 +193,7 @@ export class MemberService {
 
 		if (memberStatus) match.memberStatus = memberStatus;
 		if (memberType) match.memberType = memberType;
-		if (text) match.memberNick = { $regex: new RegExp(text, 'i') };
+		if (text) match.memberNick = { $regex: searchRegex(text) };
 		console.log('match:', match);
 
 		const result = (await this.memberModel
@@ -196,6 +215,8 @@ export class MemberService {
 	}
 
 	public async updateMemberByAdmin(input: MemberUpdate): Promise<Member> {
+		// admin can reset a password; it must be stored hashed like on signup
+		if (input.memberPassword) input.memberPassword = await this.authService.hashPassword(input.memberPassword);
 		const result: Member | null = await this.memberModel
 			.findOneAndUpdate({ _id: input._id }, input, { new: true })
 			.exec();

@@ -208,6 +208,7 @@ export class PropertiesInquiry {
 
 	@IsNotEmpty()
 	@Min(1)
+	@Max(100)
 	@Field(() => Int)
 	limit!: number;
 
@@ -241,6 +242,7 @@ export class AgentPropertiesInquiry {
 
 	@IsNotEmpty()
 	@Min(1)
+	@Max(100)
 	@Field(() => Int)
 	limit!: number;
 
@@ -267,6 +269,18 @@ class ALPISearch {
 	@IsOptional()
 	@Field(() => [PropertyLocation], { nullable: true })
 	propertyLocationList?: PropertyLocation[];
+
+	@IsOptional()
+	@Field(() => [CarCountry], { nullable: true })
+	countryList?: CarCountry[];
+
+	@IsOptional()
+	@Field(() => [CarBrand], { nullable: true })
+	brandList?: CarBrand[];
+
+	@IsOptional()
+	@Field(() => String, { nullable: true })
+	text?: string;
 }
 
 @InputType()
@@ -278,6 +292,7 @@ export class AllPropertiesInquiry {
 
 	@IsNotEmpty()
 	@Min(1)
+	@Max(100)
 	@Field(() => Int)
 	limit!: number;
 
@@ -304,6 +319,7 @@ export class OrdinaryInquiry {
 
 	@IsNotEmpty()
 	@Min(1)
+	@Max(100)
 	@Field(() => Int)
 	limit!: number;
 }

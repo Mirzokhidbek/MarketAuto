@@ -21,13 +21,33 @@ export const availableCommentSorts = ['createdAt', 'updatedAt'];
 /** IMAGE CONFIGURATION **/
 import { v4 as uuidv4 } from 'uuid';
 import * as path from 'path';
+import * as fs from 'fs';
 import { T } from './types/common';
 
-export const validMimeTypes = ['image/png', 'image/jpg', 'image/jpeg'];
-export const getSerialForImage = (filename: string) => {
-	const ext = path.parse(filename).ext;
-	return uuidv4() + ext;
+export const validMimeTypes = ['image/png', 'image/jpg', 'image/jpeg', 'image/webp'];
+const mimeExtensions: Record<string, string> = {
+	'image/png': '.png',
+	'image/jpg': '.jpg',
+	'image/jpeg': '.jpg',
+	'image/webp': '.webp',
 };
+export const getSerialForImage = (mimetype: string) => {
+	// extension comes from the validated mimetype, never from the client file name
+	return uuidv4() + (mimeExtensions[mimetype] ?? '.jpg');
+};
+
+// only these folders can be written to; anything else (e.g. '../../') is rejected
+export const uploadTargets = ['member', 'property', 'article'];
+export const getUploadDir = (target: string): string | null => {
+	if (!uploadTargets.includes(target)) return null;
+	const dir = path.join('uploads', target);
+	fs.mkdirSync(dir, { recursive: true });
+	return dir;
+};
+
+// user text is matched literally: '(' or '.*' must not break or slow down the query
+export const searchRegex = (text: string): RegExp =>
+	new RegExp(text.trim().slice(0, 100).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
 
 export const shapeIntoMongoObjectId = (target: any) => {
 	return typeof target === 'string' ? new ObjectId(target) : target;

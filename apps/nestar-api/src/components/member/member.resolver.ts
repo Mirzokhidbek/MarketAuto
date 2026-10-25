@@ -2,9 +2,9 @@
 /* eslint-disable @typescript-eslint/no-base-to-string */
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { MemberService } from './member.service';
-import { AgentsInquiry, LoginInput, MemberInput, MembersInquiry } from '../../libs/dto/member/member.input';
+import { AgentsInquiry, LoginInput, MemberInput, MembersInquiry, PasswordInput } from '../../libs/dto/member/member.input';
 import { Member, Members } from '../../libs/dto/member/member';
-import { UseGuards } from '@nestjs/common';
+import { BadRequestException, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { AuthMember } from '../auth/decorators/authMember.decorator';
 import type { ObjectId } from 'mongoose';
@@ -12,7 +12,7 @@ import { Roles } from '../auth/decorators/roles.decorator';
 import { MemberType } from '../../libs/enums/member.enum';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { MemberUpdate } from '../../libs/dto/member/member.update';
-import { getSerialForImage, shapeIntoMongoObjectId, validMimeTypes } from '../../libs/config';
+import { getSerialForImage, getUploadDir, shapeIntoMongoObjectId, validMimeTypes } from '../../libs/config';
 import { WithoutGuard } from '../auth/guards/without.guard';
 import { Message } from '../../libs/enums/common.enum';
 import { createWriteStream } from 'fs';
@@ -69,8 +69,20 @@ export class MemberResolver {
 		// role and status are changed only by admin (updateMemberByAdmin)
 		delete input.memberType;
 		delete input.memberStatus;
+		// password is changed only through changePassword (checks the current one and hashes the new one)
+		delete input.memberPassword;
 		console.log('memberId:', memberId);
 		return await this.memberService.updateMember(memberId, input);
+	}
+
+	@UseGuards(AuthGuard)
+	@Mutation(() => Member)
+	public async changePassword(
+		@Args('input') input: PasswordInput,
+		@AuthMember('_id') memberId: ObjectId,
+	): Promise<Member> {
+		console.log('Mutation: changePassword');
+		return await this.memberService.changePassword(memberId, input);
 	}
 
 	@UseGuards(WithoutGuard)
@@ -118,8 +130,14 @@ export class MemberResolver {
 	@Roles(MemberType.ADMIN)
 	@UseGuards(RolesGuard)
 	@Mutation(() => Member)
-	public async updateMemberByAdmin(@Args('input') input: MemberUpdate): Promise<Member> {
+	public async updateMemberByAdmin(
+		@Args('input') input: MemberUpdate,
+		@AuthMember('_id') adminId: ObjectId,
+	): Promise<Member> {
 		console.log('Mutation: updateMemberByAdmin');
+		// an admin must not demote or block their own account and lock everyone out of the panel
+		if (String(input._id) === String(adminId) && (input.memberType || input.memberStatus))
+			throw new BadRequestException(Message.NOT_ALLOWED_REQUEST);
 		return await this.memberService.updateMemberByAdmin(input);
 	}
 
@@ -137,8 +155,9 @@ export class MemberResolver {
 		const validMime = validMimeTypes.includes(mimetype);
 		if (!validMime) throw new Error(Message.PROVIDE_ALLOWED_FORMAT);
 
-		const imageName = getSerialForImage(filename);
-		const url = `uploads/${target}/${imageName}`;
+		const uploadDir = getUploadDir(target);
+		if (!uploadDir) throw new Error(Message.INVALID_UPLOAD_TARGET);
+		const url = `${uploadDir}/${getSerialForImage(mimetype)}`;
 		const stream = createReadStream();
 
 		const result = await new Promise((resolve, reject) => {
@@ -160,6 +179,8 @@ export class MemberResolver {
 		@Args('target') target: string,
 	): Promise<string[]> {
 		console.log('Mutation: imagesUploader');
+		const uploadDir = getUploadDir(target);
+		if (!uploadDir) throw new Error(Message.INVALID_UPLOAD_TARGET);
 
 		const uploadedImages: string[] = [];
 		const promisedList = files.map(async (img: Promise<FileUpload>, index: number): Promise<Promise<void>> => {
@@ -169,8 +190,7 @@ export class MemberResolver {
 				const validMime = validMimeTypes.includes(mimetype);
 				if (!validMime) throw new Error(Message.PROVIDE_ALLOWED_FORMAT);
 
-				const imageName = getSerialForImage(filename);
-				const url = `uploads/${target}/${imageName}`;
+				const url = `${uploadDir}/${getSerialForImage(mimetype)}`;
 				const stream = createReadStream();
 
 				const result = await new Promise((resolve, reject) => {
@@ -188,6 +208,7 @@ export class MemberResolver {
 		});
 
 		await Promise.all(promisedList);
-		return uploadedImages;
+		// skip files that failed so the client never receives empty slots
+		return uploadedImages.filter(Boolean);
 	}
 }
