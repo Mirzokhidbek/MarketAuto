@@ -1,5 +1,21 @@
 /** VARIABLES **/
 
 @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 $font: 'Poppins', sans-serif;
+
+/** MarketAuto design tokens **/
+$ma-font: 'Inter', 'Poppins', sans-serif;
+$ma-primary: #0b57d0;
+$ma-primary-dark: #0842a0;
+$ma-dark: #0f172a;
+$ma-text: #1e293b;
+$ma-muted: #64748b;
+$ma-border: #e2e8f0;
+$ma-bg: #f8fafc;
+$ma-bg-alt: #f1f5f9;
+$ma-white: #ffffff;
+$ma-radius: 14px;
+$ma-shadow: 0 4px 20px rgba(15, 23, 42, 0.06);
+$ma-shadow-hover: 0 12px 32px rgba(15, 23, 42, 0.12);

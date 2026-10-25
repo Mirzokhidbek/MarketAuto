@@ -172,7 +172,7 @@ const Top = () => {
 					<Stack className={'container'}>
 						<Box component={'div'} className={'logo-box'}>
 							<Link href={'/'}>
-								<img src="/img/logo/logoWhite.svg" alt="" />
+								<img src="/img/logo/logoDark.svg" alt="MarketAuto" />
 							</Link>
 						</Box>
 						<Box component={'div'} className={'router-box'}>
@@ -203,6 +203,9 @@ const Top = () => {
 							)}
 						</Box>
 						<Box component={'div'} className={'user-box'}>
+							<Link href={user?.memberType === MemberType.AGENT ? '/mypage?category=addProperty' : '/account/join'}>
+								<span className={'ma-btn ma-btn--primary ma-nav-sell'}>{t('Sell a car')}</span>
+							</Link>
 							{user?._id ? (
 								<>
 									<div className={'login-user'} onClick={(event: any) => setLogoutAnchor(event.currentTarget)}>
