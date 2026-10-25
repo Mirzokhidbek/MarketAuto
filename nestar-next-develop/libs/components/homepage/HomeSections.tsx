@@ -17,7 +17,7 @@ import { Member } from '../../types/member/member';
 import { CarCountry } from '../../enums/property.enum';
 import { MemberType } from '../../enums/member.enum';
 import { Direction } from '../../enums/common.enum';
-import { REACT_APP_API_URL } from '../../config';
+import DealerCard from '../common/DealerCard';
 
 const searchLink = (country: CarCountry) =>
 	`/property?input=${JSON.stringify({ page: 1, limit: 9, sort: 'createdAt', search: { countryList: [country] } })}`;
@@ -163,18 +163,7 @@ export const TopDealers = () => {
 				</div>
 				<div className={'ma-grid ma-grid--4'}>
 					{dealers.map((dealer) => (
-						<Link href={{ pathname: '/member', query: { memberId: dealer._id } }} key={dealer._id}>
-							<div className={'ma-dealer'}>
-								<img
-									src={dealer.memberImage ? `${REACT_APP_API_URL}/${dealer.memberImage}` : '/img/profile/defaultUser.svg'}
-									alt={dealer.memberNick}
-								/>
-								<h3>{dealer.memberFullName ?? dealer.memberNick}</h3>
-								<p>
-									{dealer.memberProperties} {t('cars')} · {dealer.memberLikes} ♥
-								</p>
-							</div>
-						</Link>
+						<DealerCard dealer={dealer} key={dealer._id} />
 					))}
 				</div>
 			</div>
