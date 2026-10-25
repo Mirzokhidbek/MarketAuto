@@ -1,5 +1,6 @@
 import {
 	CarBrand,
+	CarCountry,
 	CarFuel,
 	CarTransmission,
 	PropertyLocation,
@@ -22,7 +23,8 @@ export interface Property {
 	_id: string;
 	propertyType: PropertyType;
 	propertyStatus: PropertyStatus;
-	propertyLocation: PropertyLocation;
+	carCountry: CarCountry;
+	propertyLocation?: PropertyLocation;
 	propertyAddress: string;
 	propertyTitle: string;
 	propertyPrice: number;
@@ -33,6 +35,8 @@ export interface Property {
 	carFuel: CarFuel;
 	carTransmission: CarTransmission;
 	carColor?: string;
+	carEngine?: number;
+	carTrim?: string;
 	propertyViews: number;
 	propertyLikes: number;
 	propertyComments: number;

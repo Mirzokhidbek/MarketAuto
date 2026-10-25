@@ -1,5 +1,6 @@
 import {
 	CarBrand,
+	CarCountry,
 	CarFuel,
 	CarTransmission,
 	PropertyLocation,
@@ -11,6 +12,7 @@ export interface PropertyUpdate {
 	_id: string;
 	propertyType?: PropertyType;
 	propertyStatus?: PropertyStatus;
+	carCountry?: CarCountry;
 	propertyLocation?: PropertyLocation;
 	propertyAddress?: string;
 	propertyTitle?: string;
@@ -22,6 +24,8 @@ export interface PropertyUpdate {
 	carFuel?: CarFuel;
 	carTransmission?: CarTransmission;
 	carColor?: string;
+	carEngine?: number;
+	carTrim?: string;
 	propertyImages?: string[];
 	propertyDesc?: string;
 	propertyBarter?: boolean;

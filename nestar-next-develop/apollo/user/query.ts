@@ -99,6 +99,9 @@ export const GET_PROPERTY = gql`
 			carFuel
 			carTransmission
 			carColor
+			carEngine
+			carTrim
+			carCountry
 			propertyViews
 			propertyLikes
 			propertyImages
@@ -158,6 +161,9 @@ export const GET_PROPERTIES = gql`
 				carFuel
 				carTransmission
 				carColor
+				carEngine
+				carTrim
+				carCountry
 				propertyViews
 				propertyLikes
 				propertyRank
@@ -223,6 +229,9 @@ export const GET_AGENT_PROPERTIES = gql`
 				carFuel
 				carTransmission
 				carColor
+				carEngine
+				carTrim
+				carCountry
 				propertyViews
 				propertyLikes
 				propertyImages
@@ -260,6 +269,9 @@ export const GET_FAVORITES = gql`
 				carFuel
 				carTransmission
 				carColor
+				carEngine
+				carTrim
+				carCountry
 				propertyViews
 				propertyLikes
 				propertyComments
@@ -326,6 +338,9 @@ export const GET_VISITED = gql`
 				carFuel
 				carTransmission
 				carColor
+				carEngine
+				carTrim
+				carCountry
 				propertyViews
 				propertyLikes
 				propertyComments
