@@ -175,7 +175,7 @@ export const TopDealers = () => {
 export const SellCta = () => {
 	const { t } = useTranslation('common');
 	const user = useReactiveVar(userVar);
-	const sellHref = user?.memberType === MemberType.AGENT ? '/mypage?category=addProperty' : '/account/join';
+	const sellHref = user?._id ? '/mypage?category=addProperty' : '/account/join';
 
 	return (
 		<section className={'ma-section'}>

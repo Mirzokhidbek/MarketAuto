@@ -202,8 +202,8 @@ const AddProperty = ({ initialValues, ...props }: any) => {
 		}
 	}, [insertPropertyData]);
 
-	// only sellers can list cars; wait until the user is restored from the token
-	if (user?._id && user?.memberType !== 'AGENT') {
+	// every member can list cars (admins moderate only); wait until the user is restored from the token
+	if (user?._id && user?.memberType === 'ADMIN') {
 		router.push('/mypage').then();
 	}
 

@@ -87,8 +87,8 @@ const MyProperties: NextPage = ({ initialInput, ...props }: any) => {
 		}
 	};
 
-	// only sellers have listings; wait until the user is restored from the token
-	if (user?._id && user?.memberType !== 'AGENT') {
+	// admins have no listings; wait until the user is restored from the token
+	if (user?._id && user?.memberType === 'ADMIN') {
 		router.push('/mypage').then();
 	}
 
