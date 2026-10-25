@@ -28,10 +28,12 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 	const router = useRouter();
 	const { query } = router;
 	const articleCategory = query?.articleCategory as string;
-	const [searchCommunity, setSearchCommunity] = useState<BoardArticlesInquiry>(initialInput);
+	const [searchCommunity, setSearchCommunity] = useState<BoardArticlesInquiry>({
+		...initialInput,
+		search: { ...initialInput.search },
+	});
 	const [boardArticles, setBoardArticles] = useState<BoardArticle[]>([]);
 	const [totalCount, setTotalCount] = useState<number>(0);
-	if (articleCategory) initialInput.search.articleCategory = articleCategory;
 
 	/** APOLLO REQUESTS **/
 	const [likeTargetBoardArticle] = useMutation(LIKE_TARGET_BOARD_ARTICLE);
@@ -42,7 +44,7 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 		error: getBoardArticlesError,
 		refetch: boardArticlesRefetch,
 	} = useQuery(GET_BOARD_ARTICLES, {
-		fetchPolicy: 'cache-and-network',
+		fetchPolicy: 'network-only',
 		variables: {
 			input: searchCommunity,
 		},
@@ -55,6 +57,7 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 
 	/** LIFECYCLES **/
 	useEffect(() => {
+		if (!router.isReady) return;
 		if (!query?.articleCategory)
 			router.push(
 				{
@@ -64,7 +67,15 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 				router.pathname,
 				{ shallow: true },
 			);
-	}, []);
+	}, [router.isReady]);
+
+	// the category arrives in router.query after the first render of this static page
+	useEffect(() => {
+		const category = query?.articleCategory as BoardArticleCategory | undefined;
+		if (category && category !== searchCommunity.search.articleCategory) {
+			setSearchCommunity({ ...searchCommunity, page: 1, search: { articleCategory: category } });
+		}
+	}, [query?.articleCategory]);
 
 	/** HANDLERS **/
 	const tabChangeHandler = async (e: T, value: string) => {
