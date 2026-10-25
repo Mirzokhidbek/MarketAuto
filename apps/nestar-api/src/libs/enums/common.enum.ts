@@ -19,6 +19,9 @@ export enum Message {
 	NOT_ALLOWED_REQUEST = 'Not Allowed Request!',
 	PROVIDE_ALLOWED_FORMAT = 'Please provide jpg, jpeg or png images!',
 	SELF_SUBSCRIPTION_DENIED = 'Self subscription is denied!',
+	SELF_LIKE_DENIED = 'You cannot like yourself!',
+	WRONG_CURRENT_PASSWORD = 'Current password is incorrect!',
+	INVALID_UPLOAD_TARGET = 'Invalid upload target!',
 }
 
 export enum Direction {
