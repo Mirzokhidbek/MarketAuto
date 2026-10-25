@@ -51,7 +51,7 @@ const MyProperties: NextPage = ({ initialInput, ...props }: any) => {
 
 	const deletePropertyHandler = async (id: string) => {
 		try {
-			if (await sweetConfirmAlert('are you sure to delete this property?')) {
+			if (await sweetConfirmAlert('are you sure to delete this car?')) {
 				await updateProperty({
 					variables: {
 						input: {
