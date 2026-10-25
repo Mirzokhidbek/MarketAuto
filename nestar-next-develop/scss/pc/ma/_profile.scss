@@ -36,7 +36,7 @@
 		cursor: pointer;
 	}
 	h3 {
-		margin: 0;
+		margin: 0 0 8px;
 		font-size: 17px;
 		font-weight: 600;
 		color: $ma-dark;
@@ -127,12 +127,12 @@
 		display: flex;
 		flex-direction: column;
 		gap: 10px;
-		min-width: 260px;
+		min-width: 300px;
 		padding-top: 18px;
 	}
 	&__stats {
 		display: grid;
-		grid-template-columns: repeat(3, 1fr);
+		grid-template-columns: repeat(4, 1fr);
 		margin-bottom: 6px;
 		text-align: center;
 		strong {

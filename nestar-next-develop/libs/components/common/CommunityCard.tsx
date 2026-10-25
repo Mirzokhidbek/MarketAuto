@@ -39,8 +39,7 @@ const CommunityCard = (props: CommunityCardProps) => {
 	};
 
 	const goMemberPage = (id: string) => {
-		if (id === user?._id) router.push('/mypage');
-		else router.push(`/member?memberId=${id}`);
+		router.push(`/member?memberId=${id}`);
 	};
 
 	const liked = !!(boardArticle?.meLiked && boardArticle?.meLiked[0]?.myFavorite);

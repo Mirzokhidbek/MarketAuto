@@ -31,13 +31,13 @@ const withLayoutBasic = (Component: any) => {
 					bgImage = '/img/banner/properties.png';
 					break;
 				case '/agent':
-					title = 'Dealers';
-					desc = 'Home / Dealers';
+					title = 'Sellers';
+					desc = 'Home / Sellers';
 					bgImage = '/img/banner/agents.webp';
 					break;
 				case '/agent/detail':
-					title = 'Dealer Page';
-					desc = 'Home / Dealers';
+					title = 'Seller Page';
+					desc = 'Home / Sellers';
 					bgImage = '/img/banner/header2.svg';
 					break;
 				case '/mypage':

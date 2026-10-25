@@ -223,8 +223,7 @@ const CommunityDetail: NextPage = ({ initialInput, ...props }: T) => {
 	};
 
 	const goMemberPage = (id: any) => {
-		if (id === user?._id) router.push('/mypage');
-		else router.push(`/member?memberId=${id}`);
+		router.push(`/member?memberId=${id}`);
 	};
 
 	const cancelButtonHandler = () => {

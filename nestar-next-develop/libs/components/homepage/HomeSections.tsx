@@ -15,7 +15,6 @@ import { GET_AGENTS } from '../../../apollo/user/query';
 import { userVar } from '../../../apollo/store';
 import { Member } from '../../types/member/member';
 import { CarCountry } from '../../enums/property.enum';
-import { MemberType } from '../../enums/member.enum';
 import { Direction } from '../../enums/common.enum';
 import DealerCard from '../common/DealerCard';
 
@@ -154,11 +153,11 @@ export const TopDealers = () => {
 			<div className={'ma-container'}>
 				<div className={'ma-hub__head'}>
 					<div>
-						<h2 className={'ma-title'}>{t('Top Dealers')}</h2>
-						<p className={'ma-subtitle'}>{t('Trusted dealers always ready to help you')}</p>
+						<h2 className={'ma-title'}>{t('Top Sellers')}</h2>
+						<p className={'ma-subtitle'}>{t('Dealers and private sellers you can follow')}</p>
 					</div>
 					<Link href={'/agent'}>
-						<span className={'ma-btn ma-btn--outline'}>{t('See All Dealers')} →</span>
+						<span className={'ma-btn ma-btn--outline'}>{t('See All Sellers')} →</span>
 					</Link>
 				</div>
 				<div className={'ma-grid ma-grid--4'}>

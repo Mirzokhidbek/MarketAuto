@@ -90,7 +90,7 @@ const Footer = () => {
 						<Link href={'/property'}>{t('Browse Cars')}</Link>
 						<Link href={countryLink('UZBEKISTAN')}>{t('Cars in Uzbekistan')}</Link>
 						<Link href={countryLink('SOUTH_KOREA')}>{t('Cars from South Korea')}</Link>
-						<Link href={'/agent'}>{t('Dealers')}</Link>
+						<Link href={'/agent'}>{t('Sellers')}</Link>
 					</div>
 					<div>
 						<strong>{t('FOR SELLERS')}</strong>

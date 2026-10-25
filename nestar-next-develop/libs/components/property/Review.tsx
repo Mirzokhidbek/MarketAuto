@@ -22,8 +22,7 @@ const Review = (props: ReviewProps) => {
 
 	/** HANDLERS **/
 	const goMemberPage = (id: string) => {
-		if (id === user?._id) router.push('/mypage');
-		else router.push(`/member?memberId=${id}`);
+		router.push(`/member?memberId=${id}`);
 	};
 	return (
 		<div className={'ma-comment'}>

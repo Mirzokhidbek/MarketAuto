@@ -14,7 +14,7 @@ interface DealerCardProps {
 const DealerCard = ({ dealer, onLike }: DealerCardProps) => {
 	const { t } = useTranslation('common');
 	const liked = !!dealer.meLiked?.[0]?.myFavorite;
-	const href = { pathname: '/agent/detail', query: { agentId: dealer._id } };
+	const href = { pathname: '/member', query: { memberId: dealer._id } };
 
 	return (
 		<div className={'ma-dealer-card'}>
@@ -32,6 +32,7 @@ const DealerCard = ({ dealer, onLike }: DealerCardProps) => {
 			<Link href={href}>
 				<h3>{dealer.memberFullName || dealer.memberNick}</h3>
 			</Link>
+			<span className={'ma-badge ma-badge--primary'}>{t(dealer.memberType === 'AGENT' ? 'Dealer' : 'Private seller')}</span>
 			{dealer.memberAddress && <p className={'ma-dealer-card__address'}>{dealer.memberAddress}</p>}
 			<div className={'ma-dealer-card__stats'}>
 				<div>
