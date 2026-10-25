@@ -104,7 +104,7 @@ const MemberMenu = (props: MemberMenuProps) => {
 												<img className={'com-icon'} src={'/img/icons/home.svg'} alt={'com-icon'} />
 											)}
 											<Typography className={'sub-title'} variant={'subtitle1'} component={'p'}>
-												Properties
+												Cars
 											</Typography>
 											<Typography className="count-title" variant="subtitle1">
 												{member?.memberProperties}

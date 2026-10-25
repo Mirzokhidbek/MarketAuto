@@ -15,33 +15,32 @@ const About: NextPage = () => {
 				<Stack className={'intro'}>
 					<Stack className={'container'}>
 						<Stack className={'left'}>
-							<strong>We're on a Mission to Change View of Real Estate Field.</strong>
+							<strong>We're on a Mission to Make Buying and Selling Cars Simple.</strong>
 						</Stack>
 						<Stack className={'right'}>
 							<p>
-								It doesn’t matter how organized you are — a surplus of toys will always ensure your house is a mess
-								waiting to happen. Fortunately, getting kids on board with the idea of ditching their stuff is a lot
-								easier than it sounds.
+								MarketAuto connects car buyers with trusted dealers and private sellers across Uzbekistan. Every listing
+								shows the details that matter — brand, model, year, mileage, fuel and transmission — so you can compare
+								cars quickly and honestly.
 								<br />
 								<br />
-								Maecenas quis viverra metus, et efficitur ligula. Nam congue augue et ex congue, sed luctus lectus
-								congue. Integer convallis condimentum sem. Duis elementum tortor eget condimentum tempor. Praesent
-								sollicitudin lectus ut pharetra pulvinar.
+								Whether you are looking for your first Chevrolet Cobalt or a new electric BYD, you can search, filter,
+								save favorites and talk to sellers directly, all in one place.
 							</p>
 							<Stack className={'boxes'}>
 								<div className={'box'}>
 									<div>
 										<img src="/img/icons/garden.svg" alt="" />
 									</div>
-									<span>Modern Villa</span>
-									<p>Nullam sollicitudin blandit Nullam maximus.</p>
+									<span>Verified Dealers</span>
+									<p>Trusted dealerships with real ratings and reviews.</p>
 								</div>
 								<div className={'box'}>
 									<div>
 										<img src="/img/icons/securePayment.svg" alt="" />
 									</div>
 									<span>Secure Payment</span>
-									<p>Nullam sollicitudin blandit Nullam maximus.</p>
+									<p>Meet the seller and pay safely after you inspect the car.</p>
 								</div>
 							</Stack>
 						</Stack>
@@ -54,24 +53,24 @@ const About: NextPage = () => {
 						</Stack>
 						<Stack className={'info'}>
 							<Box component={'div'}>
-								<strong>4M</strong>
-								<p>Award Winning</p>
+								<strong>10K+</strong>
+								<p>Cars Listed</p>
 							</Box>
 							<Box component={'div'}>
-								<strong>12K</strong>
-								<p>Property Ready</p>
+								<strong>500+</strong>
+								<p>Dealers</p>
 							</Box>
 							<Box component={'div'}>
-								<strong>20M</strong>
-								<p>Happy Customer</p>
+								<strong>50K+</strong>
+								<p>Happy Customers</p>
 							</Box>
 						</Stack>
 					</Stack>
 				</Stack>
 				<Stack className={'agents'}>
 					<Stack className={'container'}>
-						<span className={'title'}>Our Exclusive Agetns</span>
-						<p className={'desc'}>Aliquam lacinia diam quis lacus euismod</p>
+						<span className={'title'}>Our Top Dealers</span>
+						<p className={'desc'}>Trusted dealers always ready to help you</p>
 						<Stack className={'wrap'}>
 							{/*{[1, 2, 3, 4, 5].map(() => {*/}
 							{/*	return <AgentCard />;*/}
@@ -82,14 +81,14 @@ const About: NextPage = () => {
 				<Stack className={'options'}>
 					<img src="/img/banner/aboutBanner.svg" alt="" className={'about-banner'} />
 					<Stack className={'container'}>
-						<strong>Let’s find the right selling option for you</strong>
+						<strong>Sell your car in three simple steps</strong>
 						<Stack>
 							<div className={'icon-box'}>
 								<img src="/img/icons/security.svg" alt="" />
 							</div>
 							<div className={'text-box'}>
-								<span>Property Management</span>
-								<p>Nullam sollicitudin blandit eros eu pretium. Nullam maximus ultricies auctor.</p>
+								<span>List Your Car</span>
+								<p>Add photos, brand, model, year, mileage and price in a few minutes.</p>
 							</div>
 						</Stack>
 						<Stack>
@@ -97,8 +96,8 @@ const About: NextPage = () => {
 								<img src="/img/icons/keywording.svg" alt="" />
 							</div>
 							<div className={'text_-box'}>
-								<span>Property Management</span>
-								<p>Nullam sollicitudin blandit eros eu pretium. Nullam maximus ultricies auctor.</p>
+								<span>Connect with Buyers</span>
+								<p>Buyers find your car with smart filters and message you directly.</p>
 							</div>
 						</Stack>
 						<Stack>
@@ -106,8 +105,8 @@ const About: NextPage = () => {
 								<img src="/img/icons/investment.svg" alt="" />
 							</div>
 							<div className={'text-box'}>
-								<span>Property Management</span>
-								<p>Nullam sollicitudin blandit eros eu pretium. Nullam maximus ultricies auctor.</p>
+								<span>Close the Deal</span>
+								<p>Agree on the price, meet the buyer and hand over the keys.</p>
 							</div>
 						</Stack>
 						<Stack className={'btn'}>
@@ -118,7 +117,7 @@ const About: NextPage = () => {
 				</Stack>
 				<Stack className={'partners'}>
 					<Stack className={'container'}>
-						<span>Trusted bu the world's best</span>
+						<span>Trusted by leading partners</span>
 						<Stack className={'wrap'}>
 							<img src="/img/icons/brands/amazon.svg" alt="" />
 							<img src="/img/icons/brands/amd.svg" alt="" />
@@ -132,7 +131,7 @@ const About: NextPage = () => {
 					<Stack className={'container'}>
 						<Box component={'div'} className={'left'}>
 							<strong>Need help? Talk to our expert.</strong>
-							<p>Talk to our experts or Browse through more properties.</p>
+							<p>Talk to our experts or browse through more cars.</p>
 						</Box>
 						<Box component={'div'} className={'right'}>
 							<div className={'white'}>

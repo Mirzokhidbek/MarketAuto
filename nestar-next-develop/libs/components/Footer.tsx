@@ -19,11 +19,11 @@ const Footer = () => {
 						</Box>
 						<Box component={'div'} className={'footer-box'}>
 							<span>total free customer care</span>
-							<p>+82 10 4867 2909</p>
+							<p>+998 71 200 00 00</p>
 						</Box>
 						<Box component={'div'} className={'footer-box'}>
-							<span>nee live</span>
-							<p>+82 10 4867 2909</p>
+							<span>call center</span>
+							<p>+998 71 200 00 00</p>
 							<span>Support?</span>
 						</Box>
 						<Box component={'div'} className={'footer-box'}>
@@ -40,8 +40,8 @@ const Footer = () => {
 						<Box component={'div'} className={'bottom'}>
 							<div>
 								<strong>Popular Search</strong>
-								<span>Property for Rent</span>
-								<span>Property Low to hide</span>
+								<span>Cars for Rent</span>
+								<span>Cars for Barter</span>
 							</div>
 							<div>
 								<strong>Quick Links</strong>
@@ -54,16 +54,16 @@ const Footer = () => {
 							</div>
 							<div>
 								<strong>Discover</strong>
-								<span>Seoul</span>
-								<span>Gyeongido</span>
-								<span>Busan</span>
-								<span>Jejudo</span>
+								<span>Tashkent</span>
+								<span>Samarkand</span>
+								<span>Bukhara</span>
+								<span>Fergana</span>
 							</div>
 						</Box>
 					</Stack>
 				</Stack>
 				<Stack className={'second'}>
-					<span>© Nestar - All rights reserved. Nestar {moment().year()}</span>
+					<span>© MarketAuto - All rights reserved. {moment().year()}</span>
 				</Stack>
 			</Stack>
 		);
@@ -77,11 +77,11 @@ const Footer = () => {
 						</Box>
 						<Box component={'div'} className={'footer-box'}>
 							<span>total free customer care</span>
-							<p>+82 10 4867 2909</p>
+							<p>+998 71 200 00 00</p>
 						</Box>
 						<Box component={'div'} className={'footer-box'}>
-							<span>nee live</span>
-							<p>+82 10 4867 2909</p>
+							<span>call center</span>
+							<p>+998 71 200 00 00</p>
 							<span>Support?</span>
 						</Box>
 						<Box component={'div'} className={'footer-box'}>
@@ -105,8 +105,8 @@ const Footer = () => {
 						<Box component={'div'} className={'bottom'}>
 							<div>
 								<strong>Popular Search</strong>
-								<span>Property for Rent</span>
-								<span>Property Low to hide</span>
+								<span>Cars for Rent</span>
+								<span>Cars for Barter</span>
 							</div>
 							<div>
 								<strong>Quick Links</strong>
@@ -119,16 +119,16 @@ const Footer = () => {
 							</div>
 							<div>
 								<strong>Discover</strong>
-								<span>Seoul</span>
-								<span>Gyeongido</span>
-								<span>Busan</span>
-								<span>Jejudo</span>
+								<span>Tashkent</span>
+								<span>Samarkand</span>
+								<span>Bukhara</span>
+								<span>Fergana</span>
 							</div>
 						</Box>
 					</Stack>
 				</Stack>
 				<Stack className={'second'}>
-					<span>© Nestar - All rights reserved. Nestar {moment().year()}</span>
+					<span>© MarketAuto - All rights reserved. {moment().year()}</span>
 					<span>Privacy · Terms · Sitemap</span>
 				</Stack>
 			</Stack>
