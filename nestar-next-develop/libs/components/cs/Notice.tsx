@@ -1,9 +1,9 @@
 import React from 'react';
 import { Stack, Box } from '@mui/material';
-import useDeviceDetect from '../../hooks/useDeviceDetect';
+import { useTranslation } from 'next-i18next';
 
 const Notice = () => {
-	const device = useDeviceDetect();
+	const { t } = useTranslation('common');
 
 	/** APOLLO REQUESTS **/
 	/** LIFECYCLES **/
@@ -23,31 +23,17 @@ const Notice = () => {
 		},
 	];
 
-	if (device === 'mobile') {
-		return <div>NOTICE MOBILE</div>;
-	} else {
-		return (
-			<Stack className={'notice-content'}>
-				<span className={'title'}>Notice</span>
-				<Stack className={'main'}>
-					<Box component={'div'} className={'top'}>
-						<span>number</span>
-						<span>title</span>
-						<span>date</span>
-					</Box>
-					<Stack className={'bottom'}>
-						{data.map((ele: any) => (
-							<div className={`notice-card ${ele?.event && 'event'}`} key={ele.title}>
-								{ele?.event ? <div>event</div> : <span className={'notice-number'}>{ele.no}</span>}
-								<span className={'notice-title'}>{ele.title}</span>
-								<span className={'notice-date'}>{ele.date}</span>
-							</div>
-						))}
-					</Stack>
-				</Stack>
-			</Stack>
-		);
-	}
+	return (
+		<div className={'ma-notice-list'}>
+			{data.map((item: any) => (
+				<div className={'ma-notice'} key={item.no}>
+					<span className={'ma-notice__no'}>{item.no}</span>
+					<strong>{t(item.title)}</strong>
+					<span className={'ma-notice__date'}>{item.date}</span>
+				</div>
+			))}
+		</div>
+	);
 };
 
 export default Notice;

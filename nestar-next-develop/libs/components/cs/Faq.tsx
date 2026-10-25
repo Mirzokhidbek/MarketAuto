@@ -4,7 +4,8 @@ import { AccordionDetails, Box, Stack, Typography } from '@mui/material';
 import MuiAccordionSummary, { AccordionSummaryProps } from '@mui/material/AccordionSummary';
 import { useRouter } from 'next/router';
 import { styled } from '@mui/material/styles';
-import useDeviceDetect from '../../hooks/useDeviceDetect';
+import { useTranslation } from 'next-i18next';
+import ExpandMoreRoundedIcon from '@mui/icons-material/ExpandMoreRounded';
 import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
 
 const Accordion = styled((props: AccordionProps) => <MuiAccordion disableGutters elevation={0} square {...props} />)(
@@ -31,7 +32,7 @@ const AccordionSummary = styled((props: AccordionSummaryProps) => (
 }));
 
 const Faq = () => {
-	const device = useDeviceDetect();
+	const { t } = useTranslation('common');
 	const router = useRouter();
 	const [category, setCategory] = useState<string>('property');
 	const [expanded, setExpanded] = useState<string | false>('panel1');
@@ -232,93 +233,42 @@ const Faq = () => {
 		],
 	};
 
-	if (device === 'mobile') {
-		return <div>FAQ MOBILE</div>;
-	} else {
-		return (
-			<Stack className={'faq-content'}>
-				<Box className={'categories'} component={'div'}>
-					<div
-						className={category === 'property' ? 'active' : ''}
-						onClick={() => {
-							changeCategoryHandler('property');
-						}}
+	const categories = [
+		{ key: 'property', label: 'Cars' },
+		{ key: 'payment', label: 'Payment' },
+		{ key: 'buyers', label: 'For Buyers' },
+		{ key: 'agents', label: 'For Dealers' },
+		{ key: 'membership', label: 'Membership' },
+		{ key: 'community', label: 'Community' },
+		{ key: 'other', label: 'Other' },
+	];
+
+	return (
+		<div className={'ma-faq-block'}>
+			<div className={'ma-tabs'}>
+				{categories.map((item) => (
+					<button
+						key={item.key}
+						className={`ma-tab ${category === item.key ? 'is-active' : ''}`}
+						onClick={() => changeCategoryHandler(item.key)}
 					>
-						Cars
-					</div>
-					<div
-						className={category === 'payment' ? 'active' : ''}
-						onClick={() => {
-							changeCategoryHandler('payment');
-						}}
-					>
-						Payment
-					</div>
-					<div
-						className={category === 'buyers' ? 'active' : ''}
-						onClick={() => {
-							changeCategoryHandler('buyers');
-						}}
-					>
-						For Buyers
-					</div>
-					<div
-						className={category === 'agents' ? 'active' : ''}
-						onClick={() => {
-							changeCategoryHandler('agents');
-						}}
-					>
-						For Dealers
-					</div>
-					<div
-						className={category === 'membership' ? 'active' : ''}
-						onClick={() => {
-							changeCategoryHandler('membership');
-						}}
-					>
-						Membership
-					</div>
-					<div
-						className={category === 'community' ? 'active' : ''}
-						onClick={() => {
-							changeCategoryHandler('community');
-						}}
-					>
-						Community
-					</div>
-					<div
-						className={category === 'other' ? 'active' : ''}
-						onClick={() => {
-							changeCategoryHandler('other');
-						}}
-					>
-						Other
-					</div>
-				</Box>
-				<Box className={'wrap'} component={'div'}>
-					{data[category] &&
-						data[category].map((ele: any) => (
-							<Accordion expanded={expanded === ele?.id} onChange={handleChange(ele?.id)} key={ele?.subject}>
-								<AccordionSummary id="panel1d-header" className="question" aria-controls="panel1d-content">
-									<Typography className="badge" variant={'h4'}>
-										Q
-									</Typography>
-									<Typography> {ele?.subject}</Typography>
-								</AccordionSummary>
-								<AccordionDetails>
-									<Stack className={'answer flex-box'}>
-										<Typography className="badge" variant={'h4'} color={'primary'}>
-											A
-										</Typography>
-										<Typography> {ele?.content}</Typography>
-									</Stack>
-								</AccordionDetails>
-							</Accordion>
-						))}
-				</Box>
-			</Stack>
-		);
-	}
+						{t(item.label)}
+					</button>
+				))}
+			</div>
+			<div className={'ma-faq-list'}>
+				{data[category]?.map((item: any) => (
+					<details className={'ma-faq'} key={item.id}>
+						<summary>
+							{t(item.subject)}
+							<ExpandMoreRoundedIcon />
+						</summary>
+						<p>{t(item.content)}</p>
+					</details>
+				))}
+			</div>
+		</div>
+	);
 };
 
 export default Faq;

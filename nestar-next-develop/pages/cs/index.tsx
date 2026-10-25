@@ -1,8 +1,9 @@
 import React from 'react';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { Box, Stack } from '@mui/material';
-import useDeviceDetect from '../../libs/hooks/useDeviceDetect';
+import { useTranslation } from 'next-i18next';
+import PhoneOutlinedIcon from '@mui/icons-material/PhoneOutlined';
+import MailOutlineIcon from '@mui/icons-material/MailOutline';
 import withLayoutBasic from '../../libs/components/layout/LayoutBasic';
 import Notice from '../../libs/components/cs/Notice';
 import Faq from '../../libs/components/cs/Faq';
@@ -15,7 +16,7 @@ export const getStaticProps = async ({ locale }: any) => ({
 });
 
 const CS: NextPage = () => {
-	const device = useDeviceDetect();
+	const { t } = useTranslation('common');
 	const router = useRouter();
 
 	/** HANDLERS **/
@@ -31,46 +32,40 @@ const CS: NextPage = () => {
 	};
 	const tab = router.query.tab ?? 'notice';
 
-	if (device === 'mobile') {
-		return <h1>CS PAGE MOBILE</h1>;
-	} else {
-		return (
-			<Stack className={'cs-page'}>
-				<Stack className={'container'}>
-					<Box component={'div'} className={'cs-main-info'}>
-						<Box component={'div'} className={'info'}>
-							<span>Cs center</span>
-							<p>I will answer your questions</p>
-						</Box>
-						<Box component={'div'} className={'btns'}>
-							<div
-								className={tab == 'notice' ? 'active' : ''}
-								onClick={() => {
-									changeTabHandler('notice');
-								}}
-							>
-								Notice
-							</div>
-							<div
-								className={tab == 'faq' ? 'active' : ''}
-								onClick={() => {
-									changeTabHandler('faq');
-								}}
-							>
-								FAQ
-							</div>
-						</Box>
-					</Box>
-
-					<Box component={'div'} className={'cs-content'}>
-						{tab === 'notice' && <Notice />}
-
-						{tab === 'faq' && <Faq />}
-					</Box>
-				</Stack>
-			</Stack>
-		);
-	}
+	return (
+		<div className={'ma-page ma-list-page'}>
+			<div className={'ma-container ma-cs'}>
+				<section className={'ma-cs__main'}>
+					<div className={'ma-results__bar'}>
+						<div>
+							<h2>{t('Support Center')}</h2>
+							<span>{t('Answers to common questions and the latest notices')}</span>
+						</div>
+					</div>
+					<div className={'ma-segmented ma-cs__switch'}>
+						<button className={tab === 'notice' ? 'is-active' : ''} onClick={() => changeTabHandler('notice')}>
+							{t('Notices')}
+						</button>
+						<button className={tab === 'faq' ? 'is-active' : ''} onClick={() => changeTabHandler('faq')}>
+							{t('FAQ')}
+						</button>
+					</div>
+					{tab === 'notice' && <Notice />}
+					{tab === 'faq' && <Faq />}
+				</section>
+				<aside className={'ma-panel ma-cs__contact'}>
+					<h3>{t('Still need help?')}</h3>
+					<p>{t('Our team answers every day from 9:00 to 21:00 (Tashkent time).')}</p>
+					<a className={'ma-btn ma-btn--primary ma-btn--block'} href={'tel:+998712000000'}>
+						<PhoneOutlinedIcon /> +998 71 200 00 00
+					</a>
+					<a className={'ma-btn ma-btn--outline ma-btn--block'} href={'mailto:support@marketauto.uz'}>
+						<MailOutlineIcon /> support@marketauto.uz
+					</a>
+				</aside>
+			</div>
+		</div>
+	);
 };
 
 export default withLayoutBasic(CS);

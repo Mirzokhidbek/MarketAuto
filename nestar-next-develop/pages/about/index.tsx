@@ -1,153 +1,104 @@
 import React from 'react';
 import { NextPage } from 'next';
-import useDeviceDetect from '../../libs/hooks/useDeviceDetect';
+import Link from 'next/link';
+import { useTranslation } from 'next-i18next';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import PublicOutlinedIcon from '@mui/icons-material/PublicOutlined';
+import ForumOutlinedIcon from '@mui/icons-material/ForumOutlined';
+import SellOutlinedIcon from '@mui/icons-material/SellOutlined';
+import VerifiedUserOutlinedIcon from '@mui/icons-material/VerifiedUserOutlined';
 import withLayoutBasic from '../../libs/components/layout/LayoutBasic';
-import { Stack, Box } from '@mui/material';
+import { HowItWorks } from '../../libs/components/homepage/HomeSections';
+
+export const getStaticProps = async ({ locale }: any) => ({
+	props: {
+		...(await serverSideTranslations(locale, ['common'])),
+	},
+});
+
+const values = [
+	{
+		icon: <PublicOutlinedIcon />,
+		title: 'Local & International',
+		text: 'Cars located in Uzbekistan and abroad — all in one search with clear country labels.',
+	},
+	{
+		icon: <ForumOutlinedIcon />,
+		title: 'Direct Contact',
+		text: 'Call or message the seller directly. No middlemen and no hidden fees.',
+	},
+	{
+		icon: <SellOutlinedIcon />,
+		title: 'Free Listing',
+		text: 'Private sellers and dealers can list cars for free in a few minutes.',
+	},
+	{
+		icon: <VerifiedUserOutlinedIcon />,
+		title: 'Open Dealer Profiles',
+		text: 'Every dealer has a public profile with all their cars, likes, followers and ranking.',
+	},
+];
 
 const About: NextPage = () => {
-	const device = useDeviceDetect();
+	const { t } = useTranslation('common');
 
-	if (device === 'mobile') {
-		return <div>ABOUT PAGE MOBILE</div>;
-	} else {
-		return (
-			<Stack className={'about-page'}>
-				<Stack className={'intro'}>
-					<Stack className={'container'}>
-						<Stack className={'left'}>
-							<strong>We're on a Mission to Make Buying and Selling Cars Simple.</strong>
-						</Stack>
-						<Stack className={'right'}>
-							<p>
-								MarketAuto connects car buyers with trusted dealers and private sellers across Uzbekistan. Every listing
-								shows the details that matter — brand, model, year, mileage, fuel and transmission — so you can compare
-								cars quickly and honestly.
-								<br />
-								<br />
-								Whether you are looking for your first Chevrolet Cobalt or a new electric BYD, you can search, filter,
-								save favorites and talk to sellers directly, all in one place.
-							</p>
-							<Stack className={'boxes'}>
-								<div className={'box'}>
-									<div>
-										<img src="/img/icons/garden.svg" alt="" />
-									</div>
-									<span>Verified Dealers</span>
-									<p>Trusted dealerships with real ratings and reviews.</p>
-								</div>
-								<div className={'box'}>
-									<div>
-										<img src="/img/icons/securePayment.svg" alt="" />
-									</div>
-									<span>Secure Payment</span>
-									<p>Meet the seller and pay safely after you inspect the car.</p>
-								</div>
-							</Stack>
-						</Stack>
-					</Stack>
-				</Stack>
-				<Stack className={'statistics'}>
-					<Stack className={'container'}>
-						<Stack className={'banner'}>
-							<img src="/img/banner/header1.svg" alt="" />
-						</Stack>
-						<Stack className={'info'}>
-							<Box component={'div'}>
-								<strong>10K+</strong>
-								<p>Cars Listed</p>
-							</Box>
-							<Box component={'div'}>
-								<strong>500+</strong>
-								<p>Dealers</p>
-							</Box>
-							<Box component={'div'}>
-								<strong>50K+</strong>
-								<p>Happy Customers</p>
-							</Box>
-						</Stack>
-					</Stack>
-				</Stack>
-				<Stack className={'agents'}>
-					<Stack className={'container'}>
-						<span className={'title'}>Our Top Dealers</span>
-						<p className={'desc'}>Trusted dealers always ready to help you</p>
-						<Stack className={'wrap'}>
-							{/*{[1, 2, 3, 4, 5].map(() => {*/}
-							{/*	return <AgentCard />;*/}
-							{/*})}*/}
-						</Stack>
-					</Stack>
-				</Stack>
-				<Stack className={'options'}>
-					<img src="/img/banner/aboutBanner.svg" alt="" className={'about-banner'} />
-					<Stack className={'container'}>
-						<strong>Sell your car in three simple steps</strong>
-						<Stack>
-							<div className={'icon-box'}>
-								<img src="/img/icons/security.svg" alt="" />
+	return (
+		<div className={'ma-page'}>
+			<section className={'ma-section'}>
+				<div className={'ma-container ma-about'}>
+					<div className={'ma-about__intro'}>
+						<span className={'ma-eyebrow'}>{t('ABOUT MARKETAUTO')}</span>
+						<h1>{t("We're on a Mission to Make Buying and Selling Cars Simple.")}</h1>
+					</div>
+					<div className={'ma-about__text'}>
+						<p>
+							{t(
+								'MarketAuto connects car buyers with trusted dealers and private sellers across Uzbekistan and abroad. Every listing shows the details that matter — brand, model, year, mileage, fuel and transmission — so you can compare cars quickly and honestly.',
+							)}
+						</p>
+						<p>
+							{t(
+								'Whether you are looking for your first Chevrolet Cobalt or a new electric BYD, you can search, filter, save favorites and talk to sellers directly, all in one place.',
+							)}
+						</p>
+					</div>
+				</div>
+			</section>
+
+			<section className={'ma-section ma-section--alt'}>
+				<div className={'ma-container ma-grid ma-grid--4'}>
+					{values.map((item) => (
+						<div className={'ma-feature'} key={item.title}>
+							<div className={'ma-feature__icon'}>{item.icon}</div>
+							<h3>{t(item.title)}</h3>
+							<p>{t(item.text)}</p>
+						</div>
+					))}
+				</div>
+			</section>
+
+			<HowItWorks />
+
+			<section className={'ma-section ma-section--tight'}>
+				<div className={'ma-container'}>
+					<div className={'ma-cta'}>
+						<div className={'ma-cta__text'}>
+							<h2>{t('Need help? Talk to our team.')}</h2>
+							<p>{t('Our team answers every day from 9:00 to 21:00 (Tashkent time).')}</p>
+							<div className={'ma-cta__actions'}>
+								<Link href={'/cs'}>
+									<span className={'ma-btn ma-btn--primary'}>{t('Support Center')}</span>
+								</Link>
+								<Link href={'/property'}>
+									<span className={'ma-btn ma-btn--ghost'}>{t('Browse Cars')}</span>
+								</Link>
 							</div>
-							<div className={'text-box'}>
-								<span>List Your Car</span>
-								<p>Add photos, brand, model, year, mileage and price in a few minutes.</p>
-							</div>
-						</Stack>
-						<Stack>
-							<div className={'icon-box'}>
-								<img src="/img/icons/keywording.svg" alt="" />
-							</div>
-							<div className={'text_-box'}>
-								<span>Connect with Buyers</span>
-								<p>Buyers find your car with smart filters and message you directly.</p>
-							</div>
-						</Stack>
-						<Stack>
-							<div className={'icon-box'}>
-								<img src="/img/icons/investment.svg" alt="" />
-							</div>
-							<div className={'text-box'}>
-								<span>Close the Deal</span>
-								<p>Agree on the price, meet the buyer and hand over the keys.</p>
-							</div>
-						</Stack>
-						<Stack className={'btn'}>
-							Learn More
-							<img src="/img/icons/rightup.svg" alt="" />
-						</Stack>
-					</Stack>
-				</Stack>
-				<Stack className={'partners'}>
-					<Stack className={'container'}>
-						<span>Trusted by leading partners</span>
-						<Stack className={'wrap'}>
-							<img src="/img/icons/brands/amazon.svg" alt="" />
-							<img src="/img/icons/brands/amd.svg" alt="" />
-							<img src="/img/icons/brands/cisco.svg" alt="" />
-							<img src="/img/icons/brands/dropcam.svg" alt="" />
-							<img src="/img/icons/brands/spotify.svg" alt="" />
-						</Stack>
-					</Stack>
-				</Stack>
-				<Stack className={'help'}>
-					<Stack className={'container'}>
-						<Box component={'div'} className={'left'}>
-							<strong>Need help? Talk to our expert.</strong>
-							<p>Talk to our experts or browse through more cars.</p>
-						</Box>
-						<Box component={'div'} className={'right'}>
-							<div className={'white'}>
-								Contact Us
-								<img src="/img/icons/rightup.svg" alt="" />
-							</div>
-							<div className={'black'}>
-								<img src="/img/icons/call.svg" alt="" />
-								920 851 9087
-							</div>
-						</Box>
-					</Stack>
-				</Stack>
-			</Stack>
-		);
-	}
+						</div>
+					</div>
+				</div>
+			</section>
+		</div>
+	);
 };
 
 export default withLayoutBasic(About);
