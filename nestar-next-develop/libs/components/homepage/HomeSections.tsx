@@ -17,6 +17,7 @@ import { Member } from '../../types/member/member';
 import { CarCountry } from '../../enums/property.enum';
 import { Direction } from '../../enums/common.enum';
 import DealerCard from '../common/DealerCard';
+import { SUPPORT_PHONE } from '../../config';
 
 const searchLink = (country: CarCountry) =>
 	`/property?input=${JSON.stringify({ page: 1, limit: 9, sort: 'createdAt', search: { countryList: [country] } })}`;
@@ -205,7 +206,7 @@ export const SellCta = () => {
 						</div>
 						<div className={'ma-cta__card-row ma-cta__card-row--split'}>
 							<span>{t('Call center')}</span>
-							<strong>+998 71 200 00 00</strong>
+							<strong>{SUPPORT_PHONE}</strong>
 						</div>
 					</div>
 				</div>

@@ -6,6 +6,8 @@ import { useRouter } from 'next/router';
 import { styled } from '@mui/material/styles';
 import { useTranslation } from 'next-i18next';
 import ExpandMoreRoundedIcon from '@mui/icons-material/ExpandMoreRounded';
+import { useQuery } from '@apollo/client';
+import { GET_NOTICES } from '../../../apollo/user/query';
 import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
 
 const Accordion = styled((props: AccordionProps) => <MuiAccordion disableGutters elevation={0} square {...props} />)(
@@ -38,7 +40,16 @@ const Faq = () => {
 	const [expanded, setExpanded] = useState<string | false>('panel1');
 
 	/** APOLLO REQUESTS **/
-	/** LIFECYCLES **/
+	// questions added by admins (Admin > CS > FAQ) are shown under their own tab
+	const { data: supportFaqData } = useQuery(GET_NOTICES, {
+		fetchPolicy: 'network-only',
+		variables: { input: { page: 1, limit: 50, search: { noticeCategory: 'FAQ' } } },
+	});
+	const supportFaqs = (supportFaqData?.getNotices?.list ?? []).map((item: any) => ({
+		id: item._id,
+		subject: item.noticeTitle,
+		content: item.noticeContent,
+	}));
 
 	/** HANDLERS **/
 	const changeCategoryHandler = (category: string) => {
@@ -118,7 +129,7 @@ const Faq = () => {
 			{
 				id: 'faq012',
 				subject: 'How do I contact a seller?',
-				content: 'Open the car page and use the contact form or call the phone number shown on the seller card.',
+				content: 'Open the car page and press "Show phone number" on the seller card to call the seller directly.',
 			},
 			{
 				id: 'faq013',
@@ -139,14 +150,14 @@ const Faq = () => {
 			{
 				id: 'faq016',
 				subject: 'How do I report a suspicious listing?',
-				content: 'Write to us through the Support page and include the listing link. Our team will review it.',
+				content: 'Use Support > Ask a question and include the listing link. Our team will review it.',
 			},
 		],
 		agents: [
 			{
 				id: 'faq017',
 				subject: 'How do I become a dealer?',
-				content: 'Sign up and choose the Dealer account type. Dealers can add and manage car listings.',
+				content: 'Sign up and choose the Dealer account type. Private sellers can list cars too: every member can add and manage listings.',
 			},
 			{
 				id: 'faq018',
@@ -178,7 +189,7 @@ const Faq = () => {
 			{
 				id: 'faq023',
 				subject: 'I forgot my password. What should I do?',
-				content: 'Contact our support team through the Support page and we will help you restore access.',
+				content: 'Send a question from Support > Ask a question with your nickname and phone number. Our team will verify you and reset your password.',
 			},
 			{
 				id: 'faq024',
@@ -188,7 +199,7 @@ const Faq = () => {
 			{
 				id: 'faq025',
 				subject: 'Can I delete my account?',
-				content: 'Yes. Send a request through the Support page and we will delete your account.',
+				content: 'Yes. Send a request from Support > Ask a question and we will delete your account.',
 			},
 		],
 		community: [
@@ -235,13 +246,15 @@ const Faq = () => {
 
 	const categories = [
 		{ key: 'property', label: 'Cars' },
-		{ key: 'payment', label: 'Payment' },
+		{ key: 'payment', label: 'Prices & deals' },
 		{ key: 'buyers', label: 'For Buyers' },
 		{ key: 'agents', label: 'For Dealers' },
 		{ key: 'membership', label: 'Membership' },
 		{ key: 'community', label: 'Community' },
 		{ key: 'other', label: 'Other' },
+		...(supportFaqs.length ? [{ key: 'support', label: 'From support' }] : []),
 	];
+	data.support = supportFaqs;
 
 	return (
 		<div className={'ma-faq-block'}>

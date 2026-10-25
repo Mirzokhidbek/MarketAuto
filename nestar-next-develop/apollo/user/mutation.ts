@@ -346,3 +346,33 @@ export const UNSUBSCRIBE = gql`
 		}
 	}
 `;
+
+/**************************
+ *   PASSWORD / NOTIFY    *
+ *************************/
+
+export const CHANGE_PASSWORD = gql`
+	mutation ChangePassword($input: PasswordInput!) {
+		changePassword(input: $input) {
+			_id
+			accessToken
+		}
+	}
+`;
+
+export const MARK_NOTIFICATIONS_READ = gql`
+	mutation MarkNotificationsRead {
+		markNotificationsRead
+	}
+`;
+
+export const CREATE_INQUIRY = gql`
+	mutation CreateInquiry($input: InquiryInput!) {
+		createInquiry(input: $input) {
+			_id
+			noticeTitle
+			noticeStatus
+			createdAt
+		}
+	}
+`;
