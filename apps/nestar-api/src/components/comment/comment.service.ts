@@ -1,3 +1,5 @@
+import { NotificationService } from '../notification/notification.service';
+import { NotificationGroup, NotificationType } from '../../libs/enums/notification.enum';
 import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, ObjectId } from 'mongoose';
@@ -19,44 +21,31 @@ export class CommentService {
 		private readonly memberService: MemberService,
 		private readonly propertyService: PropertyService,
 		private readonly boardArticleService: BoardArticleService,
+		private readonly notificationService: NotificationService,
 	) {}
 
 	public async createComment(memberId: ObjectId, input: CommentInput): Promise<Comment> {
 		input.memberId = memberId;
-
-		let result: Comment | null = null;
+		// bump the target's counter first: it fails when the target does not exist, so no orphan comments
+		const target = await this.commentStatsEditor(input.commentGroup, input.commentRefId, 1);
+		let result: Comment;
 		try {
 			result = await this.commentModel.create(input);
 		} catch (err: any) {
 			console.log('Error, Service.model:', err.message);
+			await this.commentStatsEditor(input.commentGroup, input.commentRefId, -1);
 			throw new BadRequestException(Message.CREATE_FAILED);
 		}
 
-		switch (input.commentGroup) {
-			case CommentGroup.PROPERTY:
-				await this.propertyService.propertyStatsEditor({
-					_id: input.commentRefId,
-					targetKey: 'propertyComments',
-					modifier: 1,
-				});
-				break;
-			case CommentGroup.ARTICLE:
-				await this.boardArticleService.boardArticleStatsEditor({
-					_id: input.commentRefId,
-					targetKey: 'articleComments',
-					modifier: 1,
-				});
-				break;
-			case CommentGroup.MEMBER:
-				await this.memberService.memberStatsEditor({
-					_id: input.commentRefId,
-					targetKey: 'memberComments',
-					modifier: 1,
-				});
-				break;
-		}
-
-		if (!result) throw new InternalServerErrorException(Message.CREATE_FAILED);
+		await this.notificationService.notify({
+			notificationType: NotificationType.COMMENT,
+			notificationGroup: target.group,
+			notificationTitle: target.title,
+			authorId: memberId,
+			receiverId: target.ownerId,
+			propertyId: input.commentGroup === CommentGroup.PROPERTY ? input.commentRefId : undefined,
+			articleId: input.commentGroup === CommentGroup.ARTICLE ? input.commentRefId : undefined,
+		});
 		return result;
 	}
 
@@ -76,7 +65,33 @@ export class CommentService {
 			)
 			.exec();
 		if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED);
+		if (result.commentStatus === CommentStatus.DELETE) {
+			await this.commentStatsEditor(result.commentGroup, result.commentRefId, -1);
+		}
 		return result;
+	}
+
+	/** updates the commented item's counter and returns who owns it (for the notification) */
+	private async commentStatsEditor(
+		group: CommentGroup,
+		refId: ObjectId,
+		modifier: number,
+	): Promise<{ ownerId: ObjectId; title: string; group: NotificationGroup }> {
+		switch (group) {
+			case CommentGroup.PROPERTY: {
+				const property = await this.propertyService.propertyStatsEditor({ _id: refId, targetKey: 'propertyComments', modifier });
+				return { ownerId: property.memberId, title: property.propertyTitle, group: NotificationGroup.PROPERTY };
+			}
+			case CommentGroup.ARTICLE: {
+				const article = await this.boardArticleService.boardArticleStatsEditor({ _id: refId, targetKey: 'articleComments', modifier });
+				if (!article) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+				return { ownerId: article.memberId, title: article.articleTitle, group: NotificationGroup.ARTICLE };
+			}
+			default: {
+				const member = await this.memberService.memberStatsEditor({ _id: refId, targetKey: 'memberComments', modifier });
+				return { ownerId: member._id, title: member.memberNick, group: NotificationGroup.MEMBER };
+			}
+		}
 	}
 
 	public async getComments(memberId: ObjectId, input: CommentsInquiry): Promise<Comments> {
@@ -110,6 +125,9 @@ export class CommentService {
 	public async removeCommentByAdmin(input: ObjectId): Promise<Comment> {
 		const result = await this.commentModel.findByIdAndDelete(input).exec();
 		if (!result) throw new InternalServerErrorException(Message.REMOVE_FAILED);
+		if (result.commentStatus === CommentStatus.ACTIVE) {
+			await this.commentStatsEditor(result.commentGroup, result.commentRefId, -1).catch(() => undefined);
+		}
 		return result;
 	}
 }

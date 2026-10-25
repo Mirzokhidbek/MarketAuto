@@ -15,7 +15,9 @@ import { SocketModule } from './socket/socket.module';
 		ConfigModule.forRoot(),
 		GraphQLModule.forRoot({
 			driver: ApolloDriver,
-			playground: true,
+			// the GraphQL IDE and schema introspection are for development only
+			playground: process.env.NODE_ENV !== 'production',
+			introspection: process.env.NODE_ENV !== 'production',
 			upload: false,
 			autoSchemaFile: true,
 			formatError: (error: GraphqlErrorShape) => {

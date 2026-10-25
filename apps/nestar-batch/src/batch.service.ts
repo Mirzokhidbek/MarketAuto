@@ -27,7 +27,8 @@ export class BatchService {
 			.updateMany(
 				{
 					memberStatus: MemberStatus.ACTIVE,
-					memberType: MemberType.AGENT,
+					// every seller is ranked: dealers and private sellers
+					memberType: { $in: [MemberType.USER, MemberType.AGENT] },
 				},
 				{ memberRank: 0 },
 			)
@@ -53,7 +54,8 @@ export class BatchService {
 	public async batchTopAgents(): Promise<void> {
 		const agents: Member[] = await this.memberModel
 			.find({
-				memberType: MemberType.AGENT,
+				// every seller is ranked: dealers and private sellers
+					memberType: { $in: [MemberType.USER, MemberType.AGENT] },
 				memberStatus: MemberStatus.ACTIVE,
 				memberRank: 0,
 			})
@@ -68,6 +70,6 @@ export class BatchService {
 	}
 
 	public getHello(): string {
-		return 'Welcome to Nestar BATCH Server!';
+		return 'Welcome to MarketAuto BATCH Server!';
 	}
 }

@@ -25,6 +25,11 @@ const NoticeSchema = new Schema(
 			required: true,
 		},
 
+		// admin reply to a 1:1 inquiry
+		noticeAnswer: {
+			type: String,
+		},
+
 		memberId: {
 			type: Schema.Types.ObjectId,
 			required: true,

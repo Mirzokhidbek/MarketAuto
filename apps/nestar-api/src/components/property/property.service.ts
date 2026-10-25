@@ -1,3 +1,5 @@
+import { NotificationService } from '../notification/notification.service';
+import { NotificationGroup, NotificationType } from '../../libs/enums/notification.enum';
 import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, ObjectId } from 'mongoose';
@@ -13,6 +15,7 @@ import { Properties, Property } from '../../libs/dto/property/property';
 import { Direction, Message } from '../../libs/enums/common.enum';
 import { ViewService } from '../view/view.service';
 import { CarCountry, PropertyStatus } from '../../libs/enums/property.enum';
+import { MemberStatus } from '../../libs/enums/member.enum';
 import { StatisticModifier, T } from '../../libs/types/common';
 import { ViewGroup } from '../../libs/enums/view.enum';
 import { PropertyUpdate } from '../../libs/dto/property/property.update';
@@ -29,6 +32,7 @@ export class PropertyService {
 		private memberService: MemberService,
 		private viewService: ViewService,
 		private likeService: LikeService,
+		private notificationService: NotificationService,
 	) {}
 
 	public async createProperty(input: PropertyInput): Promise<Property> {
@@ -51,9 +55,10 @@ export class PropertyService {
 	}
 
 	public async getProperty(memberId: ObjectId, propertyId: ObjectId): Promise<Property> {
+		// sold cars stay viewable (marked as sold); deleted ones are gone
 		const search: T = {
 			_id: propertyId,
-			propertyStatus: PropertyStatus.ACTIVE,
+			propertyStatus: { $in: [PropertyStatus.ACTIVE, PropertyStatus.SOLD] },
 		};
 
 		const targetProperty: Property | null = await this.propertyModel.findOne(search).lean().exec();
@@ -77,31 +82,38 @@ export class PropertyService {
 	}
 
 	public async updateProperty(memberId: ObjectId, input: PropertyUpdate): Promise<Property> {
+		// owners can edit active and sold cars; deleted ones are final
+		const search: T = { _id: input._id, memberId: memberId, propertyStatus: { $ne: PropertyStatus.DELETE } };
+		return await this.changeProperty(search, input);
+	}
+
+	/** shared by owner and admin updates: keeps soldAt/deletedAt and the seller's active car counter in sync */
+	private async changeProperty(search: T, input: PropertyUpdate): Promise<Property> {
 		// city list applies only to cars located in Uzbekistan
 		if (input.carCountry && input.carCountry !== CarCountry.UZBEKISTAN) (input as T).propertyLocation = null;
-		const { propertyStatus } = input;
-		let { soldAt, deletedAt } = input;
-		const search: T = {
-			_id: input._id,
-			memberId: memberId,
-			propertyStatus: PropertyStatus.ACTIVE,
-		};
 
-		if (propertyStatus === PropertyStatus.SOLD) soldAt = moment().toDate();
-		else if (propertyStatus === PropertyStatus.DELETE) deletedAt = moment().toDate();
+		const current: Property | null = await this.propertyModel.findOne(search).lean().exec();
+		if (!current) throw new InternalServerErrorException(Message.UPDATE_FAILED);
 
-		const result = await this.propertyModel
-			.findOneAndUpdate(search, input, {
-				new: true,
-			})
-			.exec();
+		const prevStatus = current.propertyStatus;
+		const nextStatus = input.propertyStatus ?? prevStatus;
+		if (nextStatus !== prevStatus) {
+			if (nextStatus === PropertyStatus.SOLD) input.soldAt = moment().toDate();
+			if (nextStatus === PropertyStatus.DELETE) input.deletedAt = moment().toDate();
+			if (nextStatus === PropertyStatus.ACTIVE) (input as T).soldAt = null;
+		}
+
+		const result = await this.propertyModel.findByIdAndUpdate(current._id, input, { new: true }).exec();
 		if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED);
 
-		if (soldAt || deletedAt) {
+		// memberProperties counts only cars that are currently for sale
+		const wasActive = prevStatus === PropertyStatus.ACTIVE;
+		const isActive = nextStatus === PropertyStatus.ACTIVE;
+		if (wasActive !== isActive) {
 			await this.memberService.memberStatsEditor({
-				_id: memberId,
+				_id: result.memberId,
 				targetKey: 'memberProperties',
-				modifier: -1,
+				modifier: isActive ? 1 : -1,
 			});
 		}
 
@@ -113,11 +125,14 @@ export class PropertyService {
 		const sort: T = { [input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC };
 
 		this.shapeMatchQuery(match, input);
-		console.log('match:', match);
 
 		const result = await this.propertyModel
 			.aggregate([
 				{ $match: match },
+				// cars of blocked or deleted sellers are hidden from buyers
+				lookupMember,
+				{ $unwind: '$memberData' },
+				{ $match: { 'memberData.memberStatus': MemberStatus.ACTIVE } },
 				{ $sort: sort },
 				{
 					$facet: {
@@ -126,8 +141,6 @@ export class PropertyService {
 							{ $limit: input.limit },
 							// meLiked
 							lookupAuthMemberLiked(memberId),
-							lookupMember,
-							{ $unwind: '$memberData' },
 						],
 						metaCounter: [{ $count: 'total' }],
 					},
@@ -181,7 +194,7 @@ export class PropertyService {
 	}
 
 	public async getVisited(memberId: ObjectId, input: OrdinaryInquiry): Promise<Properties> {
-		return await this.likeService.getFavoriteProperties(memberId, input);
+		return await this.viewService.getVisitedProperties(memberId, input);
 	}
 
 	public async getAgentProperties(memberId: ObjectId, input: AgentPropertiesInquiry): Promise<Properties> {
@@ -230,18 +243,31 @@ export class PropertyService {
 
 		const modifier: number = await this.likeService.toggleLike(input);
 		const result = await this.propertyStatsEditor({ _id: likeRefId, targetKey: 'propertyLikes', modifier: modifier });
+		if (modifier > 0) {
+			await this.notificationService.notify({
+				notificationType: NotificationType.LIKE,
+				notificationGroup: NotificationGroup.PROPERTY,
+				notificationTitle: target.propertyTitle,
+				authorId: memberId,
+				receiverId: target.memberId,
+				propertyId: likeRefId,
+			});
+		}
 
 		if (!result) throw new InternalServerErrorException(Message.SOMETHING_WENT_WRONG);
 		return result;
 	}
 
 	public async getAllPropertiesByAdmin(input: AllPropertiesInquiry): Promise<Properties> {
-		const { propertyStatus, propertyLocationList } = input.search;
+		const { propertyStatus, propertyLocationList, countryList, brandList, text } = input.search;
 		const match: T = {};
 		const sort: T = { [input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC };
 
 		if (propertyStatus) match.propertyStatus = propertyStatus;
-		if (propertyLocationList) match.propertyLocation = { $in: propertyLocationList };
+		if (propertyLocationList?.length) match.propertyLocation = { $in: propertyLocationList };
+		if (countryList?.length) match.carCountry = { $in: countryList };
+		if (brandList?.length) match.carBrand = { $in: brandList };
+		if (text) match.propertyTitle = { $regex: searchRegex(text) };
 
 		const result = await this.propertyModel
 			.aggregate([
@@ -266,32 +292,8 @@ export class PropertyService {
 	}
 
 	public async updatePropertyByAdmin(input: PropertyUpdate): Promise<Property> {
-		const { propertyStatus } = input;
-		let { soldAt, deletedAt } = input;
-		const search: T = {
-			_id: input._id,
-			propertyStatus: PropertyStatus.ACTIVE,
-		};
-
-		if (propertyStatus === PropertyStatus.SOLD) soldAt = moment().toDate();
-		else if (propertyStatus === PropertyStatus.DELETE) deletedAt = moment().toDate();
-
-		const result = await this.propertyModel
-			.findOneAndUpdate(search, input, {
-				new: true,
-			})
-			.exec();
-		if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED);
-
-		if (soldAt || deletedAt) {
-			await this.memberService.memberStatsEditor({
-				_id: result.memberId,
-				targetKey: 'memberProperties',
-				modifier: -1,
-			});
-		}
-
-		return result;
+		// admin can move a car between any statuses (e.g. restore a deleted or sold listing)
+		return await this.changeProperty({ _id: input._id }, input);
 	}
 
 	public async removePropertyByAdmin(propertyId: ObjectId): Promise<Property> {

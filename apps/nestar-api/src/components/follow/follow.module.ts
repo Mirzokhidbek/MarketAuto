@@ -4,6 +4,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { FollowResolver } from './follow.resolver';
 import { FollowService } from './follow.service';
 import { AuthModule } from '../auth/auth.module';
+import { NotificationModule } from '../notification/notification.module';
 import { MemberModule } from '../member/member.module';
 
 @Module({
@@ -15,6 +16,7 @@ import { MemberModule } from '../member/member.module';
 			},
 		]),
 		AuthModule,
+		NotificationModule,
 		MemberModule,
 	],
 	providers: [FollowResolver, FollowService],

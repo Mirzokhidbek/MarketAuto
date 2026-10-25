@@ -1,3 +1,6 @@
+import { NotificationService } from '../notification/notification.service';
+import { NotificationGroup, NotificationType } from '../../libs/enums/notification.enum';
+import { MemberStatus } from '../../libs/enums/member.enum';
 import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { BoardArticle, BoardArticles } from '../../libs/dto/board-article/board-article';
@@ -26,6 +29,7 @@ export class BoardArticleService {
 		private readonly memberService: MemberService,
 		private readonly viewService: ViewService,
 		private readonly likeService: LikeService,
+		private readonly notificationService: NotificationService,
 	) {}
 
 	public async createBoardArticle(memberId: ObjectId, input: BoardArticleInput): Promise<BoardArticle> {
@@ -107,6 +111,10 @@ export class BoardArticleService {
 		const result = await this.boardArticleModel
 			.aggregate([
 				{ $match: match },
+				// articles of blocked or deleted members are hidden
+				lookupMember,
+				{ $unwind: '$memberData' },
+				{ $match: { 'memberData.memberStatus': MemberStatus.ACTIVE } },
 				{ $sort: sort },
 				{
 					$facet: {
@@ -114,8 +122,6 @@ export class BoardArticleService {
 							{ $skip: (input.page - 1) * input.limit },
 							{ $limit: input.limit },
 							lookupAuthMemberLiked(memberId), // meLiked
-							lookupMember,
-							{ $unwind: '$memberData' },
 						],
 						metaCounter: [{ $count: 'total' }],
 					},
@@ -145,6 +151,16 @@ export class BoardArticleService {
 			targetKey: 'articleLikes',
 			modifier: modifier,
 		});
+		if (modifier > 0) {
+			await this.notificationService.notify({
+				notificationType: NotificationType.LIKE,
+				notificationGroup: NotificationGroup.ARTICLE,
+				notificationTitle: target.articleTitle,
+				authorId: memberId,
+				receiverId: target.memberId,
+				articleId: likeRefId,
+			});
+		}
 
 		if (!result) throw new InternalServerErrorException(Message.SOMETHING_WENT_WRONG);
 		return result;
@@ -182,19 +198,20 @@ export class BoardArticleService {
 
 	public async updateBoardArticleByAdmin(input: BoardArticleUpdate): Promise<BoardArticle> {
 		const { _id, articleStatus } = input;
+		// admin may also restore a deleted article, so look it up in any status
+		const current = await this.boardArticleModel.findById(_id).lean().exec();
+		if (!current) throw new InternalServerErrorException(Message.UPDATE_FAILED);
 
-		const result = await this.boardArticleModel
-			.findOneAndUpdate({ _id: _id, articleStatus: BoardArticleStatus.ACTIVE }, input, {
-				new: true,
-			})
-			.exec();
+		const result = await this.boardArticleModel.findByIdAndUpdate(_id, input, { new: true }).exec();
 		if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED);
 
-		if (articleStatus === BoardArticleStatus.DELETE) {
+		const wasActive = current.articleStatus === BoardArticleStatus.ACTIVE;
+		const isActive = (articleStatus ?? current.articleStatus) === BoardArticleStatus.ACTIVE;
+		if (wasActive !== isActive) {
 			await this.memberService.memberStatsEditor({
 				_id: result.memberId,
 				targetKey: 'memberArticles',
-				modifier: -1,
+				modifier: isActive ? 1 : -1,
 			});
 		}
 
