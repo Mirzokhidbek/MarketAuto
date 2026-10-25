@@ -99,7 +99,7 @@ const CommunityDetail: NextPage = ({ initialInput, ...props }: T) => {
 		error: getCommentsError,
 		refetch: getCommentsRefetch,
 	} = useQuery(GET_COMMENTS, {
-		fetchPolicy: 'cache-and-network',
+		fetchPolicy: 'network-only',
 		variables: {
 			input: searchFilter,
 		},

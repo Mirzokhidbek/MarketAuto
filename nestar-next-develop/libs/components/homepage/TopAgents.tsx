@@ -29,7 +29,7 @@ const TopAgents = (props: TopAgentsProps) => {
 		error: getAgentsError,
 		refetch: getAgentsRefetch,
 	} = useQuery(GET_AGENTS, {
-		fetchPolicy: 'cache-and-network',
+		fetchPolicy: 'network-only',
 		variables: { input: initialInput },
 		notifyOnNetworkStatusChange: true,
 		onCompleted: (data: T) => {
