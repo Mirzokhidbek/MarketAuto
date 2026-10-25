@@ -60,6 +60,9 @@ export const GET_ALL_PROPERTIES_BY_ADMIN = gql`
 				carFuel
 				carTransmission
 				carColor
+				carEngine
+				carTrim
+				carCountry
 				propertyViews
 				propertyLikes
 				propertyImages

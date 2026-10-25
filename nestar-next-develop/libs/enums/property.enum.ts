@@ -33,6 +33,17 @@ export enum PropertyLocation {
 	NUKUS = 'NUKUS',
 }
 
+export enum CarCountry {
+	UZBEKISTAN = 'UZBEKISTAN',
+	SOUTH_KOREA = 'SOUTH_KOREA',
+	CHINA = 'CHINA',
+	JAPAN = 'JAPAN',
+	USA = 'USA',
+	GERMANY = 'GERMANY',
+	UAE = 'UAE',
+	OTHER = 'OTHER',
+}
+
 export enum CarBrand {
 	CHEVROLET = 'CHEVROLET',
 	KIA = 'KIA',

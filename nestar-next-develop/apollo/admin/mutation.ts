@@ -54,6 +54,9 @@ export const UPDATE_PROPERTY_BY_ADMIN = gql`
 			carFuel
 			carTransmission
 			carColor
+			carEngine
+			carTrim
+			carCountry
 			propertyViews
 			propertyLikes
 			propertyImages
@@ -86,6 +89,9 @@ export const REMOVE_PROPERTY_BY_ADMIN = gql`
 			carFuel
 			carTransmission
 			carColor
+			carEngine
+			carTrim
+			carCountry
 			propertyViews
 			propertyLikes
 			propertyImages
