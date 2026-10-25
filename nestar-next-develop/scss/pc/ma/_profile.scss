@@ -150,3 +150,95 @@
 .ma-profile-section {
 	margin-bottom: 32px;
 }
+
+/* support center */
+.ma-cs {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) 320px;
+	gap: 28px;
+	align-items: start;
+	&__switch {
+		max-width: 320px;
+		margin-bottom: 20px;
+	}
+	&__contact {
+		position: sticky;
+		top: 96px;
+		h3 {
+			margin: 0 0 8px;
+			font-size: 18px;
+			color: $ma-dark;
+		}
+		p {
+			margin: 0 0 16px;
+			font-size: 14px;
+			line-height: 1.6;
+			color: $ma-muted;
+		}
+	}
+}
+
+.ma-faq-block .ma-tabs {
+	margin-bottom: 18px;
+}
+
+.ma-notice-list {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.ma-notice {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+	padding: 18px 20px;
+	border-radius: 12px;
+	background: $ma-white;
+	border: 1px solid $ma-border;
+	font-family: $ma-font;
+	&__no {
+		width: 32px;
+		height: 32px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		border-radius: 8px;
+		background: #eff6ff;
+		color: $ma-primary;
+		font-weight: 700;
+		font-size: 14px;
+	}
+	strong {
+		flex: 1;
+		font-size: 15px;
+		font-weight: 500;
+		color: $ma-dark;
+	}
+	&__date {
+		font-size: 13px;
+		color: $ma-muted;
+	}
+}
+
+/* about */
+.ma-about {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 56px;
+	align-items: start;
+	font-family: $ma-font;
+	h1 {
+		margin: 0;
+		font-size: 38px;
+		line-height: 1.2;
+		letter-spacing: -0.02em;
+		color: $ma-dark;
+	}
+	&__text p {
+		margin: 0 0 16px;
+		font-size: 16px;
+		line-height: 1.75;
+		color: $ma-text;
+	}
+}
