@@ -13,12 +13,19 @@ import {
 	IconButton,
 } from '@mui/material';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
-import { CarBrand, CarFuel, CarTransmission, PropertyLocation, PropertyType } from '../../enums/property.enum';
+import {
+	CarBrand,
+	CarCountry,
+	CarFuel,
+	CarTransmission,
+	PropertyLocation,
+	PropertyType,
+} from '../../enums/property.enum';
 import { PropertiesInquiry } from '../../types/property/property.input';
 import { useRouter } from 'next/router';
 import CancelRoundedIcon from '@mui/icons-material/CancelRounded';
 import { propertyMileage, propertyYears } from '../../config';
-import { formatEnumLabel, formatMileage } from '../../utils';
+import { formatCountry, formatEnumLabel, formatMileage } from '../../utils';
 import RefreshIcon from '@mui/icons-material/Refresh';
 
 const MenuProps = {
@@ -29,7 +36,7 @@ const MenuProps = {
 	},
 };
 
-type CarListKey = 'brandList' | 'fuelList' | 'transmissionList';
+type CarListKey = 'countryList' | 'brandList' | 'fuelList' | 'transmissionList';
 type CarRangeKey = 'yearsRange' | 'mileageRange';
 
 const carYears: number[] = propertyYears.map((year: string) => Number(year));
@@ -94,7 +101,7 @@ const Filter = (props: FilterType) => {
 				.then();
 		}
 
-		(['brandList', 'fuelList', 'transmissionList'] as CarListKey[]).forEach((key) => {
+		(['countryList', 'brandList', 'fuelList', 'transmissionList'] as CarListKey[]).forEach((key) => {
 			if (searchFilter?.search?.[key]?.length == 0) {
 				delete searchFilter.search[key];
 				router
@@ -417,6 +424,27 @@ const Filter = (props: FilterType) => {
 								<RefreshIcon />
 							</IconButton>
 						</Tooltip>
+					</Stack>
+				</Stack>
+				<Stack className={'find-your-home'} mb={'30px'}>
+					<Typography className={'title'}>Country</Typography>
+					<Stack style={{ maxHeight: '253px', overflowY: 'auto' }}>
+						{Object.values(CarCountry).map((item: string) => (
+							<Stack className={'input-box'} key={item}>
+								<Checkbox
+									id={item}
+									className="property-checkbox"
+									color="default"
+									size="small"
+									value={item}
+									onChange={(e: any) => carListSelectHandler(e, 'countryList')}
+									checked={(searchFilter?.search?.countryList || []).includes(item as CarCountry)}
+								/>
+								<label htmlFor={item} style={{ cursor: 'pointer' }}>
+									<Typography className="property_type">{formatCountry(item)}</Typography>
+								</label>
+							</Stack>
+						))}
 					</Stack>
 				</Stack>
 				<Stack className={'find-your-home'} mb={'30px'}>

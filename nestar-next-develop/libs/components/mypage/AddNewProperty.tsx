@@ -2,9 +2,16 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import { Button, Stack, Typography } from '@mui/material';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
-import { CarBrand, CarFuel, CarTransmission, PropertyLocation, PropertyType } from '../../enums/property.enum';
+import {
+	CarBrand,
+	CarCountry,
+	CarFuel,
+	CarTransmission,
+	PropertyLocation,
+	PropertyType,
+} from '../../enums/property.enum';
 import { REACT_APP_API_URL, propertyYears } from '../../config';
-import { formatEnumLabel } from '../../utils';
+import { formatCountry, formatEnumLabel } from '../../utils';
 import { PropertyInput } from '../../types/property/property.input';
 import axios from 'axios';
 import { getJwtToken } from '../../auth';
@@ -21,6 +28,7 @@ const AddProperty = ({ initialValues, ...props }: any) => {
 	const [insertPropertyData, setInsertPropertyData] = useState<PropertyInput>(initialValues);
 	const [propertyType, setPropertyType] = useState<PropertyType[]>(Object.values(PropertyType));
 	const [propertyLocation, setPropertyLocation] = useState<PropertyLocation[]>(Object.values(PropertyLocation));
+	const isUzbekistan = insertPropertyData.carCountry === CarCountry.UZBEKISTAN;
 	const token = getJwtToken();
 	const user = useReactiveVar(userVar);
 
@@ -48,7 +56,10 @@ const AddProperty = ({ initialValues, ...props }: any) => {
 			propertyTitle: getPropertyData?.getProperty ? getPropertyData?.getProperty?.propertyTitle : '',
 			propertyPrice: getPropertyData?.getProperty ? getPropertyData?.getProperty?.propertyPrice : 0,
 			propertyType: getPropertyData?.getProperty ? getPropertyData?.getProperty?.propertyType : '',
+			carCountry: getPropertyData?.getProperty ? getPropertyData?.getProperty?.carCountry : '',
 			propertyLocation: getPropertyData?.getProperty ? getPropertyData?.getProperty?.propertyLocation : '',
+			carEngine: getPropertyData?.getProperty?.carEngine ?? undefined,
+			carTrim: getPropertyData?.getProperty?.carTrim ?? '',
 			propertyAddress: getPropertyData?.getProperty ? getPropertyData?.getProperty?.propertyAddress : '',
 			propertyBarter: getPropertyData?.getProperty ? getPropertyData?.getProperty?.propertyBarter : false,
 			propertyRent: getPropertyData?.getProperty ? getPropertyData?.getProperty?.propertyRent : false,
@@ -122,7 +133,8 @@ const AddProperty = ({ initialValues, ...props }: any) => {
 			insertPropertyData.propertyTitle === '' ||
 			insertPropertyData.propertyPrice === 0 || // @ts-ignore
 			insertPropertyData.propertyType === '' || // @ts-ignore
-			insertPropertyData.propertyLocation === '' || // @ts-ignore
+			!insertPropertyData.carCountry || // @ts-ignore
+			(isUzbekistan && !insertPropertyData.propertyLocation) || // @ts-ignore
 			insertPropertyData.propertyAddress === '' || // @ts-ignore
 			insertPropertyData.propertyBarter === '' || // @ts-ignore
 			insertPropertyData.propertyRent === '' || // @ts-ignore
@@ -138,11 +150,21 @@ const AddProperty = ({ initialValues, ...props }: any) => {
 		}
 	};
 
+	/** drops empty optional fields and the Uzbek city for cars located abroad **/
+	const buildPropertyPayload = (): any => {
+		const payload: any = { ...insertPropertyData };
+		['carColor', 'carTrim', 'carEngine', 'propertyDesc'].forEach((key) => {
+			if (payload[key] === '' || payload[key] === undefined || Number.isNaN(payload[key])) delete payload[key];
+		});
+		if (payload.carCountry !== CarCountry.UZBEKISTAN) delete payload.propertyLocation;
+		return payload;
+	};
+
 	const insertPropertyHandler = useCallback(async () => {
 		try {
 			const result = await createProperty({
 				variables: {
-					input: insertPropertyData,
+					input: buildPropertyPayload(),
 				},
 			});
 
@@ -164,7 +186,7 @@ const AddProperty = ({ initialValues, ...props }: any) => {
 			insertPropertyData._id = getPropertyData?.getProperty?._id;
 			const result = await updateProperty({
 				variables: {
-					input: insertPropertyData,
+					input: buildPropertyPayload(),
 				},
 			});
 
@@ -254,36 +276,63 @@ const AddProperty = ({ initialValues, ...props }: any) => {
 
 							<Stack className="config-row">
 								<Stack className="price-year-after-price">
-									<Typography className="title">City</Typography>
+									<Typography className="title">Country</Typography>
 									<select
 										className={'select-description'}
-										defaultValue={insertPropertyData.propertyLocation || 'select'}
-										value={insertPropertyData.propertyLocation || 'select'}
+										value={insertPropertyData.carCountry || 'select'}
 										onChange={({ target: { value } }) =>
 											// @ts-ignore
-											setInsertPropertyData({ ...insertPropertyData, propertyLocation: value })
+											setInsertPropertyData({ ...insertPropertyData, carCountry: value })
 										}
 									>
-										<>
-											<option selected={true} disabled={true} value={'select'}>
-												Select
+										<option disabled={true} value={'select'}>
+											Select
+										</option>
+										{Object.values(CarCountry).map((country: string) => (
+											<option value={country} key={country}>
+												{formatCountry(country)}
 											</option>
-											{propertyLocation.map((location: any) => (
-												<option value={`${location}`} key={location}>
-													{formatEnumLabel(location)}
-												</option>
-											))}
-										</>
+										))}
 									</select>
 									<div className={'divider'}></div>
 									<img src={'/img/icons/Vector.svg'} className={'arrow-down'} />
 								</Stack>
+								{isUzbekistan && (
+									<Stack className="price-year-after-price">
+										<Typography className="title">City</Typography>
+										<select
+											className={'select-description'}
+											defaultValue={insertPropertyData.propertyLocation || 'select'}
+											value={insertPropertyData.propertyLocation || 'select'}
+											onChange={({ target: { value } }) =>
+												// @ts-ignore
+												setInsertPropertyData({ ...insertPropertyData, propertyLocation: value })
+											}
+										>
+											<>
+												<option selected={true} disabled={true} value={'select'}>
+													Select
+												</option>
+												{propertyLocation.map((location: any) => (
+													<option value={`${location}`} key={location}>
+														{formatEnumLabel(location)}
+													</option>
+												))}
+											</>
+										</select>
+										<div className={'divider'}></div>
+										<img src={'/img/icons/Vector.svg'} className={'arrow-down'} />
+									</Stack>
+								)}
+							</Stack>
+
+							<Stack className="config-row">
 								<Stack className="price-year-after-price">
 									<Typography className="title">Address</Typography>
 									<input
 										type="text"
 										className="description-input"
-										placeholder={'Address'}
+										placeholder={isUzbekistan ? 'District, street' : 'City abroad, e.g. Incheon, Frankfurt'}
 										value={insertPropertyData.propertyAddress}
 										onChange={({ target: { value } }) =>
 											setInsertPropertyData({ ...insertPropertyData, propertyAddress: value })
@@ -460,9 +509,39 @@ const AddProperty = ({ initialValues, ...props }: any) => {
 										type="text"
 										className="description-input"
 										placeholder={'White'}
-										value={insertPropertyData.carColor}
+										value={insertPropertyData.carColor ?? ''}
 										onChange={({ target: { value } }) =>
 											setInsertPropertyData({ ...insertPropertyData, carColor: value })
+										}
+									/>
+								</Stack>
+								<Stack className="price-year-after-price">
+									<Typography className="title">Trim</Typography>
+									<input
+										type="text"
+										className="description-input"
+										placeholder={'AWD, M-Sport, LTZ...'}
+										value={insertPropertyData.carTrim ?? ''}
+										onChange={({ target: { value } }) =>
+											setInsertPropertyData({ ...insertPropertyData, carTrim: value })
+										}
+									/>
+								</Stack>
+							</Stack>
+
+							<Stack className="config-row">
+								<Stack className="price-year-after-price">
+									<Typography className="title">Engine (L)</Typography>
+									<input
+										type="number"
+										className="description-input"
+										placeholder={'2.0'}
+										value={insertPropertyData.carEngine ?? ''}
+										onChange={({ target: { value } }) =>
+											setInsertPropertyData({
+												...insertPropertyData,
+												carEngine: value === '' ? undefined : parseFloat(value),
+											})
 										}
 									/>
 								</Stack>
@@ -596,6 +675,7 @@ AddProperty.defaultProps = {
 		propertyTitle: '',
 		propertyPrice: 0,
 		propertyType: '',
+		carCountry: '',
 		propertyLocation: '',
 		propertyAddress: '',
 		propertyBarter: false,
@@ -607,6 +687,7 @@ AddProperty.defaultProps = {
 		carFuel: '',
 		carTransmission: '',
 		carColor: '',
+		carTrim: '',
 		propertyDesc: '',
 		propertyImages: [],
 	},

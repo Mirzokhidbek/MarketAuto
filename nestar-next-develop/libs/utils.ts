@@ -32,13 +32,18 @@ const countryFlags: Record<string, string> = {
 
 export const formatCountry = (country: string | undefined): string => {
 	if (!country) return '';
-	return `${countryFlags[country] ?? ''} ${country === 'USA' || country === 'UAE' ? country : formatEnumLabel(country)}`.trim();
+	return `${countryFlags[country] ?? ''} ${
+		country === 'USA' || country === 'UAE' ? country : formatEnumLabel(country)
+	}`.trim();
 };
 
 /** Uzbek cars: "address, City"; foreign cars: "address, Country" **/
 export const formatCarPlace = (property: any): string => {
 	if (!property) return '';
-	const area = property.carCountry === 'UZBEKISTAN' ? formatEnumLabel(property.propertyLocation) : formatEnumLabel(property.carCountry);
+	const area =
+		property.carCountry === 'UZBEKISTAN'
+			? formatEnumLabel(property.propertyLocation)
+			: formatEnumLabel(property.carCountry);
 	return [property.propertyAddress, area].filter(Boolean).join(', ');
 };
 
