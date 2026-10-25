@@ -14,7 +14,7 @@ import {
 	HomeFaq,
 	HowItWorks,
 	SellCta,
-	Testimonials,
+	LatestArticles,
 	TopDealers,
 	WhyUs,
 } from '../libs/components/homepage/HomeSections';
@@ -49,7 +49,7 @@ const Home: NextPage = () => {
 				<HowItWorks />
 				<TopDealers />
 				<SellCta />
-				<Testimonials />
+				<LatestArticles />
 				<HomeFaq />
 			</Stack>
 		);

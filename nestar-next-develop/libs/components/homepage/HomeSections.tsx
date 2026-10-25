@@ -11,7 +11,9 @@ import PhoneInTalkOutlinedIcon from '@mui/icons-material/PhoneInTalkOutlined';
 import KeyOutlinedIcon from '@mui/icons-material/KeyOutlined';
 import SupportAgentOutlinedIcon from '@mui/icons-material/SupportAgentOutlined';
 import ExpandMoreRoundedIcon from '@mui/icons-material/ExpandMoreRounded';
-import { GET_AGENTS } from '../../../apollo/user/query';
+import { GET_AGENTS, GET_BOARD_ARTICLES } from '../../../apollo/user/query';
+import { BoardArticle } from '../../types/board-article/board-article';
+import CommunityCard from '../common/CommunityCard';
 import { userVar } from '../../../apollo/store';
 import { Member } from '../../types/member/member';
 import { CarCountry } from '../../enums/property.enum';
@@ -185,7 +187,7 @@ export const SellCta = () => {
 						<span className={'ma-eyebrow ma-eyebrow--light'}>{t('FOR SELLERS')}</span>
 						<h2>{t('Selling a car in Uzbekistan or abroad?')}</h2>
 						<p>
-							{t('List your car for free and reach buyers across Uzbekistan. Dealers get a public profile, ranking and statistics.')}
+							{t('List your car for free and reach buyers across Uzbekistan. Every seller gets a public profile, followers and statistics.')}
 						</p>
 						<div className={'ma-cta__actions'}>
 							<Link href={sellHref}>
@@ -215,35 +217,31 @@ export const SellCta = () => {
 	);
 };
 
-/** TESTIMONIALS **/
-const reviews = [
-	{ initials: 'AB', name: 'Azizbek B.', meta: 'Tashkent • Kia K5 2022', text: 'Found my Kia K5 in two days. Filters by year and mileage saved me a lot of time, and the seller answered right away.' },
-	{ initials: 'SK', name: 'Sanjar K.', meta: 'Samarkand • BYD Song Plus 2024', text: 'I compared cars from Uzbekistan and China in one place. Clear country labels made it easy to understand where each car is.' },
-	{ initials: 'DN', name: 'Dilshod N.', meta: 'Bukhara • Dealer', text: 'As a dealer I list all my cars for free. The dealer ranking brings new buyers to my showroom every week.' },
-];
-
-export const Testimonials = () => {
+/** LATEST FROM COMMUNITY (real member articles instead of sample testimonials) **/
+export const LatestArticles = () => {
 	const { t } = useTranslation('common');
+	const { data } = useQuery(GET_BOARD_ARTICLES, {
+		fetchPolicy: 'cache-and-network',
+		variables: { input: { page: 1, limit: 3, sort: 'createdAt', direction: Direction.DESC, search: {} } },
+	});
+	const articles: BoardArticle[] = data?.getBoardArticles?.list ?? [];
+	if (!articles.length) return null;
+
 	return (
 		<section className={'ma-section ma-section--alt'}>
 			<div className={'ma-container'}>
-				<div className={'ma-heading'}>
-					<span className={'ma-eyebrow'}>{t('SUCCESS STORIES')}</span>
-					<h2 className={'ma-title'}>{t('Trusted by Buyers and Sellers')}</h2>
+				<div className={'ma-hub__head'}>
+					<div>
+						<h2 className={'ma-title'}>{t('From the Community')}</h2>
+						<p className={'ma-subtitle'}>{t('News, reviews and tips written by MarketAuto members')}</p>
+					</div>
+					<Link href={'/community?articleCategory=FREE'}>
+						<span className={'ma-btn ma-btn--outline'}>{t('Go to Community')} →</span>
+					</Link>
 				</div>
 				<div className={'ma-grid ma-grid--3'}>
-					{reviews.map((item) => (
-						<div className={'ma-review'} key={item.name}>
-							<div className={'ma-review__stars'}>★★★★★</div>
-							<p>“{t(item.text)}”</p>
-							<div className={'ma-review__author'}>
-								<span className={'ma-avatar'}>{item.initials}</span>
-								<div>
-									<strong>{item.name}</strong>
-									<span>{item.meta}</span>
-								</div>
-							</div>
-						</div>
+					{articles.map((article) => (
+						<CommunityCard boardArticle={article} key={article._id} />
 					))}
 				</div>
 			</div>
@@ -256,7 +254,7 @@ const faqs = [
 	{ q: 'Is it free to list a car?', a: 'Yes. Private sellers and dealers can list cars on MarketAuto for free.' },
 	{ q: 'Can sellers from abroad list cars?', a: 'Yes. Sellers from South Korea, China, Japan, the US, Germany, the UAE and other countries can list cars and choose the country where the car is located.' },
 	{ q: 'Does MarketAuto handle payment?', a: 'No. MarketAuto is a listings platform. Buyers and sellers agree on payment directly. Always inspect the car and documents before paying.' },
-	{ q: 'How do I contact a seller?', a: 'Open the car page and use the contact form or call the phone number shown on the seller card.' },
+	{ q: 'How do I contact a seller?', a: 'Open the car page and press "Show phone number" on the seller card to call the seller directly.' },
 ];
 
 export const HomeFaq = () => {
