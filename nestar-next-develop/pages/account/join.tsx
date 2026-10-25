@@ -122,23 +122,23 @@ const Join: NextPage = () => {
 									required
 								/>
 							</label>
-							<span className={'ma-input__label'}>{t('I want to')}</span>
+							<span className={'ma-input__label'}>{t('Account type')}</span>
 							<div className={'ma-role'}>
 								<button
 									type="button"
 									className={input.type === 'USER' ? 'is-active' : ''}
 									onClick={() => handleInput('type', 'USER')}
 								>
-									<strong>{t('Buy a car')}</strong>
-									<span>{t('Search, save and contact sellers')}</span>
+									<strong>{t('Private seller')}</strong>
+									<span>{t('Buy, sell and follow sellers')}</span>
 								</button>
 								<button
 									type="button"
 									className={input.type === 'AGENT' ? 'is-active' : ''}
 									onClick={() => handleInput('type', 'AGENT')}
 								>
-									<strong>{t('Sell cars')}</strong>
-									<span>{t('Private seller or dealer')}</span>
+									<strong>{t('Dealer')}</strong>
+									<span>{t('Car dealership or showroom')}</span>
 								</button>
 							</div>
 						</>

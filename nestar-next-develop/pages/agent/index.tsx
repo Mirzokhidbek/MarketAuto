@@ -111,9 +111,9 @@ const AgentList: NextPage = ({ initialInput, ...props }: any) => {
 			<div className={'ma-container'}>
 				<div className={'ma-results__bar'}>
 					<div>
-						<h2>{t('Dealers')}</h2>
+						<h2>{t('Sellers')}</h2>
 						<span>
-							{total || 0} {t('dealers found')}
+							{total || 0} {t('sellers found')}
 						</span>
 					</div>
 					<div className={'ma-toolbar'}>
@@ -122,7 +122,7 @@ const AgentList: NextPage = ({ initialInput, ...props }: any) => {
 							<input
 								type="text"
 								value={searchText}
-								placeholder={t('Search dealers') as string}
+								placeholder={t('Search sellers') as string}
 								onChange={(e: any) => setSearchText(e.target.value)}
 								onKeyDown={(event: any) => {
 									if (event.key == 'Enter') {

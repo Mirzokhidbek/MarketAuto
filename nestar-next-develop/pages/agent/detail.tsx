@@ -19,7 +19,7 @@ import { CommentGroup } from '../../libs/enums/comment.enum';
 import { Messages, REACT_APP_API_URL } from '../../libs/config';
 import { formatPhone } from '../../libs/utils';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import { CREATE_COMMENT, LIKE_TARGET_PROPERTY } from '../../apollo/user/mutation';
+import { CREATE_COMMENT, LIKE_TARGET_PROPERTY, SUBSCRIBE, UNSUBSCRIBE } from '../../apollo/user/mutation';
 import { GET_COMMENTS, GET_MEMBER, GET_PROPERTIES } from '../../apollo/user/query';
 import { T } from '../../libs/types/common';
 
@@ -50,6 +50,8 @@ const AgentDetail: NextPage = ({ initialInput, initialComment, ...props }: any) 
 	/** APOLLO REQUESTS **/
 	const [createComment] = useMutation(CREATE_COMMENT);
 	const [likeTargetProperty] = useMutation(LIKE_TARGET_PROPERTY);
+	const [subscribe] = useMutation(SUBSCRIBE);
+	const [unsubscribe] = useMutation(UNSUBSCRIBE);
 
 	const {
 		loading: getMemberLoading,
@@ -207,7 +209,7 @@ const AgentDetail: NextPage = ({ initialInput, initialComment, ...props }: any) 
 							alt={agent.memberNick}
 						/>
 						<div className={'ma-profile-card__info'}>
-							<span className={'ma-badge ma-badge--primary'}>{t('Dealer')}</span>
+							<span className={'ma-badge ma-badge--primary'}>{t(agent.memberType === 'AGENT' ? 'Dealer' : 'Private seller')}</span>
 							<h1>{agent.memberFullName || agent.memberNick}</h1>
 							<div className={'ma-detail__meta'}>
 								{agent.memberAddress && <span>{agent.memberAddress}</span>}
@@ -224,6 +226,10 @@ const AgentDetail: NextPage = ({ initialInput, initialComment, ...props }: any) 
 									<span>{t('cars')}</span>
 								</div>
 								<div>
+									<strong>{agent.memberFollowers}</strong>
+									<span>{t('followers')}</span>
+								</div>
+								<div>
 									<strong>{agent.memberLikes}</strong>
 									<span>{t('likes')}</span>
 								</div>
@@ -233,8 +239,16 @@ const AgentDetail: NextPage = ({ initialInput, initialComment, ...props }: any) 
 								</div>
 							</div>
 							<a className={'ma-btn ma-btn--primary'} href={`tel:${formatPhone(agent.memberPhone)}`}>
-								<PhoneOutlinedIcon /> {t('Call dealer')}
+								<PhoneOutlinedIcon /> {t('Call seller')}
 							</a>
+							{user?._id !== agent._id && (
+								<button
+									className={`ma-btn ${following ? 'ma-btn--outline' : 'ma-btn--primary'}`}
+									onClick={followHandler}
+								>
+									{following ? t('Unfollow') : t('Follow')}
+								</button>
+							)}
 							<button className={'ma-btn ma-btn--outline'} onClick={() => redirectToMemberPageHandler(agent._id)}>
 								{t('Followers & articles')}
 							</button>

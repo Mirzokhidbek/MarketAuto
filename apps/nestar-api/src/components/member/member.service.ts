@@ -115,7 +115,11 @@ export class MemberService {
 
 	public async getAgents(memberId: ObjectId, input: AgentsInquiry): Promise<Members> {
 		const { text } = input.search;
-		const match: T = { memberType: MemberType.AGENT, memberStatus: MemberStatus.ACTIVE };
+		// sellers: dealers plus any member who has posted a car
+		const match: T = {
+			memberStatus: MemberStatus.ACTIVE,
+			$or: [{ memberType: MemberType.AGENT }, { memberType: MemberType.USER, memberProperties: { $gt: 0 } }],
+		};
 		const sort: T = { [input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC };
 
 		if (text) match.memberNick = { $regex: new RegExp(text, 'i') };

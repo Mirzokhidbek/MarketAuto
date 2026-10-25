@@ -24,7 +24,7 @@ const MyMenu = () => {
 	const { t } = useTranslation('common');
 	const user = useReactiveVar(userVar);
 	const category: string = (router.query?.category as string) ?? 'myProfile';
-	const isSeller = user?.memberType === 'AGENT';
+	const isSeller = user?.memberType !== 'ADMIN';
 
 	const groups = [
 		{
@@ -76,7 +76,7 @@ const MyMenu = () => {
 					<strong>{user?.memberFullName || user?.memberNick}</strong>
 					<span>{formatPhone(user?.memberPhone)}</span>
 					<em className={'ma-badge ma-badge--primary'}>
-						{t(isSeller ? 'Seller' : user?.memberType === 'ADMIN' ? 'Admin' : 'Buyer')}
+						{t(user?.memberType === 'AGENT' ? 'Dealer' : user?.memberType === 'ADMIN' ? 'Admin' : 'Private seller')}
 					</em>
 				</div>
 			</div>

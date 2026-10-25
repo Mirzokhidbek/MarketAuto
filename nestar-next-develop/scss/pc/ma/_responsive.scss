@@ -1,7 +1,7 @@
 /** responsive layer for the redesigned UI **/
-html,
-body {
-	overflow-x: hidden;
+/* clip (not hidden) so the window stays the scroll container */
+#pc-wrap {
+	overflow-x: clip;
 }
 
 .container {

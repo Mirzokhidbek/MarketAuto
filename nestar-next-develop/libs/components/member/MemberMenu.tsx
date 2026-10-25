@@ -39,7 +39,7 @@ const MemberMenu = (props: MemberMenuProps) => {
 		},
 	});
 
-	const isSeller = member?.memberType === 'AGENT';
+	const isSeller = member?.memberType !== 'ADMIN';
 	const following = !!(member?.meFollowed && member?.meFollowed[0]?.myFollowing);
 	const items = [
 		...(isSeller
@@ -58,9 +58,14 @@ const MemberMenu = (props: MemberMenuProps) => {
 					alt={member?.memberNick}
 				/>
 				<strong>{member?.memberFullName || member?.memberNick}</strong>
-				<span className={'ma-badge ma-badge--primary'}>{t(isSeller ? 'Seller' : 'Buyer')}</span>
+				<span className={'ma-badge ma-badge--primary'}>{t(member?.memberType === 'AGENT' ? 'Dealer' : 'Private seller')}</span>
 				{member?.memberPhone && <span className={'ma-side-menu__phone'}>{formatPhone(member?.memberPhone)}</span>}
 				{member?.memberDesc && <p>{member.memberDesc}</p>}
+				{!user?._id && (
+					<button className={'ma-btn ma-btn--block ma-btn--primary'} onClick={() => router.push('/account/join')}>
+						{t('Follow')}
+					</button>
+				)}
 				{user?._id && user?._id !== member?._id && (
 					<button
 						className={`ma-btn ma-btn--block ${following ? 'ma-btn--outline' : 'ma-btn--primary'}`}

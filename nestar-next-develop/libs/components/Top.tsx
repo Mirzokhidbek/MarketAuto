@@ -217,7 +217,7 @@ const Top = () => {
 							)}
 						</Box>
 						<Box component={'div'} className={'user-box'}>
-							<Link href={user?.memberType === MemberType.AGENT ? '/mypage?category=addProperty' : '/account/join'}>
+							<Link href={user?._id ? '/mypage?category=addProperty' : '/account/join'}>
 								<span className={'ma-btn ma-btn--primary ma-nav-sell'}>{t('Sell a car')}</span>
 							</Link>
 							{user?._id ? (
