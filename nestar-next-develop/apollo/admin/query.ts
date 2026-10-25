@@ -230,3 +230,20 @@ export const GET_ALL_NOTICES_BY_ADMIN = gql`
 		}
 	}
 `;
+
+export const GET_DASHBOARD_STATS = gql`
+	query GetDashboardStats {
+		getDashboardStats {
+			membersTotal
+			membersBlocked
+			dealers
+			membersToday
+			carsActive
+			carsSold
+			carsDeleted
+			carsToday
+			articlesActive
+			inquiriesWaiting
+		}
+	}
+`;

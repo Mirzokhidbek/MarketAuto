@@ -5,6 +5,7 @@ import { useTranslation } from 'next-i18next';
 import Link from 'next/link';
 import { articleCategoryLabels } from '../../libs/utils';
 import withLayoutFull from '../../libs/components/layout/LayoutFull';
+import Seo from '../../libs/components/common/Seo';
 import { Pagination } from '@mui/material';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
@@ -246,6 +247,7 @@ const CommunityDetail: NextPage = ({ initialInput, ...props }: T) => {
 
 	return (
 		<div id="community-detail-page" className={'ma-page ma-detail'}>
+			{boardArticle?.articleTitle && <Seo title={boardArticle.articleTitle} />}
 			<div className={'ma-container ma-container--narrow'}>
 				<nav className={'ma-breadcrumb'}>
 					<Link href={'/'}>{t('Home')}</Link>

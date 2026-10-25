@@ -1,3 +1,4 @@
+import Swal from 'sweetalert2';
 import React, { useCallback, useEffect, useState } from 'react';
 import type { NextPage } from 'next';
 import withAdminLayout from '../../../libs/components/layout/LayoutAdmin';
@@ -14,7 +15,7 @@ import CancelRoundedIcon from '@mui/icons-material/CancelRounded';
 import { MembersInquiry } from '../../../libs/types/member/member.input';
 import { Member } from '../../../libs/types/member/member';
 import { MemberStatus, MemberType } from '../../../libs/enums/member.enum';
-import { sweetErrorHandling } from '../../../libs/sweetAlert';
+import { sweetTopSmallSuccessAlert, sweetErrorHandling } from '../../../libs/sweetAlert';
 import { MemberUpdate } from '../../../libs/types/member/member.update';
 import { UPDATE_MEMBER_BY_ADMIN } from '../../../apollo/admin/mutation';
 import { GET_ALL_MEMBERS_BY_ADMIN } from '../../../apollo/admin/query';
@@ -117,6 +118,25 @@ const AdminUsers: NextPage = ({ initialInquiry, ...props }: any) => {
 		}
 	};
 
+	// support flow for "I forgot my password": admin sets a temporary password and tells the member
+	const resetPasswordHandler = async (id: string, nick: string) => {
+		const { value: memberPassword } = await Swal.fire({
+			title: `New password for ${nick}`,
+			input: 'text',
+			inputPlaceholder: '5-12 characters',
+			showCancelButton: true,
+			inputValidator: (value: string) =>
+				!value || value.length < 5 || value.length > 12 ? 'Password must be 5-12 characters' : null,
+		});
+		if (!memberPassword) return;
+		try {
+			await updateMemberByAdmin({ variables: { input: { _id: id, memberPassword } } });
+			await sweetTopSmallSuccessAlert('Password updated', 1000);
+		} catch (err: any) {
+			sweetErrorHandling(err).then();
+		}
+	};
+
 	const textHandler = useCallback((value: string) => {
 		try {
 			setSearchText(value);
@@ -173,28 +193,28 @@ const AdminUsers: NextPage = ({ initialInquiry, ...props }: any) => {
 						<Box component={'div'}>
 							<List className={'tab-menu'}>
 								<ListItem
-									onClick={(e) => tabChangeHandler(e, 'ALL')}
+									onClick={(e: React.MouseEvent) => tabChangeHandler(e, 'ALL')}
 									value="ALL"
 									className={value === 'ALL' ? 'li on' : 'li'}
 								>
 									All
 								</ListItem>
 								<ListItem
-									onClick={(e) => tabChangeHandler(e, 'ACTIVE')}
+									onClick={(e: React.MouseEvent) => tabChangeHandler(e, 'ACTIVE')}
 									value="ACTIVE"
 									className={value === 'ACTIVE' ? 'li on' : 'li'}
 								>
 									Active
 								</ListItem>
 								<ListItem
-									onClick={(e) => tabChangeHandler(e, 'BLOCK')}
+									onClick={(e: React.MouseEvent) => tabChangeHandler(e, 'BLOCK')}
 									value="BLOCK"
 									className={value === 'BLOCK' ? 'li on' : 'li'}
 								>
 									Blocked
 								</ListItem>
 								<ListItem
-									onClick={(e) => tabChangeHandler(e, 'DELETE')}
+									onClick={(e: React.MouseEvent) => tabChangeHandler(e, 'DELETE')}
 									value="DELETE"
 									className={value === 'DELETE' ? 'li on' : 'li'}
 								>
@@ -259,6 +279,7 @@ const AdminUsers: NextPage = ({ initialInquiry, ...props }: any) => {
 							menuIconClickHandler={menuIconClickHandler}
 							menuIconCloseHandler={menuIconCloseHandler}
 							updateMemberHandler={updateMemberHandler}
+							resetPasswordHandler={resetPasswordHandler}
 						/>
 
 						<TablePagination

@@ -1,5 +1,6 @@
 import React, { ChangeEvent, useEffect, useState } from 'react';
 import { CircularProgress } from '@mui/material';
+import Seo from '../../libs/components/common/Seo';
 import withLayoutFull from '../../libs/components/layout/LayoutFull';
 import { NextPage } from 'next';
 import Review from '../../libs/components/property/Review';
@@ -44,13 +45,35 @@ import { Direction, Message } from '../../libs/enums/common.enum';
 import { sweetErrorHandling, sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../libs/sweetAlert';
 import { CREATE_COMMENT, LIKE_TARGET_PROPERTY } from '../../apollo/user/mutation';
 
-export const getStaticProps = async ({ locale }: any) => ({
+/** car basics fetched on the server so search engines and link previews (Telegram etc.) see real title, price and photo */
+const fetchCarSeo = async (id?: string) => {
+	if (!id || !process.env.REACT_APP_API_GRAPHQL_URL) return null;
+	try {
+		const response = await fetch(process.env.REACT_APP_API_GRAPHQL_URL, {
+			method: 'POST',
+			headers: { 'content-type': 'application/json' },
+			body: JSON.stringify({
+				query:
+					'query($id:String!){getProperty(propertyId:$id){propertyTitle propertyPrice carYear carMileage carBrand carModel propertyImages propertyDesc}}',
+				variables: { id },
+			}),
+			signal: AbortSignal.timeout(3000),
+		});
+		const { data } = await response.json();
+		return data?.getProperty ?? null;
+	} catch (err) {
+		return null;
+	}
+};
+
+export const getServerSideProps = async ({ locale, query }: any) => ({
 	props: {
 		...(await serverSideTranslations(locale, ['common'])),
+		carSeo: await fetchCarSeo(query?.id),
 	},
 });
 
-const PropertyDetail: NextPage = ({ initialComment, ...props }: any) => {
+const PropertyDetail: NextPage = ({ initialComment, carSeo, ...props }: any) => {
 	const router = useRouter();
 	const { t } = useTranslation('common');
 	const user = useReactiveVar(userVar);
@@ -213,9 +236,21 @@ const PropertyDetail: NextPage = ({ initialComment, ...props }: any) => {
 		}
 	};
 
+	const seo = carSeo ? (
+		<Seo
+			title={`${carSeo.propertyTitle} — $${formatterStr(carSeo.propertyPrice)}`}
+			description={
+				carSeo.propertyDesc?.slice(0, 160) ||
+				`${carSeo.carYear} ${formatEnumLabel(carSeo.carBrand)} ${carSeo.carModel}, ${formatMileage(carSeo.carMileage)}`
+			}
+			image={carSeo.propertyImages?.[0] ? `${REACT_APP_API_URL}/${carSeo.propertyImages[0]}` : undefined}
+		/>
+	) : null;
+
 	if (getPropertyLoading && !property) {
 		return (
 			<div className={'ma-page ma-detail ma-detail--loading'}>
+				{seo}
 				<CircularProgress size={'3rem'} />
 			</div>
 		);
@@ -224,6 +259,7 @@ const PropertyDetail: NextPage = ({ initialComment, ...props }: any) => {
 	if (!property) {
 		return (
 			<div className={'ma-page ma-detail'}>
+				{seo}
 				<div className={'ma-container'}>
 					<div className={'ma-empty'}>{t('Car not found')}</div>
 				</div>
@@ -258,6 +294,7 @@ const PropertyDetail: NextPage = ({ initialComment, ...props }: any) => {
 
 	return (
 		<div className={'ma-page ma-detail'}>
+			{seo}
 			<div className={'ma-container'}>
 				<nav className={'ma-breadcrumb'}>
 					<Link href={'/'}>{t('Home')}</Link>

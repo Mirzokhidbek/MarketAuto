@@ -27,7 +27,8 @@ const Top = () => {
 	const { t, i18n } = useTranslation('common');
 	const router = useRouter();
 	const [anchorEl2, setAnchorEl2] = useState<null | HTMLElement>(null);
-	const [lang, setLang] = useState<string | null>('en');
+	// the flag always matches the language of the page being shown
+	const lang = router.locale ?? 'en';
 	const drop = Boolean(anchorEl2);
 	const [colorChange, setColorChange] = useState(false);
 	const [menuOpen, setMenuOpen] = useState(false);
@@ -38,14 +39,13 @@ const Top = () => {
 	const logoutOpen = Boolean(logoutAnchor);
 
 	/** LIFECYCLES **/
+	// reopen the site in the language the visitor chose last time
 	useEffect(() => {
-		if (localStorage.getItem('locale') === null) {
-			localStorage.setItem('locale', 'en');
-			setLang('en');
-		} else {
-			setLang(localStorage.getItem('locale'));
+		const saved = localStorage.getItem('locale');
+		if (saved && saved !== router.locale && router.locale === router.defaultLocale && router.locales?.includes(saved)) {
+			router.replace(router.asPath, router.asPath, { locale: saved }).then();
 		}
-	}, [router]);
+	}, []);
 
 	useEffect(() => {
 		switch (router.pathname) {
@@ -72,11 +72,10 @@ const Top = () => {
 	};
 
 	const langChoice = useCallback(
-		async (e: any) => {
-			setLang(e.target.id);
-			localStorage.setItem('locale', e.target.id);
+		async (locale: string) => {
+			localStorage.setItem('locale', locale);
 			setAnchorEl2(null);
-			await router.push(router.asPath, router.asPath, { locale: e.target.id });
+			await router.push(router.asPath, router.asPath, { locale });
 		},
 		[router],
 	);
@@ -282,43 +281,21 @@ const Top = () => {
 									endIcon={<CaretDown size={14} color="#616161" weight="fill" />}
 								>
 									<Box component={'div'} className={'flag'}>
-										{lang !== null ? (
-											<img src={`/img/flag/lang${lang}.png`} alt={'usaFlag'} />
-										) : (
-											<img src={`/img/flag/langen.png`} alt={'usaFlag'} />
-										)}
+										<img src={`/img/flag/lang${lang}.png`} alt={lang} />
 									</Box>
 								</Button>
 
 								<StyledMenu anchorEl={anchorEl2} open={drop} onClose={langClose} sx={{ position: 'absolute' }}>
-									<MenuItem disableRipple onClick={langChoice} id="en">
-										<img
-											className="img-flag"
-											src={'/img/flag/langen.png'}
-											onClick={langChoice}
-											id="en"
-											alt={'usaFlag'}
-										/>
+									<MenuItem disableRipple onClick={() => langChoice('en')}>
+										<img className="img-flag" src={'/img/flag/langen.png'} alt={''} />
 										{t('English')}
 									</MenuItem>
-									<MenuItem disableRipple onClick={langChoice} id="uz">
-										<img
-											className="img-flag"
-											src={'/img/flag/languz.png'}
-											onClick={langChoice}
-											id="uz"
-											alt={'uzbekFlag'}
-										/>
+									<MenuItem disableRipple onClick={() => langChoice('uz')}>
+										<img className="img-flag" src={'/img/flag/languz.png'} alt={''} />
 										{t('Uzbek')}
 									</MenuItem>
-									<MenuItem disableRipple onClick={langChoice} id="ru">
-										<img
-											className="img-flag"
-											src={'/img/flag/langru.png'}
-											onClick={langChoice}
-											id="ru"
-											alt={'russiaFlag'}
-										/>
+									<MenuItem disableRipple onClick={() => langChoice('ru')}>
+										<img className="img-flag" src={'/img/flag/langru.png'} alt={''} />
 										{t('Russian')}
 									</MenuItem>
 								</StyledMenu>

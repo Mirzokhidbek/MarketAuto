@@ -92,3 +92,59 @@
 		}
 	}
 }
+
+/* dashboard */
+.ma-admin-stats {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+	gap: 16px;
+}
+
+.ma-admin-stat {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	padding: 20px 22px;
+	border-radius: 14px;
+	background: #fff;
+	border: 1px solid $ma-border;
+	cursor: pointer;
+	transition: box-shadow 0.2s ease, transform 0.2s ease;
+	&:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+	}
+	span {
+		font-size: 13px;
+		font-weight: 600;
+		color: $ma-muted;
+	}
+	strong {
+		font-size: 30px;
+		line-height: 1.1;
+		color: $ma-dark;
+	}
+	em {
+		font-style: normal;
+		font-size: 12px;
+		color: $ma-muted;
+	}
+	&.is-warn strong {
+		color: #d93025;
+	}
+}
+
+.ma-admin-avatar {
+	width: 32px;
+	height: 32px;
+	border-radius: 50%;
+	object-fit: cover;
+}
+
+.ma-admin-thumb {
+	width: 56px;
+	height: 40px;
+	border-radius: 6px;
+	object-fit: cover;
+	background: $ma-bg-alt;
+}

@@ -1,49 +1,49 @@
 import React, { useEffect, useState } from 'react';
 import type { NextPage } from 'next';
 import withAdminLayout from '../../../libs/components/layout/LayoutAdmin';
-import { Box, List, ListItem, Stack } from '@mui/material';
-import Typography from '@mui/material/Typography';
-import Divider from '@mui/material/Divider';
-import Select from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
-import { TabContext } from '@mui/lab';
-import TablePagination from '@mui/material/TablePagination';
+import {
+	Box,
+	Divider,
+	InputAdornment,
+	List,
+	ListItem,
+	MenuItem,
+	OutlinedInput,
+	Select,
+	Stack,
+	TablePagination,
+	Typography,
+} from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
+import { useMutation, useQuery } from '@apollo/client';
 import { PropertyPanelList } from '../../../libs/components/admin/properties/PropertyList';
 import { AllPropertiesInquiry } from '../../../libs/types/property/property.input';
 import { Property } from '../../../libs/types/property/property';
-import { PropertyLocation, PropertyStatus } from '../../../libs/enums/property.enum';
+import { CarBrand, CarCountry, PropertyStatus } from '../../../libs/enums/property.enum';
 import { sweetConfirmAlert, sweetErrorHandling } from '../../../libs/sweetAlert';
 import { PropertyUpdate } from '../../../libs/types/property/property.update';
 import { GET_ALL_PROPERTIES_BY_ADMIN } from '../../../apollo/admin/query';
 import { REMOVE_PROPERTY_BY_ADMIN, UPDATE_PROPERTY_BY_ADMIN } from '../../../apollo/admin/mutation';
-import { useMutation, useQuery } from '@apollo/client';
+import { formatEnumLabel } from '../../../libs/utils';
 import { T } from '../../../libs/types/common';
 
 const AdminProperties: NextPage = ({ initialInquiry, ...props }: any) => {
-	const [anchorEl, setAnchorEl] = useState<[] | HTMLElement[]>([]);
 	const [propertiesInquiry, setPropertiesInquiry] = useState<AllPropertiesInquiry>(initialInquiry);
 	const [properties, setProperties] = useState<Property[]>([]);
 	const [propertiesTotal, setPropertiesTotal] = useState<number>(0);
-	const [value, setValue] = useState(
-		propertiesInquiry?.search?.propertyStatus ? propertiesInquiry?.search?.propertyStatus : 'ALL',
-	);
-	const [searchType, setSearchType] = useState('ALL');
+	const [value, setValue] = useState(propertiesInquiry?.search?.propertyStatus ?? 'ALL');
+	const [searchText, setSearchText] = useState<string>('');
 
 	/** APOLLO REQUESTS **/
 	const [updatePropertyByAdmin] = useMutation(UPDATE_PROPERTY_BY_ADMIN);
 	const [removePropertyByAdmin] = useMutation(REMOVE_PROPERTY_BY_ADMIN);
 
-	const {
-		loading: getAllPropertiesByAdminLoading,
-		data: getAllPropertiesByAdminData,
-		error: getAllPropertiesByAdminError,
-		refetch: getAllPropertiesByAdminRefetch,
-	} = useQuery(GET_ALL_PROPERTIES_BY_ADMIN, {
+	const { loading, refetch: getAllPropertiesByAdminRefetch } = useQuery(GET_ALL_PROPERTIES_BY_ADMIN, {
 		fetchPolicy: 'network-only',
 		variables: { input: propertiesInquiry },
 		notifyOnNetworkStatusChange: true,
 		onCompleted: (data: T) => {
-			setProperties(data?.getAllPropertiesByAdmin?.list);
+			setProperties(data?.getAllPropertiesByAdmin?.list ?? []);
 			setPropertiesTotal(data?.getAllPropertiesByAdmin?.metaCounter[0]?.total ?? 0);
 		},
 	});
@@ -53,105 +53,50 @@ const AdminProperties: NextPage = ({ initialInquiry, ...props }: any) => {
 		getAllPropertiesByAdminRefetch({ input: propertiesInquiry }).then();
 	}, [propertiesInquiry]);
 
+	// search by title after the admin stops typing
+	useEffect(() => {
+		const timer = setTimeout(() => updateSearch({ text: searchText.trim() || undefined }), 400);
+		return () => clearTimeout(timer);
+	}, [searchText]);
+
 	/** HANDLERS **/
-	const changePageHandler = async (event: unknown, newPage: number) => {
-		propertiesInquiry.page = newPage + 1;
-		await getAllPropertiesByAdminRefetch({ input: propertiesInquiry });
-		setPropertiesInquiry({ ...propertiesInquiry });
+	const updateSearch = (patch: T) => {
+		const search: T = { ...propertiesInquiry.search, ...patch };
+		Object.keys(search).forEach((key) => {
+			if (search[key] === undefined) delete search[key];
+		});
+		setPropertiesInquiry({ ...propertiesInquiry, page: 1, search });
 	};
 
-	const changeRowsPerPageHandler = async (event: React.ChangeEvent<HTMLInputElement>) => {
-		propertiesInquiry.limit = parseInt(event.target.value, 10);
-		propertiesInquiry.page = 1;
-		await getAllPropertiesByAdminRefetch({ input: propertiesInquiry });
-		setPropertiesInquiry({ ...propertiesInquiry });
+	const changePageHandler = (event: unknown, newPage: number) => {
+		setPropertiesInquiry({ ...propertiesInquiry, page: newPage + 1 });
 	};
 
-	const menuIconClickHandler = (e: any, index: number) => {
-		const tempAnchor = anchorEl.slice();
-		tempAnchor[index] = e.currentTarget;
-		setAnchorEl(tempAnchor);
+	const changeRowsPerPageHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
+		setPropertiesInquiry({ ...propertiesInquiry, page: 1, limit: parseInt(event.target.value, 10) });
 	};
 
-	const menuIconCloseHandler = () => {
-		setAnchorEl([]);
-	};
-
-	const tabChangeHandler = async (event: any, newValue: string) => {
+	const tabChangeHandler = (newValue: string) => {
 		setValue(newValue);
-
-		setPropertiesInquiry({ ...propertiesInquiry, page: 1, sort: 'createdAt' });
-
-		switch (newValue) {
-			case 'ACTIVE':
-				setPropertiesInquiry({ ...propertiesInquiry, search: { propertyStatus: PropertyStatus.ACTIVE } });
-				break;
-			case 'SOLD':
-				setPropertiesInquiry({ ...propertiesInquiry, search: { propertyStatus: PropertyStatus.SOLD } });
-				break;
-			case 'DELETE':
-				setPropertiesInquiry({ ...propertiesInquiry, search: { propertyStatus: PropertyStatus.DELETE } });
-				break;
-			default:
-				delete propertiesInquiry?.search?.propertyStatus;
-				setPropertiesInquiry({ ...propertiesInquiry });
-				break;
-		}
+		updateSearch({ propertyStatus: newValue === 'ALL' ? undefined : (newValue as PropertyStatus) });
 	};
 
-	const removePropertyHandler = async (id: string) => {
+	const updatePropertyHandler = async (updateData: PropertyUpdate) => {
 		try {
-			if (await sweetConfirmAlert('Are you sure to remove?')) {
-				await removePropertyByAdmin({
-					variables: {
-						input: id,
-					},
-				});
-
-				await getAllPropertiesByAdminRefetch({ input: propertiesInquiry });
-			}
-			menuIconCloseHandler();
+			await updatePropertyByAdmin({ variables: { input: updateData } });
+			await getAllPropertiesByAdminRefetch({ input: propertiesInquiry });
 		} catch (err: any) {
 			sweetErrorHandling(err).then();
 		}
 	};
 
-	const searchTypeHandler = async (newValue: string) => {
+	const removePropertyHandler = async (id: string) => {
 		try {
-			setSearchType(newValue);
-
-			if (newValue !== 'ALL') {
-				setPropertiesInquiry({
-					...propertiesInquiry,
-					page: 1,
-					sort: 'createdAt',
-					search: {
-						...propertiesInquiry.search,
-						propertyLocationList: [newValue as PropertyLocation],
-					},
-				});
-			} else {
-				delete propertiesInquiry?.search?.propertyLocationList;
-				setPropertiesInquiry({ ...propertiesInquiry });
+			if (await sweetConfirmAlert('Remove this car permanently?')) {
+				await removePropertyByAdmin({ variables: { input: id } });
+				await getAllPropertiesByAdminRefetch({ input: propertiesInquiry });
 			}
 		} catch (err: any) {
-			console.log('searchTypeHandler: ', err.message);
-		}
-	};
-
-	const updatePropertyHandler = async (updateData: PropertyUpdate) => {
-		try {
-			console.log('+updateData: ', updateData);
-			await updatePropertyByAdmin({
-				variables: {
-					input: updateData,
-				},
-			});
-
-			menuIconCloseHandler();
-			await getAllPropertiesByAdminRefetch({ input: propertiesInquiry });
-		} catch (err: any) {
-			menuIconCloseHandler();
 			sweetErrorHandling(err).then();
 		}
 	};
@@ -162,74 +107,73 @@ const AdminProperties: NextPage = ({ initialInquiry, ...props }: any) => {
 				Car List
 			</Typography>
 			<Box component={'div'} className={'table-wrap'}>
-				<Box component={'div'} sx={{ width: '100%', typography: 'body1' }}>
-					<TabContext value={value}>
-						<Box component={'div'}>
-							<List className={'tab-menu'}>
-								<ListItem
-									onClick={(e) => tabChangeHandler(e, 'ALL')}
-									value="ALL"
-									className={value === 'ALL' ? 'li on' : 'li'}
-								>
-									All
-								</ListItem>
-								<ListItem
-									onClick={(e) => tabChangeHandler(e, 'ACTIVE')}
-									value="ACTIVE"
-									className={value === 'ACTIVE' ? 'li on' : 'li'}
-								>
-									Active
-								</ListItem>
-								<ListItem
-									onClick={(e) => tabChangeHandler(e, 'SOLD')}
-									value="SOLD"
-									className={value === 'SOLD' ? 'li on' : 'li'}
-								>
-									Sold
-								</ListItem>
-								<ListItem
-									onClick={(e) => tabChangeHandler(e, 'DELETE')}
-									value="DELETE"
-									className={value === 'DELETE' ? 'li on' : 'li'}
-								>
-									Delete
-								</ListItem>
-							</List>
-							<Divider />
-							<Stack className={'search-area'} sx={{ m: '24px' }}>
-								<Select sx={{ width: '160px', mr: '20px' }} value={searchType}>
-									<MenuItem value={'ALL'} onClick={() => searchTypeHandler('ALL')}>
-										ALL
-									</MenuItem>
-									{Object.values(PropertyLocation).map((location: string) => (
-										<MenuItem value={location} onClick={() => searchTypeHandler(location)} key={location}>
-											{location}
-										</MenuItem>
-									))}
-								</Select>
-							</Stack>
-							<Divider />
-						</Box>
-						<PropertyPanelList
-							properties={properties}
-							anchorEl={anchorEl}
-							menuIconClickHandler={menuIconClickHandler}
-							menuIconCloseHandler={menuIconCloseHandler}
-							updatePropertyHandler={updatePropertyHandler}
-							removePropertyHandler={removePropertyHandler}
-						/>
+				<List className={'tab-menu'}>
+					{['ALL', PropertyStatus.ACTIVE, PropertyStatus.SOLD, PropertyStatus.DELETE].map((status) => (
+						<ListItem key={status} onClick={() => tabChangeHandler(status)} className={value === status ? 'li on' : 'li'}>
+							{{ ALL: 'All', ACTIVE: 'Active', SOLD: 'Sold', DELETE: 'Deleted' }[status]}
+						</ListItem>
+					))}
+				</List>
+				<Divider />
+				<Stack className={'search-area'} sx={{ m: '24px' }} direction={'row'} gap={2}>
+					<OutlinedInput
+						value={searchText}
+						onChange={(e) => setSearchText(e.target.value)}
+						sx={{ flex: 1 }}
+						className={'search'}
+						placeholder="Search by title"
+						endAdornment={
+							<InputAdornment position="end">
+								<SearchIcon />
+							</InputAdornment>
+						}
+					/>
+					<Select
+						sx={{ width: '180px' }}
+						value={propertiesInquiry.search.countryList?.[0] ?? 'ALL'}
+						onChange={(e) =>
+							updateSearch({ countryList: e.target.value === 'ALL' ? undefined : [e.target.value as CarCountry] })
+						}
+					>
+						<MenuItem value={'ALL'}>All countries</MenuItem>
+						{Object.values(CarCountry).map((country) => (
+							<MenuItem value={country} key={country}>
+								{formatEnumLabel(country)}
+							</MenuItem>
+						))}
+					</Select>
+					<Select
+						sx={{ width: '180px' }}
+						value={propertiesInquiry.search.brandList?.[0] ?? 'ALL'}
+						onChange={(e) =>
+							updateSearch({ brandList: e.target.value === 'ALL' ? undefined : [e.target.value as CarBrand] })
+						}
+					>
+						<MenuItem value={'ALL'}>All brands</MenuItem>
+						{Object.values(CarBrand).map((brand) => (
+							<MenuItem value={brand} key={brand}>
+								{formatEnumLabel(brand)}
+							</MenuItem>
+						))}
+					</Select>
+				</Stack>
+				<Divider />
+				<PropertyPanelList
+					properties={properties}
+					loading={loading}
+					updatePropertyHandler={updatePropertyHandler}
+					removePropertyHandler={removePropertyHandler}
+				/>
 
-						<TablePagination
-							rowsPerPageOptions={[10, 20, 40, 60]}
-							component="div"
-							count={propertiesTotal}
-							rowsPerPage={propertiesInquiry?.limit}
-							page={propertiesInquiry?.page - 1}
-							onPageChange={changePageHandler}
-							onRowsPerPageChange={changeRowsPerPageHandler}
-						/>
-					</TabContext>
-				</Box>
+				<TablePagination
+					rowsPerPageOptions={[10, 20, 40, 60]}
+					component="div"
+					count={propertiesTotal}
+					rowsPerPage={propertiesInquiry?.limit}
+					page={propertiesTotal ? propertiesInquiry?.page - 1 : 0}
+					onPageChange={changePageHandler}
+					onRowsPerPageChange={changeRowsPerPageHandler}
+				/>
 			</Box>
 		</Box>
 	);

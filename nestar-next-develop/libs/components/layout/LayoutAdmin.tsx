@@ -1,6 +1,7 @@
 import type { ComponentType } from 'react';
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
+import Head from 'next/head';
 import MenuList from '../admin/AdminMenuList';
 import Toolbar from '@mui/material/Toolbar';
 import Box from '@mui/material/Box';
@@ -62,6 +63,10 @@ const withAdminLayout = (Component: ComponentType) => {
 
 		return (
 			<main id="pc-wrap" className="admin">
+				<Head>
+					<title>Admin | MarketAuto</title>
+					<meta name="robots" content="noindex" />
+				</Head>
 				<Box component={'div'} sx={{ display: 'flex' }}>
 					<AppBar
 						position="fixed"

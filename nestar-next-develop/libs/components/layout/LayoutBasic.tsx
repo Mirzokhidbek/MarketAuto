@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
-import Head from 'next/head';
+import Seo from '../common/Seo';
 import Top from '../Top';
 import Footer from '../Footer';
 import { Stack } from '@mui/material';
@@ -41,7 +41,7 @@ const withLayoutBasic = (Component: any) => {
 					bgImage = '/img/banner/header2.svg';
 					break;
 				case '/mypage':
-					title = 'my page';
+					title = 'My Page';
 					desc = 'Home / My Page';
 					bgImage = '/img/banner/header1.svg';
 					break;
@@ -65,14 +65,14 @@ const withLayoutBasic = (Component: any) => {
 					bgImage = '/img/banner/header2.svg';
 					break;
 				case '/account/join':
-					title = 'Login/Signup';
+					title = 'Login / Register';
 					desc = 'Authentication Process';
 					bgImage = '/img/banner/header2.svg';
 					setAuthHeader(true);
 					break;
 				case '/member':
-					title = 'Member Page';
-					desc = 'Home / Member';
+					title = 'Seller profile';
+					desc = 'Home / Sellers';
 					bgImage = '/img/banner/header1.svg';
 					break;
 				default:
@@ -93,10 +93,7 @@ const withLayoutBasic = (Component: any) => {
 		if (device == 'mobile') {
 			return (
 				<>
-					<Head>
-						<title>MarketAuto</title>
-						<meta name={'title'} content={`MarketAuto`} />
-					</Head>
+					<Seo />
 					<Stack id="mobile-wrap">
 						<Stack id={'top'}>
 							<Top />
@@ -115,10 +112,7 @@ const withLayoutBasic = (Component: any) => {
 		} else {
 			return (
 				<>
-					<Head>
-						<title>MarketAuto</title>
-						<meta name={'title'} content={`MarketAuto`} />
-					</Head>
+					<Seo />
 					<Stack id="pc-wrap">
 						<Stack id={'top'}>
 							<Top />

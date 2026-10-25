@@ -55,6 +55,11 @@ const Filter = (props: FilterType) => {
 	const [propertyLocation, setPropertyLocation] = useState<PropertyLocation[]>(Object.values(PropertyLocation));
 	const [propertyType, setPropertyType] = useState<PropertyType[]>(Object.values(PropertyType));
 	const [searchText, setSearchText] = useState<string>('');
+	// on phones the filter groups are folded so the results are visible right away
+	const [mobileOpen, setMobileOpen] = useState<boolean>(false);
+	const activeFilters = Object.entries(searchFilter?.search ?? {}).filter(
+		([key, value]: [string, any]) => key !== 'text' && (Array.isArray(value) ? value.length > 0 : !!value),
+	).length;
 	const [showMore, setShowMore] = useState<boolean>(false);
 
 	/** LIFECYCLES **/
@@ -431,13 +436,17 @@ const Filter = (props: FilterType) => {
 	};
 
 	return (
-		<aside className={'ma-filter'}>
+		<aside className={`ma-filter ${mobileOpen ? 'is-open' : ''}`}>
 			<div className={'ma-filter__head'}>
 				<strong>{t('Filters')}</strong>
 				<button className={'ma-link-btn'} onClick={refreshHandler}>
 					{t('Clear all')}
 				</button>
 			</div>
+			<button className={'ma-btn ma-btn--outline ma-btn--block ma-filter__toggle'} onClick={() => setMobileOpen(!mobileOpen)}>
+				{mobileOpen ? t('Hide filters') : t('Show filters')}
+				{activeFilters > 0 && <em className={'ma-filter__count'}>{activeFilters}</em>}
+			</button>
 
 			<div className={'ma-filter__search'}>
 				<SearchIcon />
