@@ -47,6 +47,9 @@ export const formatCarPlace = (property: any): string => {
 	return [property.propertyAddress, area].filter(Boolean).join(', ');
 };
 
+/** 3 -> "3.0 L" **/
+export const formatEngine = (value: number | undefined): string => (value ? `${Number(value).toFixed(1)} L` : '');
+
 export const formatMileage = (value: number | undefined): string => {
 	return `${numeral(value ?? 0).format('0,0')} km`;
 };

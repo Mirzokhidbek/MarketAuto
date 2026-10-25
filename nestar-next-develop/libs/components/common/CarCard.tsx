@@ -22,7 +22,7 @@ const CarCard = ({ property, onLike }: CarCardProps) => {
 	const place =
 		property.carCountry === 'UZBEKISTAN' ? formatEnumLabel(property.propertyLocation) : property.propertyAddress;
 	const specs = [
-		property.carEngine ? `${property.carEngine} ${formatEnumLabel(property.carFuel)}` : formatEnumLabel(property.carFuel),
+		property.carEngine ? `${Number(property.carEngine).toFixed(1)} ${formatEnumLabel(property.carFuel)}` : formatEnumLabel(property.carFuel),
 		formatMileage(property.carMileage),
 		formatEnumLabel(property.carTransmission),
 		place,
