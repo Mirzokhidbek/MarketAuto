@@ -1,18 +1,20 @@
 import React, { useState } from 'react';
 import { NextPage } from 'next';
-import useDeviceDetect from '../../hooks/useDeviceDetect';
-import { Pagination, Stack, Typography } from '@mui/material';
-import PropertyCard from '../property/PropertyCard';
+import { useTranslation } from 'next-i18next';
+import { Pagination } from '@mui/material';
+import CarCard from '../common/CarCard';
 import { Property } from '../../types/property/property';
 import { T } from '../../types/common';
 import { GET_FAVORITES } from '../../../apollo/user/query';
 import { LIKE_TARGET_PROPERTY } from '../../../apollo/user/mutation';
-import { useMutation, useQuery } from '@apollo/client';
+import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
+import { userVar } from '../../../apollo/store';
 import { Messages } from '../../config';
 import { sweetMixinErrorAlert } from '../../sweetAlert';
 
 const MyFavorites: NextPage = () => {
-	const device = useDeviceDetect();
+	const { t } = useTranslation('common');
+	const user = useReactiveVar(userVar);
 	const [myFavorites, setMyFavorites] = useState<Property[]>([]);
 	const [total, setTotal] = useState<number>(0);
 	const [searchFavorites, setSearchFavorites] = useState<T>({ page: 1, limit: 6 });
@@ -59,50 +61,35 @@ const MyFavorites: NextPage = () => {
 		}
 	};
 
-	if (device === 'mobile') {
-		return <div>MARKETAUTO MY FAVORITES MOBILE</div>;
-	} else {
-		return (
-			<div id="my-favorites-page">
-				<Stack className="main-title-box">
-					<Stack className="right-box">
-						<Typography className="main-title">My Favorites</Typography>
-						<Typography className="sub-title">We are glad to see you again!</Typography>
-					</Stack>
-				</Stack>
-				<Stack className="favorites-list-box">
-					{myFavorites?.length ? (
-						myFavorites?.map((property: Property) => {
-							return <PropertyCard property={property} myFavorites={true} likePropertyHandler={likePropertyHandler} />;
-						})
-					) : (
-						<div className={'no-data'}>
-							<img src="/img/icons/icoAlert.svg" alt="" />
-							<p>No Favorites found!</p>
-						</div>
-					)}
-				</Stack>
-				{myFavorites?.length ? (
-					<Stack className="pagination-config">
-						<Stack className="pagination-box">
-							<Pagination
-								count={Math.ceil(total / searchFavorites.limit)}
-								page={searchFavorites.page}
-								shape="circular"
-								color="primary"
-								onChange={paginationHandler}
-							/>
-						</Stack>
-						<Stack className="total-result">
-							<Typography>
-								Total {total} favorite propert{total > 1 ? 'ies' : 'y'}
-							</Typography>
-						</Stack>
-					</Stack>
-				) : null}
+	return (
+		<div className={'ma-account-panel'}>
+			<div className={'ma-account-panel__head'}>
+				<div>
+					<h1>{t('My Favorites')}</h1>
+					<p>{t('Cars you saved with the heart button.')}</p>
+				</div>
 			</div>
-		);
-	}
+			{myFavorites?.length ? (
+				<div className={'ma-grid ma-grid--2'}>
+					{myFavorites.map((property: Property) => (
+						<CarCard property={property} key={property._id} onLike={(id) => likePropertyHandler(user, id)} />
+					))}
+				</div>
+			) : (
+				<div className={'ma-empty'}>{getFavoritesLoading ? t('Loading...') : t("You haven't saved any cars yet.")}</div>
+			)}
+			{total > searchFavorites.limit && (
+				<div className={'ma-pagination'}>
+					<Pagination
+						count={Math.ceil(total / searchFavorites.limit)}
+						page={searchFavorites.page}
+						shape="rounded"
+						onChange={paginationHandler}
+					/>
+				</div>
+			)}
+		</div>
+	);
 };
 
 export default MyFavorites;

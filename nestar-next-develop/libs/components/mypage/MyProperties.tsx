@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { NextPage } from 'next';
-import { Pagination, Stack, Typography } from '@mui/material';
-import useDeviceDetect from '../../hooks/useDeviceDetect';
-import { PropertyCard } from './PropertyCard';
+import { Pagination } from '@mui/material';
+import { useTranslation } from 'next-i18next';
+import ManageCarRow from './ManageCarRow';
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
 import { Property } from '../../types/property/property';
 import { AgentPropertiesInquiry } from '../../types/property/property.input';
@@ -15,7 +15,7 @@ import { UPDATE_PROPERTY } from '../../../apollo/user/mutation';
 import { sweetConfirmAlert, sweetErrorHandling } from '../../sweetAlert';
 
 const MyProperties: NextPage = ({ initialInput, ...props }: any) => {
-	const device = useDeviceDetect();
+	const { t } = useTranslation('common');
 	const [searchFilter, setSearchFilter] = useState<AgentPropertiesInquiry>(initialInput);
 	const [agentProperties, setAgentProperties] = useState<Property[]>([]);
 	const [total, setTotal] = useState<number>(0);
@@ -51,7 +51,7 @@ const MyProperties: NextPage = ({ initialInput, ...props }: any) => {
 
 	const deletePropertyHandler = async (id: string) => {
 		try {
-			if (await sweetConfirmAlert('are you sure to delete this car?')) {
+			if (await sweetConfirmAlert(t('Are you sure you want to delete this car?') as string)) {
 				await updateProperty({
 					variables: {
 						input: {
@@ -70,7 +70,7 @@ const MyProperties: NextPage = ({ initialInput, ...props }: any) => {
 
 	const updatePropertyHandler = async (status: string, id: string) => {
 		try {
-			if (await sweetConfirmAlert(`are you sure change to ${status} status?`)) {
+			if (await sweetConfirmAlert(t(status === 'SOLD' ? 'Mark this car as sold?' : 'Change the status?') as string)) {
 				await updateProperty({
 					variables: {
 						input: {
@@ -87,85 +87,67 @@ const MyProperties: NextPage = ({ initialInput, ...props }: any) => {
 		}
 	};
 
-	if (user?.memberType !== 'AGENT') {
-		router.back();
+	// only sellers have listings; wait until the user is restored from the token
+	if (user?._id && user?.memberType !== 'AGENT') {
+		router.push('/mypage').then();
 	}
 
-	if (device === 'mobile') {
-		return <div>MARKETAUTO CARS MOBILE</div>;
-	} else {
-		return (
-			<div id="my-property-page">
-				<Stack className="main-title-box">
-					<Stack className="right-box">
-						<Typography className="main-title">My Cars</Typography>
-						<Typography className="sub-title">We are glad to see you again!</Typography>
-					</Stack>
-				</Stack>
-				<Stack className="property-list-box">
-					<Stack className="tab-name-box">
-						<Typography
-							onClick={() => changeStatusHandler(PropertyStatus.ACTIVE)}
-							className={searchFilter.search.propertyStatus === 'ACTIVE' ? 'active-tab-name' : 'tab-name'}
-						>
-							On Sale
-						</Typography>
-						<Typography
-							onClick={() => changeStatusHandler(PropertyStatus.SOLD)}
-							className={searchFilter.search.propertyStatus === 'SOLD' ? 'active-tab-name' : 'tab-name'}
-						>
-							On Sold
-						</Typography>
-					</Stack>
-					<Stack className="list-box">
-						<Stack className="listing-title-box">
-							<Typography className="title-text">Listing title</Typography>
-							<Typography className="title-text">Date Published</Typography>
-							<Typography className="title-text">Status</Typography>
-							<Typography className="title-text">View</Typography>
-							{searchFilter.search.propertyStatus === 'ACTIVE' && (
-								<Typography className="title-text">Action</Typography>
-							)}
-						</Stack>
+	const status = searchFilter.search.propertyStatus;
 
-						{agentProperties?.length === 0 ? (
-							<div className={'no-data'}>
-								<img src="/img/icons/icoAlert.svg" alt="" />
-								<p>No cars found!</p>
-							</div>
-						) : (
-							agentProperties.map((property: Property) => {
-								return (
-									<PropertyCard
-										property={property}
-										deletePropertyHandler={deletePropertyHandler}
-										updatePropertyHandler={updatePropertyHandler}
-									/>
-								);
-							})
-						)}
-
-						{agentProperties.length !== 0 && (
-							<Stack className="pagination-config">
-								<Stack className="pagination-box">
-									<Pagination
-										count={Math.ceil(total / searchFilter.limit)}
-										page={searchFilter.page}
-										shape="circular"
-										color="primary"
-										onChange={paginationHandler}
-									/>
-								</Stack>
-								<Stack className="total-result">
-									<Typography>{total} car(s) available</Typography>
-								</Stack>
-							</Stack>
-						)}
-					</Stack>
-				</Stack>
+	return (
+		<div className={'ma-account-panel'}>
+			<div className={'ma-account-panel__head'}>
+				<div>
+					<h1>{t('My Cars')}</h1>
+					<p>{t('Manage your listings, mark cars as sold or edit details.')}</p>
+				</div>
+				<button className={'ma-btn ma-btn--primary'} onClick={() => router.push('/mypage?category=addProperty')}>
+					+ {t('Add Car')}
+				</button>
 			</div>
-		);
-	}
+
+			<div className={'ma-tabs ma-tabs--underline'}>
+				<button
+					className={`ma-tab ${status === PropertyStatus.ACTIVE ? 'is-active' : ''}`}
+					onClick={() => changeStatusHandler(PropertyStatus.ACTIVE)}
+				>
+					{t('For sale')}
+				</button>
+				<button
+					className={`ma-tab ${status === PropertyStatus.SOLD ? 'is-active' : ''}`}
+					onClick={() => changeStatusHandler(PropertyStatus.SOLD)}
+				>
+					{t('Sold')}
+				</button>
+			</div>
+
+			{agentProperties?.length ? (
+				<div className={'ma-manage-list'}>
+					{agentProperties.map((property: Property) => (
+						<ManageCarRow
+							property={property}
+							key={property._id}
+							onDelete={deletePropertyHandler}
+							onStatusChange={updatePropertyHandler}
+						/>
+					))}
+				</div>
+			) : (
+				<div className={'ma-empty'}>{getAgentPropertiesLoading ? t('Loading...') : t('No cars in this list yet.')}</div>
+			)}
+
+			{total > searchFilter.limit && (
+				<div className={'ma-pagination'}>
+					<Pagination
+						count={Math.ceil(total / searchFilter.limit)}
+						page={searchFilter.page}
+						shape="rounded"
+						onChange={paginationHandler}
+					/>
+				</div>
+			)}
+		</div>
+	);
 };
 
 MyProperties.defaultProps = {

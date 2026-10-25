@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
 import { NextPage } from 'next';
-import useDeviceDetect from '../../hooks/useDeviceDetect';
-import { Pagination, Stack, Typography } from '@mui/material';
-import PropertyCard from '../property/PropertyCard';
+import { useTranslation } from 'next-i18next';
+import { Pagination } from '@mui/material';
+import CarCard from '../common/CarCard';
 import { Property } from '../../types/property/property';
 import { T } from '../../types/common';
 import { GET_VISITED } from '../../../apollo/user/query';
 import { useQuery } from '@apollo/client';
 
 const RecentlyVisited: NextPage = () => {
-	const device = useDeviceDetect();
+	const { t } = useTranslation('common');
 	const [recentlyVisited, setRecentlyVisited] = useState<Property[]>([]);
 	const [total, setTotal] = useState<number>(0);
 	const [searchVisited, setSearchVisited] = useState<T>({ page: 1, limit: 6 });
@@ -36,50 +36,35 @@ const RecentlyVisited: NextPage = () => {
 		setSearchVisited({ ...searchVisited, page: value });
 	};
 
-	if (device === 'mobile') {
-		return <div>MARKETAUTO RECENTLY VISITED MOBILE</div>;
-	} else {
-		return (
-			<div id="my-favorites-page">
-				<Stack className="main-title-box">
-					<Stack className="right-box">
-						<Typography className="main-title">Recently Visited</Typography>
-						<Typography className="sub-title">We are glad to see you again!</Typography>
-					</Stack>
-				</Stack>
-				<Stack className="favorites-list-box">
-					{recentlyVisited?.length ? (
-						recentlyVisited?.map((property: Property) => {
-							return <PropertyCard property={property} recentlyVisited={true} />;
-						})
-					) : (
-						<div className={'no-data'}>
-							<img src="/img/icons/icoAlert.svg" alt="" />
-							<p>No recently visited cars found!</p>
-						</div>
-					)}
-				</Stack>
-				{recentlyVisited?.length ? (
-					<Stack className="pagination-config">
-						<Stack className="pagination-box">
-							<Pagination
-								count={Math.ceil(total / searchVisited.limit)}
-								page={searchVisited.page}
-								shape="circular"
-								color="primary"
-								onChange={paginationHandler}
-							/>
-						</Stack>
-						<Stack className="total-result">
-							<Typography>
-								Total {total} recently visited propert{total > 1 ? 'ies' : 'y'}
-							</Typography>
-						</Stack>
-					</Stack>
-				) : null}
+	return (
+		<div className={'ma-account-panel'}>
+			<div className={'ma-account-panel__head'}>
+				<div>
+					<h1>{t('Recently Visited')}</h1>
+					<p>{t('Cars you viewed recently.')}</p>
+				</div>
 			</div>
-		);
-	}
+			{recentlyVisited?.length ? (
+				<div className={'ma-grid ma-grid--2'}>
+					{recentlyVisited.map((property: Property) => (
+						<CarCard property={property} key={property._id} />
+					))}
+				</div>
+			) : (
+				<div className={'ma-empty'}>{getVisitedLoading ? t('Loading...') : t('No recently visited cars yet.')}</div>
+			)}
+			{total > searchVisited.limit && (
+				<div className={'ma-pagination'}>
+					<Pagination
+						count={Math.ceil(total / searchVisited.limit)}
+						page={searchVisited.page}
+						shape="rounded"
+						onChange={paginationHandler}
+					/>
+				</div>
+			)}
+		</div>
+	);
 };
 
 export default RecentlyVisited;
