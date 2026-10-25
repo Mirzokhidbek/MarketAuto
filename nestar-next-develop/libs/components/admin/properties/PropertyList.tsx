@@ -1,3 +1,4 @@
+import { formatCarPlace, formatterStr } from '../../../utils';
 import React from 'react';
 import Link from 'next/link';
 import {
@@ -175,9 +176,9 @@ export const PropertyPanelList = (props: PropertyPanelListType) => {
 												</Stack>
 											)}
 										</TableCell>
-										<TableCell align="center">{property.propertyPrice}</TableCell>
+										<TableCell align="center">${formatterStr(property.propertyPrice)}</TableCell>
 										<TableCell align="center">{property.memberData?.memberNick}</TableCell>
-										<TableCell align="center">{property.propertyLocation}</TableCell>
+										<TableCell align="center">{formatCarPlace(property)}</TableCell>
 										<TableCell align="center">{property.propertyType}</TableCell>
 										<TableCell align="center">
 											{property.propertyStatus === PropertyStatus.DELETE && (
