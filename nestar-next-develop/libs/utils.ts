@@ -50,6 +50,11 @@ export const formatCarPlace = (property: any): string => {
 /** 3 -> "3.0 L" **/
 export const formatEngine = (value: number | undefined): string => (value ? `${Number(value).toFixed(1)} L` : '');
 
+export const formatPhone = (phone: string | undefined): string => {
+	if (!phone) return '';
+	return phone.startsWith('+') ? phone : `+${phone}`;
+};
+
 export const formatMileage = (value: number | undefined): string => {
 	return `${numeral(value ?? 0).format('0,0')} km`;
 };
