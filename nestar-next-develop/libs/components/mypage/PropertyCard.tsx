@@ -1,3 +1,4 @@
+import { formatCarPlace } from '../../utils';
 import { Menu, MenuItem, Stack, Typography } from '@mui/material';
 import React, { useState } from 'react';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
@@ -60,7 +61,7 @@ export const PropertyCard = (props: PropertyCardProps) => {
 				</Stack>
 				<Stack className="information-box" onClick={() => pushPropertyDetail(property?._id)}>
 					<Typography className="name">{property.propertyTitle}</Typography>
-					<Typography className="address">{property.propertyAddress}</Typography>
+					<Typography className="address">{formatCarPlace(property)}</Typography>
 					<Typography className="price">
 						<strong>${formatterStr(property?.propertyPrice)}</strong>
 					</Typography>

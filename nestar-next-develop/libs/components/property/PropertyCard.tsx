@@ -5,7 +5,7 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import { Property } from '../../types/property/property';
 import Link from 'next/link';
-import { formatterStr, formatEnumLabel, formatMileage } from '../../utils';
+import { formatterStr, formatCarPlace, formatCountry, formatEnumLabel, formatMileage } from '../../utils';
 import { REACT_APP_API_URL, topPropertyRank } from '../../config';
 import { useReactiveVar } from '@apollo/client';
 import { userVar } from '../../../apollo/store';
@@ -65,7 +65,7 @@ const PropertyCard = (props: PropertyCardType) => {
 						</Stack>
 						<Stack className="address">
 							<Typography>
-								{property.propertyAddress}, {property.propertyLocation}
+								{formatCountry(property.carCountry).split(' ')[0]} {formatCarPlace(property)}
 							</Typography>
 						</Stack>
 					</Stack>
