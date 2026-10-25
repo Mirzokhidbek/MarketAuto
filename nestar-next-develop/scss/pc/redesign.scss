@@ -265,17 +265,18 @@
 
 /* ---------- inner page banner (LayoutBasic) ---------- */
 #pc-wrap .header-basic {
-	height: 300px !important;
+	height: 230px !important;
 	background: linear-gradient(120deg, #0f172a 0%, #1e3a8a 55%, #0b57d0 100%) !important;
 	box-shadow: none !important;
 	&.auth {
 		height: 220px !important;
 	}
 	.container {
-		margin-top: 130px;
+		margin-top: 112px;
 		width: 1240px;
 		max-width: calc(100% - 48px);
 		strong {
+			font-size: 36px !important;
 			font-family: $ma-font;
 			font-weight: 700;
 			letter-spacing: -0.02em;
