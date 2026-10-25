@@ -1,14 +1,13 @@
 import React, { useCallback, useState } from 'react';
 import { NextPage } from 'next';
-import useDeviceDetect from '../../libs/hooks/useDeviceDetect';
-import withLayoutBasic from '../../libs/components/layout/LayoutBasic';
-import { Box, Button, Checkbox, FormControlLabel, FormGroup, Stack } from '@mui/material';
+import withLayoutFull from '../../libs/components/layout/LayoutFull';
 import { useRouter } from 'next/router';
 import { logIn, signUp } from '../../libs/auth';
 import { sweetMixinErrorAlert } from '../../libs/sweetAlert';
 import { userVar } from '../../apollo/store';
 import { MemberType } from '../../libs/enums/member.enum';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { useTranslation } from 'next-i18next';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {
@@ -18,23 +17,13 @@ export const getStaticProps = async ({ locale }: any) => ({
 
 const Join: NextPage = () => {
 	const router = useRouter();
-	const device = useDeviceDetect();
+	const { t } = useTranslation('common');
 	const [input, setInput] = useState({ nick: '', password: '', phone: '', type: 'USER' });
 	const [loginView, setLoginView] = useState<boolean>(true);
 
 	/** HANDLERS **/
 	const viewChangeHandler = (state: boolean) => {
 		setLoginView(state);
-	};
-
-	const checkUserTypeHandler = (e: any) => {
-		const checked = e.target.checked;
-		if (checked) {
-			const value = e.target.name;
-			handleInput('type', value);
-		} else {
-			handleInput('type', 'USER');
-		}
 	};
 
 	const handleInput = useCallback((name: any, value: any) => {
@@ -44,7 +33,6 @@ const Join: NextPage = () => {
 	}, []);
 
 	const doLogin = useCallback(async () => {
-		console.warn(input);
 		try {
 			await logIn(input.nick, input.password);
 			const isAdmin = userVar()?.memberType === MemberType.ADMIN;
@@ -55,7 +43,6 @@ const Join: NextPage = () => {
 	}, [input]);
 
 	const doSignUp = useCallback(async () => {
-		console.warn(input);
 		try {
 			await signUp(input.nick, input.password, input.phone, input.type);
 			await router.push(`${router.query.referrer ?? '/'}`);
@@ -64,157 +51,117 @@ const Join: NextPage = () => {
 		}
 	}, [input]);
 
-	console.log('+input: ', input);
+	const submitHandler = (e: React.FormEvent) => {
+		e.preventDefault();
+		if (loginView) doLogin();
+		else doSignUp();
+	};
 
-	if (device === 'mobile') {
-		return <div>LOGIN MOBILE</div>;
-	} else {
-		return (
-			<Stack className={'join-page'}>
-				<Stack className={'container'}>
-					<Stack className={'main'}>
-						<Stack className={'left'}>
-							{/* @ts-ignore */}
-							<Box className={'logo'}>
-								<img src="/img/logo/logoText.svg" alt="" />
-								<span>MarketAuto</span>
-							</Box>
-							<Box className={'info'}>
-								<span>{loginView ? 'login' : 'signup'}</span>
-								<p>{loginView ? 'Login' : 'Sign'} in with this account across the following sites.</p>
-							</Box>
-							<Box className={'input-wrap'}>
-								<div className={'input-box'}>
-									<span>Nickname</span>
-									<input
-										type="text"
-										placeholder={'Enter Nickname'}
-										onChange={(e) => handleInput('nick', e.target.value)}
-										required={true}
-										onKeyDown={(event) => {
-											if (event.key == 'Enter' && loginView) doLogin();
-											if (event.key == 'Enter' && !loginView) doSignUp();
-										}}
-									/>
-								</div>
-								<div className={'input-box'}>
-									<span>Password</span>
-									<input
-										type="text"
-										placeholder={'Enter Password'}
-										onChange={(e) => handleInput('password', e.target.value)}
-										required={true}
-										onKeyDown={(event) => {
-											if (event.key == 'Enter' && loginView) doLogin();
-											if (event.key == 'Enter' && !loginView) doSignUp();
-										}}
-									/>
-								</div>
-								{!loginView && (
-									<div className={'input-box'}>
-										<span>Phone</span>
-										<input
-											type="text"
-											placeholder={'Enter Phone'}
-											onChange={(e) => handleInput('phone', e.target.value)}
-											required={true}
-											onKeyDown={(event) => {
-												if (event.key == 'Enter') doSignUp();
-											}}
-										/>
-									</div>
-								)}
-							</Box>
-							<Box className={'register'}>
-								{!loginView && (
-									<div className={'type-option'}>
-										<span className={'text'}>I want to be registered as:</span>
-										<div>
-											<FormGroup>
-												<FormControlLabel
-													control={
-														<Checkbox
-															size="small"
-															name={'USER'}
-															onChange={checkUserTypeHandler}
-															checked={input?.type == 'USER'}
-														/>
-													}
-													label="User"
-												/>
-											</FormGroup>
-											<FormGroup>
-												<FormControlLabel
-													control={
-														<Checkbox
-															size="small"
-															name={'AGENT'}
-															onChange={checkUserTypeHandler}
-															checked={input?.type == 'AGENT'}
-														/>
-													}
-													label="Agent"
-												/>
-											</FormGroup>
-										</div>
-									</div>
-								)}
+	const canSubmit = loginView
+		? input.nick !== '' && input.password !== ''
+		: input.nick !== '' && input.password !== '' && input.phone !== '';
 
-								{loginView && (
-									<div className={'remember-info'}>
-										<FormGroup>
-											<FormControlLabel control={<Checkbox defaultChecked size="small" />} label="Remember me" />
-										</FormGroup>
-										<a>Lost your password?</a>
-									</div>
-								)}
+	return (
+		<div className={'ma-page ma-auth'}>
+			<div className={'ma-auth__card'}>
+				<div className={'ma-auth__brand'}>
+					<img src="/img/logo/logoWhite.svg" alt="MarketAuto" />
+					<h2>{t('Buy and sell cars with confidence')}</h2>
+					<ul>
+						<li>{t('Cars from Uzbekistan and abroad in one place')}</li>
+						<li>{t('Contact sellers directly — no middlemen')}</li>
+						<li>{t('List your car for free in a few minutes')}</li>
+					</ul>
+				</div>
 
-								{loginView ? (
-									<Button
-										variant="contained"
-										endIcon={<img src="/img/icons/rightup.svg" alt="" />}
-										disabled={input.nick == '' || input.password == ''}
-										onClick={doLogin}
-									>
-										LOGIN
-									</Button>
-								) : (
-									<Button
-										variant="contained"
-										disabled={input.nick == '' || input.password == '' || input.phone == '' || input.type == ''}
-										onClick={doSignUp}
-										endIcon={<img src="/img/icons/rightup.svg" alt="" />}
-									>
-										SIGNUP
-									</Button>
-								)}
-							</Box>
-							<Box className={'ask-info'}>
-								{loginView ? (
-									<p>
-										Not registered yet?
-										<b
-											onClick={() => {
-												viewChangeHandler(false);
-											}}
-										>
-											SIGNUP
-										</b>
-									</p>
-								) : (
-									<p>
-										Have account?
-										<b onClick={() => viewChangeHandler(true)}> LOGIN</b>
-									</p>
-								)}
-							</Box>
-						</Stack>
-						<Stack className={'right'}></Stack>
-					</Stack>
-				</Stack>
-			</Stack>
-		);
-	}
+				<form className={'ma-auth__form'} onSubmit={submitHandler}>
+					<div className={'ma-segmented'}>
+						<button type="button" className={loginView ? 'is-active' : ''} onClick={() => viewChangeHandler(true)}>
+							{t('Login')}
+						</button>
+						<button type="button" className={!loginView ? 'is-active' : ''} onClick={() => viewChangeHandler(false)}>
+							{t('Register')}
+						</button>
+					</div>
+
+					<h1>{loginView ? t('Welcome back') : t('Create your account')}</h1>
+					<p className={'ma-auth__lead'}>
+						{loginView ? t('Log in to save cars and contact sellers.') : t('Join MarketAuto in less than a minute.')}
+					</p>
+
+					<label className={'ma-input'}>
+						<span>{t('Nickname')}</span>
+						<input
+							type="text"
+							autoComplete="username"
+							placeholder={t('Enter nickname') as string}
+							onChange={(e) => handleInput('nick', e.target.value)}
+							required
+						/>
+					</label>
+					<label className={'ma-input'}>
+						<span>{t('Password')}</span>
+						<input
+							type="password"
+							autoComplete={loginView ? 'current-password' : 'new-password'}
+							placeholder={t('Enter password') as string}
+							onChange={(e) => handleInput('password', e.target.value)}
+							required
+						/>
+					</label>
+
+					{!loginView && (
+						<>
+							<label className={'ma-input'}>
+								<span>{t('Phone')}</span>
+								<input
+									type="tel"
+									autoComplete="tel"
+									placeholder={'998901234567'}
+									onChange={(e) => handleInput('phone', e.target.value)}
+									required
+								/>
+							</label>
+							<span className={'ma-input__label'}>{t('I want to')}</span>
+							<div className={'ma-role'}>
+								<button
+									type="button"
+									className={input.type === 'USER' ? 'is-active' : ''}
+									onClick={() => handleInput('type', 'USER')}
+								>
+									<strong>{t('Buy or sell my car')}</strong>
+									<span>{t('Private buyer or seller')}</span>
+								</button>
+								<button
+									type="button"
+									className={input.type === 'AGENT' ? 'is-active' : ''}
+									onClick={() => handleInput('type', 'AGENT')}
+								>
+									<strong>{t('Sell as a dealer')}</strong>
+									<span>{t('Dealer profile and listings')}</span>
+								</button>
+							</div>
+						</>
+					)}
+
+					<button
+						type="submit"
+						className={'ma-btn ma-btn--primary ma-btn--block ma-auth__submit'}
+						disabled={!canSubmit}
+					>
+						{loginView ? t('Login') : t('Create account')}
+					</button>
+
+					<p className={'ma-auth__switch'}>
+						{loginView ? t("Don't have an account?") : t('Already have an account?')}{' '}
+						<button type="button" className={'ma-link-btn'} onClick={() => viewChangeHandler(!loginView)}>
+							{loginView ? t('Register') : t('Login')}
+						</button>
+					</p>
+				</form>
+			</div>
+		</div>
+	);
 };
 
-export default withLayoutBasic(Join);
+export default withLayoutFull(Join);
