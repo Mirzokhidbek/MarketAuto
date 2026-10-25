@@ -6,7 +6,7 @@ import Collapse from '@mui/material/Collapse';
 import Typography from '@mui/material/Typography';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
-import { ChatsCircle, Headset, User, UserCircleGear } from 'phosphor-react';
+import { ChatsCircle, Headset, User, UserCircleGear, ChartBar } from 'phosphor-react';
 import cookies from 'js-cookie';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
 
@@ -39,8 +39,12 @@ const AdminMenuList = (props: any) => {
 			case 'cs':
 				setClickMenu(['Cs']);
 				break;
-			default:
+			case 'users':
 				setClickMenu(['Users']);
+				break;
+			default:
+				setClickMenu(['Dashboard']);
+				setClickSubMenu('Overview');
 				break;
 		}
 
@@ -79,6 +83,11 @@ const AdminMenuList = (props: any) => {
 
 	const menu_set = [
 		{
+			title: 'Dashboard',
+			icon: <ChartBar size={20} color="#bdbdbd" weight="fill" />,
+			on_click: () => subMenuChangeHandler('Dashboard'),
+		},
+		{
 			title: 'Users',
 			icon: <User size={20} color="#bdbdbd" weight="fill" />,
 			on_click: () => subMenuChangeHandler('Users'),
@@ -101,12 +110,14 @@ const AdminMenuList = (props: any) => {
 	];
 
 	const sub_menu_set: any = {
+		Dashboard: [{ title: 'Overview', url: '/_admin' }],
 		Users: [{ title: 'List', url: '/_admin/users' }],
 		Cars: [{ title: 'List', url: '/_admin/properties' }],
 		Community: [{ title: 'List', url: '/_admin/community' }],
 		Cs: [
 			{ title: 'FAQ', url: '/_admin/cs/faq' },
 			{ title: 'Notice', url: '/_admin/cs/notice' },
+			{ title: '1:1 Inquiry', url: '/_admin/cs/inquiry' },
 		],
 	};
 
