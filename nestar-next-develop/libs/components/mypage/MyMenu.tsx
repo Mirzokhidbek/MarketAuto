@@ -81,6 +81,12 @@ const MyMenu = () => {
 				</div>
 			</div>
 
+			{user?._id && (
+				<Link href={`/member?memberId=${user._id}`}>
+					<span className={'ma-btn ma-btn--outline ma-btn--block ma-side-menu__public'}>{t('My public profile')}</span>
+				</Link>
+			)}
+
 			{groups.map((group) => (
 				<nav className={'ma-side-menu__group'} key={group.title}>
 					<span className={'ma-side-menu__title'}>{t(group.title)}</span>

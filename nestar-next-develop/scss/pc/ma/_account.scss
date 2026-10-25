@@ -580,6 +580,16 @@
 	}
 }
 
+.ma-side-menu__profile > a,
+.ma-side-menu__profile > button {
+	width: 100%;
+	margin-top: 4px;
+}
+
+.ma-side-menu__public {
+	margin-bottom: 14px;
+}
+
 .ma-side-menu__phone {
 	font-size: 13px;
 	color: $ma-muted;

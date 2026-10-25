@@ -153,7 +153,7 @@ const Top = () => {
 					<div>{t('Cars')}</div>
 				</Link>
 				<Link href={'/agent'}>
-					<div> {t('Dealers')} </div>
+					<div> {t('Sellers')} </div>
 				</Link>
 				<Link href={'/community?articleCategory=FREE'}>
 					<div> {t('Community')} </div>
@@ -197,7 +197,7 @@ const Top = () => {
 								<div>{t('Cars')}</div>
 							</Link>
 							<Link href={'/agent'}>
-								<div> {t('Dealers')} </div>
+								<div> {t('Sellers')} </div>
 							</Link>
 							<Link href={'/community?articleCategory=FREE'}>
 								<div> {t('Community')} </div>
@@ -240,9 +240,25 @@ const Top = () => {
 										}}
 										sx={{ mt: '5px' }}
 									>
+										<MenuItem
+											onClick={() => {
+												setLogoutAnchor(null);
+												router.push(`/member?memberId=${user._id}`);
+											}}
+										>
+											{t('My public profile')}
+										</MenuItem>
+										<MenuItem
+											onClick={() => {
+												setLogoutAnchor(null);
+												router.push('/mypage');
+											}}
+										>
+											{t('My Page')}
+										</MenuItem>
 										<MenuItem onClick={() => logOut()}>
-											<Logout fontSize="small" style={{ color: 'blue', marginRight: '10px' }} />
-											Logout
+											<Logout fontSize="small" style={{ color: '#0B57D0', marginRight: '10px' }} />
+											{t('Logout')}
 										</MenuItem>
 									</Menu>
 								</>

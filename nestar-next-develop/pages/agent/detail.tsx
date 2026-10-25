@@ -47,6 +47,11 @@ const AgentDetail: NextPage = ({ initialInput, initialComment, ...props }: any) 
 		commentRefId: '',
 	});
 
+	useEffect(() => {
+		if (router.isReady && router.query.agentId)
+			router.replace({ pathname: '/member', query: { memberId: router.query.agentId as string } });
+	}, [router.isReady]);
+
 	/** APOLLO REQUESTS **/
 	const [createComment] = useMutation(CREATE_COMMENT);
 	const [likeTargetProperty] = useMutation(LIKE_TARGET_PROPERTY);
@@ -135,8 +140,7 @@ const AgentDetail: NextPage = ({ initialInput, initialComment, ...props }: any) 
 	/** HANDLERS **/
 	const redirectToMemberPageHandler = async (memberId: string) => {
 		try {
-			if (memberId === user?._id) await router.push(`/mypage?memberId=${memberId}`);
-			else await router.push(`/member?memberId=${memberId}`);
+			await router.push(`/member?memberId=${memberId}`);
 		} catch (error) {
 			await sweetErrorHandling(error);
 		}
@@ -184,6 +188,24 @@ const AgentDetail: NextPage = ({ initialInput, initialComment, ...props }: any) 
 		} catch (err: any) {
 			console.log('ERROR, likePropertyHandler:', err.message);
 			sweetMixinErrorAlert(err.message).then();
+		}
+	};
+
+	const following = !!agent?.meFollowed?.[0]?.myFollowing;
+
+	const followHandler = async () => {
+		try {
+			if (!user._id) {
+				await router.push('/account/join');
+				return;
+			}
+			if (following) await unsubscribe({ variables: { input: agentId } });
+			else await subscribe({ variables: { input: agentId } });
+			const { data } = await getMemberRefetch({ input: agentId });
+			setAgent(data?.getMember);
+			await sweetTopSmallSuccessAlert(following ? 'Unfollowed!' : 'Followed!', 800);
+		} catch (err: any) {
+			sweetErrorHandling(err).then();
 		}
 	};
 
@@ -259,7 +281,7 @@ const AgentDetail: NextPage = ({ initialInput, initialComment, ...props }: any) 
 				<section className={'ma-profile-section'}>
 					<div className={'ma-results__bar'}>
 						<div>
-							<h2>{t('Cars from this dealer')}</h2>
+							<h2>{t('Cars from this seller')}</h2>
 							<span>
 								{propertyTotal} {t('cars found')}
 							</span>

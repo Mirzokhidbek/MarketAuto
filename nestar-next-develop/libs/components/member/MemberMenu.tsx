@@ -61,6 +61,16 @@ const MemberMenu = (props: MemberMenuProps) => {
 				<span className={'ma-badge ma-badge--primary'}>{t(member?.memberType === 'AGENT' ? 'Dealer' : 'Private seller')}</span>
 				{member?.memberPhone && <span className={'ma-side-menu__phone'}>{formatPhone(member?.memberPhone)}</span>}
 				{member?.memberDesc && <p>{member.memberDesc}</p>}
+				{user?._id && user?._id === member?._id && (
+					<>
+						<Link href={'/mypage?category=addProperty'}>
+							<span className={'ma-btn ma-btn--block ma-btn--primary'}>{t('Add Car')}</span>
+						</Link>
+						<Link href={'/mypage?category=myProfile'}>
+							<span className={'ma-btn ma-btn--block ma-btn--outline'}>{t('Edit profile')}</span>
+						</Link>
+					</>
+				)}
 				{!user?._id && (
 					<button className={'ma-btn ma-btn--block ma-btn--primary'} onClick={() => router.push('/account/join')}>
 						{t('Follow')}
