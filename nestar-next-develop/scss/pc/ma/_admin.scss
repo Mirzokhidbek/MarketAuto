@@ -1,0 +1,94 @@
+/** admin panel theme **/
+#pc-wrap.admin {
+	font-family: $ma-font;
+	background: $ma-bg;
+	.MuiAppBar-root {
+		background: rgba(255, 255, 255, 0.96) !important;
+		border-bottom: 1px solid $ma-border;
+		box-shadow: none !important;
+	}
+	.MuiDrawer-paper {
+		background: #0f172a !important;
+		border-right: none !important;
+		color: #cbd5e1;
+	}
+	.aside {
+		.logo-box {
+			padding: 22px 0 10px;
+			img {
+				width: 170px !important;
+				height: auto !important;
+			}
+		}
+		.user {
+			background: rgba(255, 255, 255, 0.06) !important;
+			border-radius: 12px;
+			color: $ma-white;
+			p,
+			span,
+			.MuiTypography-root {
+				color: #e2e8f0 !important;
+			}
+		}
+		.MuiDivider-root {
+			border-color: rgba(255, 255, 255, 0.08);
+		}
+	}
+	.MuiListItemButton-root,
+	.MuiListItem-root {
+		border-radius: 10px;
+		color: #cbd5e1;
+		.MuiTypography-root {
+			font-family: $ma-font;
+			color: #cbd5e1;
+		}
+		.MuiSvgIcon-root,
+		img {
+			color: #94a3b8;
+			filter: brightness(1.6);
+		}
+		&:hover {
+			background: rgba(255, 255, 255, 0.06);
+		}
+	}
+	.menu-list {
+		.MuiListItemButton-root.Mui-selected,
+		.on,
+		.menu.on {
+			background: rgba(59, 130, 246, 0.18) !important;
+			.MuiTypography-root {
+				color: $ma-white !important;
+			}
+		}
+	}
+	#bunker {
+		.title,
+		h1,
+		.MuiTypography-h2 {
+			font-family: $ma-font;
+			color: $ma-dark;
+		}
+		.MuiPaper-root {
+			border-radius: 14px;
+			border: 1px solid $ma-border;
+			box-shadow: $ma-shadow;
+		}
+		.MuiTableHead-root .MuiTableCell-root {
+			background: $ma-bg;
+			color: $ma-muted;
+			font-family: $ma-font;
+			font-size: 12px;
+			font-weight: 700;
+			letter-spacing: 0.04em;
+		}
+		.MuiTableCell-root {
+			font-family: $ma-font;
+			border-color: $ma-border;
+		}
+		.MuiTab-root {
+			font-family: $ma-font;
+			text-transform: none;
+			font-weight: 600;
+		}
+	}
+}

@@ -9,19 +9,19 @@ export const light = {
 	palette: {
 		type: 'light',
 		background: {
-			default: '#f4f6f8',
+			default: '#f8fafc',
 			paper: common.white,
 		},
 		primary: {
 			contrastText: '#ffffff',
-			main: '#E92C28',
+			main: '#0B57D0',
 		},
 		secondary: {
-			main: '#1646C1',
+			main: '#0F172A',
 		},
 		text: {
-			primary: '#212121',
-			secondary: '#616161',
+			primary: '#1E293B',
+			secondary: '#64748B',
 			dark: common.black,
 		},
 	},
