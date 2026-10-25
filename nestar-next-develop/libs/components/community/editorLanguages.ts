@@ -1,0 +1,58 @@
+import ToastEditor from '@toast-ui/editor';
+import '@toast-ui/editor/dist/i18n/ru-ru';
+
+// Toast UI ships Russian; Uzbek is registered here so the toolbar matches the site language
+const uzbek = {
+	Markdown: 'Markdown',
+	WYSIWYG: 'WYSIWYG',
+	Write: 'Yozish',
+	Preview: "Ko'rish",
+	Headings: 'Sarlavhalar',
+	Paragraph: 'Paragraf',
+	Bold: 'Qalin',
+	Italic: 'Kursiv',
+	Strike: "O'chirilgan",
+	Code: 'Kod',
+	Line: 'Chiziq',
+	Blockquote: 'Iqtibos',
+	'Unordered list': "Belgili ro'yxat",
+	'Ordered list': "Raqamli ro'yxat",
+	Task: 'Vazifa',
+	Indent: 'Chekinish',
+	Outdent: 'Chekinishni olish',
+	'Insert link': 'Havola qo‘shish',
+	'Insert CodeBlock': "Kod bloki qo'shish",
+	'Insert table': "Jadval qo'shish",
+	'Insert image': "Rasm qo'shish",
+	Heading: 'Sarlavha',
+	'Image URL': 'Rasm havolasi',
+	'Select image file': 'Rasm faylini tanlang',
+	'Choose a file': 'Faylni tanlash',
+	'No file': "Fayl yo'q",
+	Description: 'Tavsif',
+	OK: 'OK',
+	More: "Ko'proq",
+	Cancel: 'Bekor qilish',
+	File: 'Fayl',
+	URL: 'URL',
+	'Link text': 'Havola matni',
+	'Add row to up': "Yuqoriga qator qo'shish",
+	'Add row to down': "Pastga qator qo'shish",
+	'Add column to left': "Chapga ustun qo'shish",
+	'Add column to right': "O'ngga ustun qo'shish",
+	'Remove row': "Qatorni o'chirish",
+	'Remove column': "Ustunni o'chirish",
+	'Align column to left': 'Chapga tekislash',
+	'Align column to center': 'Markazga tekislash',
+	'Align column to right': "O'ngga tekislash",
+	'Remove table': "Jadvalni o'chirish",
+	'Would you like to paste as table?': "Jadval sifatida qo'yilsinmi?",
+	'Text color': 'Matn rangi',
+	'Auto scroll enabled': 'Avto aylantirish yoqildi',
+	'Auto scroll disabled': "Avto aylantirish o'chirildi",
+	'Choose language': 'Tilni tanlang',
+};
+ToastEditor.setLanguage('uz-UZ', uzbek);
+ToastEditor.setLanguage('uz', uzbek);
+
+export const editorLanguage = (locale?: string) => (locale === 'uz' ? 'uz-UZ' : locale === 'ru' ? 'ru-RU' : 'en-US');

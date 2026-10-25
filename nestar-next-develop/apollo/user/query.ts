@@ -57,6 +57,7 @@ export const GET_MEMBER = gql(`
         memberDesc
         memberProperties
         memberArticles
+        memberComments
         memberPoints
         memberLikes
         memberViews
