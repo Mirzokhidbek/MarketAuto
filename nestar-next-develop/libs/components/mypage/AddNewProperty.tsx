@@ -120,10 +120,8 @@ const AddProperty = ({ initialValues, ...props }: any) => {
 
 			const responseImages = response.data.data.imagesUploader;
 
-			console.log('+responseImages: ', responseImages);
 			setInsertPropertyData({ ...insertPropertyData, propertyImages: responseImages });
 		} catch (err: any) {
-			console.log('err: ', err.message);
 			await sweetMixinErrorAlert(err.message);
 		}
 	}

@@ -38,15 +38,12 @@ class LoggingWebSocket {
 		socketVar(this.socket);
 
 		this.socket.onopen = () => {
-			console.log('WebSocket connection!');
 		};
 
 		this.socket.onmessage = (msg) => {
-			console.log('WebSocket message:', msg.data);
 		};
 
 		this.socket.onerror = (error) => {
-			console.log('WebSocket, error:', error);
 		};
 	}
 

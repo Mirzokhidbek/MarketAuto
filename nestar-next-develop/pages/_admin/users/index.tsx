@@ -141,7 +141,6 @@ const AdminUsers: NextPage = ({ initialInquiry, ...props }: any) => {
 		try {
 			setSearchText(value);
 		} catch (err: any) {
-			console.log('textHandler: ', err.message);
 		}
 	}, []);
 
@@ -155,7 +154,6 @@ const AdminUsers: NextPage = ({ initialInquiry, ...props }: any) => {
 				},
 			});
 		} catch (err: any) {
-			console.log('searchTextHandler: ', err.message);
 		}
 	};
 
@@ -178,7 +176,6 @@ const AdminUsers: NextPage = ({ initialInquiry, ...props }: any) => {
 				setMembersInquiry({ ...membersInquiry });
 			}
 		} catch (err: any) {
-			console.log('searchTypeHandler: ', err.message);
 		}
 	};
 

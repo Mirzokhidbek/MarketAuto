@@ -66,7 +66,6 @@ const MemberArticles: NextPage = ({ initialInput, ...props }: any) => {
 			await boardArticlesRefetch({ input: searchFilter });
 			await sweetTopSmallSuccessAlert('success', 800);
 		} catch (err: any) {
-			console.log('ERROR, likePropertyHandler:', err.message);
 			sweetMixinErrorAlert(err.message).then();
 		}
 	};
