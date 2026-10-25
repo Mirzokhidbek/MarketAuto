@@ -129,16 +129,16 @@ const Join: NextPage = () => {
 									className={input.type === 'USER' ? 'is-active' : ''}
 									onClick={() => handleInput('type', 'USER')}
 								>
-									<strong>{t('Buy or sell my car')}</strong>
-									<span>{t('Private buyer or seller')}</span>
+									<strong>{t('Buy a car')}</strong>
+									<span>{t('Search, save and contact sellers')}</span>
 								</button>
 								<button
 									type="button"
 									className={input.type === 'AGENT' ? 'is-active' : ''}
 									onClick={() => handleInput('type', 'AGENT')}
 								>
-									<strong>{t('Sell as a dealer')}</strong>
-									<span>{t('Dealer profile and listings')}</span>
+									<strong>{t('Sell cars')}</strong>
+									<span>{t('Private seller or dealer')}</span>
 								</button>
 							</div>
 						</>
