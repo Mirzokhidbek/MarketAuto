@@ -7,6 +7,7 @@ import DirectionsCarOutlinedIcon from '@mui/icons-material/DirectionsCarOutlined
 import GroupOutlinedIcon from '@mui/icons-material/GroupOutlined';
 import PersonAddAltOutlinedIcon from '@mui/icons-material/PersonAddAltOutlined';
 import ArticleOutlinedIcon from '@mui/icons-material/ArticleOutlined';
+import RateReviewOutlinedIcon from '@mui/icons-material/RateReviewOutlined';
 import { Member } from '../../types/member/member';
 import { REACT_APP_API_URL } from '../../config';
 import { T } from '../../types/common';
@@ -49,6 +50,7 @@ const MemberMenu = (props: MemberMenuProps) => {
 		{ key: 'followers', label: 'Followers', icon: <GroupOutlinedIcon />, count: member?.memberFollowers },
 		{ key: 'followings', label: 'Followings', icon: <PersonAddAltOutlinedIcon />, count: member?.memberFollowings },
 		{ key: 'articles', label: 'Articles', icon: <ArticleOutlinedIcon />, count: member?.memberArticles },
+		{ key: 'reviews', label: 'Reviews', icon: <RateReviewOutlinedIcon />, count: member?.memberComments },
 	];
 
 	return (

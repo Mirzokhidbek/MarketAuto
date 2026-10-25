@@ -7,6 +7,7 @@ import MemberProperties from '../../libs/components/member/MemberProperties';
 import { useRouter } from 'next/router';
 import MemberFollowers from '../../libs/components/member/MemberFollowers';
 import MemberArticles from '../../libs/components/member/MemberArticles';
+import MemberReviews from '../../libs/components/member/MemberReviews';
 import { useMutation, useReactiveVar } from '@apollo/client';
 import { sweetErrorHandling, sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../libs/sweetAlert';
 import MemberFollowings from '../../libs/components/member/MemberFollowings';
@@ -131,6 +132,7 @@ const MemberPage: NextPage = () => {
 						/>
 					)}
 					{category === 'articles' && <MemberArticles />}
+					{category === 'reviews' && <MemberReviews />}
 				</section>
 			</div>
 		</div>

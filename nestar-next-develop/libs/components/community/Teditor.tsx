@@ -9,6 +9,7 @@ import { useRouter } from 'next/router';
 import axios from 'axios';
 import { T } from '../../types/common';
 import '@toast-ui/editor/dist/toastui-editor.css';
+import { editorLanguage } from './editorLanguages';
 import { CREATE_BOARD_ARTICLE } from '../../../apollo/user/mutation';
 import { useMutation } from '@apollo/client';
 import { Message } from '../../enums/common.enum';
@@ -137,6 +138,7 @@ const TuiEditor = () => {
 			</div>
 
 			<Editor
+				language={editorLanguage(router.locale)}
 				initialValue={''}
 				placeholder={t('Write your article here...') as string}
 				previewStyle={'vertical'}
