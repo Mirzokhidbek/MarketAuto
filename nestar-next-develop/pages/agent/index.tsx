@@ -145,7 +145,7 @@ const AgentList: NextPage = ({ initialInput, ...props }: any) => {
 				</div>
 
 				{agents?.length === 0 ? (
-					<div className={'ma-empty'}>{getAgentsLoading ? t('Loading...') : t('No dealers found')}</div>
+					<div className={'ma-empty'}>{getAgentsLoading ? t('Loading...') : t('No sellers found')}</div>
 				) : (
 					<div className={'ma-grid ma-grid--4'}>
 						{agents.map((agent: Member) => (
