@@ -6,6 +6,8 @@ import { Box, Button, Checkbox, FormControlLabel, FormGroup, Stack } from '@mui/
 import { useRouter } from 'next/router';
 import { logIn, signUp } from '../../libs/auth';
 import { sweetMixinErrorAlert } from '../../libs/sweetAlert';
+import { userVar } from '../../apollo/store';
+import { MemberType } from '../../libs/enums/member.enum';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 
 export const getStaticProps = async ({ locale }: any) => ({
@@ -45,7 +47,8 @@ const Join: NextPage = () => {
 		console.warn(input);
 		try {
 			await logIn(input.nick, input.password);
-			await router.push(`${router.query.referrer ?? '/'}`);
+			const isAdmin = userVar()?.memberType === MemberType.ADMIN;
+			await router.push(isAdmin ? '/_admin' : `${router.query.referrer ?? '/'}`);
 		} catch (err: any) {
 			await sweetMixinErrorAlert(err.message);
 		}
