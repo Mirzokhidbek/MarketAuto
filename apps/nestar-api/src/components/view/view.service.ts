@@ -44,6 +44,7 @@ export class ViewService {
 					},
 				},
 				{ $unwind: '$visitedProperty' },
+				{ $match: { 'visitedProperty.propertyStatus': { $ne: 'DELETE' } } },
 				{
 					$facet: {
 						list: [
