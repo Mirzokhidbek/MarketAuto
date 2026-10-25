@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { NextPage } from 'next';
-import useDeviceDetect from '../../hooks/useDeviceDetect';
+import { useTranslation } from 'next-i18next';
+import { useRouter } from 'next/router';
 import { Pagination, Stack, Typography } from '@mui/material';
 import CommunityCard from '../common/CommunityCard';
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
@@ -13,7 +14,8 @@ import { Messages } from '../../config';
 import { sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../sweetAlert';
 
 const MyArticles: NextPage = ({ initialInput, ...props }: T) => {
-	const device = useDeviceDetect();
+	const { t } = useTranslation('common');
+	const router = useRouter();
 	const user = useReactiveVar(userVar);
 	const [searchCommunity, setSearchCommunity] = useState({
 		...initialInput,
@@ -67,55 +69,43 @@ const MyArticles: NextPage = ({ initialInput, ...props }: T) => {
 		}
 	};
 
-	if (device === 'mobile') {
-		return <>ARTICLE PAGE MOBILE</>;
-	} else
-		return (
-			<div id="my-articles-page">
-				<Stack className="main-title-box">
-					<Stack className="right-box">
-						<Typography className="main-title">Article</Typography>
-						<Typography className="sub-title">We are glad to see you again!</Typography>
-					</Stack>
-				</Stack>
-				<Stack className="article-list-box">
-					{boardArticles?.length > 0 ? (
-						boardArticles?.map((boardArticle: BoardArticle) => {
-							return (
-								<CommunityCard
-									boardArticle={boardArticle}
-									key={boardArticle?._id}
-									size={'small'}
-									likeArticleHandler={likeBoArticleHandler}
-								/>
-							);
-						})
-					) : (
-						<div className={'no-data'}>
-							<img src="/img/icons/icoAlert.svg" alt="" />
-							<p>No Articles found!</p>
-						</div>
-					)}
-				</Stack>
-
-				{boardArticles?.length > 0 && (
-					<Stack className="pagination-conf">
-						<Stack className="pagination-box">
-							<Pagination
-								count={Math.ceil(totalCount / searchCommunity.limit)}
-								page={searchCommunity.page}
-								shape="circular"
-								color="primary"
-								onChange={paginationHandler}
-							/>
-						</Stack>
-						<Stack className="total">
-							<Typography>Total {totalCount ?? 0} article(s) available</Typography>
-						</Stack>
-					</Stack>
-				)}
+	return (
+		<div id="my-articles-page" className={'ma-account-panel'}>
+			<div className={'ma-account-panel__head'}>
+				<div>
+					<h1>{t('My Articles')}</h1>
+					<p>{t('Articles you shared with the MarketAuto community.')}</p>
+				</div>
+				<button className={'ma-btn ma-btn--primary'} onClick={() => router.push('/mypage?category=writeArticle')}>
+					+ {t('Write Article')}
+				</button>
 			</div>
-		);
+			{boardArticles?.length > 0 ? (
+				<div className={'ma-grid ma-grid--3'}>
+					{boardArticles.map((boardArticle: BoardArticle) => (
+						<CommunityCard
+							boardArticle={boardArticle}
+							key={boardArticle?._id}
+							size={'small'}
+							likeArticleHandler={likeBoArticleHandler}
+						/>
+					))}
+				</div>
+			) : (
+				<div className={'ma-empty'}>{t('You have not written any articles yet.')}</div>
+			)}
+			{totalCount > searchCommunity.limit && (
+				<div className={'ma-pagination'}>
+					<Pagination
+						count={Math.ceil(totalCount / searchCommunity.limit)}
+						page={searchCommunity.page}
+						shape="rounded"
+						onChange={paginationHandler}
+					/>
+				</div>
+			)}
+		</div>
+	);
 };
 
 MyArticles.defaultProps = {
