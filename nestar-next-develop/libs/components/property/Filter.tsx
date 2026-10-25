@@ -388,7 +388,7 @@ const Filter = (props: FilterType) => {
 		items: string[],
 		selected: string[] | undefined,
 		onChange: (e: any) => void,
-		format: (item: string) => string = formatEnumLabel,
+		format: (item: string) => string = (item) => formatEnumLabel(item, t),
 	) => (
 		<details className={'ma-filter__group'} open>
 			<summary>{t(title)}</summary>
@@ -468,7 +468,7 @@ const Filter = (props: FilterType) => {
 				Object.values(CarCountry),
 				searchFilter?.search?.countryList,
 				(e) => carListSelectHandler(e, 'countryList'),
-				formatCountry,
+				(item: string) => formatCountry(item, t),
 			)}
 			{checkList('Brand', Object.values(CarBrand), searchFilter?.search?.brandList, (e) =>
 				carListSelectHandler(e, 'brandList'),

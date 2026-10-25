@@ -75,7 +75,7 @@ const CountryHub = () => {
 								className={`ma-tab ${country === item ? 'is-active' : ''}`}
 								onClick={() => setCountry(item)}
 							>
-								{formatCountry(item)}
+								{formatCountry(item, t)}
 							</button>
 						))}
 					</div>

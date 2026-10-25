@@ -268,7 +268,7 @@ const CommunityDetail: NextPage = ({ initialInput, ...props }: T) => {
 								{boardArticle?.memberData?.memberNick}
 							</strong>
 							<span>
-								<Moment format={'DD MMM YYYY, HH:mm'}>{boardArticle?.createdAt}</Moment>
+								{boardArticle?.createdAt && <Moment format={'DD MMM YYYY, HH:mm'}>{boardArticle.createdAt}</Moment>}
 							</span>
 						</div>
 						<div className={'ma-article__stats'}>

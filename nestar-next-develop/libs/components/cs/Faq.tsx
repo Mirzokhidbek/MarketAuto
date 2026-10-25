@@ -228,7 +228,7 @@ const Faq = () => {
 			{
 				id: 'faq032',
 				subject: 'How can I contact support?',
-				content: 'Use the 1:1 inquiry form on the Support page or call our call center.',
+				content: 'Write to us by email or call our call center from the Support page.',
 			},
 		],
 	};

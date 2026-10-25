@@ -20,11 +20,11 @@ const CarCard = ({ property, onLike }: CarCardProps) => {
 	const image = property.propertyImages?.[0];
 	const liked = !!property.meLiked?.[0]?.myFavorite;
 	const place =
-		property.carCountry === 'UZBEKISTAN' ? formatEnumLabel(property.propertyLocation) : property.propertyAddress;
+		property.carCountry === 'UZBEKISTAN' ? formatEnumLabel(property.propertyLocation, t) : property.propertyAddress;
 	const specs = [
-		property.carEngine ? `${Number(property.carEngine).toFixed(1)} ${formatEnumLabel(property.carFuel)}` : formatEnumLabel(property.carFuel),
+		property.carEngine ? `${Number(property.carEngine).toFixed(1)} ${formatEnumLabel(property.carFuel, t)}` : formatEnumLabel(property.carFuel, t),
 		formatMileage(property.carMileage),
-		formatEnumLabel(property.carTransmission),
+		formatEnumLabel(property.carTransmission, t),
 		place,
 	].filter(Boolean);
 
@@ -41,7 +41,7 @@ const CarCard = ({ property, onLike }: CarCardProps) => {
 					</div>
 				)}
 				<div className={'ma-car-card__badges'}>
-					<span className={'ma-badge ma-badge--light'}>{formatCountry(property.carCountry)}</span>
+					<span className={'ma-badge ma-badge--light'}>{formatCountry(property.carCountry, t)}</span>
 					{property.propertyBarter && <span className={'ma-badge ma-badge--primary'}>{t('Barter')}</span>}
 					{property.propertyRent && <span className={'ma-badge ma-badge--primary'}>{t('Rent')}</span>}
 				</div>

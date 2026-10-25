@@ -62,7 +62,7 @@ const HomeHero = () => {
 							<option value={''}>{t('All Countries')}</option>
 							{Object.values(CarCountry).map((item) => (
 								<option value={item} key={item}>
-									{formatCountry(item)}
+									{formatCountry(item, t)}
 								</option>
 							))}
 						</select>
@@ -73,7 +73,7 @@ const HomeHero = () => {
 							<option value={''}>{t('Any Make')}</option>
 							{Object.values(CarBrand).map((item) => (
 								<option value={item} key={item}>
-									{formatEnumLabel(item)}
+									{formatEnumLabel(item, t)}
 								</option>
 							))}
 						</select>
@@ -104,7 +104,7 @@ const HomeHero = () => {
 							<option value={''}>{t('All Types')}</option>
 							{Object.values(PropertyType).map((item) => (
 								<option value={item} key={item}>
-									{formatEnumLabel(item)}
+									{formatEnumLabel(item, t)}
 								</option>
 							))}
 						</select>

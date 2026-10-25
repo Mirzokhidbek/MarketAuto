@@ -47,8 +47,8 @@ const ManageCarRow = ({ property, onDelete, onStatusChange }: ManageCarRowProps)
 			<div className={'ma-manage-row__info'}>
 				<strong onClick={openDetail}>{property.propertyTitle}</strong>
 				<span>
-					{formatCountry(property.carCountry)} · {property.carYear} · {formatMileage(property.carMileage)} ·{' '}
-					{formatEnumLabel(property.carTransmission)}
+					{formatCountry(property.carCountry, t)} · {property.carYear} · {formatMileage(property.carMileage)} ·{' '}
+					{formatEnumLabel(property.carTransmission, t)}
 				</span>
 				<div className={'ma-manage-row__stats'}>
 					<span>

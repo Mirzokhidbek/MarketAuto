@@ -18,6 +18,8 @@ import { userVar } from '../../apollo/store';
 import { Logout } from '@mui/icons-material';
 import { REACT_APP_API_URL } from '../config';
 import { MemberType } from '../enums/member.enum';
+import MenuIcon from '@mui/icons-material/Menu';
+import CloseIcon from '@mui/icons-material/Close';
 
 const Top = () => {
 	const device = useDeviceDetect();
@@ -28,6 +30,7 @@ const Top = () => {
 	const [lang, setLang] = useState<string | null>('en');
 	const drop = Boolean(anchorEl2);
 	const [colorChange, setColorChange] = useState(false);
+	const [menuOpen, setMenuOpen] = useState(false);
 	const [anchorEl, setAnchorEl] = React.useState<any | HTMLElement>(null);
 	let open = Boolean(anchorEl);
 	const [bgColor, setBgColor] = useState<boolean>(false);
@@ -175,7 +178,18 @@ const Top = () => {
 								<img src="/img/logo/logoDark.svg" alt="MarketAuto" />
 							</Link>
 						</Box>
-						<Box component={'div'} className={'router-box'}>
+						<button
+							className={'ma-burger'}
+							aria-label={'menu'}
+							onClick={() => setMenuOpen((prev) => !prev)}
+						>
+							{menuOpen ? <CloseIcon /> : <MenuIcon />}
+						</button>
+						<Box
+							component={'div'}
+							className={`router-box ${menuOpen ? 'is-open' : ''}`}
+							onClick={() => setMenuOpen(false)}
+						>
 							<Link href={'/'}>
 								<div>{t('Home')}</div>
 							</Link>

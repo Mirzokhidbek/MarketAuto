@@ -1,15 +1,8 @@
-import { useEffect, useState } from 'react';
-
-const useDeviceDetect = (): string => {
-	const [device, setDevice] = useState('desktop');
-
-	useEffect(() => {
-		const userAgent = navigator.userAgent;
-		const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
-		setDevice(isMobile ? 'mobile' : 'desktop');
-	}, [device]);
-
-	return device;
-};
+/**
+ * The redesigned UI is fully responsive (CSS media queries in scss/pc/ma),
+ * so every device renders the same components. The hook is kept so existing
+ * `device === 'mobile'` branches compile; it always reports 'desktop'.
+ */
+const useDeviceDetect = (): string => 'desktop';
 
 export default useDeviceDetect;
