@@ -15,7 +15,7 @@ import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
 import { useRouter } from 'next/router';
 import { Property } from '../../libs/types/property/property';
 import moment from 'moment';
-import { formatCarPlace, formatCountry, formatEnumLabel, formatMileage, formatterStr } from '../../libs/utils';
+import { formatCarPlace, formatCountry, formatEngine, formatEnumLabel, formatMileage, formatterStr } from '../../libs/utils';
 import { REACT_APP_API_URL } from '../../libs/config';
 import { userVar } from '../../apollo/store';
 import { CommentInput, CommentsInquiry } from '../../libs/types/comment/comment.input';
@@ -433,7 +433,7 @@ const PropertyDetail: NextPage = ({ initialComment, ...props }: any) => {
 												<Box component={'div'} className={'info'}>
 													<Typography className={'title'}>Engine</Typography>
 													<Typography className={'data'}>
-														{property?.carEngine ? `${property.carEngine} L` : '-'}
+														{formatEngine(property?.carEngine) || '-'}
 													</Typography>
 												</Box>
 												<Box component={'div'} className={'info'}>

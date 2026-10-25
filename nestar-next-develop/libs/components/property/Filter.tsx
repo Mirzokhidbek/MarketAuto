@@ -26,7 +26,8 @@ import { useRouter } from 'next/router';
 import CancelRoundedIcon from '@mui/icons-material/CancelRounded';
 import { propertyMileage, propertyYears } from '../../config';
 import { formatCountry, formatEnumLabel, formatMileage } from '../../utils';
-import RefreshIcon from '@mui/icons-material/Refresh';
+import SearchIcon from '@mui/icons-material/Search';
+import { useTranslation } from 'next-i18next';
 
 const MenuProps = {
 	PaperProps: {
@@ -49,8 +50,8 @@ interface FilterType {
 
 const Filter = (props: FilterType) => {
 	const { searchFilter, setSearchFilter, initialInput } = props;
-	const device = useDeviceDetect();
 	const router = useRouter();
+	const { t } = useTranslation('common');
 	const [propertyLocation, setPropertyLocation] = useState<PropertyLocation[]>(Object.values(PropertyLocation));
 	const [propertyType, setPropertyType] = useState<PropertyType[]>(Object.values(PropertyType));
 	const [searchText, setSearchText] = useState<string>('');
@@ -382,338 +383,146 @@ const Filter = (props: FilterType) => {
 		}
 	};
 
-	if (device === 'mobile') {
-		return <div>CARS FILTER</div>;
-	} else {
+	const checkList = (
+		title: string,
+		items: string[],
+		selected: string[] | undefined,
+		onChange: (e: any) => void,
+		format: (item: string) => string = formatEnumLabel,
+	) => (
+		<details className={'ma-filter__group'} open>
+			<summary>{t(title)}</summary>
+			<div className={'ma-filter__list'}>
+				{items.map((item) => (
+					<label className={'ma-check'} key={item}>
+						<input type="checkbox" value={item} checked={(selected || []).includes(item)} onChange={onChange} />
+						<span>{format(item)}</span>
+					</label>
+				))}
+			</div>
+		</details>
+	);
+
+	const rangeSelect = (title: string, key: CarRangeKey, options: number[], format: (n: number) => string) => {
+		const start = searchFilter?.search?.[key]?.start ?? options[0];
+		const end = searchFilter?.search?.[key]?.end ?? options[options.length - 1];
 		return (
-			<Stack className={'filter-main'}>
-				<Stack className={'find-your-home'} mb={'40px'}>
-					<Typography className={'title-main'}>Find Your Car</Typography>
-					<Stack className={'input-box'}>
-						<OutlinedInput
-							value={searchText}
-							type={'text'}
-							className={'search-input'}
-							placeholder={'What are you looking for?'}
-							onChange={(e: any) => setSearchText(e.target.value)}
-							onKeyDown={(event: any) => {
-								if (event.key == 'Enter') {
-									setSearchFilter({
-										...searchFilter,
-										search: { ...searchFilter.search, text: searchText },
-									});
-								}
-							}}
-							endAdornment={
-								<>
-									<CancelRoundedIcon
-										onClick={() => {
-											setSearchText('');
-											setSearchFilter({
-												...searchFilter,
-												search: { ...searchFilter.search, text: '' },
-											});
-										}}
-									/>
-								</>
-							}
-						/>
-						<img src={'/img/icons/search_icon.png'} alt={''} />
-						<Tooltip title="Reset">
-							<IconButton onClick={refreshHandler}>
-								<RefreshIcon />
-							</IconButton>
-						</Tooltip>
-					</Stack>
-				</Stack>
-				<Stack className={'find-your-home'} mb={'30px'}>
-					<Typography className={'title'}>Country</Typography>
-					<Stack style={{ maxHeight: '253px', overflowY: 'auto' }}>
-						{Object.values(CarCountry).map((item: string) => (
-							<Stack className={'input-box'} key={item}>
-								<Checkbox
-									id={item}
-									className="property-checkbox"
-									color="default"
-									size="small"
-									value={item}
-									onChange={(e: any) => carListSelectHandler(e, 'countryList')}
-									checked={(searchFilter?.search?.countryList || []).includes(item as CarCountry)}
-								/>
-								<label htmlFor={item} style={{ cursor: 'pointer' }}>
-									<Typography className="property_type">{formatCountry(item)}</Typography>
-								</label>
-							</Stack>
+			<details className={'ma-filter__group'} open>
+				<summary>{t(title)}</summary>
+				<div className={'ma-filter__range'}>
+					<select value={start} onChange={(e) => carRangeHandler(Number(e.target.value), 'start', key)}>
+						{options.map((item) => (
+							<option value={item} disabled={item > end} key={item}>
+								{format(item)}
+							</option>
 						))}
-					</Stack>
-				</Stack>
-				<Stack className={'find-your-home'} mb={'30px'}>
-					<p className={'title'} style={{ textShadow: '0px 3px 4px #b9b9b9' }}>
-						City
-					</p>
-					<Stack
-						className={`property-location`}
-						style={{ height: showMore ? '253px' : '115px' }}
-						onMouseEnter={() => setShowMore(true)}
-						onMouseLeave={() => {
-							if (!searchFilter?.search?.locationList) {
-								setShowMore(false);
-							}
-						}}
-					>
-						{propertyLocation.map((location: string) => {
-							return (
-								<Stack className={'input-box'} key={location}>
-									<Checkbox
-										id={location}
-										className="property-checkbox"
-										color="default"
-										size="small"
-										value={location}
-										checked={(searchFilter?.search?.locationList || []).includes(location as PropertyLocation)}
-										onChange={propertyLocationSelectHandler}
-									/>
-									<label htmlFor={location} style={{ cursor: 'pointer' }}>
-										<Typography className="property-type">{formatEnumLabel(location)}</Typography>
-									</label>
-								</Stack>
-							);
-						})}
-					</Stack>
-				</Stack>
-				<Stack className={'find-your-home'} mb={'30px'}>
-					<Typography className={'title'}>Body Type</Typography>
-					{propertyType.map((type: string) => (
-						<Stack className={'input-box'} key={type}>
-							<Checkbox
-								id={type}
-								className="property-checkbox"
-								color="default"
-								size="small"
-								value={type}
-								onChange={propertyTypeSelectHandler}
-								checked={(searchFilter?.search?.typeList || []).includes(type as PropertyType)}
-							/>
-							<label style={{ cursor: 'pointer' }}>
-								<Typography className="property_type">{formatEnumLabel(type)}</Typography>
-							</label>
-						</Stack>
-					))}
-				</Stack>
-				<Stack className={'find-your-home'} mb={'30px'}>
-					<Typography className={'title'}>Brand</Typography>
-					<Stack style={{ maxHeight: '253px', overflowY: 'auto' }}>
-						{Object.values(CarBrand).map((item: string) => (
-							<Stack className={'input-box'} key={item}>
-								<Checkbox
-									id={item}
-									className="property-checkbox"
-									color="default"
-									size="small"
-									value={item}
-									onChange={(e: any) => carListSelectHandler(e, 'brandList')}
-									checked={(searchFilter?.search?.brandList || []).includes(item as CarBrand)}
-								/>
-								<label htmlFor={item} style={{ cursor: 'pointer' }}>
-									<Typography className="property_type">{formatEnumLabel(item)}</Typography>
-								</label>
-							</Stack>
+					</select>
+					<span>—</span>
+					<select value={end} onChange={(e) => carRangeHandler(Number(e.target.value), 'end', key)}>
+						{options.map((item) => (
+							<option value={item} disabled={item < start} key={item}>
+								{format(item)}
+							</option>
 						))}
-					</Stack>
-				</Stack>
-				<Stack className={'find-your-home'} mb={'30px'}>
-					<Typography className={'title'}>Fuel</Typography>
-					<Stack style={{ maxHeight: '253px', overflowY: 'auto' }}>
-						{Object.values(CarFuel).map((item: string) => (
-							<Stack className={'input-box'} key={item}>
-								<Checkbox
-									id={item}
-									className="property-checkbox"
-									color="default"
-									size="small"
-									value={item}
-									onChange={(e: any) => carListSelectHandler(e, 'fuelList')}
-									checked={(searchFilter?.search?.fuelList || []).includes(item as CarFuel)}
-								/>
-								<label htmlFor={item} style={{ cursor: 'pointer' }}>
-									<Typography className="property_type">{formatEnumLabel(item)}</Typography>
-								</label>
-							</Stack>
-						))}
-					</Stack>
-				</Stack>
-				<Stack className={'find-your-home'} mb={'30px'}>
-					<Typography className={'title'}>Transmission</Typography>
-					<Stack style={{ maxHeight: '253px', overflowY: 'auto' }}>
-						{Object.values(CarTransmission).map((item: string) => (
-							<Stack className={'input-box'} key={item}>
-								<Checkbox
-									id={item}
-									className="property-checkbox"
-									color="default"
-									size="small"
-									value={item}
-									onChange={(e: any) => carListSelectHandler(e, 'transmissionList')}
-									checked={(searchFilter?.search?.transmissionList || []).includes(item as CarTransmission)}
-								/>
-								<label htmlFor={item} style={{ cursor: 'pointer' }}>
-									<Typography className="property_type">{formatEnumLabel(item)}</Typography>
-								</label>
-							</Stack>
-						))}
-					</Stack>
-				</Stack>
-				<Stack className={'find-your-home'} mb={'30px'}>
-					<Typography className={'title'}>Options</Typography>
-					<Stack className={'input-box'}>
-						<Checkbox
-							id={'Barter'}
-							className="property-checkbox"
-							color="default"
-							size="small"
-							value={'propertyBarter'}
-							checked={(searchFilter?.search?.options || []).includes('propertyBarter')}
-							onChange={propertyOptionSelectHandler}
-						/>
-						<label htmlFor={'Barter'} style={{ cursor: 'pointer' }}>
-							<Typography className="propert-type">Barter</Typography>
-						</label>
-					</Stack>
-					<Stack className={'input-box'}>
-						<Checkbox
-							id={'Rent'}
-							className="property-checkbox"
-							color="default"
-							size="small"
-							value={'propertyRent'}
-							checked={(searchFilter?.search?.options || []).includes('propertyRent')}
-							onChange={propertyOptionSelectHandler}
-						/>
-						<label htmlFor={'Rent'} style={{ cursor: 'pointer' }}>
-							<Typography className="propert-type">Rent</Typography>
-						</label>
-					</Stack>
-				</Stack>
-				<Stack className={'find-your-home'} mb={'30px'}>
-					<Typography className={'title'}>Year</Typography>
-					<Stack className="square-year-input">
-						<FormControl>
-							<InputLabel>Min</InputLabel>
-							<Select
-								value={searchFilter?.search?.yearsRange?.start ?? carYears[0]}
-								label="Min"
-								onChange={(e: any) => carRangeHandler(e.target.value, 'start', 'yearsRange')}
-								MenuProps={MenuProps}
-							>
-								{carYears.map((item: number) => (
-									<MenuItem
-										value={item}
-										disabled={(searchFilter?.search?.yearsRange?.end ?? carYears[carYears.length - 1]) < item}
-										key={item}
-									>
-										{item}
-									</MenuItem>
-								))}
-							</Select>
-						</FormControl>
-						<div className="central-divider"></div>
-						<FormControl>
-							<InputLabel>Max</InputLabel>
-							<Select
-								value={searchFilter?.search?.yearsRange?.end ?? carYears[carYears.length - 1]}
-								label="Max"
-								onChange={(e: any) => carRangeHandler(e.target.value, 'end', 'yearsRange')}
-								MenuProps={MenuProps}
-							>
-								{carYears.map((item: number) => (
-									<MenuItem
-										value={item}
-										disabled={(searchFilter?.search?.yearsRange?.start ?? carYears[0]) > item}
-										key={item}
-									>
-										{item}
-									</MenuItem>
-								))}
-							</Select>
-						</FormControl>
-					</Stack>
-				</Stack>
-				<Stack className={'find-your-home'} mb={'30px'}>
-					<Typography className={'title'}>Mileage</Typography>
-					<Stack className="square-year-input">
-						<FormControl>
-							<InputLabel>Min</InputLabel>
-							<Select
-								value={searchFilter?.search?.mileageRange?.start ?? propertyMileage[0]}
-								label="Min"
-								onChange={(e: any) => carRangeHandler(e.target.value, 'start', 'mileageRange')}
-								MenuProps={MenuProps}
-							>
-								{propertyMileage.map((item: number) => (
-									<MenuItem
-										value={item}
-										disabled={
-											(searchFilter?.search?.mileageRange?.end ?? propertyMileage[propertyMileage.length - 1]) < item
-										}
-										key={item}
-									>
-										{formatMileage(item)}
-									</MenuItem>
-								))}
-							</Select>
-						</FormControl>
-						<div className="central-divider"></div>
-						<FormControl>
-							<InputLabel>Max</InputLabel>
-							<Select
-								value={searchFilter?.search?.mileageRange?.end ?? propertyMileage[propertyMileage.length - 1]}
-								label="Max"
-								onChange={(e: any) => carRangeHandler(e.target.value, 'end', 'mileageRange')}
-								MenuProps={MenuProps}
-							>
-								{propertyMileage.map((item: number) => (
-									<MenuItem
-										value={item}
-										disabled={(searchFilter?.search?.mileageRange?.start ?? propertyMileage[0]) > item}
-										key={item}
-									>
-										{formatMileage(item)}
-									</MenuItem>
-								))}
-							</Select>
-						</FormControl>
-					</Stack>
-				</Stack>
-				<Stack className={'find-your-home'}>
-					<Typography className={'title'}>Price Range</Typography>
-					<Stack className="square-year-input">
-						<input
-							type="number"
-							placeholder="$ min"
-							min={0}
-							value={searchFilter?.search?.pricesRange?.start ?? 0}
-							onChange={(e: any) => {
-								if (e.target.value >= 0) {
-									propertyPriceHandler(e.target.value, 'start');
-								}
-							}}
-						/>
-						<div className="central-divider"></div>
-						<input
-							type="number"
-							placeholder="$ max"
-							value={searchFilter?.search?.pricesRange?.end ?? 0}
-							onChange={(e: any) => {
-								if (e.target.value >= 0) {
-									propertyPriceHandler(e.target.value, 'end');
-								}
-							}}
-						/>
-					</Stack>
-				</Stack>
-			</Stack>
+					</select>
+				</div>
+			</details>
 		);
-	}
+	};
+
+	return (
+		<aside className={'ma-filter'}>
+			<div className={'ma-filter__head'}>
+				<strong>{t('Filters')}</strong>
+				<button className={'ma-link-btn'} onClick={refreshHandler}>
+					{t('Clear all')}
+				</button>
+			</div>
+
+			<div className={'ma-filter__search'}>
+				<SearchIcon />
+				<input
+					value={searchText}
+					type={'text'}
+					placeholder={t('Search by title') as string}
+					onChange={(e: any) => setSearchText(e.target.value)}
+					onKeyDown={(event: any) => {
+						if (event.key == 'Enter') {
+							setSearchFilter({ ...searchFilter, search: { ...searchFilter.search, text: searchText } });
+						}
+					}}
+				/>
+				{searchText && (
+					<CancelRoundedIcon
+						className={'ma-filter__clear'}
+						onClick={() => {
+							setSearchText('');
+							setSearchFilter({ ...searchFilter, search: { ...searchFilter.search, text: '' } });
+						}}
+					/>
+				)}
+			</div>
+
+			{checkList(
+				'Country',
+				Object.values(CarCountry),
+				searchFilter?.search?.countryList,
+				(e) => carListSelectHandler(e, 'countryList'),
+				formatCountry,
+			)}
+			{checkList('Brand', Object.values(CarBrand), searchFilter?.search?.brandList, (e) =>
+				carListSelectHandler(e, 'brandList'),
+			)}
+			{checkList('Body type', propertyType, searchFilter?.search?.typeList, propertyTypeSelectHandler)}
+
+			<details className={'ma-filter__group'} open>
+				<summary>{t('Price')} ($)</summary>
+				<div className={'ma-filter__range'}>
+					<input
+						type="number"
+						min={0}
+						placeholder={t('Min') as string}
+						defaultValue={searchFilter?.search?.pricesRange?.start ?? ''}
+						key={`min-${searchFilter?.search?.pricesRange?.start}`}
+						onBlur={(e) => propertyPriceHandler(Number(e.target.value) || 0, 'start')}
+						onKeyDown={(e: any) => e.key === 'Enter' && e.target.blur()}
+					/>
+					<span>—</span>
+					<input
+						type="number"
+						min={0}
+						placeholder={t('Max') as string}
+						defaultValue={searchFilter?.search?.pricesRange?.end ?? ''}
+						key={`max-${searchFilter?.search?.pricesRange?.end}`}
+						onBlur={(e) => propertyPriceHandler(Number(e.target.value) || 2000000, 'end')}
+						onKeyDown={(e: any) => e.key === 'Enter' && e.target.blur()}
+					/>
+				</div>
+			</details>
+
+			{rangeSelect('Year', 'yearsRange', carYears, (n) => String(n))}
+			{rangeSelect('Mileage', 'mileageRange', propertyMileage, formatMileage)}
+			{checkList('Fuel', Object.values(CarFuel), searchFilter?.search?.fuelList, (e) =>
+				carListSelectHandler(e, 'fuelList'),
+			)}
+			{checkList('Transmission', Object.values(CarTransmission), searchFilter?.search?.transmissionList, (e) =>
+				carListSelectHandler(e, 'transmissionList'),
+			)}
+			{checkList(
+				'City (Uzbekistan)',
+				propertyLocation,
+				searchFilter?.search?.locationList,
+				propertyLocationSelectHandler,
+			)}
+			{checkList(
+				'Options',
+				['propertyBarter', 'propertyRent'],
+				searchFilter?.search?.options,
+				propertyOptionSelectHandler,
+				(item) => t(item === 'propertyBarter' ? 'Barter' : 'Rent'),
+			)}
+		</aside>
+	);
 };
 
 export default Filter;
