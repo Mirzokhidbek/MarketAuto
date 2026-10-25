@@ -55,9 +55,13 @@ const withLayoutBasic = (Component: any) => {
 					desc = 'Home / Community';
 					bgImage = '/img/banner/header2.svg';
 					break;
+				case '/about':
+					title = 'About Us';
+					desc = 'Home / About Us';
+					break;
 				case '/cs':
-					title = 'CS';
-					desc = 'We are glad to see you again!';
+					title = 'Support Center';
+					desc = 'Home / Support';
 					bgImage = '/img/banner/header2.svg';
 					break;
 				case '/account/join':

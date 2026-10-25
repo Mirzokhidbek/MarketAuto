@@ -55,7 +55,7 @@ const CS: NextPage = () => {
 				</section>
 				<aside className={'ma-panel ma-cs__contact'}>
 					<h3>{t('Still need help?')}</h3>
-					<p>{t('Our team answers every day from 9:00 to 21:00 (Tashkent time).')}</p>
+					<p>{t('Our team answers every day from 9 AM to 9 PM (Tashkent time).')}</p>
 					<a className={'ma-btn ma-btn--primary ma-btn--block'} href={'tel:+998712000000'}>
 						<PhoneOutlinedIcon /> +998 71 200 00 00
 					</a>

@@ -84,7 +84,7 @@ const About: NextPage = () => {
 					<div className={'ma-cta'}>
 						<div className={'ma-cta__text'}>
 							<h2>{t('Need help? Talk to our team.')}</h2>
-							<p>{t('Our team answers every day from 9:00 to 21:00 (Tashkent time).')}</p>
+							<p>{t('Our team answers every day from 9 AM to 9 PM (Tashkent time).')}</p>
 							<div className={'ma-cta__actions'}>
 								<Link href={'/cs'}>
 									<span className={'ma-btn ma-btn--primary'}>{t('Support Center')}</span>
