@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { NextPage } from 'next';
-import useDeviceDetect from '../../hooks/useDeviceDetect';
-import { Button, Stack, Typography } from '@mui/material';
+import { useTranslation } from 'next-i18next';
 import axios from 'axios';
 import { Messages, REACT_APP_API_URL } from '../../config';
 import { getJwtToken, updateStorage, updateUserInfo } from '../../auth';
@@ -12,7 +11,7 @@ import { sweetErrorHandling, sweetMixinSuccessAlert } from '../../sweetAlert';
 import { UPDATE_MEMBER } from '../../../apollo/user/mutation';
 
 const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
-	const device = useDeviceDetect();
+	const { t } = useTranslation('common');
 	const token = getJwtToken();
 	const user = useReactiveVar(userVar);
 	const [updateData, setUpdateData] = useState<MemberUpdate>(initialValues);
@@ -28,6 +27,8 @@ const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 			memberPhone: user.memberPhone,
 			memberAddress: user.memberAddress,
 			memberImage: user.memberImage,
+			memberFullName: user.memberFullName,
+			memberDesc: user.memberDesc,
 		});
 	}, [user]);
 
@@ -81,9 +82,14 @@ const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 		try {
 			if (!user._id) throw new Error(Messages.error2);
 			updateData._id = user._id;
+			// optional text fields are sent only when filled (backend validates their length)
+			const input: any = { ...updateData };
+			['memberImage', 'memberAddress', 'memberFullName', 'memberDesc'].forEach((key) => {
+				if (!input[key]) delete input[key];
+			});
 			const result = await updateMember({
 				variables: {
-					input: updateData,
+					input,
 				},
 			});
 
@@ -91,115 +97,96 @@ const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 			const jwtToken = result.data.updateMember?.accessToken;
 			await updateStorage({ jwtToken });
 			updateUserInfo(result.data.updateMember?.accessToken);
-			await sweetMixinSuccessAlert('information updated successfully.');
+			await sweetMixinSuccessAlert(t('Profile updated successfully.') as string);
 		} catch (err: any) {
 			sweetErrorHandling(err).then();
 		}
 	}, [updateData]);
 
 	const doDisabledCheck = () => {
-		if (
-			updateData.memberNick === '' ||
-			updateData.memberPhone === '' ||
-			updateData.memberAddress === '' ||
-			updateData.memberImage === ''
-		) {
+		if (!updateData.memberNick || !updateData.memberPhone) {
 			return true;
 		}
 	};
 
-	console.log('+updateData', updateData);
-
-	if (device === 'mobile') {
-		return <>MY PROFILE PAGE MOBILE</>;
-	} else
-		return (
-			<div id="my-profile-page">
-				<Stack className="main-title-box">
-					<Stack className="right-box">
-						<Typography className="main-title">My Profile</Typography>
-						<Typography className="sub-title">We are glad to see you again!</Typography>
-					</Stack>
-				</Stack>
-				<Stack className="top-box">
-					<Stack className="photo-box">
-						<Typography className="title">Photo</Typography>
-						<Stack className="image-big-box">
-							<Stack className="image-box">
-								<img
-									src={
-										updateData?.memberImage
-											? `${REACT_APP_API_URL}/${updateData?.memberImage}`
-											: `/img/profile/defaultUser.svg`
-									}
-									alt=""
-								/>
-							</Stack>
-							<Stack className="upload-big-box">
-								<input
-									type="file"
-									hidden
-									id="hidden-input"
-									onChange={uploadImage}
-									accept="image/jpg, image/jpeg, image/png"
-								/>
-								<label htmlFor="hidden-input" className="labeler">
-									<Typography>Upload Profile Image</Typography>
-								</label>
-								<Typography className="upload-text">A photo must be in JPG, JPEG or PNG format!</Typography>
-							</Stack>
-						</Stack>
-					</Stack>
-					<Stack className="small-input-box">
-						<Stack className="input-box">
-							<Typography className="title">Username</Typography>
-							<input
-								type="text"
-								placeholder="Your username"
-								value={updateData.memberNick}
-								onChange={({ target: { value } }) => setUpdateData({ ...updateData, memberNick: value })}
-							/>
-						</Stack>
-						<Stack className="input-box">
-							<Typography className="title">Phone</Typography>
-							<input
-								type="text"
-								placeholder="Your Phone"
-								value={updateData.memberPhone}
-								onChange={({ target: { value } }) => setUpdateData({ ...updateData, memberPhone: value })}
-							/>
-						</Stack>
-					</Stack>
-					<Stack className="address-box">
-						<Typography className="title">Address</Typography>
-						<input
-							type="text"
-							placeholder="Your address"
-							value={updateData.memberAddress}
-							onChange={({ target: { value } }) => setUpdateData({ ...updateData, memberAddress: value })}
-						/>
-					</Stack>
-					<Stack className="about-me-box">
-						<Button className="update-button" onClick={updatePropertyHandler} disabled={doDisabledCheck()}>
-							<Typography>Update Profile</Typography>
-							<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 13 13" fill="none">
-								<g clipPath="url(#clip0_7065_6985)">
-									<path
-										d="M12.6389 0H4.69446C4.49486 0 4.33334 0.161518 4.33334 0.361122C4.33334 0.560727 4.49486 0.722245 4.69446 0.722245H11.7672L0.105803 12.3836C-0.0352676 12.5247 -0.0352676 12.7532 0.105803 12.8942C0.176321 12.9647 0.268743 13 0.361131 13C0.453519 13 0.545907 12.9647 0.616459 12.8942L12.2778 1.23287V8.30558C12.2778 8.50518 12.4393 8.6667 12.6389 8.6667C12.8385 8.6667 13 8.50518 13 8.30558V0.361122C13 0.161518 12.8385 0 12.6389 0Z"
-										fill="white"
-									/>
-								</g>
-								<defs>
-									<clipPath id="clip0_7065_6985">
-										<rect width="13" height="13" fill="white" />
-									</clipPath>
-								</defs>
-							</svg>
-						</Button>
-					</Stack>
-				</Stack>
+	return (
+		<div className={'ma-account-panel'}>
+			<div className={'ma-account-panel__head'}>
+				<div>
+					<h1>{t('My Profile')}</h1>
+					<p>{t('This information is shown on your public seller profile.')}</p>
+				</div>
 			</div>
-		);
+
+			<div className={'ma-avatar-upload'}>
+				<img
+					src={
+						updateData?.memberImage ? `${REACT_APP_API_URL}/${updateData?.memberImage}` : '/img/profile/defaultUser.svg'
+					}
+					alt={''}
+				/>
+				<div>
+					<label className={'ma-btn ma-btn--outline'}>
+						{t('Upload photo')}
+						<input type="file" hidden onChange={uploadImage} accept="image/jpg, image/jpeg, image/png" />
+					</label>
+					<span>{t('JPG or PNG, square image works best.')}</span>
+				</div>
+			</div>
+
+			<div className={'ma-form-grid'}>
+				<label className={'ma-input'}>
+					<span>{t('Nickname')}</span>
+					<input
+						type="text"
+						placeholder={'nickname'}
+						value={updateData.memberNick ?? ''}
+						onChange={({ target: { value } }) => setUpdateData({ ...updateData, memberNick: value })}
+					/>
+				</label>
+				<label className={'ma-input'}>
+					<span>{t('Full name')}</span>
+					<input
+						type="text"
+						placeholder={'Full name / company name'}
+						value={updateData.memberFullName ?? ''}
+						onChange={({ target: { value } }) => setUpdateData({ ...updateData, memberFullName: value })}
+					/>
+				</label>
+				<label className={'ma-input'}>
+					<span>{t('Phone')}</span>
+					<input
+						type="tel"
+						placeholder={'998901234567'}
+						value={updateData.memberPhone ?? ''}
+						onChange={({ target: { value } }) => setUpdateData({ ...updateData, memberPhone: value })}
+					/>
+				</label>
+				<label className={'ma-input'}>
+					<span>{t('Address')}</span>
+					<input
+						type="text"
+						placeholder={'Tashkent, Chilonzor'}
+						value={updateData.memberAddress ?? ''}
+						onChange={({ target: { value } }) => setUpdateData({ ...updateData, memberAddress: value })}
+					/>
+				</label>
+			</div>
+			<label className={'ma-input'}>
+				<span>{t('About')}</span>
+				<textarea
+					placeholder={t('Tell buyers about you or your dealership') as string}
+					value={updateData.memberDesc ?? ''}
+					onChange={({ target: { value } }) => setUpdateData({ ...updateData, memberDesc: value })}
+				></textarea>
+			</label>
+			<div className={'ma-form-actions'}>
+				<button className={'ma-btn ma-btn--primary'} onClick={updatePropertyHandler} disabled={doDisabledCheck()}>
+					{t('Save changes')}
+				</button>
+			</div>
+		</div>
+	);
 };
 
 MyProfile.defaultProps = {
@@ -209,6 +196,8 @@ MyProfile.defaultProps = {
 		memberNick: '',
 		memberPhone: '',
 		memberAddress: '',
+		memberFullName: '',
+		memberDesc: '',
 	},
 };
 
