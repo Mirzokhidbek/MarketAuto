@@ -60,7 +60,7 @@
             letter-spacing: 0.42px;
             &.active {
               border: 1px solid #725CE8;
-              background: #EB6753;
+              background: #0b57d0;
               color: #FFF;
             }
           }
@@ -119,8 +119,8 @@
                 div {
                   padding: 6px 9px;
                   border-radius: 12px;
-                  border: 1px solid #EB6753;
-                  color: #EB6753;
+                  border: 1px solid #0b57d0;
+                  color: #0b57d0;
                   font-family: $font;
                   font-size: 12px;
                   font-style: normal;
@@ -183,8 +183,8 @@
               letter-spacing: -0.225px;
               cursor: pointer;
               &.active {
-                border-bottom: 1px solid #EB6753;
-                color: #EB6753;
+                border-bottom: 1px solid #0b57d0;
+                color: #0b57d0;
               }
             }
           }
@@ -204,7 +204,7 @@
             }
             .question {
               .badge {
-                background: #e92C28;
+                background: #0b57d0;
                 color: #fff;
               }
             }
@@ -215,8 +215,8 @@
               align-items: center;
               flex-direction: row;
               .badge {
-                color: #EB6753;
-                border: 1px solid #EB6753;
+                color: #0b57d0;
+                border: 1px solid #0b57d0;
               }
             }
           }
