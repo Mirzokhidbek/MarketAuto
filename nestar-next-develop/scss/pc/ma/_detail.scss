@@ -1,0 +1,425 @@
+/** car detail page **/
+.ma-detail {
+	padding: 104px 0 80px;
+	&--loading {
+		min-height: 80vh;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+	&__head {
+		display: flex;
+		align-items: flex-start;
+		justify-content: space-between;
+		gap: 24px;
+		margin-bottom: 24px;
+		h1 {
+			margin: 0 0 10px;
+			font-family: $ma-font;
+			font-size: 32px;
+			font-weight: 700;
+			letter-spacing: -0.02em;
+			color: $ma-dark;
+		}
+	}
+	&__meta {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 8px 18px;
+		font-family: $ma-font;
+		font-size: 14px;
+		color: $ma-muted;
+		span {
+			display: inline-flex;
+			align-items: center;
+			gap: 4px;
+		}
+		svg {
+			font-size: 18px;
+		}
+	}
+	&__actions {
+		display: flex;
+		gap: 10px;
+	}
+	&__layout {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) 360px;
+		gap: 28px;
+		align-items: start;
+	}
+	&__main {
+		display: flex;
+		flex-direction: column;
+		gap: 24px;
+		min-width: 0;
+	}
+	&__side {
+		position: sticky;
+		top: 96px;
+		display: flex;
+		flex-direction: column;
+		gap: 20px;
+	}
+}
+
+.ma-breadcrumb {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-bottom: 18px;
+	font-family: $ma-font;
+	font-size: 13px;
+	color: $ma-muted;
+	a {
+		color: $ma-muted;
+		&:hover {
+			color: $ma-primary;
+		}
+	}
+	em {
+		font-style: normal;
+		color: $ma-text;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+}
+
+.ma-icon-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	height: 40px;
+	padding: 0 14px;
+	border-radius: 10px;
+	border: 1px solid $ma-border;
+	background: $ma-white;
+	color: $ma-text;
+	font-family: $ma-font;
+	font-size: 14px;
+	font-weight: 500;
+	cursor: pointer;
+	svg {
+		font-size: 20px;
+	}
+	&:hover {
+		border-color: $ma-primary;
+		color: $ma-primary;
+	}
+	&.is-liked svg {
+		color: #e11d48;
+	}
+}
+
+.ma-btn--block {
+	width: 100%;
+	margin-top: 10px;
+}
+
+.ma-btn:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+/* gallery */
+.ma-gallery {
+	&__main {
+		height: 460px;
+		border-radius: 16px;
+		overflow: hidden;
+		background: $ma-bg-alt;
+		img {
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+		}
+		.ma-car-card__placeholder svg {
+			font-size: 120px;
+		}
+	}
+	&__thumbs {
+		display: flex;
+		gap: 10px;
+		margin-top: 12px;
+		overflow-x: auto;
+		button {
+			flex-shrink: 0;
+			width: 110px;
+			height: 76px;
+			padding: 0;
+			border-radius: 10px;
+			border: 2px solid transparent;
+			overflow: hidden;
+			background: $ma-bg-alt;
+			cursor: pointer;
+			&.is-active {
+				border-color: $ma-primary;
+			}
+			img {
+				width: 100%;
+				height: 100%;
+				object-fit: cover;
+			}
+		}
+	}
+}
+
+/* spec tiles */
+.ma-spec-tiles {
+	display: grid;
+	grid-template-columns: repeat(5, minmax(0, 1fr));
+	gap: 12px;
+}
+
+.ma-spec-tile {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	padding: 16px;
+	border-radius: 12px;
+	background: $ma-white;
+	border: 1px solid $ma-border;
+	font-family: $ma-font;
+	svg {
+		color: $ma-primary;
+	}
+	span {
+		font-size: 12px;
+		color: $ma-muted;
+	}
+	strong {
+		font-size: 15px;
+		font-weight: 600;
+		color: $ma-dark;
+	}
+}
+
+/* panels */
+.ma-panel {
+	padding: 24px;
+	border-radius: $ma-radius;
+	background: $ma-white;
+	border: 1px solid $ma-border;
+	box-shadow: $ma-shadow;
+	font-family: $ma-font;
+	h2 {
+		margin: 0 0 16px;
+		font-size: 19px;
+		font-weight: 700;
+		color: $ma-dark;
+		small {
+			font-size: 15px;
+			font-weight: 500;
+			color: $ma-muted;
+		}
+	}
+	&__text {
+		margin: 0;
+		font-size: 15px;
+		line-height: 1.7;
+		color: $ma-text;
+		white-space: pre-line;
+	}
+}
+
+.ma-details {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 0 32px;
+	margin: 0;
+	div {
+		display: flex;
+		justify-content: space-between;
+		gap: 12px;
+		padding: 12px 0;
+		border-bottom: 1px solid $ma-border;
+	}
+	dt {
+		font-size: 14px;
+		color: $ma-muted;
+	}
+	dd {
+		margin: 0;
+		font-size: 14px;
+		font-weight: 600;
+		color: $ma-dark;
+		text-align: right;
+	}
+}
+
+.ma-map {
+	height: 320px;
+	border-radius: 12px;
+	overflow: hidden;
+	background: $ma-bg-alt;
+	iframe {
+		width: 100%;
+		height: 100%;
+		border: 0;
+	}
+}
+
+/* comments */
+.ma-comment-form {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	gap: 10px;
+	margin-bottom: 20px;
+	textarea {
+		width: 100%;
+		min-height: 96px;
+		padding: 12px 14px;
+		border-radius: 10px;
+		border: 1px solid $ma-border;
+		background: $ma-bg;
+		font-family: $ma-font;
+		font-size: 14px;
+		resize: vertical;
+		outline: none;
+		&:focus {
+			border-color: $ma-primary;
+		}
+	}
+}
+
+.ma-comment {
+	display: flex;
+	gap: 14px;
+	padding: 16px 0;
+	border-top: 1px solid $ma-border;
+	font-family: $ma-font;
+	img {
+		width: 40px;
+		height: 40px;
+		border-radius: 50%;
+		object-fit: cover;
+		cursor: pointer;
+	}
+	&__head {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		margin-bottom: 4px;
+		strong {
+			font-size: 14px;
+			color: $ma-dark;
+			cursor: pointer;
+		}
+		span {
+			font-size: 12px;
+			color: $ma-muted;
+		}
+	}
+	p {
+		margin: 0;
+		font-size: 14px;
+		line-height: 1.6;
+		color: $ma-text;
+	}
+}
+
+/* sidebar */
+.ma-price-card {
+	&__label {
+		font-size: 13px;
+		color: $ma-muted;
+	}
+	&__price {
+		display: block;
+		margin: 4px 0 12px;
+		font-size: 34px;
+		font-weight: 800;
+		letter-spacing: -0.02em;
+		color: $ma-dark;
+	}
+	&__badges {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 6px;
+		padding-bottom: 18px;
+		border-bottom: 1px solid $ma-border;
+	}
+}
+
+.ma-status {
+	display: inline-flex;
+	align-items: center;
+	height: 24px;
+	padding: 0 10px;
+	border-radius: 999px;
+	font-size: 12px;
+	font-weight: 600;
+	&--active {
+		background: #dcfce7;
+		color: #15803d;
+	}
+	&--sold {
+		background: #f1f5f9;
+		color: $ma-muted;
+	}
+	&--delete {
+		background: #fee2e2;
+		color: #b91c1c;
+	}
+}
+
+.ma-seller {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	margin: 18px 0 8px;
+	img {
+		width: 48px;
+		height: 48px;
+		border-radius: 50%;
+		object-fit: cover;
+		background: $ma-bg-alt;
+	}
+	strong {
+		display: block;
+		font-size: 15px;
+		color: $ma-dark;
+		cursor: pointer;
+		&:hover {
+			color: $ma-primary;
+		}
+	}
+	span {
+		font-size: 13px;
+		color: $ma-muted;
+	}
+}
+
+.ma-tips {
+	h3 {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		margin: 0 0 12px;
+		font-size: 15px;
+		font-weight: 600;
+		color: $ma-dark;
+		svg {
+			color: #16a34a;
+		}
+	}
+	ul {
+		margin: 0;
+		padding-left: 18px;
+		li {
+			margin-bottom: 6px;
+			font-size: 13.5px;
+			line-height: 1.5;
+			color: $ma-muted;
+		}
+	}
+}
+
+.ma-similar {
+	margin-top: 56px;
+	.ma-title {
+		margin-bottom: 24px;
+	}
+}
