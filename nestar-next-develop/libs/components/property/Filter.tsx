@@ -57,8 +57,12 @@ const Filter = (props: FilterType) => {
 	const [searchText, setSearchText] = useState<string>('');
 	// on phones the filter groups are folded so the results are visible right away
 	const [mobileOpen, setMobileOpen] = useState<boolean>(false);
+	// count only what the visitor changed (default price/mileage ranges are not "filters")
 	const activeFilters = Object.entries(searchFilter?.search ?? {}).filter(
-		([key, value]: [string, any]) => key !== 'text' && (Array.isArray(value) ? value.length > 0 : !!value),
+		([key, value]: [string, any]) =>
+			key !== 'text' &&
+			(Array.isArray(value) ? value.length > 0 : !!value) &&
+			JSON.stringify(value) !== JSON.stringify((initialInput?.search as any)?.[key]),
 	).length;
 	const [showMore, setShowMore] = useState<boolean>(false);
 
