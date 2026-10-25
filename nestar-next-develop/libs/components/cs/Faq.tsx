@@ -54,7 +54,7 @@ const Faq = () => {
 				id: 'faq001',
 				subject: 'Are the cars listed on MarketAuto reliable?',
 				content:
-					'Every listing belongs to a registered member, and dealers are checked by our team. Always inspect the car and its documents before paying.',
+					'Every listing belongs to a registered member with a public profile. Always inspect the car and its documents before paying.',
 			},
 			{
 				id: 'faq002',
