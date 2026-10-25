@@ -28,6 +28,7 @@ interface Data {
 	state: string;
 	warning: string;
 	block: string;
+	actions: string;
 }
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
@@ -54,13 +55,13 @@ const headCells: readonly HeadCell[] = [
 		id: 'id',
 		numeric: true,
 		disablePadding: false,
-		label: 'MB ID',
+		label: 'ID',
 	},
 	{
 		id: 'nickname',
 		numeric: true,
 		disablePadding: false,
-		label: 'NICK NAME',
+		label: 'NICKNAME',
 	},
 	{
 		id: 'fullname',
@@ -72,7 +73,7 @@ const headCells: readonly HeadCell[] = [
 		id: 'phone',
 		numeric: true,
 		disablePadding: false,
-		label: 'PHONE NUM',
+		label: 'PHONE',
 	},
 	{
 		id: 'type',
@@ -90,13 +91,19 @@ const headCells: readonly HeadCell[] = [
 		id: 'block',
 		numeric: false,
 		disablePadding: false,
-		label: 'BLOCK CRIMES',
+		label: 'BLOCKS',
 	},
 	{
 		id: 'state',
 		numeric: false,
 		disablePadding: false,
-		label: 'STATE',
+		label: 'STATUS',
+	},
+	{
+		id: 'actions',
+		numeric: false,
+		disablePadding: false,
+		label: 'ACTIONS',
 	},
 ];
 
@@ -131,6 +138,7 @@ function EnhancedTableHead(props: EnhancedTableProps) {
 
 interface MemberPanelListType {
 	members: Member[];
+	resetPasswordHandler: (id: string, nick: string) => void;
 	anchorEl: any;
 	menuIconClickHandler: any;
 	menuIconCloseHandler: any;
@@ -138,7 +146,8 @@ interface MemberPanelListType {
 }
 
 export const MemberPanelList = (props: MemberPanelListType) => {
-	const { members, anchorEl, menuIconClickHandler, menuIconCloseHandler, updateMemberHandler } = props;
+	const { members, anchorEl, menuIconClickHandler, menuIconCloseHandler, updateMemberHandler, resetPasswordHandler } =
+		props;
 
 	return (
 		<Stack>
@@ -149,7 +158,7 @@ export const MemberPanelList = (props: MemberPanelListType) => {
 					<TableBody>
 						{members.length === 0 && (
 							<TableRow>
-								<TableCell align="center" colSpan={8}>
+								<TableCell align="center" colSpan={9}>
 									<span className={'no-data'}>data not found!</span>
 								</TableCell>
 							</TableRow>
@@ -214,7 +223,10 @@ export const MemberPanelList = (props: MemberPanelListType) => {
 										<TableCell align="center">{member.memberWarnings}</TableCell>
 										<TableCell align="center">{member.memberBlocks}</TableCell>
 										<TableCell align="center">
-											<Button onClick={(e: any) => menuIconClickHandler(e, member._id)} className={'badge success'}>
+											<Button
+												onClick={(e: any) => menuIconClickHandler(e, member._id)}
+												className={`badge ${member.memberStatus === 'ACTIVE' ? 'success' : member.memberStatus === 'BLOCK' ? 'warning' : 'error'}`}
+											>
 												{member.memberStatus}
 											</Button>
 
@@ -242,6 +254,11 @@ export const MemberPanelList = (props: MemberPanelListType) => {
 														</MenuItem>
 													))}
 											</Menu>
+										</TableCell>
+										<TableCell align="center">
+											<Button size="small" variant="outlined" onClick={() => resetPasswordHandler(member._id, member.memberNick)}>
+												Reset password
+											</Button>
 										</TableCell>
 									</TableRow>
 								);

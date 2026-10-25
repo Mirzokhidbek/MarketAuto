@@ -154,6 +154,14 @@
 	.ma-filter {
 		position: static;
 		max-height: none;
+		&__toggle {
+			display: flex !important;
+			margin-bottom: 14px;
+		}
+		/* folded: only the header, search and the toggle stay visible */
+		&:not(.is-open) > :not(.ma-filter__head):not(.ma-filter__search):not(.ma-filter__toggle) {
+			display: none;
+		}
 		&__group:not([open]) {
 			padding-bottom: 14px;
 		}

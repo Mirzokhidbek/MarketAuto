@@ -282,8 +282,8 @@ const NoticeManager = ({ category }: NoticeManagerProps) => {
 					count={total}
 					rowsPerPage={limit}
 					page={total ? page - 1 : 0}
-					onPageChange={(e, newPage) => setPage(newPage + 1)}
-					onRowsPerPageChange={(e) => {
+					onPageChange={(e: unknown, newPage: number) => setPage(newPage + 1)}
+					onRowsPerPageChange={(e: React.ChangeEvent<HTMLInputElement>) => {
 						setLimit(parseInt(e.target.value, 10));
 						setPage(1);
 					}}
