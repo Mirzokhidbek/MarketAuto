@@ -6,8 +6,9 @@ import CloseIcon from '@mui/icons-material/Close';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
-import { propertySquare, propertyYears } from '../../config';
-import { PropertyLocation, PropertyType } from '../../enums/property.enum';
+import { propertyMileage, propertyYears } from '../../config';
+import { CarBrand, CarFuel, PropertyLocation, PropertyType } from '../../enums/property.enum';
+import { formatEnumLabel, formatMileage } from '../../utils';
 import { PropertiesInquiry } from '../../types/property/property.input';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
@@ -147,50 +148,48 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 		[searchFilter],
 	);
 
-	const propertyRoomSelectHandler = useCallback(
+	const propertyBrandSelectHandler = useCallback(
 		async (value: any) => {
 			try {
 				setSearchFilter({
 					...searchFilter,
 					search: {
 						...searchFilter.search,
-						roomsList: [value],
+						brandList: [value],
 					},
 				});
 				disableAllStateHandler();
 			} catch (err: any) {
-				console.log('ERROR, propertyRoomSelectHandler:', err);
+				console.log('ERROR, propertyBrandSelectHandler:', err);
 			}
 		},
 		[searchFilter],
 	);
 
-	const propertyBedSelectHandler = useCallback(
-		async (number: Number) => {
+	const propertyFuelSelectHandler = useCallback(
+		async (fuel: CarFuel | '') => {
 			try {
-				if (number != 0) {
-					if (searchFilter?.search?.bedsList?.includes(number)) {
+				if (fuel) {
+					if (searchFilter?.search?.fuelList?.includes(fuel)) {
 						setSearchFilter({
 							...searchFilter,
 							search: {
 								...searchFilter.search,
-								bedsList: searchFilter?.search?.bedsList?.filter((item: Number) => item !== number),
+								fuelList: searchFilter?.search?.fuelList?.filter((item: CarFuel) => item !== fuel),
 							},
 						});
 					} else {
 						setSearchFilter({
 							...searchFilter,
-							search: { ...searchFilter.search, bedsList: [...(searchFilter?.search?.bedsList || []), number] },
+							search: { ...searchFilter.search, fuelList: [...(searchFilter?.search?.fuelList || []), fuel] },
 						});
 					}
 				} else {
-					delete searchFilter?.search.bedsList;
+					delete searchFilter?.search.fuelList;
 					setSearchFilter({ ...searchFilter });
 				}
-
-				console.log('propertyBedSelectHandler:', number);
 			} catch (err: any) {
-				console.log('ERROR, propertyBedSelectHandler:', err);
+				console.log('ERROR, propertyFuelSelectHandler:', err);
 			}
 		},
 		[searchFilter],
@@ -226,7 +225,7 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 		[searchFilter],
 	);
 
-	const propertySquareHandler = useCallback(
+	const propertyMileageHandler = useCallback(
 		async (e: any, type: string) => {
 			const value = e.target.value;
 
@@ -236,7 +235,7 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 					search: {
 						...searchFilter.search,
 						// @ts-ignore
-						squaresRange: { ...searchFilter.search.squaresRange, start: parseInt(value) },
+						mileageRange: { ...searchFilter.search.mileageRange, start: parseInt(value) },
 					},
 				});
 			} else {
@@ -245,7 +244,7 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 					search: {
 						...searchFilter.search,
 						// @ts-ignore
-						squaresRange: { ...searchFilter.search.squaresRange, end: parseInt(value) },
+						mileageRange: { ...searchFilter.search.mileageRange, end: parseInt(value) },
 					},
 				});
 			}
@@ -260,7 +259,7 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 			...searchFilter,
 			search: {
 				...searchFilter.search,
-				periodsRange: { start: Number(event.target.value), end: yearCheck.end },
+				yearsRange: { start: Number(event.target.value), end: yearCheck.end },
 			},
 		});
 	};
@@ -272,7 +271,7 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 			...searchFilter,
 			search: {
 				...searchFilter.search,
-				periodsRange: { start: yearCheck.start, end: Number(event.target.value) },
+				yearsRange: { start: yearCheck.start, end: Number(event.target.value) },
 			},
 		});
 	};
@@ -293,16 +292,16 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 				delete searchFilter.search.typeList;
 			}
 
-			if (searchFilter?.search?.roomsList?.length == 0) {
-				delete searchFilter.search.roomsList;
+			if (searchFilter?.search?.brandList?.length == 0) {
+				delete searchFilter.search.brandList;
 			}
 
 			if (searchFilter?.search?.options?.length == 0) {
 				delete searchFilter.search.options;
 			}
 
-			if (searchFilter?.search?.bedsList?.length == 0) {
-				delete searchFilter.search.bedsList;
+			if (searchFilter?.search?.fuelList?.length == 0) {
+				delete searchFilter.search.fuelList;
 			}
 
 			await router.push(
@@ -322,17 +321,17 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 				<Stack className={'search-box'}>
 					<Stack className={'select-box'}>
 						<Box component={'div'} className={`box ${openLocation ? 'on' : ''}`} onClick={locationStateChangeHandler}>
-							<span>{searchFilter?.search?.locationList ? searchFilter?.search?.locationList[0] : t('Location')} </span>
+							<span>{searchFilter?.search?.locationList ? formatEnumLabel(searchFilter?.search?.locationList[0]) : t('City')} </span>
 							<ExpandMoreIcon />
 						</Box>
 						<Box className={`box ${openType ? 'on' : ''}`} onClick={typeStateChangeHandler}>
-							<span> {searchFilter?.search?.typeList ? searchFilter?.search?.typeList[0] : t('Property type')} </span>
+							<span> {searchFilter?.search?.typeList ? formatEnumLabel(searchFilter?.search?.typeList[0]) : t('Body type')} </span>
 							<ExpandMoreIcon />
 						</Box>
 						<Box className={`box ${openRooms ? 'on' : ''}`} onClick={roomStateChangeHandler}>
-							<span>
-								{searchFilter?.search?.roomsList ? `${searchFilter?.search?.roomsList[0]} rooms}` : t('Rooms')}
-							</span>
+								{searchFilter?.search?.brandList
+									? formatEnumLabel(searchFilter?.search?.brandList[0])
+									: t('Brand')}
 							<ExpandMoreIcon />
 						</Box>
 					</Stack>
@@ -351,8 +350,8 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 						{propertyLocation.map((location: string) => {
 							return (
 								<div onClick={() => propertyLocationSelectHandler(location)} key={location}>
-									<img src={`img/banner/cities/${location}.webp`} alt="" />
-									<span>{location}</span>
+									<img src={`img/banner/cities/${location}.webp`} alt="" onError={(e: any) => (e.currentTarget.style.display = 'none')} />
+									<span>{formatEnumLabel(location)}</span>
 								</div>
 							);
 						})}
@@ -366,17 +365,17 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 									onClick={() => propertyTypeSelectHandler(type)}
 									key={type}
 								>
-									<span>{type}</span>
+									<span>{formatEnumLabel(type)}</span>
 								</div>
 							);
 						})}
 					</div>
 
 					<div className={`filter-rooms ${openRooms ? 'on' : ''}`} ref={roomsRef}>
-						{[1, 2, 3, 4, 5].map((room: number) => {
+						{Object.values(CarBrand).map((brand: string) => {
 							return (
-								<span onClick={() => propertyRoomSelectHandler(room)} key={room}>
-									{room} room{room > 1 ? 's' : ''}
+								<span onClick={() => propertyBrandSelectHandler(brand)} key={brand}>
+									{formatEnumLabel(brand)}
 								</span>
 							);
 						})}
@@ -397,7 +396,7 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 								<CloseIcon />
 							</div>
 							<div className={'top'}>
-								<span>Find your home</span>
+								<span>Find your car</span>
 								<div className={'search-input-box'}>
 									<img src="/img/icons/search.svg" alt="" />
 									<input
@@ -417,21 +416,21 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 							<div className={'middle'}>
 								<div className={'row-box'}>
 									<div className={'box'}>
-										<span>bedrooms</span>
+										<span>fuel</span>
 										<div className={'inside'}>
 											<div
-												className={`room ${!searchFilter?.search?.bedsList ? 'active' : ''}`}
-												onClick={() => propertyBedSelectHandler(0)}
+												className={`room ${!searchFilter?.search?.fuelList ? 'active' : ''}`}
+												onClick={() => propertyFuelSelectHandler('')}
 											>
 												Any
 											</div>
-											{[1, 2, 3, 4, 5].map((bed: number) => (
+											{Object.values(CarFuel).map((fuel: CarFuel) => (
 												<div
-													className={`room ${searchFilter?.search?.bedsList?.includes(bed) ? 'active' : ''}`}
-													onClick={() => propertyBedSelectHandler(bed)}
-													key={bed}
+													className={`room ${searchFilter?.search?.fuelList?.includes(fuel) ? 'active' : ''}`}
+													onClick={() => propertyFuelSelectHandler(fuel)}
+													key={fuel}
 												>
-													{bed == 0 ? 'Any' : bed}
+													{formatEnumLabel(fuel)}
 												</div>
 											))}
 										</div>
@@ -456,7 +455,7 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 								</div>
 								<div className={'row-box'} style={{ marginTop: '44px' }}>
 									<div className={'box'}>
-										<span>Year Built</span>
+										<span>Year</span>
 										<div className={'inside space-between align-center'}>
 											<FormControl sx={{ width: '122px' }}>
 												<Select
@@ -495,23 +494,23 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 										</div>
 									</div>
 									<div className={'box'}>
-										<span>square meter</span>
+										<span>mileage</span>
 										<div className={'inside space-between align-center'}>
 											<FormControl sx={{ width: '122px' }}>
 												<Select
-													value={searchFilter?.search?.squaresRange?.start}
-													onChange={(e: any) => propertySquareHandler(e, 'start')}
+													value={searchFilter?.search?.mileageRange?.start}
+													onChange={(e: any) => propertyMileageHandler(e, 'start')}
 													displayEmpty
 													inputProps={{ 'aria-label': 'Without label' }}
 													MenuProps={MenuProps}
 												>
-													{propertySquare.map((square: number) => (
+													{propertyMileage.map((mileage: number) => (
 														<MenuItem
-															value={square}
-															disabled={(searchFilter?.search?.squaresRange?.end || 0) < square}
-															key={square}
+															value={mileage}
+															disabled={(searchFilter?.search?.mileageRange?.end || 0) < mileage}
+															key={mileage}
 														>
-															{square}
+															{formatMileage(mileage)}
 														</MenuItem>
 													))}
 												</Select>
@@ -519,19 +518,19 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 											<div className={'minus-line'}></div>
 											<FormControl sx={{ width: '122px' }}>
 												<Select
-													value={searchFilter?.search?.squaresRange?.end}
-													onChange={(e: any) => propertySquareHandler(e, 'end')}
+													value={searchFilter?.search?.mileageRange?.end}
+													onChange={(e: any) => propertyMileageHandler(e, 'end')}
 													displayEmpty
 													inputProps={{ 'aria-label': 'Without label' }}
 													MenuProps={MenuProps}
 												>
-													{propertySquare.map((square: number) => (
+													{propertyMileage.map((mileage: number) => (
 														<MenuItem
-															value={square}
-															disabled={(searchFilter?.search?.squaresRange?.start || 0) > square}
-															key={square}
+															value={mileage}
+															disabled={(searchFilter?.search?.mileageRange?.start || 0) > mileage}
+															key={mileage}
 														>
-															{square}
+															{formatMileage(mileage)}
 														</MenuItem>
 													))}
 												</Select>
@@ -567,9 +566,9 @@ HeaderFilter.defaultProps = {
 		page: 1,
 		limit: 9,
 		search: {
-			squaresRange: {
+			mileageRange: {
 				start: 0,
-				end: 500,
+				end: 500000,
 			},
 			pricesRange: {
 				start: 0,
