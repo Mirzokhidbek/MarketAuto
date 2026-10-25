@@ -237,22 +237,22 @@ const PropertyDetail: NextPage = ({ initialComment, ...props }: any) => {
 	const specTiles = [
 		{ icon: <CalendarMonthOutlinedIcon />, label: 'Year', value: property.carYear },
 		{ icon: <SpeedOutlinedIcon />, label: 'Mileage', value: formatMileage(property.carMileage) },
-		{ icon: <LocalGasStationOutlinedIcon />, label: 'Fuel', value: formatEnumLabel(property.carFuel) },
-		{ icon: <SettingsOutlinedIcon />, label: 'Transmission', value: formatEnumLabel(property.carTransmission) },
-		{ icon: <DirectionsCarOutlinedIcon />, label: 'Body type', value: formatEnumLabel(property.propertyType) },
+		{ icon: <LocalGasStationOutlinedIcon />, label: 'Fuel', value: formatEnumLabel(property.carFuel, t) },
+		{ icon: <SettingsOutlinedIcon />, label: 'Transmission', value: formatEnumLabel(property.carTransmission, t) },
+		{ icon: <DirectionsCarOutlinedIcon />, label: 'Body type', value: formatEnumLabel(property.propertyType, t) },
 	];
 	const details = [
-		{ label: 'Country', value: formatCountry(property.carCountry) },
-		{ label: 'Location', value: formatCarPlace(property) },
-		{ label: 'Brand', value: formatEnumLabel(property.carBrand) },
+		{ label: 'Country', value: formatCountry(property.carCountry, t) },
+		{ label: 'Location', value: formatCarPlace(property, t) },
+		{ label: 'Brand', value: formatEnumLabel(property.carBrand, t) },
 		{ label: 'Model', value: property.carModel },
 		{ label: 'Trim', value: property.carTrim || '—' },
 		{ label: 'Year', value: property.carYear },
 		{ label: 'Mileage', value: formatMileage(property.carMileage) },
 		{ label: 'Engine', value: formatEngine(property.carEngine) || '—' },
-		{ label: 'Fuel', value: formatEnumLabel(property.carFuel) },
-		{ label: 'Transmission', value: formatEnumLabel(property.carTransmission) },
-		{ label: 'Body type', value: formatEnumLabel(property.propertyType) },
+		{ label: 'Fuel', value: formatEnumLabel(property.carFuel, t) },
+		{ label: 'Transmission', value: formatEnumLabel(property.carTransmission, t) },
+		{ label: 'Body type', value: formatEnumLabel(property.propertyType, t) },
 		{ label: 'Color', value: property.carColor || '—' },
 	];
 
@@ -271,8 +271,8 @@ const PropertyDetail: NextPage = ({ initialComment, ...props }: any) => {
 					<div>
 						<h1>{property.propertyTitle}</h1>
 						<div className={'ma-detail__meta'}>
-							<span>{formatCountry(property.carCountry)}</span>
-							<span>{formatCarPlace(property)}</span>
+							<span>{formatCountry(property.carCountry, t)}</span>
+							<span>{formatCarPlace(property, t)}</span>
 							<span>
 								{t('Posted')} {moment(property.createdAt).fromNow()}
 							</span>
@@ -358,7 +358,7 @@ const PropertyDetail: NextPage = ({ initialComment, ...props }: any) => {
 							<h2>{t('Location')}</h2>
 							<div className={'ma-map'}>
 								<iframe
-									src={`https://www.google.com/maps?q=${encodeURIComponent(formatCarPlace(property))}&output=embed`}
+									src={`https://www.google.com/maps?q=${encodeURIComponent(formatCarPlace(property, t))}&output=embed`}
 									loading="lazy"
 									referrerPolicy="no-referrer-when-downgrade"
 									title={'map'}

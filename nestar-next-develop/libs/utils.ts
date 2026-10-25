@@ -9,14 +9,18 @@ const enumLabelExceptions: Record<string, string> = {
 	MERCEDES_BENZ: 'Mercedes-Benz',
 };
 
-/** SUV -> SUV, TASHKENT_REGION -> Tashkent Region **/
-export const formatEnumLabel = (value: string | undefined): string => {
+type Translate = (key: string) => string;
+
+/** SUV -> SUV, TASHKENT_REGION -> Tashkent Region; pass `t` to get the localized label **/
+export const formatEnumLabel = (value: string | undefined, t?: Translate): string => {
 	if (!value) return '';
-	if (enumLabelExceptions[value]) return enumLabelExceptions[value];
-	return value
-		.split('_')
-		.map((word) => word.charAt(0) + word.slice(1).toLowerCase())
-		.join(' ');
+	const label = enumLabelExceptions[value]
+		? enumLabelExceptions[value]
+		: value
+				.split('_')
+				.map((word) => word.charAt(0) + word.slice(1).toLowerCase())
+				.join(' ');
+	return t ? t(label) : label;
 };
 
 const countryFlags: Record<string, string> = {
@@ -30,20 +34,19 @@ const countryFlags: Record<string, string> = {
 	OTHER: '🌍',
 };
 
-export const formatCountry = (country: string | undefined): string => {
+export const formatCountry = (country: string | undefined, t?: Translate): string => {
 	if (!country) return '';
-	return `${countryFlags[country] ?? ''} ${
-		country === 'USA' || country === 'UAE' ? country : formatEnumLabel(country)
-	}`.trim();
+	const label = country === 'USA' || country === 'UAE' ? country : formatEnumLabel(country);
+	return `${countryFlags[country] ?? ''} ${t ? t(label) : label}`.trim();
 };
 
 /** Uzbek cars: "address, City"; foreign cars: "address, Country" **/
-export const formatCarPlace = (property: any): string => {
+export const formatCarPlace = (property: any, t?: Translate): string => {
 	if (!property) return '';
 	const area =
 		property.carCountry === 'UZBEKISTAN'
-			? formatEnumLabel(property.propertyLocation)
-			: formatEnumLabel(property.carCountry);
+			? formatEnumLabel(property.propertyLocation, t)
+			: formatEnumLabel(property.carCountry, t);
 	return [property.propertyAddress, area].filter(Boolean).join(', ');
 };
 

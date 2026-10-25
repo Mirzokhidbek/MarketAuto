@@ -244,7 +244,7 @@ const AddProperty = ({ initialValues, ...props }: any) => {
 							</option>
 							{Object.values(CarBrand).map((item: any) => (
 								<option value={item} key={item}>
-									{formatEnumLabel(item)}
+									{formatEnumLabel(item, t)}
 								</option>
 							))}
 						</select>
@@ -293,7 +293,7 @@ const AddProperty = ({ initialValues, ...props }: any) => {
 							</option>
 							{propertyType.map((item: any) => (
 								<option value={item} key={item}>
-									{formatEnumLabel(item)}
+									{formatEnumLabel(item, t)}
 								</option>
 							))}
 						</select>
@@ -340,7 +340,7 @@ const AddProperty = ({ initialValues, ...props }: any) => {
 							</option>
 							{Object.values(CarCountry).map((item: any) => (
 								<option value={item} key={item}>
-									{formatCountry(item)}
+									{formatCountry(item, t)}
 								</option>
 							))}
 						</select>
@@ -360,7 +360,7 @@ const AddProperty = ({ initialValues, ...props }: any) => {
 								</option>
 								{propertyLocation.map((item: any) => (
 									<option value={item} key={item}>
-										{formatEnumLabel(item)}
+										{formatEnumLabel(item, t)}
 									</option>
 								))}
 							</select>
@@ -408,7 +408,7 @@ const AddProperty = ({ initialValues, ...props }: any) => {
 							</option>
 							{Object.values(CarFuel).map((item: any) => (
 								<option value={item} key={item}>
-									{formatEnumLabel(item)}
+									{formatEnumLabel(item, t)}
 								</option>
 							))}
 						</select>
@@ -427,7 +427,7 @@ const AddProperty = ({ initialValues, ...props }: any) => {
 							</option>
 							{Object.values(CarTransmission).map((item: any) => (
 								<option value={item} key={item}>
-									{formatEnumLabel(item)}
+									{formatEnumLabel(item, t)}
 								</option>
 							))}
 						</select>

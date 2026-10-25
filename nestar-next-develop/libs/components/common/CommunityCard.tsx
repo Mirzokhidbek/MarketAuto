@@ -53,7 +53,7 @@ const CommunityCard = (props: CommunityCardProps) => {
 			<div className={'ma-article-card__media'}>
 				<img src={imagePath} alt={boardArticle?.articleTitle} />
 				<span className={'ma-badge ma-badge--light'}>
-					{t(articleCategoryLabels[boardArticle?.articleCategory] ?? formatEnumLabel(boardArticle?.articleCategory))}
+					{t(articleCategoryLabels[boardArticle?.articleCategory] ?? formatEnumLabel(boardArticle?.articleCategory, t))}
 				</span>
 			</div>
 			<div className={'ma-article-card__body'}>
