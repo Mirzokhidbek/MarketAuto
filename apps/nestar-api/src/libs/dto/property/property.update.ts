@@ -2,6 +2,7 @@ import { Field, InputType, Int } from '@nestjs/graphql';
 import { IsInt, IsNotEmpty, IsOptional, Length, Max, Min } from 'class-validator';
 import {
 	CarBrand,
+	CarCountry,
 	CarFuel,
 	CarTransmission,
 	PropertyLocation,
@@ -23,6 +24,10 @@ export class PropertyUpdate {
 	@IsOptional()
 	@Field(() => PropertyStatus, { nullable: true })
 	propertyStatus?: PropertyStatus;
+
+	@IsOptional()
+	@Field(() => CarCountry, { nullable: true })
+	carCountry?: CarCountry;
 
 	@IsOptional()
 	@Field(() => PropertyLocation, { nullable: true })
@@ -76,6 +81,17 @@ export class PropertyUpdate {
 	@Length(2, 30)
 	@Field(() => String, { nullable: true })
 	carColor?: string;
+
+	@IsOptional()
+	@Min(0.5)
+	@Max(10)
+	@Field(() => Number, { nullable: true })
+	carEngine?: number;
+
+	@IsOptional()
+	@Length(1, 30)
+	@Field(() => String, { nullable: true })
+	carTrim?: string;
 
 	@IsOptional()
 	@Field(() => [String], { nullable: true })

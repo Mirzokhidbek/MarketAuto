@@ -2,6 +2,7 @@ import { Field, InputType, Int } from '@nestjs/graphql';
 import { IsIn, IsInt, IsNotEmpty, IsOptional, Length, Max, Min } from 'class-validator';
 import {
 	CarBrand,
+	CarCountry,
 	CarFuel,
 	CarTransmission,
 	PropertyLocation,
@@ -19,8 +20,12 @@ export class PropertyInput {
 	propertyType!: PropertyType;
 
 	@IsNotEmpty()
-	@Field(() => PropertyLocation)
-	propertyLocation!: PropertyLocation;
+	@Field(() => CarCountry)
+	carCountry!: CarCountry;
+
+	@IsOptional()
+	@Field(() => PropertyLocation, { nullable: true })
+	propertyLocation?: PropertyLocation;
 
 	@IsNotEmpty()
 	@Length(3, 100)
@@ -70,6 +75,17 @@ export class PropertyInput {
 	@Length(2, 30)
 	@Field(() => String, { nullable: true })
 	carColor?: string;
+
+	@IsOptional()
+	@Min(0.5)
+	@Max(10)
+	@Field(() => Number, { nullable: true })
+	carEngine?: number;
+
+	@IsOptional()
+	@Length(1, 30)
+	@Field(() => String, { nullable: true })
+	carTrim?: string;
 
 	@IsNotEmpty()
 	@Field(() => [String])
@@ -132,6 +148,10 @@ class PISearch {
 	@IsOptional()
 	@Field(() => String, { nullable: true })
 	memberId?: ObjectId;
+
+	@IsOptional()
+	@Field(() => [CarCountry], { nullable: true })
+	countryList?: CarCountry[];
 
 	@IsOptional()
 	@Field(() => [PropertyLocation], { nullable: true })

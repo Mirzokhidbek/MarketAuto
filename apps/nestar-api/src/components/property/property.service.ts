@@ -12,7 +12,7 @@ import {
 import { Properties, Property } from '../../libs/dto/property/property';
 import { Direction, Message } from '../../libs/enums/common.enum';
 import { ViewService } from '../view/view.service';
-import { PropertyStatus } from '../../libs/enums/property.enum';
+import { CarCountry, PropertyStatus } from '../../libs/enums/property.enum';
 import { StatisticModifier, T } from '../../libs/types/common';
 import { ViewGroup } from '../../libs/enums/view.enum';
 import { PropertyUpdate } from '../../libs/dto/property/property.update';
@@ -32,6 +32,10 @@ export class PropertyService {
 	) {}
 
 	public async createProperty(input: PropertyInput): Promise<Property> {
+		if (input.carCountry === CarCountry.UZBEKISTAN && !input.propertyLocation) {
+			throw new BadRequestException(Message.BAD_REQUEST);
+		}
+		if (input.carCountry !== CarCountry.UZBEKISTAN) delete input.propertyLocation;
 		try {
 			const result = await this.propertyModel.create(input);
 			await this.memberService.memberStatsEditor({
@@ -73,6 +77,8 @@ export class PropertyService {
 	}
 
 	public async updateProperty(memberId: ObjectId, input: PropertyUpdate): Promise<Property> {
+		// city list applies only to cars located in Uzbekistan
+		if (input.carCountry && input.carCountry !== CarCountry.UZBEKISTAN) (input as T).propertyLocation = null;
 		const { propertyStatus } = input;
 		let { soldAt, deletedAt } = input;
 		const search: T = {
@@ -136,6 +142,7 @@ export class PropertyService {
 	private shapeMatchQuery(match: T, input: PropertiesInquiry): void {
 		const {
 			memberId,
+			countryList,
 			locationList,
 			typeList,
 			brandList,
@@ -149,6 +156,7 @@ export class PropertyService {
 			text,
 		} = input.search;
 		if (memberId) match.memberId = shapeIntoMongoObjectId(memberId);
+		if (countryList && countryList.length) match.carCountry = { $in: countryList };
 		if (locationList && locationList.length) match.propertyLocation = { $in: locationList };
 		if (typeList && typeList.length) match.propertyType = { $in: typeList };
 		if (brandList && brandList.length) match.carBrand = { $in: brandList };

@@ -1,6 +1,7 @@
 import { Schema } from 'mongoose';
 import {
 	CarBrand,
+	CarCountry,
 	CarFuel,
 	CarTransmission,
 	PropertyLocation,
@@ -22,10 +23,16 @@ const PropertySchema = new Schema(
 			default: PropertyStatus.ACTIVE,
 		},
 
+		carCountry: {
+			type: String,
+			enum: CarCountry,
+			required: true,
+		},
+
+		/** Uzbek city; required only when carCountry is UZBEKISTAN **/
 		propertyLocation: {
 			type: String,
 			enum: PropertyLocation,
-			required: true,
 		},
 
 		propertyAddress: {
@@ -77,6 +84,15 @@ const PropertySchema = new Schema(
 		},
 
 		carColor: {
+			type: String,
+		},
+
+		/** engine volume in liters, empty for electric cars **/
+		carEngine: {
+			type: Number,
+		},
+
+		carTrim: {
 			type: String,
 		},
 
