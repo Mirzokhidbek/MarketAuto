@@ -15,7 +15,7 @@ import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
 import { useRouter } from 'next/router';
 import { Property } from '../../libs/types/property/property';
 import moment from 'moment';
-import { formatEnumLabel, formatMileage, formatterStr } from '../../libs/utils';
+import { formatCarPlace, formatCountry, formatEnumLabel, formatMileage, formatterStr } from '../../libs/utils';
 import { REACT_APP_API_URL } from '../../libs/config';
 import { userVar } from '../../apollo/store';
 import { CommentInput, CommentsInquiry } from '../../libs/types/comment/comment.input';
@@ -90,7 +90,7 @@ const PropertyDetail: NextPage = ({ initialComment, ...props }: any) => {
 				sort: 'createdAt',
 				direction: Direction.DESC,
 				search: {
-					locationList: property?.propertyLocation ? [property?.propertyLocation] : [],
+					brandList: property?.carBrand ? [property?.carBrand] : [],
 				},
 			},
 		},
@@ -161,7 +161,7 @@ const PropertyDetail: NextPage = ({ initialComment, ...props }: any) => {
 					sort: 'createdAt',
 					direction: Direction.DESC,
 					search: {
-						locationList: [property?.propertyLocation],
+						brandList: property?.carBrand ? [property?.carBrand] : [],
 					},
 				},
 			});
@@ -211,7 +211,7 @@ const PropertyDetail: NextPage = ({ initialComment, ...props }: any) => {
 								<Stack className={'left-box'}>
 									<Typography className={'title-main'}>{property?.propertyTitle}</Typography>
 									<Stack className={'top-box'}>
-										<Typography className={'city'}>{property?.propertyLocation}</Typography>
+										<Typography className={'city'}>{formatCountry(property?.carCountry)}</Typography>
 										<Stack className={'divider'}></Stack>
 										<Stack className={'buy-rent-box'}>
 											{property?.propertyBarter && (
@@ -439,9 +439,7 @@ const PropertyDetail: NextPage = ({ initialComment, ...props }: any) => {
 									<Stack className={'map-box'}>
 										<iframe
 											src={`https://www.google.com/maps?q=${encodeURIComponent(
-												`${property?.propertyAddress ?? ''}, ${formatEnumLabel(
-													property?.propertyLocation,
-												)}, Uzbekistan`,
+												formatCarPlace(property),
 											)}&output=embed`}
 											width="100%"
 											height="100%"

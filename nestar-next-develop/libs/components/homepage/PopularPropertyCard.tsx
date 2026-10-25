@@ -8,7 +8,7 @@ import { REACT_APP_API_URL, topPropertyRank } from '../../config';
 import { useRouter } from 'next/router';
 import { useReactiveVar } from '@apollo/client';
 import { userVar } from '../../../apollo/store';
-import { formatEnumLabel, formatMileage } from '../../utils';
+import { formatEnumLabel, formatMileage, formatCarPlace } from '../../utils';
 
 interface PopularPropertyCardProps {
 	property: Property;
@@ -49,7 +49,7 @@ const PopularPropertyCard = (props: PopularPropertyCardProps) => {
 					<strong className={'title'} onClick={() => pushDetailHandler(property._id)}>
 						{property.propertyTitle}
 					</strong>
-					<p className={'desc'}>{property.propertyAddress}</p>
+					<p className={'desc'}>{formatCarPlace(property)}</p>
 					<div className={'options'}>
 						<div>
 							<img src="/img/icons/calendar.svg" alt="" />
@@ -101,7 +101,7 @@ const PopularPropertyCard = (props: PopularPropertyCardProps) => {
 					<strong className={'title'} onClick={() => pushDetailHandler(property._id)}>
 						{property.propertyTitle}
 					</strong>
-					<p className={'desc'}>{property.propertyAddress}</p>
+					<p className={'desc'}>{formatCarPlace(property)}</p>
 					<div className={'options'}>
 						<div>
 							<img src="/img/icons/calendar.svg" alt="" />

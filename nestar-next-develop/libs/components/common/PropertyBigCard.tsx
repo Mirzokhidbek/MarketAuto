@@ -5,7 +5,7 @@ import useDeviceDetect from '../../hooks/useDeviceDetect';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import { Property } from '../../types/property/property';
 import { REACT_APP_API_URL, topPropertyRank } from '../../config';
-import { formatterStr, formatEnumLabel, formatMileage } from '../../utils';
+import { formatterStr, formatEnumLabel, formatMileage, formatCarPlace } from '../../utils';
 import { useReactiveVar } from '@apollo/client';
 import { userVar } from '../../../apollo/store';
 import { useRouter } from 'next/router';
@@ -48,7 +48,7 @@ const PropertyBigCard = (props: PropertyBigCardProps) => {
 				</Box>
 				<Box component={'div'} className={'info'}>
 					<strong className={'title'}>{property?.propertyTitle}</strong>
-					<p className={'desc'}>{property?.propertyAddress}</p>
+					<p className={'desc'}>{formatCarPlace(property)}</p>
 					<div className={'options'}>
 						<div>
 							<img src="/img/icons/calendar.svg" alt="" />
