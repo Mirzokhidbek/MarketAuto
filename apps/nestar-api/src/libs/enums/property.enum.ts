@@ -44,6 +44,20 @@ registerEnumType(PropertyLocation, {
 	name: 'PropertyLocation',
 });
 
+export enum CarCountry {
+	UZBEKISTAN = 'UZBEKISTAN',
+	SOUTH_KOREA = 'SOUTH_KOREA',
+	CHINA = 'CHINA',
+	JAPAN = 'JAPAN',
+	USA = 'USA',
+	GERMANY = 'GERMANY',
+	UAE = 'UAE',
+	OTHER = 'OTHER',
+}
+registerEnumType(CarCountry, {
+	name: 'CarCountry',
+});
+
 export enum CarBrand {
 	CHEVROLET = 'CHEVROLET',
 	KIA = 'KIA',

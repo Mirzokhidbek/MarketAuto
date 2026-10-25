@@ -2,6 +2,7 @@ import { Field, Int, ObjectType } from '@nestjs/graphql';
 import type { ObjectId } from 'mongoose';
 import {
 	CarBrand,
+	CarCountry,
 	CarFuel,
 	CarTransmission,
 	PropertyLocation,
@@ -22,8 +23,11 @@ export class Property {
 	@Field(() => PropertyStatus)
 	propertyStatus!: PropertyStatus;
 
-	@Field(() => PropertyLocation)
-	propertyLocation!: PropertyLocation;
+	@Field(() => CarCountry)
+	carCountry!: CarCountry;
+
+	@Field(() => PropertyLocation, { nullable: true })
+	propertyLocation?: PropertyLocation;
 
 	@Field(() => String)
 	propertyAddress!: string;
@@ -54,6 +58,12 @@ export class Property {
 
 	@Field(() => String, { nullable: true })
 	carColor?: string;
+
+	@Field(() => Number, { nullable: true })
+	carEngine?: number;
+
+	@Field(() => String, { nullable: true })
+	carTrim?: string;
 
 	@Field(() => Int)
 	propertyViews!: number;
