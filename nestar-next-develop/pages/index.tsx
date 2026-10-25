@@ -1,12 +1,6 @@
 import { NextPage } from 'next';
-import useDeviceDetect from '../libs/hooks/useDeviceDetect';
 import withLayoutMain from '../libs/components/layout/LayoutHome';
-import PopularProperties from '../libs/components/homepage/PopularProperties';
-import TopAgents from '../libs/components/homepage/TopAgents';
-import TrendProperties from '../libs/components/homepage/TrendProperties';
-import TopProperties from '../libs/components/homepage/TopProperties';
 import { Stack } from '@mui/material';
-import Advertisement from '../libs/components/homepage/Advertisement';
 import HomeHero from '../libs/components/homepage/HomeHero';
 import CountryHub from '../libs/components/homepage/CountryHub';
 import {
@@ -27,33 +21,19 @@ export const getStaticProps = async ({ locale }: any) => ({
 });
 
 const Home: NextPage = () => {
-	const device = useDeviceDetect();
-
-	if (device === 'mobile') {
-		return (
-			<Stack className={'home-page'}>
-				<TrendProperties />
-				<PopularProperties />
-				<Advertisement />
-				<TopProperties />
-				<TopAgents />
-			</Stack>
-		);
-	} else {
-		return (
-			<Stack className={'home-page ma-page'}>
-				<HomeHero />
-				<CountryHub />
-				<CountrySpotlight />
-				<WhyUs />
-				<HowItWorks />
-				<TopDealers />
-				<SellCta />
-				<LatestArticles />
-				<HomeFaq />
-			</Stack>
-		);
-	}
+	return (
+		<Stack className={'home-page ma-page'}>
+			<HomeHero />
+			<CountryHub />
+			<CountrySpotlight />
+			<WhyUs />
+			<HowItWorks />
+			<TopDealers />
+			<SellCta />
+			<LatestArticles />
+			<HomeFaq />
+		</Stack>
+	);
 };
 
 export default withLayoutMain(Home);
