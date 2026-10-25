@@ -385,6 +385,10 @@ const PropertyDetail: NextPage = ({ initialComment, ...props }: any) => {
 										<Stack className={'info-box'}>
 											<Stack className={'left'}>
 												<Box component={'div'} className={'info'}>
+													<Typography className={'title'}>Country</Typography>
+													<Typography className={'data'}>{formatCountry(property?.carCountry)}</Typography>
+												</Box>
+												<Box component={'div'} className={'info'}>
 													<Typography className={'title'}>Price</Typography>
 													<Typography className={'data'}>${formatterStr(property?.propertyPrice)}</Typography>
 												</Box>
@@ -395,6 +399,10 @@ const PropertyDetail: NextPage = ({ initialComment, ...props }: any) => {
 												<Box component={'div'} className={'info'}>
 													<Typography className={'title'}>Model</Typography>
 													<Typography className={'data'}>{property?.carModel}</Typography>
+												</Box>
+												<Box component={'div'} className={'info'}>
+													<Typography className={'title'}>Trim</Typography>
+													<Typography className={'data'}>{property?.carTrim ?? '-'}</Typography>
 												</Box>
 												<Box component={'div'} className={'info'}>
 													<Typography className={'title'}>Year</Typography>
@@ -423,6 +431,12 @@ const PropertyDetail: NextPage = ({ initialComment, ...props }: any) => {
 													<Typography className={'data'}>{property?.carColor ?? '-'}</Typography>
 												</Box>
 												<Box component={'div'} className={'info'}>
+													<Typography className={'title'}>Engine</Typography>
+													<Typography className={'data'}>
+														{property?.carEngine ? `${property.carEngine} L` : '-'}
+													</Typography>
+												</Box>
+												<Box component={'div'} className={'info'}>
 													<Typography className={'title'}>Options</Typography>
 													<Typography className={'data'}>
 														{[property?.propertyBarter && 'Barter', property?.propertyRent && 'Rent']
@@ -438,9 +452,7 @@ const PropertyDetail: NextPage = ({ initialComment, ...props }: any) => {
 									<Typography className={'title'}>Address</Typography>
 									<Stack className={'map-box'}>
 										<iframe
-											src={`https://www.google.com/maps?q=${encodeURIComponent(
-												formatCarPlace(property),
-											)}&output=embed`}
+											src={`https://www.google.com/maps?q=${encodeURIComponent(formatCarPlace(property))}&output=embed`}
 											width="100%"
 											height="100%"
 											style={{ border: 0 }}

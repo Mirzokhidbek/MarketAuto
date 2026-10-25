@@ -230,7 +230,7 @@ const AgentDetail: NextPage = ({ initialInput, initialComment, ...props }: any) 
 										/>
 									</Stack>
 									<span>
-										Total {propertyTotal} propert{propertyTotal > 1 ? 'ies' : 'y'} available
+										Total {propertyTotal} car{propertyTotal > 1 ? 's' : ''} available
 									</span>
 								</>
 							) : (
