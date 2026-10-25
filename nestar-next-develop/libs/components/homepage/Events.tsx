@@ -10,29 +10,27 @@ interface EventData {
 }
 const eventsData: EventData[] = [
 	{
-		eventTitle: 'Paradise City Theme Park',
-		city: 'Incheon',
-		description:
-			'Experience magic and wonder in Incheon with a visit to the night-themed indoor theme park Wonderbox at Paradise City!',
+		eventTitle: 'Tashkent Motor Show',
+		city: 'Tashkent',
+		description: 'The biggest car exhibition in Uzbekistan: new models, test drives and special dealer offers!',
 		imageSrc: '/img/events/INCHEON.webp',
 	},
 	{
-		eventTitle: 'Taebaeksan Snow Festival',
-		city: 'Seoul',
-		description: 'If you have the opportunity to travel to South Korea, do not miss the Taebaeksan Snow Festival!',
+		eventTitle: 'Electric Car Expo',
+		city: 'Tashkent',
+		description: 'Discover the latest electric cars from BYD, Chery and more, and learn about charging in Uzbekistan!',
 		imageSrc: '/img/events/SEOUL.webp',
 	},
 	{
-		eventTitle: 'Suseong Lake Event',
-		city: 'Daegu',
-		description: 'The Suseong Lake Festival is a culture and arts festival held alongside Suseongmot Lake!',
+		eventTitle: 'Silk Road Classic Car Rally',
+		city: 'Samarkand',
+		description: 'Classic and retro cars drive the historic Silk Road route. Do not miss this unique rally!',
 		imageSrc: '/img/events/DAEGU.webp',
 	},
 	{
-		eventTitle: 'Sand Festival',
-		city: 'Busan',
-		description:
-			'Haeundae Sand Festival, the nation’s largest eco-friendly exhibition on sand, is held at Haeundae Beach!',
+		eventTitle: 'Weekend Car Market',
+		city: 'Bukhara',
+		description: 'Meet private sellers and dealers in person, compare cars and find the best deal of the season!',
 		imageSrc: '/img/events/BUSAN.webp',
 	},
 ];
