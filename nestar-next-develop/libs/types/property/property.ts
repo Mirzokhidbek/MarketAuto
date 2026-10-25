@@ -1,4 +1,11 @@
-import { PropertyLocation, PropertyStatus, PropertyType } from '../../enums/property.enum';
+import {
+	CarBrand,
+	CarFuel,
+	CarTransmission,
+	PropertyLocation,
+	PropertyStatus,
+	PropertyType,
+} from '../../enums/property.enum';
 import { Member } from '../member/member';
 
 export interface MeLiked {
@@ -19,9 +26,13 @@ export interface Property {
 	propertyAddress: string;
 	propertyTitle: string;
 	propertyPrice: number;
-	propertySquare: number;
-	propertyBeds: number;
-	propertyRooms: number;
+	carBrand: CarBrand;
+	carModel: string;
+	carYear: number;
+	carMileage: number;
+	carFuel: CarFuel;
+	carTransmission: CarTransmission;
+	carColor?: string;
 	propertyViews: number;
 	propertyLikes: number;
 	propertyComments: number;
@@ -33,7 +44,6 @@ export interface Property {
 	memberId: string;
 	soldAt?: Date;
 	deletedAt?: Date;
-	constructedAt?: Date;
 	createdAt: Date;
 	updatedAt: Date;
 	/** from aggregation **/

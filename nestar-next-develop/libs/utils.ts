@@ -1,6 +1,28 @@
 import numeral from 'numeral';
 import { sweetMixinErrorAlert } from './sweetAlert';
 
+const enumLabelExceptions: Record<string, string> = {
+	BMW: 'BMW',
+	BYD: 'BYD',
+	SUV: 'SUV',
+	CVT: 'CVT',
+	MERCEDES_BENZ: 'Mercedes-Benz',
+};
+
+/** SUV -> SUV, TASHKENT_REGION -> Tashkent Region **/
+export const formatEnumLabel = (value: string | undefined): string => {
+	if (!value) return '';
+	if (enumLabelExceptions[value]) return enumLabelExceptions[value];
+	return value
+		.split('_')
+		.map((word) => word.charAt(0) + word.slice(1).toLowerCase())
+		.join(' ');
+};
+
+export const formatMileage = (value: number | undefined): string => {
+	return `${numeral(value ?? 0).format('0,0')} km`;
+};
+
 export const formatterStr = (value: number | undefined): string => {
 	return numeral(value).format('0,0') != '0' ? numeral(value).format('0,0') : '';
 };

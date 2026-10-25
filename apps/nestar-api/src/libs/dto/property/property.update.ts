@@ -1,6 +1,13 @@
 import { Field, InputType, Int } from '@nestjs/graphql';
-import { IsInt, IsNotEmpty, IsOptional, Length, Min } from 'class-validator';
-import { PropertyLocation, PropertyStatus, PropertyType } from '../../enums/property.enum';
+import { IsInt, IsNotEmpty, IsOptional, Length, Max, Min } from 'class-validator';
+import {
+	CarBrand,
+	CarFuel,
+	CarTransmission,
+	PropertyLocation,
+	PropertyStatus,
+	PropertyType,
+} from '../../enums/property.enum';
 import type { ObjectId } from 'mongoose';
 
 @InputType()
@@ -36,20 +43,39 @@ export class PropertyUpdate {
 	propertyPrice?: number;
 
 	@IsOptional()
-	@Field(() => Number, { nullable: true })
-	propertySquare?: number;
+	@Field(() => CarBrand, { nullable: true })
+	carBrand?: CarBrand;
+
+	@IsOptional()
+	@Length(1, 50)
+	@Field(() => String, { nullable: true })
+	carModel?: string;
 
 	@IsOptional()
 	@IsInt()
-	@Min(1)
+	@Min(1950)
+	@Max(2100)
 	@Field(() => Int, { nullable: true })
-	propertyBeds?: number;
+	carYear?: number;
 
 	@IsOptional()
 	@IsInt()
-	@Min(1)
+	@Min(0)
 	@Field(() => Int, { nullable: true })
-	propertyRooms?: number;
+	carMileage?: number;
+
+	@IsOptional()
+	@Field(() => CarFuel, { nullable: true })
+	carFuel?: CarFuel;
+
+	@IsOptional()
+	@Field(() => CarTransmission, { nullable: true })
+	carTransmission?: CarTransmission;
+
+	@IsOptional()
+	@Length(2, 30)
+	@Field(() => String, { nullable: true })
+	carColor?: string;
 
 	@IsOptional()
 	@Field(() => [String], { nullable: true })
@@ -71,8 +97,4 @@ export class PropertyUpdate {
 	soldAt?: Date;
 
 	deletedAt?: Date;
-
-	@IsOptional()
-	@Field(() => Date, { nullable: true })
-	constructedAt?: Date;
 }

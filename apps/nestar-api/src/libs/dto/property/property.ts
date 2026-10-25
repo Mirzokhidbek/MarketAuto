@@ -1,6 +1,13 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql';
 import type { ObjectId } from 'mongoose';
-import { PropertyLocation, PropertyStatus, PropertyType } from '../../enums/property.enum';
+import {
+	CarBrand,
+	CarFuel,
+	CarTransmission,
+	PropertyLocation,
+	PropertyStatus,
+	PropertyType,
+} from '../../enums/property.enum';
 import { Member, TotalCounter } from '../member/member';
 import { MeLiked } from '../like/like';
 
@@ -27,14 +34,26 @@ export class Property {
 	@Field(() => Number)
 	propertyPrice!: number;
 
-	@Field(() => Number)
-	propertySquare!: number;
+	@Field(() => CarBrand)
+	carBrand!: CarBrand;
+
+	@Field(() => String)
+	carModel!: string;
 
 	@Field(() => Int)
-	propertyBeds!: number;
+	carYear!: number;
 
 	@Field(() => Int)
-	propertyRooms!: number;
+	carMileage!: number;
+
+	@Field(() => CarFuel)
+	carFuel!: CarFuel;
+
+	@Field(() => CarTransmission)
+	carTransmission!: CarTransmission;
+
+	@Field(() => String, { nullable: true })
+	carColor?: string;
 
 	@Field(() => Int)
 	propertyViews!: number;
@@ -68,9 +87,6 @@ export class Property {
 
 	@Field(() => Date, { nullable: true })
 	deletedAt?: Date;
-
-	@Field(() => Date, { nullable: true })
-	constructedAt?: Date;
 
 	@Field(() => Date)
 	createdAt!: Date;

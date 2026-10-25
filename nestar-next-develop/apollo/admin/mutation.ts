@@ -47,9 +47,13 @@ export const UPDATE_PROPERTY_BY_ADMIN = gql`
 			propertyAddress
 			propertyTitle
 			propertyPrice
-			propertySquare
-			propertyBeds
-			propertyRooms
+			carBrand
+			carModel
+			carYear
+			carMileage
+			carFuel
+			carTransmission
+			carColor
 			propertyViews
 			propertyLikes
 			propertyImages
@@ -59,7 +63,6 @@ export const UPDATE_PROPERTY_BY_ADMIN = gql`
 			memberId
 			soldAt
 			deletedAt
-			constructedAt
 			createdAt
 			updatedAt
 		}
@@ -76,9 +79,13 @@ export const REMOVE_PROPERTY_BY_ADMIN = gql`
 			propertyAddress
 			propertyTitle
 			propertyPrice
-			propertySquare
-			propertyBeds
-			propertyRooms
+			carBrand
+			carModel
+			carYear
+			carMileage
+			carFuel
+			carTransmission
+			carColor
 			propertyViews
 			propertyLikes
 			propertyImages
@@ -88,7 +95,6 @@ export const REMOVE_PROPERTY_BY_ADMIN = gql`
 			memberId
 			soldAt
 			deletedAt
-			constructedAt
 			createdAt
 			updatedAt
 		}

@@ -1,4 +1,11 @@
-import { PropertyLocation, PropertyStatus, PropertyType } from '../../enums/property.enum';
+import {
+	CarBrand,
+	CarFuel,
+	CarTransmission,
+	PropertyLocation,
+	PropertyStatus,
+	PropertyType,
+} from '../../enums/property.enum';
 import { Direction } from '../../enums/common.enum';
 
 export interface PropertyInput {
@@ -7,27 +14,32 @@ export interface PropertyInput {
 	propertyAddress: string;
 	propertyTitle: string;
 	propertyPrice: number;
-	propertySquare: number;
-	propertyBeds: number;
-	propertyRooms: number;
+	carBrand: CarBrand;
+	carModel: string;
+	carYear: number;
+	carMileage: number;
+	carFuel: CarFuel;
+	carTransmission: CarTransmission;
+	carColor?: string;
 	propertyImages: string[];
 	propertyDesc?: string;
 	propertyBarter?: boolean;
 	propertyRent?: boolean;
 	memberId?: string;
-	constructedAt?: Date;
 }
 
 interface PISearch {
 	memberId?: string;
 	locationList?: PropertyLocation[];
 	typeList?: PropertyType[];
-	roomsList?: Number[];
+	brandList?: CarBrand[];
+	fuelList?: CarFuel[];
+	transmissionList?: CarTransmission[];
 	options?: string[];
-	bedsList?: Number[];
 	pricesRange?: Range;
 	periodsRange?: PeriodsRange;
-	squaresRange?: Range;
+	yearsRange?: Range;
+	mileageRange?: Range;
 	text?: string;
 }
 
