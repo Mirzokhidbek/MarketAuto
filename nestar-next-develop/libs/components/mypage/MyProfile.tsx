@@ -149,7 +149,7 @@ const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 					<input
 						type="text"
 						placeholder={'Full name / company name'}
-						value={updateData.memberFullName ?? ''}
+						value={updateData.memberFullName || ''}
 						onChange={({ target: { value } }) => setUpdateData({ ...updateData, memberFullName: value })}
 					/>
 				</label>

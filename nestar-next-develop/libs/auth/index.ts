@@ -119,7 +119,7 @@ export const updateUserInfo = (jwtToken: any) => {
 		memberAuthType: claims.memberAuthType,
 		memberPhone: claims.memberPhone ?? '',
 		memberNick: claims.memberNick ?? '',
-		memberFullName: claims.memberFullName ?? '',
+		memberFullName: claims.memberFullName || '',
 		memberImage:
 			claims.memberImage === null || claims.memberImage === undefined
 				? '/img/profile/defaultUser.svg'

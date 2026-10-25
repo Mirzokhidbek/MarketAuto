@@ -30,7 +30,7 @@ const DealerCard = ({ dealer, onLike }: DealerCardProps) => {
 				/>
 			</Link>
 			<Link href={href}>
-				<h3>{dealer.memberFullName ?? dealer.memberNick}</h3>
+				<h3>{dealer.memberFullName || dealer.memberNick}</h3>
 			</Link>
 			{dealer.memberAddress && <p className={'ma-dealer-card__address'}>{dealer.memberAddress}</p>}
 			<div className={'ma-dealer-card__stats'}>

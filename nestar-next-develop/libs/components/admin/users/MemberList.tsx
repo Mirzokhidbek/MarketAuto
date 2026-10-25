@@ -177,7 +177,7 @@ export const MemberPanelList = (props: MemberPanelListType) => {
 											</Stack>
 										</TableCell>
 
-										<TableCell align="center">{member.memberFullName ?? '-'}</TableCell>
+										<TableCell align="center">{member.memberFullName || '-'}</TableCell>
 										<TableCell align="left">{member.memberPhone}</TableCell>
 
 										<TableCell align="center">

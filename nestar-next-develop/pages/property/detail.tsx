@@ -423,7 +423,7 @@ const PropertyDetail: NextPage = ({ initialComment, ...props }: any) => {
 								/>
 								<div>
 									<Link href={`/member?memberId=${seller?._id}`}>
-										<strong>{seller?.memberFullName ?? seller?.memberNick}</strong>
+										<strong>{seller?.memberFullName || seller?.memberNick}</strong>
 									</Link>
 									<span>{t(seller?.memberType === 'AGENT' ? 'Dealer' : 'Private seller')}</span>
 								</div>
