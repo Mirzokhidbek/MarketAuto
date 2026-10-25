@@ -74,10 +74,12 @@ const PropertyCard = (props: PropertyCardType) => {
 							<img src="/img/icons/calendar.svg" alt="" /> <Typography>{property.carYear}</Typography>
 						</Stack>
 						<Stack className="option">
-							<img src="/img/icons/speedometer.svg" alt="" /> <Typography>{formatMileage(property.carMileage)}</Typography>
+							<img src="/img/icons/speedometer.svg" alt="" />{' '}
+							<Typography>{formatMileage(property.carMileage)}</Typography>
 						</Stack>
 						<Stack className="option">
-							<img src="/img/icons/gearbox.svg" alt="" /> <Typography>{formatEnumLabel(property.carTransmission)}</Typography>
+							<img src="/img/icons/gearbox.svg" alt="" />{' '}
+							<Typography>{formatEnumLabel(property.carTransmission)}</Typography>
 						</Stack>
 					</Stack>
 					<Stack className="divider"></Stack>

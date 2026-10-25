@@ -13,7 +13,7 @@ import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 
 interface PropertyBigCardProps {
 	property: Property;
-  likePropertyHandler?: any;
+	likePropertyHandler?: any;
 }
 
 const PropertyBigCard = (props: PropertyBigCardProps) => {
@@ -78,7 +78,7 @@ const PropertyBigCard = (props: PropertyBigCardProps) => {
 								color={'default'}
 								onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
 									e.stopPropagation();
-                  likePropertyHandler(user, property?._id);
+									likePropertyHandler(user, property?._id);
 								}}
 							>
 								{property?.meLiked && property?.meLiked[0]?.myFavorite ? (

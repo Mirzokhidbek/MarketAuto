@@ -98,11 +98,9 @@ const Filter = (props: FilterType) => {
 			if (searchFilter?.search?.[key]?.length == 0) {
 				delete searchFilter.search[key];
 				router
-					.push(
-						`/property?input=${JSON.stringify(searchFilter)}`,
-						`/property?input=${JSON.stringify(searchFilter)}`,
-						{ scroll: false },
-					)
+					.push(`/property?input=${JSON.stringify(searchFilter)}`, `/property?input=${JSON.stringify(searchFilter)}`, {
+						scroll: false,
+					})
 					.then();
 			}
 		});
@@ -243,11 +241,11 @@ const Filter = (props: FilterType) => {
 						[key]: isChecked ? [...current, value] : current.filter((item: string) => item !== value),
 					},
 				};
-			await router.push(
-				`/property?input=${JSON.stringify(nextFilter)}`,
-				`/property?input=${JSON.stringify(nextFilter)}`,
-				{ scroll: false },
-			);
+				await router.push(
+					`/property?input=${JSON.stringify(nextFilter)}`,
+					`/property?input=${JSON.stringify(nextFilter)}`,
+					{ scroll: false },
+				);
 			} catch (err: any) {
 				console.log('ERROR, carListSelectHandler:', err);
 			}
@@ -309,11 +307,11 @@ const Filter = (props: FilterType) => {
 					...searchFilter,
 					search: { ...searchFilter.search, [key]: { ...current, [type]: value } },
 				};
-			await router.push(
-				`/property?input=${JSON.stringify(nextFilter)}`,
-				`/property?input=${JSON.stringify(nextFilter)}`,
-				{ scroll: false },
-			);
+				await router.push(
+					`/property?input=${JSON.stringify(nextFilter)}`,
+					`/property?input=${JSON.stringify(nextFilter)}`,
+					{ scroll: false },
+				);
 			} catch (err: any) {
 				console.log('ERROR, carRangeHandler:', err);
 			}
@@ -580,7 +578,11 @@ const Filter = (props: FilterType) => {
 								MenuProps={MenuProps}
 							>
 								{carYears.map((item: number) => (
-									<MenuItem value={item} disabled={(searchFilter?.search?.yearsRange?.end ?? carYears[carYears.length - 1]) < item} key={item}>
+									<MenuItem
+										value={item}
+										disabled={(searchFilter?.search?.yearsRange?.end ?? carYears[carYears.length - 1]) < item}
+										key={item}
+									>
 										{item}
 									</MenuItem>
 								))}
@@ -596,7 +598,11 @@ const Filter = (props: FilterType) => {
 								MenuProps={MenuProps}
 							>
 								{carYears.map((item: number) => (
-									<MenuItem value={item} disabled={(searchFilter?.search?.yearsRange?.start ?? carYears[0]) > item} key={item}>
+									<MenuItem
+										value={item}
+										disabled={(searchFilter?.search?.yearsRange?.start ?? carYears[0]) > item}
+										key={item}
+									>
 										{item}
 									</MenuItem>
 								))}
@@ -616,7 +622,13 @@ const Filter = (props: FilterType) => {
 								MenuProps={MenuProps}
 							>
 								{propertyMileage.map((item: number) => (
-									<MenuItem value={item} disabled={(searchFilter?.search?.mileageRange?.end ?? propertyMileage[propertyMileage.length - 1]) < item} key={item}>
+									<MenuItem
+										value={item}
+										disabled={
+											(searchFilter?.search?.mileageRange?.end ?? propertyMileage[propertyMileage.length - 1]) < item
+										}
+										key={item}
+									>
 										{formatMileage(item)}
 									</MenuItem>
 								))}
@@ -632,7 +644,11 @@ const Filter = (props: FilterType) => {
 								MenuProps={MenuProps}
 							>
 								{propertyMileage.map((item: number) => (
-									<MenuItem value={item} disabled={(searchFilter?.search?.mileageRange?.start ?? propertyMileage[0]) > item} key={item}>
+									<MenuItem
+										value={item}
+										disabled={(searchFilter?.search?.mileageRange?.start ?? propertyMileage[0]) > item}
+										key={item}
+									>
 										{formatMileage(item)}
 									</MenuItem>
 								))}

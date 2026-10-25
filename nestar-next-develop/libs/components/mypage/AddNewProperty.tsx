@@ -340,7 +340,7 @@ const AddProperty = ({ initialValues, ...props }: any) => {
 										className={'select-description'}
 										value={insertPropertyData.carBrand || 'select'}
 										onChange={({ target: { value } }) =>
-										// @ts-ignore
+											// @ts-ignore
 											setInsertPropertyData({ ...insertPropertyData, carBrand: value })
 										}
 									>
@@ -413,7 +413,7 @@ const AddProperty = ({ initialValues, ...props }: any) => {
 										className={'select-description'}
 										value={insertPropertyData.carFuel || 'select'}
 										onChange={({ target: { value } }) =>
-										// @ts-ignore
+											// @ts-ignore
 											setInsertPropertyData({ ...insertPropertyData, carFuel: value })
 										}
 									>
@@ -435,7 +435,7 @@ const AddProperty = ({ initialValues, ...props }: any) => {
 										className={'select-description'}
 										value={insertPropertyData.carTransmission || 'select'}
 										onChange={({ target: { value } }) =>
-										// @ts-ignore
+											// @ts-ignore
 											setInsertPropertyData({ ...insertPropertyData, carTransmission: value })
 										}
 									>
