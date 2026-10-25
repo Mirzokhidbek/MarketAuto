@@ -37,7 +37,7 @@ const RecentlyVisited: NextPage = () => {
 	};
 
 	if (device === 'mobile') {
-		return <div>NESTAR MY FAVORITES MOBILE</div>;
+		return <div>MARKETAUTO RECENTLY VISITED MOBILE</div>;
 	} else {
 		return (
 			<div id="my-favorites-page">
@@ -55,7 +55,7 @@ const RecentlyVisited: NextPage = () => {
 					) : (
 						<div className={'no-data'}>
 							<img src="/img/icons/icoAlert.svg" alt="" />
-							<p>No Recently Visited Properties found!</p>
+							<p>No recently visited cars found!</p>
 						</div>
 					)}
 				</Stack>

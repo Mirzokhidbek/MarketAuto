@@ -28,7 +28,7 @@ const PropertyCard = (props: PropertyCardType) => {
 		: '/img/banner/header1.svg';
 
 	if (device === 'mobile') {
-		return <div>PROPERTY CARD</div>;
+		return <div>CAR CARD</div>;
 	} else {
 		return (
 			<Stack className="card-config">
