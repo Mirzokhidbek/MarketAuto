@@ -55,6 +55,13 @@ export const formatPhone = (phone: string | undefined): string => {
 	return phone.startsWith('+') ? phone : `+${phone}`;
 };
 
+export const articleCategoryLabels: Record<string, string> = {
+	NEWS: 'Car News',
+	RECOMMEND: 'Reviews & Tips',
+	FREE: 'Free Talk',
+	HUMOR: 'Humor',
+};
+
 export const formatMileage = (value: number | undefined): string => {
 	return `${numeral(value ?? 0).format('0,0')} km`;
 };

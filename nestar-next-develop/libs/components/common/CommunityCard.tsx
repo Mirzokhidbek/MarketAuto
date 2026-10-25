@@ -1,7 +1,7 @@
 import React from 'react';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
-import { formatEnumLabel } from '../../utils';
+import { articleCategoryLabels, formatEnumLabel } from '../../utils';
 import { BoardArticle } from '../../types/board-article/board-article';
 import Moment from 'react-moment';
 import { REACT_APP_API_URL } from '../../config';
@@ -52,7 +52,9 @@ const CommunityCard = (props: CommunityCardProps) => {
 		>
 			<div className={'ma-article-card__media'}>
 				<img src={imagePath} alt={boardArticle?.articleTitle} />
-				<span className={'ma-badge ma-badge--light'}>{t(formatEnumLabel(boardArticle?.articleCategory))}</span>
+				<span className={'ma-badge ma-badge--light'}>
+					{t(articleCategoryLabels[boardArticle?.articleCategory] ?? formatEnumLabel(boardArticle?.articleCategory))}
+				</span>
 			</div>
 			<div className={'ma-article-card__body'}>
 				<h3>{boardArticle?.articleTitle}</h3>
