@@ -120,10 +120,8 @@ export const updateUserInfo = (jwtToken: any) => {
 		memberPhone: claims.memberPhone ?? '',
 		memberNick: claims.memberNick ?? '',
 		memberFullName: claims.memberFullName || '',
-		memberImage:
-			claims.memberImage === null || claims.memberImage === undefined
-				? '/img/profile/defaultUser.svg'
-				: `${claims.memberImage}`,
+		// empty when no photo: every avatar falls back to the default image itself
+		memberImage: claims.memberImage ?? '',
 		memberAddress: claims.memberAddress ?? '',
 		memberDesc: claims.memberDesc ?? '',
 		memberProperties: claims.memberProperties,

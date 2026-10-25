@@ -1,5 +1,10 @@
 export const REACT_APP_API_URL = `${process.env.REACT_APP_API_URL}`;
 
+/** support contacts shown in the footer, home page and Support page — set real values in .env */
+export const SUPPORT_PHONE = process.env.NEXT_PUBLIC_SUPPORT_PHONE || '+998 71 200 00 00';
+export const SUPPORT_EMAIL = process.env.NEXT_PUBLIC_SUPPORT_EMAIL || 'support@marketauto.uz';
+export const supportPhoneHref = `tel:${SUPPORT_PHONE.replace(/[^+\d]/g, '')}`;
+
 export const availableOptions = ['propertyBarter', 'propertyRent'];
 
 const thisYear = new Date().getFullYear();

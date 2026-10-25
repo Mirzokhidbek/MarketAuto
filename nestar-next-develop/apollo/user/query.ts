@@ -646,3 +646,70 @@ export const GET_MEMBER_FOLLOWINGS = gql`
 		}
 	}
 `;
+
+/**************************
+ *  NOTIFICATION / NOTICE *
+ *************************/
+
+export const GET_NOTIFICATIONS = gql`
+	query GetNotifications($input: OrdinaryInquiry!) {
+		getNotifications(input: $input) {
+			unreadCount
+			list {
+				_id
+				notificationType
+				notificationStatus
+				notificationGroup
+				notificationTitle
+				authorId
+				propertyId
+				articleId
+				createdAt
+				authorData {
+					_id
+					memberNick
+					memberFullName
+					memberImage
+				}
+			}
+			metaCounter {
+				total
+			}
+		}
+	}
+`;
+
+export const GET_NOTICES = gql`
+	query GetNotices($input: NoticesInquiry!) {
+		getNotices(input: $input) {
+			list {
+				_id
+				noticeCategory
+				noticeTitle
+				noticeContent
+				createdAt
+			}
+			metaCounter {
+				total
+			}
+		}
+	}
+`;
+
+export const GET_MY_INQUIRIES = gql`
+	query GetMyInquiries($input: NoticesInquiry!) {
+		getMyInquiries(input: $input) {
+			list {
+				_id
+				noticeStatus
+				noticeTitle
+				noticeContent
+				noticeAnswer
+				createdAt
+			}
+			metaCounter {
+				total
+			}
+		}
+	}
+`;

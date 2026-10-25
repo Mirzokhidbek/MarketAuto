@@ -7,6 +7,7 @@ import { Stack, Box } from '@mui/material';
 import moment from 'moment';
 import Link from 'next/link';
 import { useTranslation } from 'next-i18next';
+import { SUPPORT_EMAIL, SUPPORT_PHONE } from '../config';
 
 const Footer = () => {
 	const device = useDeviceDetect();
@@ -22,11 +23,11 @@ const Footer = () => {
 						</Box>
 						<Box component={'div'} className={'footer-box'}>
 							<span>total free customer care</span>
-							<p>+998 71 200 00 00</p>
+							<p>{SUPPORT_PHONE}</p>
 						</Box>
 						<Box component={'div'} className={'footer-box'}>
 							<span>call center</span>
-							<p>+998 71 200 00 00</p>
+							<p>{SUPPORT_PHONE}</p>
 							<span>Support?</span>
 						</Box>
 						<Box component={'div'} className={'footer-box'}>
@@ -102,14 +103,14 @@ const Footer = () => {
 						<strong>{t('COMPANY')}</strong>
 						<Link href={'/about'}>{t('About Us')}</Link>
 						<Link href={'/cs'}>{t('Support Center')}</Link>
-						<span>+998 71 200 00 00</span>
+						<span>{SUPPORT_PHONE}</span>
 					</div>
 				</div>
 				<div className={'ma-container ma-footer__bottom'}>
 					<span>
 						© {moment().year()} MarketAuto. {t('All rights reserved.')}
 					</span>
-					<span>{t('Tashkent, Uzbekistan')} · support@marketauto.uz</span>
+					<span>{t('Tashkent, Uzbekistan')} · {SUPPORT_EMAIL}</span>
 				</div>
 			</footer>
 		);

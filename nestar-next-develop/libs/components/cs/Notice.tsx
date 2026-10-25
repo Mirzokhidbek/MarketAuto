@@ -1,36 +1,35 @@
 import React from 'react';
-import { Stack, Box } from '@mui/material';
+import { useQuery } from '@apollo/client';
 import { useTranslation } from 'next-i18next';
+import moment from 'moment';
+import ExpandMoreRoundedIcon from '@mui/icons-material/ExpandMoreRounded';
+import { GET_NOTICES } from '../../../apollo/user/query';
+import { T } from '../../types/common';
 
+/** announcements published by admins (Admin > CS > Notice) */
 const Notice = () => {
 	const { t } = useTranslation('common');
+	const { data, loading } = useQuery(GET_NOTICES, {
+		fetchPolicy: 'network-only',
+		variables: { input: { page: 1, limit: 50, search: { noticeCategory: 'NOTICE' } } },
+	});
+	const notices: T[] = data?.getNotices?.list ?? [];
 
-	/** APOLLO REQUESTS **/
-	/** LIFECYCLES **/
-	/** HANDLERS **/
-
-	const data = [
-		{
-			no: 1,
-			event: true,
-			title: 'Register to use and get discounts',
-			date: '01.03.2024',
-		},
-		{
-			no: 2,
-			title: "It's absolutely free to list and sell your car",
-			date: '31.03.2024',
-		},
-	];
+	if (!notices.length)
+		return <div className={'ma-empty'}>{loading ? t('Loading...') : t('No announcements yet.')}</div>;
 
 	return (
 		<div className={'ma-notice-list'}>
-			{data.map((item: any) => (
-				<div className={'ma-notice'} key={item.no}>
-					<span className={'ma-notice__no'}>{item.no}</span>
-					<strong>{t(item.title)}</strong>
-					<span className={'ma-notice__date'}>{item.date}</span>
-				</div>
+			{notices.map((item, index) => (
+				<details className={'ma-faq ma-notice-item'} key={item._id}>
+					<summary>
+						<span className={'ma-notice__no'}>{index + 1}</span>
+						<strong>{item.noticeTitle}</strong>
+						<span className={'ma-notice__date'}>{moment(item.createdAt).format('DD.MM.YYYY')}</span>
+						<ExpandMoreRoundedIcon />
+					</summary>
+					<p>{item.noticeContent}</p>
+				</details>
 			))}
 		</div>
 	);

@@ -8,7 +8,7 @@ import { useMutation, useReactiveVar } from '@apollo/client';
 import { userVar } from '../../../apollo/store';
 import { MemberUpdate } from '../../types/member/member.update';
 import { sweetErrorHandling, sweetMixinSuccessAlert } from '../../sweetAlert';
-import { UPDATE_MEMBER } from '../../../apollo/user/mutation';
+import { CHANGE_PASSWORD, UPDATE_MEMBER } from '../../../apollo/user/mutation';
 
 const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 	const { t } = useTranslation('common');
@@ -18,6 +18,8 @@ const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 
 	/** APOLLO REQUESTS **/
 	const [updateMember] = useMutation(UPDATE_MEMBER);
+	const [changePassword] = useMutation(CHANGE_PASSWORD);
+	const [passwords, setPasswords] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
 
 	/** LIFECYCLES **/
 	useEffect(() => {
@@ -103,6 +105,30 @@ const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 		}
 	}, [updateData]);
 
+	const passwordMismatch = !!passwords.confirmPassword && passwords.newPassword !== passwords.confirmPassword;
+	const canChangePassword =
+		passwords.currentPassword.length >= 5 &&
+		passwords.newPassword.length >= 5 &&
+		passwords.newPassword.length <= 12 &&
+		passwords.newPassword === passwords.confirmPassword;
+
+	const changePasswordHandler = async () => {
+		try {
+			const result = await changePassword({
+				variables: {
+					input: { currentPassword: passwords.currentPassword, newPassword: passwords.newPassword },
+				},
+			});
+			const jwtToken = result.data?.changePassword?.accessToken;
+			await updateStorage({ jwtToken });
+			updateUserInfo(jwtToken);
+			setPasswords({ currentPassword: '', newPassword: '', confirmPassword: '' });
+			await sweetMixinSuccessAlert(t('Password changed successfully.') as string);
+		} catch (err: any) {
+			sweetErrorHandling(err).then();
+		}
+	};
+
 	const doDisabledCheck = () => {
 		if (!updateData.memberNick || !updateData.memberPhone) {
 			return true;
@@ -185,6 +211,48 @@ const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 					{t('Save changes')}
 				</button>
 			</div>
+
+			<section className={'ma-form-section ma-password'}>
+				<h2>{t('Change password')}</h2>
+				<div className={'ma-form-grid'}>
+					<label className={'ma-input'}>
+						<span>{t('Current password')}</span>
+						<input
+							type="password"
+							autoComplete="current-password"
+							value={passwords.currentPassword}
+							onChange={({ target: { value } }) => setPasswords({ ...passwords, currentPassword: value })}
+						/>
+					</label>
+					<label className={'ma-input'}>
+						<span>{t('New password')}</span>
+						<input
+							type="password"
+							autoComplete="new-password"
+							maxLength={12}
+							placeholder={t('5-12 characters') as string}
+							value={passwords.newPassword}
+							onChange={({ target: { value } }) => setPasswords({ ...passwords, newPassword: value })}
+						/>
+					</label>
+					<label className={'ma-input'}>
+						<span>{t('Confirm new password')}</span>
+						<input
+							type="password"
+							autoComplete="new-password"
+							maxLength={12}
+							value={passwords.confirmPassword}
+							onChange={({ target: { value } }) => setPasswords({ ...passwords, confirmPassword: value })}
+						/>
+						{passwordMismatch && <em className={'ma-input__error'}>{t('Passwords do not match')}</em>}
+					</label>
+				</div>
+				<div className={'ma-form-actions'}>
+					<button className={'ma-btn ma-btn--primary'} onClick={changePasswordHandler} disabled={!canChangePassword}>
+						{t('Change password')}
+					</button>
+				</div>
+			</section>
 		</div>
 	);
 };
