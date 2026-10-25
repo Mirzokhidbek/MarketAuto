@@ -63,7 +63,6 @@ const PropertyList: NextPage = ({ initialInput, ...props }: any) => {
 	}, [router]);
 
 	useEffect(() => {
-		console.log('searchFilter', searchFilter);
 		// getPropertiesRefetch({ input: searchFilter }).then();
 	}, [searchFilter]);
 
@@ -92,7 +91,6 @@ const PropertyList: NextPage = ({ initialInput, ...props }: any) => {
 
 			await sweetTopSmallSuccessAlert('success', 800);
 		} catch (err: any) {
-			console.log('ERROR, likePropertyHandler:', err.message);
 			sweetMixinErrorAlert(err.message).then();
 		}
 	};

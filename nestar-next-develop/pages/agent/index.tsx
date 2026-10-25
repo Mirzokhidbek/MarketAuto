@@ -101,7 +101,6 @@ const AgentList: NextPage = ({ initialInput, ...props }: any) => {
 			await getAgentsRefetch({ input: searchFilter });
 			await sweetTopSmallSuccessAlert('success', 800);
 		} catch (err: any) {
-			console.log('ERROR, likePropertyHandler:', err.message);
 			sweetMixinErrorAlert(err.message).then();
 		}
 	};

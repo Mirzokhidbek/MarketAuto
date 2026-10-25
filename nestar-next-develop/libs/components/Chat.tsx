@@ -1,3 +1,4 @@
+import { useTranslation } from 'next-i18next';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Avatar, Box, Stack } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
@@ -58,6 +59,7 @@ const Chat = () => {
 	const [open, setOpen] = useState(false);
 	const [openButton, setOpenButton] = useState(false);
 	const router = useRouter();
+	const { t } = useTranslation('common');
 	const user = useReactiveVar(userVar);
 	const socket = useReactiveVar(socketVar);
 
@@ -65,7 +67,6 @@ const Chat = () => {
 	useEffect(() => {
 		socket.onmessage = (msg) => {
 			const data = JSON.parse(msg.data);
-			console.log('WebSocket message:', data);
 
 			switch (data.event) {
 				case 'info':
@@ -115,7 +116,6 @@ const Chat = () => {
 				onClickHandler();
 			}
 		} catch (err: any) {
-			console.log(err);
 		}
 	};
 
@@ -136,16 +136,16 @@ const Chat = () => {
 			) : null}
 			<Stack className={`chat-frame ${open ? 'open' : ''}`}>
 				<Box className={'chat-top'} component={'div'}>
-					<div style={{ fontFamily: 'Nunito' }}>Online Chat</div>
+					<div>{t('Online Chat')}</div>
 					<RippleBadge style={{ margin: '-18px 0 0 21px' }} badgeContent={onlineUsers} />
 				</Box>
 				<Box className={'chat-content'} id="chat-content" ref={chatContentRef} component={'div'}>
 					<ScrollableFeed>
 						<Stack className={'chat-main'}>
 							<Box flexDirection={'row'} style={{ display: 'flex' }} sx={{ m: '10px 0px' }} component={'div'}>
-								<div className={'welcome'}>Welcome to Live chat!</div>
+								<div className={'welcome'}>{t('Welcome to Live chat!')}</div>
 							</Box>
-							{messagesList.map((ele: MessagePayload) => {
+							{messagesList.map((ele: MessagePayload, index: number) => {
 								const { text, memberData } = ele;
 								const memberImage = memberData?.memberImage
 									? `${REACT_APP_API_URL}/${memberData.memberImage}`
@@ -153,6 +153,7 @@ const Chat = () => {
 
 								return memberData?._id === user?._id ? (
 									<Box
+										key={index}
 										component={'div'}
 										flexDirection={'row'}
 										style={{ display: 'flex' }}
@@ -163,9 +164,18 @@ const Chat = () => {
 										<div className={'msg-right'}>{text}</div>
 									</Box>
 								) : (
-									<Box flexDirection={'row'} style={{ display: 'flex' }} sx={{ m: '10px 0px' }} component={'div'}>
-										<Avatar alt={'jonik'} src={memberImage} />
-										<div className={'msg-left'}>{text}</div>
+									<Box
+										key={index}
+										flexDirection={'row'}
+										style={{ display: 'flex' }}
+										sx={{ m: '10px 0px' }}
+										component={'div'}
+									>
+										<Avatar alt={memberData?.memberNick ?? ''} src={memberImage} />
+										<div className={'msg-left'}>
+											<small className={'msg-author'}>{memberData?.memberNick ?? t('Guest')}</small>
+											{text}
+										</div>
 									</Box>
 								);
 							})}
@@ -177,7 +187,8 @@ const Chat = () => {
 						type={'text'}
 						name={'message'}
 						className={'msg-input'}
-						placeholder={'Type message'}
+						placeholder={t('Type a message') as string}
+						maxLength={500}
 						value={messageInput}
 						onChange={getInputMessageHandler}
 						onKeyDown={getKeyHandler}

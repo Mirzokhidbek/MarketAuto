@@ -184,9 +184,7 @@ const Filter = (props: FilterType) => {
 					alert('error');
 				}
 
-				console.log('propertyLocationSelectHandler:', e.target.value);
 			} catch (err: any) {
-				console.log('ERROR, propertyLocationSelectHandler:', err);
 			}
 		},
 		[searchFilter],
@@ -233,9 +231,7 @@ const Filter = (props: FilterType) => {
 					alert('error');
 				}
 
-				console.log('propertyTypeSelectHandler:', e.target.value);
 			} catch (err: any) {
-				console.log('ERROR, propertyTypeSelectHandler:', err);
 			}
 		},
 		[searchFilter],
@@ -260,7 +256,6 @@ const Filter = (props: FilterType) => {
 					{ scroll: false },
 				);
 			} catch (err: any) {
-				console.log('ERROR, carListSelectHandler:', err);
 			}
 		},
 		[searchFilter],
@@ -303,9 +298,7 @@ const Filter = (props: FilterType) => {
 					);
 				}
 
-				console.log('propertyOptionSelectHandler:', e.target.value);
 			} catch (err: any) {
-				console.log('ERROR, propertyOptionSelectHandler:', err);
 			}
 		},
 		[searchFilter],
@@ -326,7 +319,6 @@ const Filter = (props: FilterType) => {
 					{ scroll: false },
 				);
 			} catch (err: any) {
-				console.log('ERROR, carRangeHandler:', err);
 			}
 		},
 		[searchFilter],
@@ -384,7 +376,6 @@ const Filter = (props: FilterType) => {
 				{ scroll: false },
 			);
 		} catch (err: any) {
-			console.log('ERROR, refreshHandler:', err);
 		}
 	};
 

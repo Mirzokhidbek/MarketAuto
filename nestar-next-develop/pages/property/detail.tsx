@@ -204,7 +204,6 @@ const PropertyDetail: NextPage = ({ initialComment, carSeo, ...props }: any) => 
 
 			await sweetTopSmallSuccessAlert('success', 800);
 		} catch (err: any) {
-			console.log('ERROR, likePropertyHandler:', err.message);
 			sweetMixinErrorAlert(err.message).then();
 		}
 	};
@@ -232,7 +231,6 @@ const PropertyDetail: NextPage = ({ initialComment, carSeo, ...props }: any) => 
 			await navigator.clipboard.writeText(window.location.href);
 			await sweetTopSmallSuccessAlert(t('Link copied') as string, 900);
 		} catch (err: any) {
-			console.log('ERROR, shareHandler:', err.message);
 		}
 	};
 

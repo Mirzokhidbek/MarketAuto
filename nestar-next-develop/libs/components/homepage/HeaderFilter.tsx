@@ -124,7 +124,6 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 				});
 				typeStateChangeHandler();
 			} catch (err: any) {
-				console.log('ERROR, propertyLocationSelectHandler:', err);
 			}
 		},
 		[searchFilter],
@@ -142,7 +141,6 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 				});
 				roomStateChangeHandler();
 			} catch (err: any) {
-				console.log('ERROR, propertyTypeSelectHandler:', err);
 			}
 		},
 		[searchFilter],
@@ -160,7 +158,6 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 				});
 				disableAllStateHandler();
 			} catch (err: any) {
-				console.log('ERROR, propertyBrandSelectHandler:', err);
 			}
 		},
 		[searchFilter],
@@ -189,7 +186,6 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 					setSearchFilter({ ...searchFilter });
 				}
 			} catch (err: any) {
-				console.log('ERROR, propertyFuelSelectHandler:', err);
 			}
 		},
 		[searchFilter],
@@ -219,7 +215,6 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 					});
 				}
 			} catch (err: any) {
-				console.log('ERROR, propertyOptionSelectHandler:', err);
 			}
 		},
 		[searchFilter],
@@ -309,7 +304,6 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 				`/property?input=${JSON.stringify(searchFilter)}`,
 			);
 		} catch (err: any) {
-			console.log('ERROR, pushSearchHandler:', err);
 		}
 	};
 

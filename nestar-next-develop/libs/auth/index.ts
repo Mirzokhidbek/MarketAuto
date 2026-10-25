@@ -45,12 +45,10 @@ const requestJwtToken = async ({
 			fetchPolicy: 'network-only',
 		});
 
-		console.log('---------- login ----------');
 		const { accessToken } = result?.data?.login;
 
 		return { jwtToken: accessToken };
 	} catch (err: any) {
-		console.log('request token err', err.graphQLErrors);
 		// surface the backend message (wrong password, blocked user, nick already used, ...)
 		throw new Error(err?.graphQLErrors?.[0]?.message ?? err.message);
 	}
@@ -92,12 +90,10 @@ const requestSignUpJwtToken = async ({
 			fetchPolicy: 'network-only',
 		});
 
-		console.log('---------- login ----------');
 		const { accessToken } = result?.data?.signup;
 
 		return { jwtToken: accessToken };
 	} catch (err: any) {
-		console.log('request token err', err.graphQLErrors);
 		// surface the backend message (wrong password, blocked user, nick already used, ...)
 		throw new Error(err?.graphQLErrors?.[0]?.message ?? err.message);
 	}
