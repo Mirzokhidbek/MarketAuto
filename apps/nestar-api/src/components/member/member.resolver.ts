@@ -66,6 +66,9 @@ export class MemberResolver {
 	): Promise<Member> {
 		console.log('Mutation: updateMember');
 		delete input._id;
+		// role and status are changed only by admin (updateMemberByAdmin)
+		delete input.memberType;
+		delete input.memberStatus;
 		console.log('memberId:', memberId);
 		return await this.memberService.updateMember(memberId, input);
 	}
