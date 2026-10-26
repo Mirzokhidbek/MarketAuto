@@ -52,6 +52,7 @@ interface FilterType {
 	searchFilter: PropertiesInquiry;
 	setSearchFilter: any;
 	initialInput: PropertiesInquiry;
+	total?: number;
 }
 
 const optionLabels: Record<string, string> = {
@@ -61,7 +62,7 @@ const optionLabels: Record<string, string> = {
 };
 
 const Filter = (props: FilterType) => {
-	const { searchFilter, setSearchFilter, initialInput } = props;
+	const { searchFilter, setSearchFilter, initialInput, total = 0 } = props;
 	const router = useRouter();
 	const { t } = useTranslation('common');
 	const [propertyLocation, setPropertyLocation] = useState<PropertyLocation[]>(Object.values(PropertyLocation));
@@ -91,7 +92,7 @@ const Filter = (props: FilterType) => {
 		const search: Record<string, any> = { ...searchFilter.search, ...patch };
 		Object.keys(search).forEach((key) => (search[key] === undefined || search[key] === '') && delete search[key]);
 		const next = JSON.stringify({ ...searchFilter, page: 1, search });
-		await router.push(`/property?input=${next}`, `/property?input=${next}`, { scroll: false });
+		await router.replace(`/property?input=${next}`, `/property?input=${next}`, { scroll: false });
 	};
 
 	/** prices are stored in USD; the inputs follow the currency chosen in the header */
@@ -101,7 +102,7 @@ const Filter = (props: FilterType) => {
 	const saveSearchHandler = async () => {
 		try {
 			if (!user?._id) {
-				await router.push('/account/join');
+				await router.replace('/account/join');
 				return;
 			}
 			const { value: title } = await Swal.fire({
@@ -211,7 +212,7 @@ const Filter = (props: FilterType) => {
 				const isChecked = e.target.checked;
 				const value = e.target.value;
 				if (isChecked) {
-					await router.push(
+					await router.replace(
 						`/property?input=${JSON.stringify({
 							...searchFilter,
 							search: { ...searchFilter.search, locationList: [...(searchFilter?.search?.locationList || []), value] },
@@ -223,7 +224,7 @@ const Filter = (props: FilterType) => {
 						{ scroll: false },
 					);
 				} else if (searchFilter?.search?.locationList?.includes(value)) {
-					await router.push(
+					await router.replace(
 						`/property?input=${JSON.stringify({
 							...searchFilter,
 							search: {
@@ -258,7 +259,7 @@ const Filter = (props: FilterType) => {
 				const isChecked = e.target.checked;
 				const value = e.target.value;
 				if (isChecked) {
-					await router.push(
+					await router.replace(
 						`/property?input=${JSON.stringify({
 							...searchFilter,
 							search: { ...searchFilter.search, typeList: [...(searchFilter?.search?.typeList || []), value] },
@@ -270,7 +271,7 @@ const Filter = (props: FilterType) => {
 						{ scroll: false },
 					);
 				} else if (searchFilter?.search?.typeList?.includes(value)) {
-					await router.push(
+					await router.replace(
 						`/property?input=${JSON.stringify({
 							...searchFilter,
 							search: {
@@ -312,7 +313,7 @@ const Filter = (props: FilterType) => {
 						[key]: isChecked ? [...current, value] : current.filter((item: string) => item !== value),
 					},
 				};
-				await router.push(
+				await router.replace(
 					`/property?input=${JSON.stringify(nextFilter)}`,
 					`/property?input=${JSON.stringify(nextFilter)}`,
 					{ scroll: false },
@@ -329,7 +330,7 @@ const Filter = (props: FilterType) => {
 				const isChecked = e.target.checked;
 				const value = e.target.value;
 				if (isChecked) {
-					await router.push(
+					await router.replace(
 						`/property?input=${JSON.stringify({
 							...searchFilter,
 							search: { ...searchFilter.search, options: [...(searchFilter?.search?.options || []), value] },
@@ -341,7 +342,7 @@ const Filter = (props: FilterType) => {
 						{ scroll: false },
 					);
 				} else if (searchFilter?.search?.options?.includes(value)) {
-					await router.push(
+					await router.replace(
 						`/property?input=${JSON.stringify({
 							...searchFilter,
 							search: {
@@ -375,7 +376,7 @@ const Filter = (props: FilterType) => {
 					...searchFilter,
 					search: { ...searchFilter.search, [key]: { ...current, [type]: value } },
 				};
-				await router.push(
+				await router.replace(
 					`/property?input=${JSON.stringify(nextFilter)}`,
 					`/property?input=${JSON.stringify(nextFilter)}`,
 					{ scroll: false },
@@ -389,7 +390,7 @@ const Filter = (props: FilterType) => {
 	const propertyPriceHandler = useCallback(
 		async (value: number, type: string) => {
 			if (type == 'start') {
-				await router.push(
+				await router.replace(
 					`/property?input=${JSON.stringify({
 						...searchFilter,
 						search: {
@@ -407,7 +408,7 @@ const Filter = (props: FilterType) => {
 					{ scroll: false },
 				);
 			} else {
-				await router.push(
+				await router.replace(
 					`/property?input=${JSON.stringify({
 						...searchFilter,
 						search: {
@@ -432,7 +433,7 @@ const Filter = (props: FilterType) => {
 	const refreshHandler = async () => {
 		try {
 			setSearchText('');
-			await router.push(
+			await router.replace(
 				`/property?input=${JSON.stringify(initialInput)}`,
 				`/property?input=${JSON.stringify(initialInput)}`,
 				{ scroll: false },
@@ -492,6 +493,11 @@ const Filter = (props: FilterType) => {
 		<aside className={`ma-filter ${mobileOpen ? 'is-open' : ''}`}>
 			<div className={'ma-filter__head'}>
 				<strong>{t('Filters')}</strong>
+				{mobileOpen && (
+					<button className={'ma-icon-btn ma-filter__close'} onClick={() => setMobileOpen(false)} aria-label={t('Close') as string}>
+						✕
+					</button>
+				)}
 				<button className={'ma-link-btn'} onClick={refreshHandler}>
 					{t('Clear all')}
 				</button>

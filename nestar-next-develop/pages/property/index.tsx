@@ -150,7 +150,7 @@ const PropertyList: NextPage = ({ initialList = [], initialTotal = 0 }: any) => 
 	const sortingHandler = async (id: string) => {
 		const option = sortOptions.find((item) => item.id === id)!;
 		const nextFilter = { ...searchFilter, page: 1, sort: option.sort, direction: option.direction };
-		await router.push(
+		await router.replace(
 			`/property?input=${JSON.stringify(nextFilter)}`,
 			`/property?input=${JSON.stringify(nextFilter)}`,
 			{
@@ -193,7 +193,7 @@ const PropertyList: NextPage = ({ initialList = [], initialTotal = 0 }: any) => 
 							<p>{t('Try changing or clearing your filters, or save this search to get an alert when such a car appears.')}</p>
 							<button
 								className={'ma-btn ma-btn--outline'}
-								onClick={() => router.push(`/property?input=${JSON.stringify(defaultInput)}`)}
+								onClick={() => router.replace(`/property?input=${JSON.stringify(defaultInput)}`)}
 							>
 								{t('Clear all')}
 							</button>
