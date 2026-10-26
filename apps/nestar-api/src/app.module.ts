@@ -23,9 +23,15 @@ import { SocketModule } from './socket/socket.module';
 			upload: false,
 			autoSchemaFile: true,
 			formatError: (error: GraphqlErrorShape) => {
+				// class-validator puts the real reasons ("Please add at least 3 photos") into originalError.message
+				const original: any = (error?.extensions as any)?.originalError?.message;
+				const validation = Array.isArray(original) ? original[0] : undefined;
 				const graphqlFormattedError = {
 					message:
-						error?.extensions?.exception?.response?.message || error?.extensions?.response?.message || error?.message,
+						validation ||
+						error?.extensions?.exception?.response?.message ||
+						error?.extensions?.response?.message ||
+						error?.message,
 					extensions: {
 						code: error?.extensions?.code,
 					},

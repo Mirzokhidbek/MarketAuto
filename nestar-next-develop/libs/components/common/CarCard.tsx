@@ -92,7 +92,7 @@ const CarCard = ({ property, onLike }: CarCardProps) => {
 				</div>
 				<p className={'ma-car-card__specs'}>{specs.join(' • ')}</p>
 				<div className={'ma-car-card__footer'}>
-					<strong className={'ma-car-card__price'}>{price(property.propertyPrice)}</strong>
+					<strong className={'ma-car-card__price'}>{price(property)}</strong>
 					<button className={'ma-btn ma-btn--dark'} onClick={openDetail}>
 						{t('View Details')}
 					</button>

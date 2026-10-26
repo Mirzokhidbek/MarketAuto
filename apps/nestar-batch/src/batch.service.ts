@@ -14,6 +14,7 @@ export class BatchService {
 		@InjectModel('Property') private readonly propertyModel: Model<Property>,
 		@InjectModel('Member') private readonly memberModel: Model<Member>,
 		@InjectModel('BoardArticle') private readonly boardArticleModel: Model<any>,
+		@InjectModel('Message') private readonly messageModel: Model<any>,
 	) {}
 
 	/**
@@ -28,6 +29,9 @@ export class BatchService {
 		(await this.memberModel.find({}, { memberImage: 1 }).lean().exec()).forEach(
 			(ele: any) => ele.memberImage && used.add(ele.memberImage),
 		);
+		(await this.messageModel.find({ image: { $exists: true } }, { image: 1 }).lean().exec()).forEach(
+			(ele: any) => ele.image && used.add(ele.image),
+		);
 		// article images live inside the article text
 		const articleTexts = (await this.boardArticleModel.find({}, { articleContent: 1, articleImage: 1 }).lean().exec())
 			.map((ele: any) => `${ele.articleContent ?? ''} ${ele.articleImage ?? ''}`)
@@ -35,7 +39,7 @@ export class BatchService {
 
 		const dayAgo = Date.now() - 24 * 60 * 60 * 1000;
 		let removed = 0;
-		for (const target of ['property', 'member', 'article']) {
+		for (const target of ['property', 'member', 'article', 'message']) {
 			const dir = path.join('uploads', target);
 			if (!fs.existsSync(dir)) continue;
 			for (const file of await fs.promises.readdir(dir)) {

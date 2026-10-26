@@ -10,6 +10,9 @@ export const GET_AGENTS = gql`
 			list {
 				_id
 				memberType
+				memberPhoneVerified
+				memberDealerVerified
+				memberResponseMinutes
 				memberStatus
 				memberAuthType
 				memberPhone
@@ -46,6 +49,8 @@ export const GET_MEMBER = gql(`
         memberType
         memberStatus
         memberPhoneVerified
+        memberDealerVerified
+        memberResponseMinutes
         memberAuthType
         memberPhone
         memberNick
@@ -104,6 +109,8 @@ export const GET_PROPERTY = gql`
 			propertyDesc
 			propertyBarter
 			propertyNegotiable
+			propertyPriceCurrency
+			propertyPriceOriginal
 			carVin
 			carAccidentHistory
 			carOwners
@@ -118,6 +125,9 @@ export const GET_PROPERTY = gql`
 			memberData {
 				_id
 				memberType
+				memberPhoneVerified
+				memberDealerVerified
+				memberResponseMinutes
 				memberStatus
 				memberAuthType
 				memberPhone
@@ -170,6 +180,8 @@ export const GET_PROPERTIES = gql`
 				propertyDesc
 				propertyBarter
 				propertyNegotiable
+				propertyPriceCurrency
+				propertyPriceOriginal
 				carVin
 				carAccidentHistory
 				carOwners
@@ -240,6 +252,8 @@ export const GET_AGENT_PROPERTIES = gql`
 				propertyDesc
 				propertyBarter
 				propertyNegotiable
+				propertyPriceCurrency
+				propertyPriceOriginal
 				carVin
 				carAccidentHistory
 				carOwners
@@ -288,6 +302,8 @@ export const GET_FAVORITES = gql`
 				propertyDesc
 				propertyBarter
 				propertyNegotiable
+				propertyPriceCurrency
+				propertyPriceOriginal
 				carVin
 				carAccidentHistory
 				carOwners
@@ -360,6 +376,8 @@ export const GET_VISITED = gql`
 				propertyDesc
 				propertyBarter
 				propertyNegotiable
+				propertyPriceCurrency
+				propertyPriceOriginal
 				carVin
 				carAccidentHistory
 				carOwners
@@ -770,6 +788,8 @@ export const GET_CONVERSATIONS = gql`
 					_id
 					propertyTitle
 					propertyPrice
+					propertyPriceCurrency
+					propertyPriceOriginal
 					propertyImages
 					propertyStatus
 				}
@@ -789,6 +809,7 @@ export const GET_MESSAGES = gql`
 				conversationId
 				senderId
 				text
+				image
 				readAt
 				createdAt
 			}
@@ -802,5 +823,15 @@ export const GET_MESSAGES = gql`
 export const GET_UNREAD_MESSAGES_COUNT = gql`
 	query GetUnreadMessagesCount {
 		getUnreadMessagesCount
+	}
+`;
+
+export const GET_PRICE_ESTIMATE = gql`
+	query GetPriceEstimate($propertyId: String!) {
+		getPriceEstimate(propertyId: $propertyId) {
+			average
+			count
+			verdict
+		}
 	}
 `;

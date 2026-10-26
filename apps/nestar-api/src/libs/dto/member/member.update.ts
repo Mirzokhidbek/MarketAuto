@@ -22,6 +22,11 @@ export class MemberUpdate {
 	@Field(() => Boolean, { nullable: true })
 	memberTrusted?: boolean;
 
+	/** admin only: dealership documents checked */
+	@IsOptional()
+	@Field(() => Boolean, { nullable: true })
+	memberDealerVerified?: boolean;
+
 	@IsOptional()
 	@Field(() => String, { nullable: true })
 	memberPhone?: string;

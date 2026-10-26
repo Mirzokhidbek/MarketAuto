@@ -7,6 +7,7 @@ export enum NotificationType {
 	LISTING_APPROVED = 'LISTING_APPROVED',
 	LISTING_REJECTED = 'LISTING_REJECTED',
 	NEW_LISTING = 'NEW_LISTING', // a new car matches a saved search
+	PRICE_DROP = 'PRICE_DROP', // a liked car became cheaper
 }
 registerEnumType(NotificationType, {
 	name: 'NotificationType',

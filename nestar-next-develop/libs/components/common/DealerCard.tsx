@@ -1,3 +1,4 @@
+import SellerTrust from './SellerTrust';
 import { imageUrl } from '../../utils';
 import React from 'react';
 import Link from 'next/link';
@@ -34,6 +35,7 @@ const DealerCard = ({ dealer, onLike }: DealerCardProps) => {
 				<h3>{dealer.memberFullName || dealer.memberNick}</h3>
 			</Link>
 			<span className={'ma-badge ma-badge--primary'}>{t(dealer.memberType === 'AGENT' ? 'Dealer' : 'Private seller')}</span>
+			<SellerTrust member={dealer} compact />
 			{dealer.memberAddress && <p className={'ma-dealer-card__address'}>{dealer.memberAddress}</p>}
 			<div className={'ma-dealer-card__stats'}>
 				<div>

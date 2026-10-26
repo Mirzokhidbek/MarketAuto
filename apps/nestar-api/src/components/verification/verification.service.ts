@@ -36,10 +36,10 @@ export class VerificationService {
 		limiters.smsPhone.consume(phone);
 
 		const exists = await this.memberModel.exists({ memberPhone: phone });
-		if (purpose !== VerificationPurpose.RESET_PASSWORD && exists)
-			throw new BadRequestException(Message.USED_MEMBER_NICK_OR_PHONE);
-		// unknown number on password reset: answer the same way, but send nothing (no account enumeration)
-		if (purpose === VerificationPurpose.RESET_PASSWORD && !exists) return { sent: true, expiresIn: CODE_TTL_SECONDS };
+		const forExisting = purpose === VerificationPurpose.RESET_PASSWORD || purpose === VerificationPurpose.LOGIN;
+		if (!forExisting && exists) throw new BadRequestException(Message.USED_MEMBER_NICK_OR_PHONE);
+		// unknown number on login / password reset: answer the same way, but send nothing (no account enumeration)
+		if (forExisting && !exists) return { sent: true, expiresIn: CODE_TTL_SECONDS };
 
 		const code = String(randomInt(100000, 1000000));
 		await this.verificationModel.deleteMany({ phone, purpose });

@@ -15,7 +15,9 @@ import {
 import { Properties, Property } from '../../libs/dto/property/property';
 import { Direction, Message } from '../../libs/enums/common.enum';
 import { ViewService } from '../view/view.service';
-import { CarAccidentHistory, CarBrand, CarCountry, PropertyStatus } from '../../libs/enums/property.enum';
+import { CarAccidentHistory, CarBrand, CarCountry, PriceCurrency, PropertyStatus } from '../../libs/enums/property.enum';
+import { ExchangeService } from '../exchange/exchange.service';
+import { PriceEstimate } from '../../libs/dto/property/price-estimate';
 import { MemberStatus } from '../../libs/enums/member.enum';
 import { StatisticModifier, T } from '../../libs/types/common';
 import { ViewGroup } from '../../libs/enums/view.enum';
@@ -35,6 +37,7 @@ export class PropertyService {
 		private likeService: LikeService,
 		private notificationService: NotificationService,
 		private storageService: StorageService,
+		private exchangeService: ExchangeService,
 		@InjectModel('SavedSearch') private readonly savedSearchModel: Model<any>,
 	) {}
 
@@ -44,6 +47,7 @@ export class PropertyService {
 		}
 		if (input.carCountry !== CarCountry.UZBEKISTAN) delete input.propertyLocation;
 		if (input.carVin) input.carVin = input.carVin.toUpperCase();
+		await this.normalizePrice(input);
 
 		// the same seller cannot publish the same car twice
 		const duplicate = await this.propertyModel.exists({
@@ -133,6 +137,7 @@ export class PropertyService {
 		}
 
 		if (input.carVin) input.carVin = input.carVin.toUpperCase();
+		if (input.propertyPrice !== undefined) await this.normalizePrice(input);
 		const result = await this.propertyModel.findByIdAndUpdate(current._id, input, { new: true }).exec();
 		if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED);
 
@@ -153,6 +158,11 @@ export class PropertyService {
 			});
 		}
 
+		// everyone who saved this car hears about a lower price
+		if (nextStatus === PropertyStatus.ACTIVE && result.propertyPrice < current.propertyPrice) {
+			await this.notifyPriceDrop(result);
+		}
+
 		// moderation result for the seller
 		if (prevStatus === PropertyStatus.PENDING && nextStatus !== PropertyStatus.PENDING) {
 			const approved = nextStatus === PropertyStatus.ACTIVE;
@@ -171,6 +181,65 @@ export class PropertyService {
 		if (!wasActive && isActive && prevStatus !== PropertyStatus.SOLD) await this.notifySavedSearches(result);
 
 		return result;
+	}
+
+	/**
+	 * propertyPrice is always stored in USD. A price typed in so'm keeps its original amount for display
+	 * and gets a USD value (today's Central Bank rate) for filters and sorting.
+	 */
+	private async normalizePrice(input: PropertyInput | PropertyUpdate): Promise<void> {
+		if (input.propertyPriceCurrency === PriceCurrency.UZS) {
+			input.propertyPriceOriginal = input.propertyPrice;
+			input.propertyPrice = await this.exchangeService.uzsToUsd(input.propertyPrice as number);
+		} else if (input.propertyPrice !== undefined) {
+			input.propertyPriceCurrency = PriceCurrency.USD;
+			(input as T).propertyPriceOriginal = null;
+		}
+	}
+
+	private async notifyPriceDrop(property: Property): Promise<void> {
+		const likes = await this.likeService.findLikers(property._id, LikeGroup.PROPERTY);
+		for (const memberId of likes) {
+			await this.notificationService.notify({
+				notificationType: NotificationType.PRICE_DROP,
+				notificationGroup: NotificationGroup.PROPERTY,
+				notificationTitle: property.propertyTitle,
+				authorId: property.memberId,
+				receiverId: memberId,
+				propertyId: property._id,
+			});
+		}
+	}
+
+	/**
+	 * "Is this a good price?": compares with the same brand + model, year ±1, in USD.
+	 * Needs at least 3 other cars, otherwise there is no verdict.
+	 */
+	public async getPriceEstimate(propertyId: ObjectId): Promise<PriceEstimate> {
+		const car = await this.propertyModel.findById(propertyId).lean().exec();
+		if (!car) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+		const [stats] = await this.propertyModel
+			.aggregate([
+				{
+					$match: {
+						_id: { $ne: car._id },
+						carBrand: car.carBrand,
+						carModel: { $regex: searchRegex(car.carModel) },
+						carYear: { $gte: car.carYear - 1, $lte: car.carYear + 1 },
+						propertyStatus: { $in: [PropertyStatus.ACTIVE, PropertyStatus.SOLD] },
+					},
+				},
+				{ $group: { _id: null, average: { $avg: '$propertyPrice' }, count: { $sum: 1 } } },
+			])
+			.exec();
+		const count: number = stats?.count ?? 0;
+		const average = count ? Math.round(stats.average) : 0;
+		let verdict = 'UNKNOWN';
+		if (count >= 3) {
+			const ratio = car.propertyPrice / average;
+			verdict = ratio <= 0.92 ? 'LOW' : ratio >= 1.08 ? 'HIGH' : 'FAIR';
+		}
+		return { average, count, verdict };
 	}
 
 	/** tells members whose saved search matches this newly published car */

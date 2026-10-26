@@ -5,6 +5,8 @@ import axios from 'axios';
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
 import CloudUploadOutlinedIcon from '@mui/icons-material/CloudUploadOutlined';
 import CloseIcon from '@mui/icons-material/Close';
+import { Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
+import CarCard from '../common/CarCard';
 import StarOutlineIcon from '@mui/icons-material/StarOutline';
 import {
 	CarAccidentHistory,
@@ -25,12 +27,14 @@ import { CREATE_PROPERTY, UPDATE_PROPERTY } from '../../../apollo/user/mutation'
 import { GET_CAR_MODELS, GET_PROPERTY } from '../../../apollo/user/query';
 
 const MAX_PHOTOS = 10;
+const MIN_PHOTOS = 3;
 const DRAFT_KEY = 'carDraft';
 const STEPS = ['Car', 'History & location', 'Photos & price'];
 
 const emptyCar: any = {
 	propertyTitle: '',
 	propertyPrice: 0,
+	propertyPriceCurrency: 'USD', // the price is kept in the currency the seller typed it in
 	propertyType: '',
 	carCountry: '',
 	propertyLocation: '',
@@ -68,7 +72,8 @@ const AddProperty = () => {
 	const editId = router.query.propertyId as string | undefined;
 	const [car, setCar] = useState<any>(emptyCar);
 	const [step, setStep] = useState<number>(0);
-	const [priceCurrency, setPriceCurrency] = useState<'USD' | 'UZS'>('USD');
+	const [previewOpen, setPreviewOpen] = useState<boolean>(false);
+	const [dragIndex, setDragIndex] = useState<number | null>(null);
 	const [uploading, setUploading] = useState<boolean>(false);
 	const [draftRestored, setDraftRestored] = useState<boolean>(false);
 	const isUzbekistan = car.carCountry === CarCountry.UZBEKISTAN;
@@ -91,6 +96,9 @@ const AddProperty = () => {
 		if (existing) {
 			const loaded: any = {};
 			formKeys.forEach((key) => (loaded[key] = existing[key] ?? emptyCar[key]));
+			// a so'm listing is edited in so'm, exactly as the seller typed it
+			if (existing.propertyPriceCurrency === 'UZS' && existing.propertyPriceOriginal)
+				loaded.propertyPrice = existing.propertyPriceOriginal;
 			setCar(loaded);
 		}
 	}, [propertyData]);
@@ -173,6 +181,14 @@ const AddProperty = () => {
 		);
 	const makeCover = (image: string) =>
 		set('propertyImages', [image, ...car.propertyImages.filter((item: string) => item !== image)]);
+	/** reorder photos: drag & drop on desktop, arrow buttons on phones */
+	const moveImage = (from: number, to: number) => {
+		if (to < 0 || to >= car.propertyImages.length || from === to) return;
+		const images = [...car.propertyImages];
+		const [moved] = images.splice(from, 1);
+		images.splice(to, 0, moved);
+		set('propertyImages', images);
+	};
 
 	const suggestedTitle = [car.carYear || '', formatEnumLabel(car.carBrand), car.carModel, car.carTrim].filter(Boolean).join(' ');
 
@@ -180,12 +196,15 @@ const AddProperty = () => {
 	const stepValid = [
 		!!car.carBrand && !!car.carModel?.trim() && !!car.carYear && !!car.propertyType && car.carMileage >= 0 && !!car.carFuel && !!car.carTransmission && (!car.carVin || /^[A-HJ-NPR-Z0-9]{17}$/i.test(car.carVin)),
 		!!car.carCountry && (!isUzbekistan || !!car.propertyLocation) && !!car.propertyAddress?.trim() && (car.propertyDesc?.trim().length ?? 0) >= 5,
-		car.propertyPrice > 0 && car.propertyImages.length > 0 && (car.propertyTitle || suggestedTitle).trim().length > 0,
+		car.propertyPrice > 0 &&
+			car.propertyImages.length >= MIN_PHOTOS &&
+			(car.propertyTitle || suggestedTitle).trim().length > 0,
 	];
 
 	/** drops empty optional fields and the city for cars located abroad */
 	const buildPayload = (): PropertyInput => {
 		const payload: any = { ...car, propertyTitle: (car.propertyTitle || suggestedTitle).trim() };
+		delete payload.propertyPriceOriginal; // the server derives it from propertyPrice + propertyPriceCurrency
 		Object.keys(payload).forEach((key) => {
 			if (payload[key] === '' || payload[key] === undefined || payload[key] === null || Number.isNaN(payload[key]))
 				delete payload[key];
@@ -240,7 +259,18 @@ const AddProperty = () => {
 		</select>
 	);
 
-	const priceInput = priceCurrency === 'USD' ? car.propertyPrice || '' : car.propertyPrice ? Math.round(car.propertyPrice * usdRate) : '';
+	const priceCurrency: 'USD' | 'UZS' = car.propertyPriceCurrency === 'UZS' ? 'UZS' : 'USD';
+	const usdValue = priceCurrency === 'UZS' ? Math.round((car.propertyPrice || 0) / usdRate) : car.propertyPrice || 0;
+	// what buyers will see on the card
+	const previewCar: any = {
+		...buildPayload(),
+		_id: editId ?? 'preview',
+		propertyPrice: usdValue,
+		propertyPriceOriginal: priceCurrency === 'UZS' ? car.propertyPrice : undefined,
+		propertyImages: car.propertyImages,
+		propertyLikes: 0,
+		propertyViews: 0,
+	};
 
 	return (
 		<div id="add-property-page" className={'ma-account-panel'}>
@@ -474,11 +504,15 @@ const AddProperty = () => {
 					<h3 className={'ma-form-subtitle'}>
 						{t('Photos')} * <small>({car.propertyImages.length}/{MAX_PHOTOS})</small>
 					</h3>
+					{car.propertyImages.length > 0 && car.propertyImages.length < MIN_PHOTOS && (
+						<p className={'ma-field-error'}>{t('Add at least {{count}} more photo(s).', { count: MIN_PHOTOS - car.propertyImages.length })}</p>
+					)}
+					{car.propertyImages.length > 1 && <p className={'ma-input__hint'}>{t('Drag photos to change the order. The first one is the cover.')}</p>}
 					{car.propertyImages.length < MAX_PHOTOS && (
 						<div className={`ma-upload ${uploading ? 'is-busy' : ''}`} onClick={() => !uploading && inputRef.current?.click()}>
 							<CloudUploadOutlinedIcon />
 							<strong>{uploading ? t('Uploading...') : t('Click to upload photos')}</strong>
-							<span>{t('Up to 10 photos, JPG, PNG or WEBP. Photos are compressed automatically.')}</span>
+							<span>{t('At least 3 photos (front, back, interior), up to 10. JPG, PNG or WEBP.')}</span>
 							<input
 								ref={inputRef}
 								type="file"
@@ -492,7 +526,18 @@ const AddProperty = () => {
 					{car.propertyImages.length > 0 && (
 						<div className={'ma-upload__gallery'}>
 							{car.propertyImages.map((image: string, index: number) => (
-								<div className={'ma-upload__thumb'} key={image}>
+								<div
+									className={`ma-upload__thumb ${dragIndex === index ? 'is-dragging' : ''}`}
+									key={image}
+									draggable
+									onDragStart={() => setDragIndex(index)}
+									onDragOver={(e) => e.preventDefault()}
+									onDrop={() => {
+										if (dragIndex !== null) moveImage(dragIndex, index);
+										setDragIndex(null);
+									}}
+									onDragEnd={() => setDragIndex(null)}
+								>
 									<img src={imageUrl(image)} alt={''} />
 									{index === 0 ? (
 										<span className={'ma-badge ma-badge--primary'}>{t('Cover')}</span>
@@ -504,6 +549,18 @@ const AddProperty = () => {
 									<button className={'ma-upload__remove'} title={t('Delete') as string} onClick={() => removeImage(image)}>
 										<CloseIcon />
 									</button>
+									<div className={'ma-upload__move'}>
+										<button aria-label={t('Move left') as string} disabled={index === 0} onClick={() => moveImage(index, index - 1)}>
+											‹
+										</button>
+										<button
+											aria-label={t('Move right') as string}
+											disabled={index === car.propertyImages.length - 1}
+											onClick={() => moveImage(index, index + 1)}
+										>
+											›
+										</button>
+									</div>
 								</div>
 							))}
 						</div>
@@ -518,20 +575,22 @@ const AddProperty = () => {
 									type="number"
 									min={0}
 									placeholder={priceCurrency === 'USD' ? '34500' : '438000000'}
-									value={priceInput}
-									onChange={({ target: { value } }) => {
-										const amount = parseInt(value) || 0;
-										// stored in USD; so'm is converted with today's official rate
-										set('propertyPrice', priceCurrency === 'USD' ? amount : Math.round(amount / usdRate));
-									}}
+									value={car.propertyPrice || ''}
+									onChange={({ target: { value } }) => set('propertyPrice', parseInt(value) || 0)}
 								/>
-								<select value={priceCurrency} onChange={({ target: { value } }) => setPriceCurrency(value as any)}>
+								<select
+									value={priceCurrency}
+									onChange={({ target: { value } }) => set('propertyPriceCurrency', value)}
+									aria-label={t('Currency') as string}
+								>
 									<option value={'USD'}>USD</option>
 									<option value={'UZS'}>{t("so'm")}</option>
 								</select>
 							</div>
 							{priceCurrency === 'UZS' && car.propertyPrice > 0 && (
-								<em className={'ma-input__hint'}>≈ ${car.propertyPrice.toLocaleString('en-US')}</em>
+								<em className={'ma-input__hint'}>
+									≈ ${usdValue.toLocaleString('en-US')} · {t('buyers see exactly the amount you typed')}
+								</em>
 							)}
 						</label>
 						<label className={'ma-input'}>
@@ -569,6 +628,11 @@ const AddProperty = () => {
 						{t('Cancel')}
 					</button>
 				)}
+				{step === STEPS.length - 1 && (
+					<button className={'ma-btn ma-btn--outline'} disabled={!stepValid[2]} onClick={() => setPreviewOpen(true)}>
+						{t('Preview')}
+					</button>
+				)}
 				{step < STEPS.length - 1 ? (
 					<button className={'ma-btn ma-btn--primary'} disabled={!stepValid[step]} onClick={() => setStep(step + 1)}>
 						{t('Next')} →
@@ -583,6 +647,35 @@ const AddProperty = () => {
 					</button>
 				)}
 			</div>
+			{step === STEPS.length - 1 && !editId && !user?.memberTrusted && (
+				<p className={'ma-input__hint ma-form-note'}>
+					{t('Your first listing is checked by our team, usually within 2 hours. After that you publish instantly.')}
+				</p>
+			)}
+
+			<Dialog open={previewOpen} onClose={() => setPreviewOpen(false)} maxWidth="xs" fullWidth>
+				<DialogTitle>{t('This is how buyers will see your car')}</DialogTitle>
+				<DialogContent>
+					<div className={'ma-preview'} aria-hidden>
+						<CarCard property={previewCar} />
+					</div>
+				</DialogContent>
+				<DialogActions>
+					<button className={'ma-btn ma-btn--outline'} onClick={() => setPreviewOpen(false)}>
+						{t('Edit')}
+					</button>
+					<button
+						className={'ma-btn ma-btn--primary'}
+						disabled={creating || updating}
+						onClick={() => {
+							setPreviewOpen(false);
+							submitHandler();
+						}}
+					>
+						{editId ? t('Save changes') : t('Publish listing')}
+					</button>
+				</DialogActions>
+			</Dialog>
 		</div>
 	);
 };

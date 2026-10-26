@@ -30,6 +30,8 @@ export interface PropertyInput {
 	propertyDesc?: string;
 	propertyBarter?: boolean;
 	propertyNegotiable?: boolean;
+	propertyPriceCurrency?: 'USD' | 'UZS';
+	propertyPriceOriginal?: number;
 	carVin?: string;
 	carAccidentHistory?: CarAccidentHistory;
 	carOwners?: number;

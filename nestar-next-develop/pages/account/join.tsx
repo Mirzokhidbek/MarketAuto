@@ -3,8 +3,8 @@ import { NextPage } from 'next';
 import Link from 'next/link';
 import withLayoutFull from '../../libs/components/layout/LayoutFull';
 import { useRouter } from 'next/router';
-import { logIn, resetPassword, signUp } from '../../libs/auth';
-import { sweetMixinErrorAlert, sweetMixinSuccessAlert } from '../../libs/sweetAlert';
+import { logIn, logInWithCode, resetPassword, signUp } from '../../libs/auth';
+import { sweetMixinSuccessAlert } from '../../libs/sweetAlert';
 import { userVar } from '../../apollo/store';
 import { MemberType } from '../../libs/enums/member.enum';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
@@ -17,7 +17,7 @@ export const getStaticProps = async ({ locale }: any) => ({
 	},
 });
 
-type View = 'login' | 'register' | 'reset';
+type View = 'login' | 'code' | 'register' | 'reset';
 
 const NICK_PATTERN = /^[a-zA-Z0-9_.]{3,12}$/;
 
@@ -28,8 +28,17 @@ const Join: NextPage = () => {
 	const [input, setInput] = useState({ nick: '', password: '', phone: '', code: '', type: 'USER' });
 	const [agreed, setAgreed] = useState<boolean>(false);
 	const [busy, setBusy] = useState<boolean>(false);
+	// errors are shown inside the form, next to the button, not in a popup
+	const [error, setError] = useState<string>('');
+	const switchView = (next: View) => {
+		setView(next);
+		setError('');
+	};
 
-	const set = (name: keyof typeof input, value: string) => setInput((prev) => ({ ...prev, [name]: value }));
+	const set = (name: keyof typeof input, value: string) => {
+		setInput((prev) => ({ ...prev, [name]: value }));
+		setError('');
+	};
 	const goAfterAuth = async () => {
 		const isAdmin = userVar()?.memberType === MemberType.ADMIN;
 		await router.push(isAdmin ? '/_admin' : `${router.query.referrer ?? '/'}`);
@@ -41,6 +50,8 @@ const Join: NextPage = () => {
 		try {
 			if (view === 'login') {
 				await logIn(input.nick, input.password);
+			} else if (view === 'code') {
+				await logInWithCode(input.phone, input.code);
 			} else if (view === 'register') {
 				await signUp({ nick: input.nick, password: input.password, phone: input.phone, type: input.type, code: input.code });
 			} else {
@@ -49,7 +60,7 @@ const Join: NextPage = () => {
 			}
 			await goAfterAuth();
 		} catch (err: any) {
-			await sweetMixinErrorAlert(err.message);
+			setError(err.message);
 		} finally {
 			setBusy(false);
 		}
@@ -60,13 +71,16 @@ const Join: NextPage = () => {
 	const canSubmit =
 		!busy &&
 		(view === 'login'
-			? input.nick !== '' && input.password !== ''
+			? input.nick.trim() !== '' && input.password !== ''
+			: view === 'code'
+			? codeOk
 			: view === 'register'
 			? NICK_PATTERN.test(input.nick) && passwordOk && codeOk && agreed
 			: passwordOk && codeOk);
 
 	const titles: Record<View, [string, string]> = {
 		login: ['Welcome back', 'Log in to save cars and contact sellers.'],
+		code: ['Log in with SMS code', 'No password needed: we send a code to your phone.'],
 		register: ['Create your account', 'Confirm your phone with an SMS code — it protects buyers from fake sellers.'],
 		reset: ['Reset password', 'We will send a code to the phone number of your account.'],
 	};
@@ -87,10 +101,14 @@ const Join: NextPage = () => {
 				<form className={'ma-auth__form'} onSubmit={submitHandler}>
 					{view !== 'reset' && (
 						<div className={'ma-segmented'}>
-							<button type="button" className={view === 'login' ? 'is-active' : ''} onClick={() => setView('login')}>
+							<button
+								type="button"
+								className={view === 'login' || view === 'code' ? 'is-active' : ''}
+								onClick={() => switchView('login')}
+							>
 								{t('Login')}
 							</button>
-							<button type="button" className={view === 'register' ? 'is-active' : ''} onClick={() => setView('register')}>
+							<button type="button" className={view === 'register' ? 'is-active' : ''} onClick={() => switchView('register')}>
 								{t('Register')}
 							</button>
 						</div>
@@ -99,15 +117,15 @@ const Join: NextPage = () => {
 					<h1>{t(titles[view][0])}</h1>
 					<p className={'ma-auth__lead'}>{t(titles[view][1])}</p>
 
-					{view !== 'reset' && (
+					{(view === 'login' || view === 'register') && (
 						<label className={'ma-input'}>
-							<span>{t('Nickname')}</span>
+							<span>{view === 'login' ? t('Phone or nickname') : t('Nickname')}</span>
 							<input
 								type="text"
 								autoComplete="username"
-								placeholder={t('Enter nickname') as string}
+								placeholder={(view === 'login' ? t('+998 90 123 45 67 or nickname') : t('Enter nickname')) as string}
 								value={input.nick}
-								onChange={(e) => set('nick', e.target.value.trim())}
+								onChange={(e) => set('nick', view === 'login' ? e.target.value : e.target.value.trim())}
 							/>
 							{view === 'register' && (
 								<em className={'ma-input__hint'}>{t('3-12 latin letters, digits, "_" or "."')}</em>
@@ -117,7 +135,7 @@ const Join: NextPage = () => {
 
 					{view !== 'login' && (
 						<PhoneCodeField
-							purpose={view === 'register' ? 'SIGNUP' : 'RESET_PASSWORD'}
+							purpose={view === 'register' ? 'SIGNUP' : view === 'code' ? 'LOGIN' : 'RESET_PASSWORD'}
 							phone={input.phone}
 							code={input.code}
 							onPhoneChange={(value) => set('phone', value)}
@@ -125,6 +143,7 @@ const Join: NextPage = () => {
 						/>
 					)}
 
+					{view !== 'code' && (
 					<label className={'ma-input'}>
 						<span>{view === 'reset' ? t('New password') : t('Password')}</span>
 						<input
@@ -136,11 +155,24 @@ const Join: NextPage = () => {
 							onChange={(e) => set('password', e.target.value)}
 						/>
 					</label>
+					)}
 
 					{view === 'login' && (
-						<button type="button" className={'ma-link-btn ma-auth__forgot'} onClick={() => setView('reset')}>
-							{t('Forgot password?')}
-						</button>
+						<div className={'ma-auth__links'}>
+							<button type="button" className={'ma-link-btn'} onClick={() => switchView('code')}>
+								{t('Log in with SMS code')}
+							</button>
+							<button type="button" className={'ma-link-btn'} onClick={() => switchView('reset')}>
+								{t('Forgot password?')}
+							</button>
+						</div>
+					)}
+					{view === 'code' && (
+						<div className={'ma-auth__links'}>
+							<button type="button" className={'ma-link-btn'} onClick={() => switchView('login')}>
+								{t('Log in with password')}
+							</button>
+						</div>
 					)}
 
 					{view === 'register' && (
@@ -173,24 +205,34 @@ const Join: NextPage = () => {
 						</>
 					)}
 
+					{error && (
+						<p className={'ma-field-error ma-auth__error'} role={'alert'}>
+							{t(error)}
+						</p>
+					)}
+
 					<button type="submit" className={'ma-btn ma-btn--primary ma-btn--block ma-auth__submit'} disabled={!canSubmit}>
-						{view === 'login' ? t('Login') : view === 'register' ? t('Create account') : t('Save new password')}
+						{view === 'login' || view === 'code'
+							? t('Login')
+							: view === 'register'
+							? t('Create account')
+							: t('Save new password')}
 					</button>
 
 					<p className={'ma-auth__switch'}>
 						{view === 'reset' ? (
-							<button type="button" className={'ma-link-btn'} onClick={() => setView('login')}>
+							<button type="button" className={'ma-link-btn'} onClick={() => switchView('login')}>
 								← {t('Back to login')}
 							</button>
 						) : (
 							<>
-								{view === 'login' ? t("Don't have an account?") : t('Already have an account?')}{' '}
+								{view === 'register' ? t('Already have an account?') : t("Don't have an account?")}{' '}
 								<button
 									type="button"
 									className={'ma-link-btn'}
-									onClick={() => setView(view === 'login' ? 'register' : 'login')}
+									onClick={() => switchView(view === 'register' ? 'login' : 'register')}
 								>
-									{view === 'login' ? t('Register') : t('Login')}
+									{view === 'register' ? t('Login') : t('Register')}
 								</button>
 							</>
 						)}

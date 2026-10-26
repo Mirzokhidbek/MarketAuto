@@ -1,5 +1,5 @@
 import { Field, InputType, Int } from '@nestjs/graphql';
-import { IsIn, IsInt, IsNotEmpty, IsOptional, Length, Max, Min, Matches } from 'class-validator';
+import { IsIn, IsInt, IsNotEmpty, IsOptional, Length, Max, Min, Matches, ArrayMaxSize, ArrayMinSize } from 'class-validator';
 import {
 	CarBrand,
 	CarCountry,
@@ -9,6 +9,7 @@ import {
 	PropertyStatus,
 	PropertyType,
 	CarAccidentHistory,
+	PriceCurrency,
 } from '../../enums/property.enum';
 import { Direction } from '../../enums/common.enum';
 import { availableOptions, availablePropertySorts } from '../../config';
@@ -88,7 +89,10 @@ export class PropertyInput {
 	@Field(() => String, { nullable: true })
 	carTrim?: string;
 
+	// buyers skip listings with one photo: front, back, interior at least
 	@IsNotEmpty()
+	@ArrayMinSize(3, { message: 'Please add at least 3 photos' })
+	@ArrayMaxSize(10)
 	@Field(() => [String])
 	propertyImages!: string[];
 
@@ -138,6 +142,13 @@ export class PropertyInput {
 	@IsOptional()
 	@Field(() => Boolean, { nullable: true })
 	propertyNegotiable?: boolean;
+
+	/** currency of propertyPrice as typed by the seller; UZS is converted to USD on the server */
+	@IsOptional()
+	@Field(() => PriceCurrency, { nullable: true })
+	propertyPriceCurrency?: PriceCurrency;
+
+	propertyPriceOriginal?: number;
 
 	memberId?: ObjectId;
 }

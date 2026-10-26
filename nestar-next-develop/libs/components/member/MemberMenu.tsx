@@ -1,3 +1,4 @@
+import SellerTrust from '../common/SellerTrust';
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -70,6 +71,7 @@ const MemberMenu = (props: MemberMenuProps) => {
 				<strong>{member?.memberFullName || member?.memberNick}</strong>
 				<span className={'ma-badge ma-badge--primary'}>{t(member?.memberType === 'AGENT' ? 'Dealer' : 'Private seller')}</span>
 				{member?.memberPhone && <span className={'ma-side-menu__phone'}>{formatPhone(member?.memberPhone)}</span>}
+				<SellerTrust member={member} />
 				{member?.memberDesc && <p>{member.memberDesc}</p>}
 				{user?._id && user?._id === member?._id && (
 					<>

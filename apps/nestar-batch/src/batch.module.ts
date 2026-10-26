@@ -8,6 +8,7 @@ import { BatchController } from './nestar-batch.controller';
 import MemberSchema from '../../nestar-api/src/schemas/Member.model';
 import PropertySchema from '../../nestar-api/src/schemas/Property.model';
 import BoardArticleSchema from '../../nestar-api/src/schemas/BoardArticle.model';
+import MessageSchema from '../../nestar-api/src/schemas/Message.model';
 
 @Module({
 	imports: [
@@ -17,6 +18,7 @@ import BoardArticleSchema from '../../nestar-api/src/schemas/BoardArticle.model'
 		MongooseModule.forFeature([{ name: 'Property', schema: PropertySchema }]),
 		MongooseModule.forFeature([{ name: 'Member', schema: MemberSchema }]),
 		MongooseModule.forFeature([{ name: 'BoardArticle', schema: BoardArticleSchema }]),
+		MongooseModule.forFeature([{ name: 'Message', schema: MessageSchema }]),
 	],
 	controllers: [BatchController],
 	providers: [BatchService],

@@ -51,7 +51,7 @@ const ComparePage: NextPage = () => {
 		return valid.length > 1 ? (lower ? Math.min(...valid) : Math.max(...valid)) : undefined;
 	};
 	const rows: { label: string; value: (car: Property) => React.ReactNode; raw?: (car: Property) => number | undefined; lower?: boolean }[] = [
-		{ label: 'Price', value: (car) => price(car.propertyPrice), raw: (car) => car.propertyPrice, lower: true },
+		{ label: 'Price', value: (car) => price(car), raw: (car) => car.propertyPrice, lower: true },
 		{ label: 'Year', value: (car) => car.carYear, raw: (car) => car.carYear, lower: false },
 		{ label: 'Mileage', value: (car) => formatMileage(car.carMileage), raw: (car) => car.carMileage, lower: true },
 		{ label: 'Country', value: (car) => formatCountry(car.carCountry, t) },

@@ -8,7 +8,7 @@ import { Message } from '../../libs/enums/common.enum';
 import { uploadTargets } from '../../libs/config';
 
 // longest side after resizing: avatars are small, car photos keep enough detail for the gallery
-const MAX_SIZE: Record<string, number> = { member: 400, property: 1600, article: 1400 };
+const MAX_SIZE: Record<string, number> = { member: 400, property: 1600, article: 1400, message: 1400 };
 
 /**
  * Saves uploaded images as compressed WebP.

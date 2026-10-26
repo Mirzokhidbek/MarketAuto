@@ -5,6 +5,7 @@ export interface MemberUpdate {
 	memberType?: MemberType;
 	memberStatus?: MemberStatus;
 	memberTrusted?: boolean;
+	memberDealerVerified?: boolean;
 	memberPhone?: string;
 	memberNick?: string;
 	memberPassword?: string;

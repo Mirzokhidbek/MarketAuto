@@ -45,6 +45,17 @@ const MemberSchema = new Schema(
 			default: false,
 		},
 
+		// admin checked the dealership documents
+		memberDealerVerified: {
+			type: Boolean,
+			default: false,
+		},
+
+		// typical time (minutes) to answer a buyer's message, rolling average
+		memberResponseMinutes: {
+			type: Number,
+		},
+
 		memberPassword: {
 			type: String,
 			select: false,

@@ -57,3 +57,16 @@ export class ChangePhoneInput {
 	@Field(() => String)
 	code!: string;
 }
+
+@InputType()
+export class CodeLoginInput {
+	@IsNotEmpty()
+	@Length(9, 20)
+	@Field(() => String)
+	phone!: string;
+
+	@IsNotEmpty()
+	@Length(6, 6)
+	@Field(() => String)
+	code!: string;
+}

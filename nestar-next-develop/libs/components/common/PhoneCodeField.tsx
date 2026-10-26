@@ -4,7 +4,7 @@ import { useMutation } from '@apollo/client';
 import { REQUEST_PHONE_CODE } from '../../../apollo/user/mutation';
 import { sweetErrorHandling } from '../../sweetAlert';
 
-type Purpose = 'SIGNUP' | 'RESET_PASSWORD' | 'CHANGE_PHONE';
+type Purpose = 'SIGNUP' | 'RESET_PASSWORD' | 'CHANGE_PHONE' | 'LOGIN';
 
 interface PhoneCodeFieldProps {
 	purpose: Purpose;

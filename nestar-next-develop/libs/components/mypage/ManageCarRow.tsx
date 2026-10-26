@@ -64,7 +64,7 @@ const ManageCarRow = ({ property, onDelete, onStatusChange }: ManageCarRowProps)
 					</span>
 				</div>
 			</div>
-			<div className={'ma-manage-row__price'}>{price(property.propertyPrice)}</div>
+			<div className={'ma-manage-row__price'}>{price(property)}</div>
 			<div className={'ma-manage-row__actions'}>
 				{property.propertyStatus === PropertyStatus.PENDING ? (
 					<span className={'ma-status ma-status--pending'} title={t('Waiting for moderation') as string}>

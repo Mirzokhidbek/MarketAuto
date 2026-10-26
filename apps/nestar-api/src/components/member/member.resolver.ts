@@ -14,7 +14,7 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { MemberUpdate } from '../../libs/dto/member/member.update';
 import { clientIp, shapeIntoMongoObjectId, uploadTargets, validMimeTypes } from '../../libs/config';
 import { StorageService } from '../storage/storage.service';
-import { ChangePhoneInput, ResetPasswordInput } from '../../libs/dto/verification/verification';
+import { ChangePhoneInput, CodeLoginInput, ResetPasswordInput } from '../../libs/dto/verification/verification';
 import { AuthService } from '../auth/auth.service';
 import { WithoutGuard } from '../auth/guards/without.guard';
 import { Message } from '../../libs/enums/common.enum';
@@ -57,6 +57,12 @@ export class MemberResolver {
 	public async logout(@Args('refreshToken') refreshToken: string): Promise<boolean> {
 		await this.authService.revokeSession(refreshToken);
 		return true;
+	}
+
+	@Mutation(() => Member)
+	public async loginWithCode(@Args('input') input: CodeLoginInput, @Context() context: any): Promise<Member> {
+		console.log('Mutation: loginWithCode');
+		return await this.memberService.loginWithCode(input, context?.req?.headers?.['user-agent']);
 	}
 
 	@Mutation(() => Member)

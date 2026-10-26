@@ -9,6 +9,7 @@ import {
 	PropertyStatus,
 	PropertyType,
 	CarAccidentHistory,
+	PriceCurrency,
 } from '../../enums/property.enum';
 import type { ObjectId } from 'mongoose';
 
@@ -144,6 +145,13 @@ export class PropertyUpdate {
 	@IsOptional()
 	@Field(() => Boolean, { nullable: true })
 	propertyNegotiable?: boolean;
+
+	/** currency of propertyPrice as typed by the seller; UZS is converted to USD on the server */
+	@IsOptional()
+	@Field(() => PriceCurrency, { nullable: true })
+	propertyPriceCurrency?: PriceCurrency;
+
+	propertyPriceOriginal?: number;
 
 	soldAt?: Date;
 

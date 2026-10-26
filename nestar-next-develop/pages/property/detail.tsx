@@ -1,3 +1,5 @@
+import SellerTrust from '../../libs/components/common/SellerTrust';
+import PriceEstimate from '../../libs/components/property/PriceEstimate';
 import { fetchWithTimeout } from '../../libs/utils';
 import Lightbox from '../../libs/components/common/Lightbox';
 import ReportButton from '../../libs/components/common/ReportButton';
@@ -10,7 +12,6 @@ import { usePrice } from '../../libs/hooks/usePrice';
 import Seo from '../../libs/components/common/Seo';
 import withLayoutFull from '../../libs/components/layout/LayoutFull';
 import { NextPage } from 'next';
-import Review from '../../libs/components/property/Review';
 import CarCard from '../../libs/components/common/CarCard';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
@@ -39,17 +40,13 @@ import {
 	formatterStr, imageUrl } from '../../libs/utils';
 import { REACT_APP_API_URL } from '../../libs/config';
 import { compareVar, userVar } from '../../apollo/store';
-import { CommentInput, CommentsInquiry } from '../../libs/types/comment/comment.input';
-import { Comment } from '../../libs/types/comment/comment';
-import { CommentGroup } from '../../libs/enums/comment.enum';
-import { Pagination as MuiPagination } from '@mui/material';
 import Link from 'next/link';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import { GET_COMMENTS, GET_PROPERTIES, GET_PROPERTY } from '../../apollo/user/query';
+import { GET_PROPERTIES, GET_PROPERTY } from '../../apollo/user/query';
 import { T } from '../../libs/types/common';
 import { Direction, Message } from '../../libs/enums/common.enum';
 import { sweetErrorHandling, sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../libs/sweetAlert';
-import { CREATE_COMMENT, LIKE_TARGET_PROPERTY } from '../../apollo/user/mutation';
+import { LIKE_TARGET_PROPERTY } from '../../apollo/user/mutation';
 
 /** car basics fetched on the server so search engines and link previews (Telegram etc.) see real title, price and photo */
 const fetchCarSeo = async (id?: string) => {
@@ -80,7 +77,7 @@ export const getServerSideProps = async ({ locale, query }: any) => ({
 	},
 });
 
-const PropertyDetail: NextPage = ({ initialComment, carSeo, ...props }: any) => {
+const PropertyDetail: NextPage = ({ carSeo }: any) => {
 	const router = useRouter();
 	const { t } = useTranslation('common');
 	const { price, other: otherPrice } = usePrice();
@@ -93,18 +90,9 @@ const PropertyDetail: NextPage = ({ initialComment, carSeo, ...props }: any) => 
 	const [failedImages, setFailedImages] = useState<string[]>([]);
 	const [showPhone, setShowPhone] = useState<boolean>(false);
 	const [destinationProperties, setDestinationProperties] = useState<Property[]>([]);
-	const [commentInquiry, setCommentInquiry] = useState<CommentsInquiry>(initialComment);
-	const [propertyComments, setPropertyComments] = useState<Comment[]>([]);
-	const [commentTotal, setCommentTotal] = useState<number>(0);
-	const [insertCommentData, setInsertCommentData] = useState<CommentInput>({
-		commentGroup: CommentGroup.PROPERTY,
-		commentContent: '',
-		commentRefId: '',
-	});
 
 	/** APOLLO REQUESTS **/
 	const [likeTargetProperty] = useMutation(LIKE_TARGET_PROPERTY);
-	const [createComment] = useMutation(CREATE_COMMENT);
 
 	const {
 		loading: getPropertyLoading,
@@ -147,37 +135,10 @@ const PropertyDetail: NextPage = ({ initialComment, carSeo, ...props }: any) => 
 		},
 	});
 
-	const {
-		loading: getCommentsLoading,
-		data: getCommentsData,
-		error: getCommentsError,
-		refetch: getCommentsRefetch,
-	} = useQuery(GET_COMMENTS, {
-		fetchPolicy: 'network-only',
-		// re-runs by itself when commentInquiry changes (page / car id)
-		variables: { input: commentInquiry },
-		skip: !commentInquiry.search.commentRefId,
-		notifyOnNetworkStatusChange: true,
-		onCompleted: (data: T) => {
-			if (data?.getComments?.list) setPropertyComments(data?.getComments?.list);
-			setCommentTotal(data?.getComments?.metaCounter[0]?.total ?? 0);
-		},
-	});
-
 	/** LIFECYCLES **/
 	useEffect(() => {
 		if (router.query.id) {
 			setPropertyId(router.query.id as string);
-			setCommentInquiry({
-				...commentInquiry,
-				search: {
-					commentRefId: router.query.id as string,
-				},
-			});
-			setInsertCommentData({
-				...insertCommentData,
-				commentRefId: router.query.id as string,
-			});
 		}
 	}, [router]);
 
@@ -211,24 +172,6 @@ const PropertyDetail: NextPage = ({ initialComment, carSeo, ...props }: any) => 
 			await sweetTopSmallSuccessAlert('success', 800);
 		} catch (err: any) {
 			sweetMixinErrorAlert(err.message).then();
-		}
-	};
-
-	const commentPaginationChangeHandler = async (event: ChangeEvent<unknown>, value: number) => {
-		commentInquiry.page = value;
-		setCommentInquiry({ ...commentInquiry });
-	};
-
-	const createCommentHandler = async () => {
-		try {
-			if (!user._id) throw new Error(Message.NOT_AUTHENTICATED);
-			await createComment({ variables: { input: insertCommentData } });
-
-			setInsertCommentData({ ...insertCommentData, commentContent: '' });
-
-			await getCommentsRefetch({ input: commentInquiry });
-		} catch (err: any) {
-			await sweetErrorHandling(err);
 		}
 	};
 
@@ -441,57 +384,49 @@ const PropertyDetail: NextPage = ({ initialComment, carSeo, ...props }: any) => 
 
 						<section className={'ma-panel'}>
 							<h2>{t('Location')}</h2>
-							<div className={'ma-map'}>
-								<iframe
-									src={`https://www.google.com/maps?q=${encodeURIComponent(formatCarPlace(property, t))}&output=embed`}
-									loading="lazy"
-									referrerPolicy="no-referrer-when-downgrade"
-									title={'map'}
-								></iframe>
-							</div>
-						</section>
-
-						<section className={'ma-panel'}>
-							<h2>
-								{t('Comments')} <small>({commentTotal})</small>
-							</h2>
-							<div className={'ma-comment-form'}>
-								<textarea
-									placeholder={t('Ask the seller or share your opinion...') as string}
-									value={insertCommentData.commentContent}
-									onChange={({ target: { value } }: any) =>
-										setInsertCommentData({ ...insertCommentData, commentContent: value })
-									}
-								></textarea>
-								<button
-									className={'ma-btn ma-btn--primary'}
-									disabled={insertCommentData.commentContent === '' || !user?._id}
-									onClick={createCommentHandler}
-								>
-									{user?._id ? t('Post comment') : t('Login to comment')}
-								</button>
-							</div>
-							{propertyComments.map((comment: Comment) => (
-								<Review comment={comment} key={comment?._id} />
-							))}
-							{commentTotal > commentInquiry.limit && (
-								<div className={'ma-pagination'}>
-									<MuiPagination
-										page={commentInquiry.page}
-										count={Math.ceil(commentTotal / commentInquiry.limit)}
-										onChange={commentPaginationChangeHandler}
-										shape="rounded"
-									/>
+							{property.carCountry === 'UZBEKISTAN' ? (
+								<div className={'ma-map'}>
+									<iframe
+										src={`https://www.google.com/maps?q=${encodeURIComponent(formatCarPlace(property, t))}&output=embed`}
+										loading="lazy"
+										referrerPolicy="no-referrer-when-downgrade"
+										title={'map'}
+									></iframe>
+								</div>
+							) : (
+								// abroad a street map tells little: show where the car is and how it gets here
+								<div className={'ma-abroad'}>
+									<div>
+										<span>{t('The car is in')}</span>
+										<strong>{formatCarPlace(property, t)}</strong>
+									</div>
+									<div>
+										<span>{t('Delivery to Uzbekistan')}</span>
+										<strong>
+											{property.carDeliveryDays ? `~${property.carDeliveryDays} ${t('days')}` : t('Ask the seller')}
+											{property.carDeliveryCost ? ` · $${formatterStr(property.carDeliveryCost)}` : ''}
+										</strong>
+									</div>
+									<div>
+										<span>{t('Customs cleared in Uzbekistan')}</span>
+										<strong>
+											{property.carCustomsCleared === undefined || property.carCustomsCleared === null
+												? t('Not specified')
+												: t(property.carCustomsCleared ? 'Yes' : 'No')}
+										</strong>
+									</div>
 								</div>
 							)}
 						</section>
+
 					</div>
 
 					<aside className={'ma-detail__side'}>
 						<div className={'ma-panel ma-price-card'}>
 							<span className={'ma-price-card__label'}>{t('Price')}</span>
-							<strong className={'ma-price-card__price'}>{price(property.propertyPrice)}</strong>
-							<span className={'ma-price-card__other'}>≈ {otherPrice(property.propertyPrice)}</span>
+							<strong className={'ma-price-card__price'}>{price(property)}</strong>
+							<span className={'ma-price-card__other'}>≈ {otherPrice(property)}</span>
+							<PriceEstimate propertyId={property._id} />
 							<div className={'ma-price-card__badges'}>
 								<span className={`ma-status ma-status--${property.propertyStatus.toLowerCase()}`}>
 									{t(property.propertyStatus === 'SOLD' ? 'Sold' : property.propertyStatus === 'PENDING' ? 'Under review' : 'For sale')}
@@ -520,6 +455,7 @@ const PropertyDetail: NextPage = ({ initialComment, carSeo, ...props }: any) => 
 									<span>{t(seller?.memberType === 'AGENT' ? 'Dealer' : 'Private seller')}</span>
 								</div>
 							</div>
+							<SellerTrust member={seller} />
 
 							{showPhone ? (
 								<a className={'ma-btn ma-btn--primary ma-btn--block'} href={`tel:${formatPhone(seller?.memberPhone)}`}>
@@ -562,6 +498,22 @@ const PropertyDetail: NextPage = ({ initialComment, carSeo, ...props }: any) => 
 					</aside>
 				</div>
 
+				{/* phones: contact buttons always within reach */}
+				{!isOwner && (
+					<div className={'ma-contact-bar'}>
+						<a className={'ma-btn ma-btn--primary'} href={`tel:${formatPhone(seller?.memberPhone)}`}>
+							<PhoneOutlinedIcon /> {t('Call')}
+						</a>
+						<Link
+							href={user?._id ? `/mypage?category=messages&to=${seller?._id}&propertyId=${property._id}` : '/account/join'}
+						>
+							<span className={'ma-btn ma-btn--outline'}>
+								<ChatBubbleOutlineIcon /> {t('Write')}
+							</span>
+						</Link>
+					</div>
+				)}
+
 				{similarCars.length > 0 && (
 					<section className={'ma-similar'}>
 						<h2 className={'ma-title'}>{t('Similar Cars')}</h2>
@@ -577,16 +529,5 @@ const PropertyDetail: NextPage = ({ initialComment, carSeo, ...props }: any) => 
 	);
 };
 
-PropertyDetail.defaultProps = {
-	initialComment: {
-		page: 1,
-		limit: 5,
-		sort: 'createdAt',
-		direction: 'DESC',
-		search: {
-			commentRefId: '',
-		},
-	},
-};
 
 export default withLayoutFull(PropertyDetail);

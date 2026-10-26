@@ -34,27 +34,44 @@ export class MessageService {
 
 		const participants = [senderId, receiverId].map(String).sort().map((id) => new Types.ObjectId(id));
 		const propertyId = input.propertyId ? shapeIntoMongoObjectId(input.propertyId) : null;
-		const text = input.text.trim();
-		if (!text) throw new BadRequestException(Message.BAD_REQUEST);
+		const text = (input.text ?? '').trim();
+		// a photo may only point to our own upload folder
+		const image = input.image && /^(uploads\/message\/|https?:\/\/)/.test(input.image) ? input.image : undefined;
+		if (!text && !image) throw new BadRequestException(Message.BAD_REQUEST);
+
+		// answering a buyer: remember how long it took (shown as "usually replies within ...")
+		const previous = await this.conversationModel.findOne({ participants, propertyId }).lean().exec();
+		if (previous && previous.lastSenderId && String(previous.lastSenderId) === String(receiverId)) {
+			await this.trackResponseTime(senderId, previous.lastMessageAt);
+		}
 
 		const conversation = await this.conversationModel
 			.findOneAndUpdate(
 				{ participants, propertyId },
 				{
 					$setOnInsert: { participants, propertyId },
-					$set: { lastMessage: text.slice(0, 200), lastSenderId: senderId, lastMessageAt: new Date() },
+					$set: { lastMessage: text ? text.slice(0, 200) : '📷', lastSenderId: senderId, lastMessageAt: new Date() },
 					$inc: { [`unread.${String(receiverId)}`]: 1 },
 				},
 				{ upsert: true, new: true },
 			)
 			.exec();
 
-		const message = await this.messageModel.create({ conversationId: conversation._id, senderId, text });
+		const message = await this.messageModel.create({ conversationId: conversation._id, senderId, text, image });
 		// live delivery to every open tab of the receiver (and the sender's other tabs)
 		const payload = { event: 'privateMessage', conversationId: String(conversation._id), message: message.toObject() };
 		this.socketGateway.emitToMember(String(receiverId), payload);
 		this.socketGateway.emitToMember(String(senderId), payload);
 		return message;
+	}
+
+	/** rolling average of reply minutes, capped at 3 days so one forgotten chat does not dominate */
+	private async trackResponseTime(memberId: ObjectId, askedAt: Date): Promise<void> {
+		const minutes = Math.min(Math.max(1, Math.round((Date.now() - new Date(askedAt).getTime()) / 60000)), 3 * 24 * 60);
+		const member = await this.memberModel.findById(memberId).select('memberResponseMinutes').lean().exec();
+		const previous = member?.memberResponseMinutes;
+		const average = previous ? Math.round(previous * 0.8 + minutes * 0.2) : minutes;
+		await this.memberModel.updateOne({ _id: memberId }, { memberResponseMinutes: average }).exec();
 	}
 
 	public async getConversations(memberId: ObjectId, input: OrdinaryInquiry): Promise<Conversations> {

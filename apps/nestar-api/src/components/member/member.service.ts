@@ -6,9 +6,9 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, ObjectId } from 'mongoose';
 import { Member, Members } from '../../libs/dto/member/member';
 import { AgentsInquiry, LoginInput, MemberInput, MembersInquiry, PasswordInput } from '../../libs/dto/member/member.input';
-import { ChangePhoneInput, ResetPasswordInput } from '../../libs/dto/verification/verification';
+import { ChangePhoneInput, CodeLoginInput, ResetPasswordInput } from '../../libs/dto/verification/verification';
 import { VerificationService } from '../verification/verification.service';
-import { limiters } from '../../libs/rate-limiter';
+import { isValidPhone, limiters, normalizePhone } from '../../libs/rate-limiter';
 import { Direction, Message } from '../../libs/enums/common.enum';
 import { MemberStatus, MemberType, VerificationPurpose } from '../../libs/enums/member.enum';
 import { AuthService } from '../auth/auth.service';
@@ -62,8 +62,11 @@ export class MemberService {
 		limiters.loginIp.assert(ip);
 		limiters.loginNick.assert(nickKey);
 
+		// the login field takes a nickname or a phone number ("+998 90 123 45 67")
+		const phone = normalizePhone(memberNick);
+		const byPhone = /^[+\d\s()-]+$/.test(memberNick.trim()) && isValidPhone(phone);
 		const response: Member | null = await this.memberModel
-			.findOne({ memberNick: memberNick })
+			.findOne(byPhone ? { memberPhone: phone } : { memberNick: memberNick })
 			.select('+memberPassword')
 			.exec();
 
@@ -82,6 +85,15 @@ export class MemberService {
 		}
 		limiters.loginNick.reset(nickKey);
 		return await this.authService.issueTokens(response, userAgent);
+	}
+
+	/** password-less login: SMS code to the account phone */
+	public async loginWithCode(input: CodeLoginInput, userAgent?: string): Promise<Member> {
+		const memberPhone = await this.verificationService.consumeCode(input.phone, VerificationPurpose.LOGIN, input.code);
+		const member = await this.memberModel.findOne({ memberPhone }).exec();
+		if (!member || member.memberStatus === MemberStatus.DELETE) throw new BadRequestException(Message.WRONG_CODE);
+		if (member.memberStatus === MemberStatus.BLOCK) throw new InternalServerErrorException(Message.BLOCKED_USER);
+		return await this.authService.issueTokens(member, userAgent);
 	}
 
 	/** "forgot password": SMS code to the account phone, then a new password; all old sessions end */

@@ -60,6 +60,8 @@ export const UPDATE_PROPERTY_BY_ADMIN = gql`
 			propertyDesc
 			propertyBarter
 			propertyNegotiable
+			propertyPriceCurrency
+			propertyPriceOriginal
 			carVin
 			carAccidentHistory
 			carOwners
@@ -101,6 +103,8 @@ export const REMOVE_PROPERTY_BY_ADMIN = gql`
 			propertyDesc
 			propertyBarter
 			propertyNegotiable
+			propertyPriceCurrency
+			propertyPriceOriginal
 			carVin
 			carAccidentHistory
 			carOwners
