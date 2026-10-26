@@ -740,5 +740,12 @@
 	"member_AGENT": "Дилер",
 	"member_ADMIN": "Админ",
 	"Back on sale": "Снова в продаже",
-	"terms_suffix": ""
+	"terms_suffix": "",
+	"Your listing was approved and is now visible": "Ваше объявление одобрено и теперь видно всем",
+	"Your listing was rejected by moderation": "Ваше объявление отклонено модерацией",
+	"New car for your saved search": "Новое авто по вашему сохранённому поиску",
+	"Home / Compare": "Главная / Сравнение",
+	"Home / Terms of Use": "Главная / Условия использования",
+	"Home / Privacy Policy": "Главная / Политика конфиденциальности",
+	"You haven't saved any cars yet. Tap the heart on a car to save it.": "Сохранённых авто пока нет. Нажмите на сердечко, чтобы сохранить."
 }

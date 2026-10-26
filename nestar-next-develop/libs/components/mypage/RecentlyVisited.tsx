@@ -1,3 +1,4 @@
+import EmptyState from '../common/EmptyState';
 import React, { useState } from 'react';
 import { NextPage } from 'next';
 import { useTranslation } from 'next-i18next';
@@ -51,7 +52,12 @@ const RecentlyVisited: NextPage = () => {
 					))}
 				</div>
 			) : (
-				<div className={'ma-empty'}>{getVisitedLoading ? t('Loading...') : t('No recently visited cars yet.')}</div>
+				<EmptyState
+					loading={getVisitedLoading}
+					text={t('No recently visited cars yet.')}
+					actionLabel={t('Browse cars')}
+					actionHref={'/property'}
+				/>
 			)}
 			{total > searchVisited.limit && (
 				<div className={'ma-pagination'}>

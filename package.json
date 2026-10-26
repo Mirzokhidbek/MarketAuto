@@ -19,7 +19,11 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./apps/nestar-api/test/jest-e2e.json"
+    "test:e2e": "jest --config ./apps/nestar-api/test/jest-e2e.json",
+    "test:unit": "jest apps/nestar-api/src",
+    "test:api": "node e2e/api-smoke.mjs",
+    "test:ui": "node e2e/ui-regression.cjs",
+    "typecheck": "tsc --noEmit -p apps/nestar-api/tsconfig.app.json && tsc --noEmit -p apps/nestar-batch/tsconfig.app.json"
   },
   "dependencies": {
     "@apollo/server": "^5.5.1",

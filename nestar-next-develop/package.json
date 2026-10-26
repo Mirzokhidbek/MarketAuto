@@ -8,7 +8,8 @@
 		"build": "next build",
 		"start": "next start",
 		"lint": "next lint",
-		"changelog": "standard-version --skip.tag"
+		"changelog": "standard-version --skip.tag",
+		"typecheck": "tsc --noEmit -p ."
 	},
 	"dependencies": {
 		"@apollo/client": "^3.5.10",

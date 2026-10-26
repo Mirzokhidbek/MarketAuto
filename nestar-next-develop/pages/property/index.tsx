@@ -1,3 +1,4 @@
+import { fetchWithTimeout } from '../../libs/utils';
 import React, { ChangeEvent, useEffect, useState } from 'react';
 import { NextPage } from 'next';
 import { Pagination } from '@mui/material';
@@ -46,14 +47,13 @@ export const getServerSideProps = async ({ locale, query }: any) => {
 	let initialList: Property[] = [];
 	let initialTotal = 0;
 	try {
-		const response = await fetch(process.env.REACT_APP_API_GRAPHQL_URL as string, {
+		const response = await fetchWithTimeout((process.env.API_INTERNAL_GRAPHQL_URL || process.env.REACT_APP_API_GRAPHQL_URL) as string, {
 			method: 'POST',
 			headers: { 'content-type': 'application/json' },
 			body: JSON.stringify({
 				query: `query($input: PropertiesInquiry!){ getProperties(input: $input){ ${SSR_FIELDS} } }`,
 				variables: { input: parseInput(query?.input) },
 			}),
-			signal: AbortSignal.timeout(3000),
 		});
 		const { data } = await response.json();
 		initialList = data?.getProperties?.list ?? [];

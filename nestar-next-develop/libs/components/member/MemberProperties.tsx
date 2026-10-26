@@ -1,3 +1,4 @@
+import EmptyState from '../common/EmptyState';
 import React, { useEffect, useState } from 'react';
 import { NextPage } from 'next';
 import { Pagination } from '@mui/material';
@@ -67,7 +68,7 @@ const MyProperties: NextPage = ({ initialInput, ...props }: any) => {
 					))}
 				</div>
 			) : (
-				<div className={'ma-empty'}>{getPropertiesLoading ? t('Loading...') : t('No cars listed yet.')}</div>
+				<EmptyState loading={getPropertiesLoading} text={t('No cars listed yet.')} />
 			)}
 			{total > searchFilter.limit && (
 				<div className={'ma-pagination'}>

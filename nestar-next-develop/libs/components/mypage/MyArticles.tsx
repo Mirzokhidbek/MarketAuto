@@ -1,3 +1,4 @@
+import EmptyState from '../common/EmptyState';
 import React, { useState } from 'react';
 import { NextPage } from 'next';
 import { useTranslation } from 'next-i18next';
@@ -91,7 +92,11 @@ const MyArticles: NextPage = ({ initialInput, ...props }: T) => {
 					))}
 				</div>
 			) : (
-				<div className={'ma-empty'}>{t('You have not written any articles yet.')}</div>
+				<EmptyState
+					text={t('You have not written any articles yet.')}
+					actionLabel={t('Write Article')}
+					actionHref={'/mypage?category=writeArticle'}
+				/>
 			)}
 			{totalCount > searchCommunity.limit && (
 				<div className={'ma-pagination'}>

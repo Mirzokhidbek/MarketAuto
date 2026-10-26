@@ -740,5 +740,12 @@
 	"member_AGENT": "Diler",
 	"member_ADMIN": "Admin",
 	"Back on sale": "Qayta sotuvga",
-	"terms_suffix": "ga roziman"
+	"terms_suffix": "ga roziman",
+	"Your listing was approved and is now visible": "E'loningiz tasdiqlandi va endi hammaga ko'rinadi",
+	"Your listing was rejected by moderation": "E'loningiz moderatsiyadan o'tmadi",
+	"New car for your saved search": "Saqlangan qidiruvingizga mos yangi mashina",
+	"Home / Compare": "Bosh sahifa / Solishtirish",
+	"Home / Terms of Use": "Bosh sahifa / Foydalanish shartlari",
+	"Home / Privacy Policy": "Bosh sahifa / Maxfiylik siyosati",
+	"You haven't saved any cars yet. Tap the heart on a car to save it.": "Hali saqlangan mashina yo'q. Saqlash uchun mashinadagi yurakchani bosing."
 }

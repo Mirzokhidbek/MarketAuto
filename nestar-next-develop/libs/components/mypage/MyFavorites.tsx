@@ -1,3 +1,4 @@
+import EmptyState from '../common/EmptyState';
 import React, { useState } from 'react';
 import { NextPage } from 'next';
 import { useTranslation } from 'next-i18next';
@@ -75,7 +76,12 @@ const MyFavorites: NextPage = () => {
 					))}
 				</div>
 			) : (
-				<div className={'ma-empty'}>{getFavoritesLoading ? t('Loading...') : t("You haven't saved any cars yet.")}</div>
+				<EmptyState
+					loading={getFavoritesLoading}
+					text={t("You haven't saved any cars yet. Tap the heart on a car to save it.")}
+					actionLabel={t('Browse cars')}
+					actionHref={'/property'}
+				/>
 			)}
 			{total > searchFavorites.limit && (
 				<div className={'ma-pagination'}>
