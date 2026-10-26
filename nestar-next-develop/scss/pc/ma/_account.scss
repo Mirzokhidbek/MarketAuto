@@ -708,3 +708,46 @@
 	font-weight: 600;
 	opacity: 0.7;
 }
+
+/* currency switch in the header */
+.ma-currency {
+	display: inline-flex;
+	padding: 3px;
+	border-radius: 999px;
+	background: $ma-bg-alt;
+	button {
+		padding: 4px 10px;
+		border: 0;
+		border-radius: 999px;
+		background: transparent;
+		font-size: 12px;
+		font-weight: 600;
+		color: $ma-muted;
+		cursor: pointer;
+		&.is-active {
+			background: #fff;
+			color: $ma-primary;
+			box-shadow: 0 1px 3px rgba(15, 23, 42, 0.12);
+		}
+	}
+}
+
+.ma-price-card__other {
+	display: block;
+	margin-top: 2px;
+	font-size: 13px;
+	color: $ma-muted;
+}
+
+.ma-filter__single {
+	padding: 12px 0;
+}
+
+.ma-filter__save {
+	display: flex !important;
+	gap: 6px;
+	margin-top: 12px;
+	svg {
+		font-size: 18px;
+	}
+}
