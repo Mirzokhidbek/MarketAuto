@@ -81,11 +81,11 @@ const ManageCarRow = ({ property, onDelete, onStatusChange }: ManageCarRowProps)
 					</select>
 				)}
 				{property.propertyStatus !== PropertyStatus.SOLD && (
-					<button className={'ma-icon-btn'} onClick={openEdit} aria-label={'edit'}>
+					<button className={'ma-icon-btn'} onClick={openEdit} aria-label={t('Edit') as string}>
 						<EditOutlinedIcon />
 					</button>
 				)}
-				<button className={'ma-icon-btn ma-icon-btn--danger'} onClick={() => onDelete(property._id)} aria-label={'delete'}>
+				<button className={'ma-icon-btn ma-icon-btn--danger'} onClick={() => onDelete(property._id)} aria-label={t('Delete') as string}>
 					<DeleteOutlineIcon />
 				</button>
 			</div>

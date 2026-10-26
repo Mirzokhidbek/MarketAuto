@@ -57,15 +57,21 @@ export const MessagesLink = () => {
 };
 
 export const CurrencySwitch = () => {
+	const { t } = useTranslation('common');
 	const currency = useReactiveVar(currencyVar);
 	const choose = (value: Currency) => {
 		currencyVar(value);
 		localStorage.setItem('currency', value);
 	};
 	return (
-		<div className={'ma-currency'} role={'group'} aria-label={'currency'}>
+		<div className={'ma-currency'} role={'group'} aria-label={t('Currency') as string}>
 			{(['USD', 'UZS'] as Currency[]).map((value) => (
-				<button key={value} className={currency === value ? 'is-active' : ''} onClick={() => choose(value)}>
+				<button
+					key={value}
+					className={currency === value ? 'is-active' : ''}
+					aria-pressed={currency === value}
+					onClick={() => choose(value)}
+				>
 					{value === 'USD' ? '$' : "so'm"}
 				</button>
 			))}

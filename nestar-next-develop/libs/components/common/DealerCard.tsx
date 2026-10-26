@@ -21,7 +21,7 @@ const DealerCard = ({ dealer, onLike }: DealerCardProps) => {
 	return (
 		<div className={'ma-dealer-card'}>
 			{onLike && (
-				<button className={`ma-car-card__like ${liked ? 'is-liked' : ''}`} onClick={() => onLike(dealer._id)} aria-label={'like'}>
+				<button className={`ma-car-card__like ${liked ? 'is-liked' : ''}`} onClick={() => onLike(dealer._id)} aria-label={t('Like') as string}>
 					{liked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
 				</button>
 			)}

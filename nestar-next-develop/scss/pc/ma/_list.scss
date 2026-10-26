@@ -439,3 +439,29 @@
 		}
 	}
 }
+
+.ma-404 {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 8px;
+	padding: 90px 0 110px;
+	text-align: center;
+	> svg {
+		font-size: 72px;
+		color: #cbd5e1;
+	}
+	h1 {
+		margin: 0;
+		font-size: 64px;
+		color: $ma-dark;
+	}
+	p {
+		margin: 0 0 14px;
+		color: $ma-muted;
+	}
+	&__actions {
+		display: flex;
+		gap: 12px;
+	}
+}

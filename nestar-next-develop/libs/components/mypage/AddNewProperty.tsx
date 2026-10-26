@@ -201,6 +201,29 @@ const AddProperty = () => {
 			(car.propertyTitle || suggestedTitle).trim().length > 0,
 	];
 
+	/** what is still missing on the current step, shown next to the disabled button */
+	const missing: string[][] = [
+		[
+			!car.carBrand && 'Brand',
+			!car.carModel?.trim() && 'Model',
+			!car.carYear && 'Year',
+			!car.propertyType && 'Body type',
+			!car.carFuel && 'Fuel',
+			!car.carTransmission && 'Transmission',
+			car.carVin && !/^[A-HJ-NPR-Z0-9]{17}$/i.test(car.carVin) && 'VIN (17 characters)',
+		].filter(Boolean) as string[],
+		[
+			!car.carCountry && 'Country',
+			isUzbekistan && !car.propertyLocation && 'City',
+			!car.propertyAddress?.trim() && (isUzbekistan ? 'District / street' : 'City abroad'),
+			(car.propertyDesc?.trim().length ?? 0) < 5 && 'Description',
+		].filter(Boolean) as string[],
+		[
+			car.propertyImages.length < MIN_PHOTOS && 'Photos',
+			!(car.propertyPrice > 0) && 'Price',
+		].filter(Boolean) as string[],
+	];
+
 	/** drops empty optional fields and the city for cars located abroad */
 	const buildPayload = (): PropertyInput => {
 		const payload: any = { ...car, propertyTitle: (car.propertyTitle || suggestedTitle).trim() };
@@ -647,6 +670,11 @@ const AddProperty = () => {
 					</button>
 				)}
 			</div>
+			{!stepValid[step] && missing[step].length > 0 && (
+				<p className={'ma-field-error ma-form-note'}>
+					{t('Please fill in')}: {missing[step].map((label) => t(label)).join(', ')}
+				</p>
+			)}
 			{step === STEPS.length - 1 && !editId && !user?.memberTrusted && (
 				<p className={'ma-input__hint ma-form-note'}>
 					{t('Your first listing is checked by our team, usually within 2 hours. After that you publish instantly.')}
