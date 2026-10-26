@@ -1,3 +1,5 @@
+import { useQuery } from '@apollo/client';
+import { GET_CAR_MODELS } from '../../../apollo/user/query';
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
@@ -31,12 +33,16 @@ const HomeHero = () => {
 	const [price, setPrice] = useState(0);
 	const [year, setYear] = useState(0);
 	const [bodyType, setBodyType] = useState('');
+	const [model, setModel] = useState('');
+	// model hints for the chosen brand
+	const { data: modelsData } = useQuery(GET_CAR_MODELS, { skip: !brand, variables: { brand } });
 
 	const searchHandler = async () => {
 		const input: PropertiesInquiry = { page: 1, limit: 9, sort: 'createdAt', search: {} };
 		if (country) input.search.countryList = [country as CarCountry];
 		if (brand) input.search.brandList = [brand as CarBrand];
 		if (bodyType) input.search.typeList = [bodyType as PropertyType];
+		if (model.trim()) input.search.model = model.trim();
 		if (priceOptions[price].range) input.search.pricesRange = priceOptions[price].range!;
 		if (yearOptions[year].range) input.search.yearsRange = yearOptions[year].range!;
 		await router.push(`/property?input=${JSON.stringify(input)}`, `/property?input=${JSON.stringify(input)}`);
@@ -77,6 +83,22 @@ const HomeHero = () => {
 								</option>
 							))}
 						</select>
+					</label>
+					<label className={'ma-field'}>
+						<span>{t('Model')}</span>
+						<input
+							type="text"
+							list={'ma-hero-models'}
+							value={model}
+							placeholder={(brand ? t('e.g. K5, Cobalt') : t('Any model')) as string}
+							onChange={(e) => setModel(e.target.value)}
+							onKeyDown={(e) => e.key === 'Enter' && searchHandler()}
+						/>
+						<datalist id={'ma-hero-models'}>
+							{(modelsData?.getCarModels ?? []).map((item: string) => (
+								<option value={item} key={item} />
+							))}
+						</datalist>
 					</label>
 					<label className={'ma-field'}>
 						<span>{t('Price Range')}</span>

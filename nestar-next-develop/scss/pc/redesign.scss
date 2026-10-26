@@ -338,7 +338,7 @@
 .ma-search {
 	width: 100%;
 	display: grid;
-	grid-template-columns: repeat(5, minmax(0, 1fr)) auto;
+	grid-template-columns: repeat(6, minmax(0, 1fr)) auto;
 	gap: 12px;
 	align-items: end;
 	padding: 24px;
@@ -362,7 +362,9 @@
 		font-weight: 600;
 		color: $ma-muted;
 	}
-	select {
+	select,
+	input {
+		min-width: 0;
 		height: 46px;
 		padding: 0 12px;
 		border-radius: 10px;
