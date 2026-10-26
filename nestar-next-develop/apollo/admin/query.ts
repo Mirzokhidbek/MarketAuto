@@ -11,6 +11,8 @@ export const GET_ALL_MEMBERS_BY_ADMIN = gql`
 				_id
 				memberType
 				memberStatus
+				memberTrusted
+				memberPhoneVerified
 				memberAuthType
 				memberPhone
 				memberNick
@@ -18,12 +20,9 @@ export const GET_ALL_MEMBERS_BY_ADMIN = gql`
 				memberImage
 				memberAddress
 				memberDesc
-				memberWarnings
-				memberBlocks
 				memberProperties
 				memberRank
 				memberArticles
-				memberPoints
 				memberLikes
 				memberViews
 				deletedAt
@@ -68,7 +67,13 @@ export const GET_ALL_PROPERTIES_BY_ADMIN = gql`
 				propertyImages
 				propertyDesc
 				propertyBarter
-				propertyRent
+				propertyNegotiable
+				carVin
+				carAccidentHistory
+				carOwners
+				carCustomsCleared
+				carDeliveryDays
+				carDeliveryCost
 				memberId
 				soldAt
 				deletedAt
@@ -85,11 +90,8 @@ export const GET_ALL_PROPERTIES_BY_ADMIN = gql`
 					memberImage
 					memberAddress
 					memberDesc
-					memberWarnings
-					memberBlocks
 					memberProperties
 					memberRank
-					memberPoints
 					memberLikes
 					memberViews
 					deletedAt
@@ -135,11 +137,8 @@ export const GET_ALL_BOARD_ARTICLES_BY_ADMIN = gql`
 					memberImage
 					memberAddress
 					memberDesc
-					memberWarnings
-					memberBlocks
 					memberProperties
 					memberRank
-					memberPoints
 					memberLikes
 					memberViews
 					deletedAt
@@ -182,11 +181,8 @@ export const GET_COMMENTS = gql`
 					memberImage
 					memberAddress
 					memberDesc
-					memberWarnings
-					memberBlocks
 					memberProperties
 					memberRank
-					memberPoints
 					memberLikes
 					memberViews
 					deletedAt
@@ -244,6 +240,37 @@ export const GET_DASHBOARD_STATS = gql`
 			carsToday
 			articlesActive
 			inquiriesWaiting
+			carsPending
+			reportsOpen
+		}
+	}
+`;
+
+export const GET_REPORTS_BY_ADMIN = gql`
+	query GetReportsByAdmin($input: ReportsInquiry!) {
+		getReportsByAdmin(input: $input) {
+			list {
+				_id
+				reportReason
+				reportComment
+				reportStatus
+				createdAt
+				memberData {
+					_id
+					memberNick
+				}
+				propertyData {
+					_id
+					propertyTitle
+					propertyPrice
+					propertyImages
+					propertyStatus
+					memberId
+				}
+			}
+			metaCounter {
+				total
+			}
 		}
 	}
 `;

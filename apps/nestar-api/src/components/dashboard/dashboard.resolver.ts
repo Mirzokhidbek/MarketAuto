@@ -6,7 +6,7 @@ import { DashboardStats } from '../../libs/dto/dashboard/dashboard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { MemberStatus, MemberType } from '../../libs/enums/member.enum';
-import { PropertyStatus } from '../../libs/enums/property.enum';
+import { PropertyStatus, ReportStatus } from '../../libs/enums/property.enum';
 import { BoardArticleStatus } from '../../libs/enums/board-article.enum';
 import { NoticeCategory, NoticeStatus } from '../../libs/enums/notice.enum';
 
@@ -18,6 +18,7 @@ export class DashboardResolver {
 		@InjectModel('Property') private readonly propertyModel: Model<any>,
 		@InjectModel('BoardArticle') private readonly boardArticleModel: Model<any>,
 		@InjectModel('Notice') private readonly noticeModel: Model<any>,
+		@InjectModel('Report') private readonly reportModel: Model<any>,
 	) {}
 
 	@Roles(MemberType.ADMIN)
@@ -39,6 +40,8 @@ export class DashboardResolver {
 			carsToday,
 			articlesActive,
 			inquiriesWaiting,
+			carsPending,
+			reportsOpen,
 		] = await Promise.all([
 			this.memberModel.countDocuments({ ...members, memberStatus: { $ne: MemberStatus.DELETE } }),
 			this.memberModel.countDocuments({ ...members, memberStatus: MemberStatus.BLOCK }),
@@ -50,6 +53,8 @@ export class DashboardResolver {
 			this.propertyModel.countDocuments({ createdAt: { $gte: today } }),
 			this.boardArticleModel.countDocuments({ articleStatus: BoardArticleStatus.ACTIVE }),
 			this.noticeModel.countDocuments({ noticeCategory: NoticeCategory.INQUIRY, noticeStatus: NoticeStatus.HOLD }),
+			this.propertyModel.countDocuments({ propertyStatus: PropertyStatus.PENDING }),
+			this.reportModel.countDocuments({ reportStatus: ReportStatus.OPEN }),
 		]);
 
 		return {
@@ -63,6 +68,8 @@ export class DashboardResolver {
 			carsToday,
 			articlesActive,
 			inquiriesWaiting,
+			carsPending,
+			reportsOpen,
 		};
 	}
 }

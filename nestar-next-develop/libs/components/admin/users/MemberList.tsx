@@ -14,7 +14,7 @@ import {
 } from '@mui/material';
 import Avatar from '@mui/material/Avatar';
 import Typography from '@mui/material/Typography';
-import { Stack } from '@mui/material';
+import { Stack, Switch } from '@mui/material';
 import { Member } from '../../../types/member/member';
 import { REACT_APP_API_URL } from '../../../config';
 import { MemberStatus, MemberType } from '../../../enums/member.enum';
@@ -85,13 +85,13 @@ const headCells: readonly HeadCell[] = [
 		id: 'warning',
 		numeric: false,
 		disablePadding: false,
-		label: 'WARNING',
+		label: 'PHONE ✓',
 	},
 	{
 		id: 'block',
 		numeric: false,
 		disablePadding: false,
-		label: 'BLOCKS',
+		label: 'TRUSTED',
 	},
 	{
 		id: 'state',
@@ -220,8 +220,16 @@ export const MemberPanelList = (props: MemberPanelListType) => {
 											</Menu>
 										</TableCell>
 
-										<TableCell align="center">{member.memberWarnings}</TableCell>
-										<TableCell align="center">{member.memberBlocks}</TableCell>
+										<TableCell align="center">{member.memberPhoneVerified ? '✓' : '—'}</TableCell>
+										<TableCell align="center">
+											{/* trusted sellers publish without moderation */}
+											<Switch
+												size="small"
+												checked={!!member.memberTrusted}
+												disabled={member.memberType === 'ADMIN'}
+												onChange={(e) => updateMemberHandler({ _id: member._id, memberTrusted: e.target.checked })}
+											/>
+										</TableCell>
 										<TableCell align="center">
 											<Button
 												onClick={(e: any) => menuIconClickHandler(e, member._id)}

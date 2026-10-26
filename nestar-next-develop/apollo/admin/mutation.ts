@@ -20,11 +20,8 @@ export const UPDATE_MEMBER_BY_ADMIN = gql`
 			memberProperties
 			memberRank
 			memberArticles
-			memberPoints
 			memberLikes
 			memberViews
-			memberWarnings
-			memberBlocks
 			deletedAt
 			createdAt
 			updatedAt
@@ -62,7 +59,13 @@ export const UPDATE_PROPERTY_BY_ADMIN = gql`
 			propertyImages
 			propertyDesc
 			propertyBarter
-			propertyRent
+			propertyNegotiable
+			carVin
+			carAccidentHistory
+			carOwners
+			carCustomsCleared
+			carDeliveryDays
+			carDeliveryCost
 			memberId
 			soldAt
 			deletedAt
@@ -97,7 +100,13 @@ export const REMOVE_PROPERTY_BY_ADMIN = gql`
 			propertyImages
 			propertyDesc
 			propertyBarter
-			propertyRent
+			propertyNegotiable
+			carVin
+			carAccidentHistory
+			carOwners
+			carCustomsCleared
+			carDeliveryDays
+			carDeliveryCost
 			memberId
 			soldAt
 			deletedAt
@@ -192,6 +201,15 @@ export const REMOVE_NOTICE_BY_ADMIN = gql`
 	mutation RemoveNoticeByAdmin($input: String!) {
 		removeNoticeByAdmin(noticeId: $input) {
 			_id
+		}
+	}
+`;
+
+export const RESOLVE_REPORT = gql`
+	mutation ResolveReport($input: ResolveReportInput!) {
+		resolveReport(input: $input) {
+			_id
+			reportStatus
 		}
 	}
 `;

@@ -1,3 +1,5 @@
+import * as Sentry from '@sentry/node';
+import { Message } from './libs/enums/common.enum';
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -29,6 +31,10 @@ import { SocketModule } from './socket/socket.module';
 					},
 				};
 				console.log('GRAPHQL GLOBAL ERR:', graphqlFormattedError);
+				// expected business errors (validation, wrong password...) carry a known message; report the rest
+				const known = (Object.values(Message) as string[]).includes(String(graphqlFormattedError.message));
+				if (process.env.SENTRY_DSN && !known && graphqlFormattedError.extensions.code === 'INTERNAL_SERVER_ERROR')
+					Sentry.captureException(error);
 				return graphqlFormattedError;
 			},
 		}),

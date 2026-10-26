@@ -1,3 +1,4 @@
+import { CarBrand } from '../../libs/enums/property.enum';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { PropertyService } from './property.service';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -138,5 +139,11 @@ export class PropertyResolver {
 		console.log('Mutation: removePropertyByAdmin');
 		const propertyId = shapeIntoMongoObjectId(input);
 		return await this.propertyService.removePropertyByAdmin(propertyId);
+	}
+
+	/** models already listed for a brand, for the model filter / autocomplete */
+	@Query(() => [String])
+	public async getCarModels(@Args('brand', { type: () => CarBrand }) brand: CarBrand): Promise<string[]> {
+		return await this.propertyService.getCarModels(brand);
 	}
 }

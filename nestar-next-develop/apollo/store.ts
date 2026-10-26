@@ -17,12 +17,23 @@ export const userVar = makeVar<CustomJwtPayload>({
 	memberProperties: 0,
 	memberRank: 0,
 	memberArticles: 0,
-	memberPoints: 0,
 	memberLikes: 0,
 	memberViews: 0,
-	memberWarnings: 0,
-	memberBlocks: 0,
+	memberPhoneVerified: false,
+	memberTrusted: false,
 });
 
 // @ts-ignore
 export const socketVar = makeVar<WebSocket>();
+
+/** price display currency (prices are stored in USD) and the official USD -> UZS rate */
+export type Currency = 'USD' | 'UZS';
+export const currencyVar = makeVar<Currency>('USD');
+export const usdRateVar = makeVar<number>(12700);
+
+/** ids of cars picked for side-by-side comparison (max 3, kept in localStorage) */
+export const compareVar = makeVar<string[]>([]);
+
+/** private messages: unread total for the header badge and the last message pushed by the socket */
+export const unreadMessagesVar = makeVar<number>(0);
+export const incomingMessageVar = makeVar<any>(null);

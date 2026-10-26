@@ -2,7 +2,7 @@ export enum BoardArticleCategory {
 	FREE = 'FREE',
 	RECOMMEND = 'RECOMMEND',
 	NEWS = 'NEWS',
-	HUMOR = 'HUMOR',
+	SERVICE = 'SERVICE',
 }
 
 export enum BoardArticleStatus {

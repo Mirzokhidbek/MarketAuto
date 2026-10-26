@@ -1,4 +1,5 @@
 import {
+	CarAccidentHistory,
 	CarBrand,
 	CarCountry,
 	CarFuel,
@@ -28,11 +29,19 @@ export interface PropertyInput {
 	propertyImages: string[];
 	propertyDesc?: string;
 	propertyBarter?: boolean;
-	propertyRent?: boolean;
+	propertyNegotiable?: boolean;
+	carVin?: string;
+	carAccidentHistory?: CarAccidentHistory;
+	carOwners?: number;
+	carCustomsCleared?: boolean;
+	carDeliveryDays?: number;
+	carDeliveryCost?: number;
 	memberId?: string;
 }
 
 interface PISearch {
+	model?: string;
+	noAccident?: boolean;
 	memberId?: string;
 	countryList?: CarCountry[];
 	locationList?: PropertyLocation[];

@@ -1,3 +1,10 @@
+import * as Sentry from '@sentry/node';
+
+// error tracking in production: set SENTRY_DSN (https://sentry.io) — nothing is sent without it
+if (process.env.SENTRY_DSN) {
+	Sentry.init({ dsn: process.env.SENTRY_DSN, environment: process.env.NODE_ENV ?? 'development', tracesSampleRate: 0.1 });
+}
+
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';

@@ -11,6 +11,7 @@ export enum PropertyType {
 }
 
 export enum PropertyStatus {
+	PENDING = 'PENDING',
 	ACTIVE = 'ACTIVE',
 	SOLD = 'SOLD',
 	DELETE = 'DELETE',
@@ -76,4 +77,19 @@ export enum CarTransmission {
 	AUTOMATIC = 'AUTOMATIC',
 	ROBOT = 'ROBOT',
 	CVT = 'CVT',
+}
+
+export enum CarAccidentHistory {
+	NONE = 'NONE',
+	MINOR = 'MINOR',
+	SERIOUS = 'SERIOUS',
+}
+
+export enum ReportReason {
+	FAKE = 'FAKE',
+	WRONG_PRICE = 'WRONG_PRICE',
+	ALREADY_SOLD = 'ALREADY_SOLD',
+	DUPLICATE = 'DUPLICATE',
+	SPAM = 'SPAM',
+	OTHER = 'OTHER',
 }
