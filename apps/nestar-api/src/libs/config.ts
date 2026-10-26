@@ -1,3 +1,5 @@
+import { BadRequestException } from '@nestjs/common';
+import { Message } from './enums/common.enum';
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import { ObjectId } from 'bson';
 
@@ -34,7 +36,10 @@ export const searchRegex = (text: string): RegExp =>
 	new RegExp(text.trim().slice(0, 100).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
 
 export const shapeIntoMongoObjectId = (target: any) => {
-	return typeof target === 'string' ? new ObjectId(target) : target;
+	if (typeof target !== 'string') return target;
+	// a malformed id is the caller's mistake (400), not a server error (500)
+	if (!ObjectId.isValid(target)) throw new BadRequestException(Message.BAD_REQUEST);
+	return new ObjectId(target);
 };
 
 export const lookupAuthMemberLiked = (memberId: T, targetRefId: string = '$_id') => {
