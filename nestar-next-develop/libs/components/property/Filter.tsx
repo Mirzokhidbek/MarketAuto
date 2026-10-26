@@ -1,3 +1,10 @@
+import Swal from 'sweetalert2';
+import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
+import NotificationsActiveOutlinedIcon from '@mui/icons-material/NotificationsActiveOutlined';
+import { currencyVar, usdRateVar, userVar } from '../../../apollo/store';
+import { GET_CAR_MODELS } from '../../../apollo/user/query';
+import { SAVE_SEARCH } from '../../../apollo/user/mutation';
+import { sweetErrorHandling, sweetTopSmallSuccessAlert } from '../../sweetAlert';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
 	Stack,
@@ -48,6 +55,12 @@ interface FilterType {
 	initialInput: PropertiesInquiry;
 }
 
+const optionLabels: Record<string, string> = {
+	carCustomsCleared: 'Customs cleared',
+	propertyNegotiable: 'Negotiable',
+	propertyBarter: 'Barter',
+};
+
 const Filter = (props: FilterType) => {
 	const { searchFilter, setSearchFilter, initialInput } = props;
 	const router = useRouter();
@@ -65,6 +78,52 @@ const Filter = (props: FilterType) => {
 			JSON.stringify(value) !== JSON.stringify((initialInput?.search as any)?.[key]),
 	).length;
 	const [showMore, setShowMore] = useState<boolean>(false);
+	const user = useReactiveVar(userVar);
+	const currency = useReactiveVar(currencyVar);
+	const usdRate = useReactiveVar(usdRateVar);
+	const [modelText, setModelText] = useState<string>(searchFilter?.search?.model ?? '');
+	const [saveSearch] = useMutation(SAVE_SEARCH);
+	// model suggestions once exactly one brand is ticked
+	const singleBrand = searchFilter?.search?.brandList?.length === 1 ? searchFilter.search.brandList[0] : null;
+	const { data: modelsData } = useQuery(GET_CAR_MODELS, { skip: !singleBrand, variables: { brand: singleBrand } });
+	const models: string[] = modelsData?.getCarModels ?? [];
+
+	const pushSearch = async (patch: Record<string, any>) => {
+		const search: Record<string, any> = { ...searchFilter.search, ...patch };
+		Object.keys(search).forEach((key) => (search[key] === undefined || search[key] === '') && delete search[key]);
+		const next = JSON.stringify({ ...searchFilter, page: 1, search });
+		await router.push(`/property?input=${next}`, `/property?input=${next}`, { scroll: false });
+	};
+
+	/** prices are stored in USD; the inputs follow the currency chosen in the header */
+	const toDisplay = (usd?: number) => (usd === undefined ? '' : currency === 'UZS' ? Math.round(usd * usdRate) : usd);
+	const toUsd = (value: number) => (currency === 'UZS' ? Math.round(value / usdRate) : value);
+
+	const saveSearchHandler = async () => {
+		try {
+			if (!user?._id) {
+				await router.push('/account/join');
+				return;
+			}
+			const { value: title } = await Swal.fire({
+				title: t('Save this search') as string,
+				text: t('We will notify you when a new car matches these filters.') as string,
+				input: 'text',
+				inputValue: [...(searchFilter.search.brandList ?? []), searchFilter.search.model].filter(Boolean).join(' ') || '',
+				inputPlaceholder: t('e.g. Kia K5 from Korea') as string,
+				showCancelButton: true,
+				confirmButtonText: t('Save') as string,
+				cancelButtonText: t('Cancel') as string,
+				confirmButtonColor: '#0b57d0',
+				inputValidator: (value: string) => (!value || value.trim().length < 2 ? (t('Enter a name') as string) : null),
+			});
+			if (!title) return;
+			await saveSearch({ variables: { input: { title: title.trim(), search: JSON.stringify(searchFilter.search) } } });
+			await sweetTopSmallSuccessAlert(t('Search saved') as string, 1200);
+		} catch (err: any) {
+			sweetErrorHandling(err).then();
+		}
+	};
 
 	/** LIFECYCLES **/
 	useEffect(() => {
@@ -480,15 +539,37 @@ const Filter = (props: FilterType) => {
 			{checkList('Body type', propertyType, searchFilter?.search?.typeList, propertyTypeSelectHandler)}
 
 			<details className={'ma-filter__group'} open>
-				<summary>{t('Price')} ($)</summary>
+				<summary>{t('Model')}</summary>
+				<div className={'ma-filter__search'}>
+					<input
+						value={modelText}
+						type={'text'}
+						list={'ma-model-options'}
+						placeholder={(singleBrand ? t('e.g. K5, Cobalt') : t('Choose one brand for hints')) as string}
+						onChange={(e) => setModelText(e.target.value)}
+						onBlur={() => modelText !== (searchFilter.search.model ?? '') && pushSearch({ model: modelText.trim() })}
+						onKeyDown={(e: any) => e.key === 'Enter' && e.target.blur()}
+					/>
+					<datalist id={'ma-model-options'}>
+						{models.map((model) => (
+							<option value={model} key={model} />
+						))}
+					</datalist>
+				</div>
+			</details>
+
+			<details className={'ma-filter__group'} open>
+				<summary>
+					{t('Price')} ({currency === 'UZS' ? t("so'm") : '$'})
+				</summary>
 				<div className={'ma-filter__range'}>
 					<input
 						type="number"
 						min={0}
 						placeholder={t('Min') as string}
-						defaultValue={searchFilter?.search?.pricesRange?.start ?? ''}
-						key={`min-${searchFilter?.search?.pricesRange?.start}`}
-						onBlur={(e) => propertyPriceHandler(Number(e.target.value) || 0, 'start')}
+						defaultValue={toDisplay(searchFilter?.search?.pricesRange?.start)}
+						key={`min-${searchFilter?.search?.pricesRange?.start}-${currency}`}
+						onBlur={(e) => propertyPriceHandler(toUsd(Number(e.target.value) || 0), 'start')}
 						onKeyDown={(e: any) => e.key === 'Enter' && e.target.blur()}
 					/>
 					<span>—</span>
@@ -496,9 +577,9 @@ const Filter = (props: FilterType) => {
 						type="number"
 						min={0}
 						placeholder={t('Max') as string}
-						defaultValue={searchFilter?.search?.pricesRange?.end ?? ''}
-						key={`max-${searchFilter?.search?.pricesRange?.end}`}
-						onBlur={(e) => propertyPriceHandler(Number(e.target.value) || 2000000, 'end')}
+						defaultValue={toDisplay(searchFilter?.search?.pricesRange?.end)}
+						key={`max-${searchFilter?.search?.pricesRange?.end}-${currency}`}
+						onBlur={(e) => propertyPriceHandler(Number(e.target.value) ? toUsd(Number(e.target.value)) : 2000000, 'end')}
 						onKeyDown={(e: any) => e.key === 'Enter' && e.target.blur()}
 					/>
 				</div>
@@ -520,11 +601,23 @@ const Filter = (props: FilterType) => {
 			)}
 			{checkList(
 				'Options',
-				['propertyBarter', 'propertyRent'],
+				['carCustomsCleared', 'propertyNegotiable', 'propertyBarter'],
 				searchFilter?.search?.options,
 				propertyOptionSelectHandler,
-				(item) => t(item === 'propertyBarter' ? 'Barter' : 'Rent'),
+				(item) => t(optionLabels[item]),
 			)}
+			<label className={'ma-check ma-filter__single'}>
+				<input
+					type="checkbox"
+					checked={!!searchFilter?.search?.noAccident}
+					onChange={(e) => pushSearch({ noAccident: e.target.checked || undefined })}
+				/>
+				<span>{t('No accidents only')}</span>
+			</label>
+
+			<button className={'ma-btn ma-btn--outline ma-btn--block ma-filter__save'} onClick={saveSearchHandler}>
+				<NotificationsActiveOutlinedIcon /> {t('Save search & get alerts')}
+			</button>
 		</aside>
 	);
 };

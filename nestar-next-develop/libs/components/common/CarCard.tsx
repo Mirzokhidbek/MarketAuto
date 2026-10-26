@@ -1,3 +1,4 @@
+import { usePrice } from '../../hooks/usePrice';
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
@@ -16,6 +17,7 @@ interface CarCardProps {
 const CarCard = ({ property, onLike }: CarCardProps) => {
 	const router = useRouter();
 	const { t } = useTranslation('common');
+	const { price } = usePrice();
 	const [imageFailed, setImageFailed] = useState(false);
 	const image = property.propertyImages?.[0];
 	const liked = !!property.meLiked?.[0]?.myFavorite;
@@ -67,7 +69,7 @@ const CarCard = ({ property, onLike }: CarCardProps) => {
 				</div>
 				<p className={'ma-car-card__specs'}>{specs.join(' • ')}</p>
 				<div className={'ma-car-card__footer'}>
-					<strong className={'ma-car-card__price'}>${formatterStr(property.propertyPrice)}</strong>
+					<strong className={'ma-car-card__price'}>{price(property.propertyPrice)}</strong>
 					<button className={'ma-btn ma-btn--dark'} onClick={openDetail}>
 						{t('View Details')}
 					</button>
