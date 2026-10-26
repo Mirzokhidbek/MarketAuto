@@ -462,3 +462,18 @@
 		}
 	}
 }
+
+/* keyboard users always see where they are (mouse clicks stay clean) */
+:focus-visible {
+	outline: 3px solid rgba(11, 87, 208, 0.55) !important;
+	outline-offset: 2px;
+}
+
+/* respect "reduce motion" system setting */
+@media (prefers-reduced-motion: reduce) {
+	* {
+		animation-duration: 0.01ms !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
+	}
+}

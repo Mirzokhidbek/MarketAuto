@@ -71,7 +71,7 @@ const SavedSearches = () => {
 								<Link href={href}>
 									<span className={'ma-btn ma-btn--outline'}>{t('Open')}</span>
 								</Link>
-								<button className={'ma-icon-btn ma-icon-btn--danger'} onClick={() => removeHandler(item._id)} aria-label={'delete'}>
+								<button className={'ma-icon-btn ma-icon-btn--danger'} onClick={() => removeHandler(item._id)} aria-label={t('Delete') as string}>
 									<DeleteOutlineIcon />
 								</button>
 							</div>

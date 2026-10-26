@@ -62,7 +62,7 @@ const CarCard = ({ property, onLike }: CarCardProps) => {
 				<button
 					className={`ma-car-card__compare ${inCompare ? 'is-active' : ''}`}
 					title={(inCompare ? t('Remove from comparison') : t('Compare')) as string}
-					aria-label={'compare'}
+					aria-label={t('Compare') as string}
 					onClick={(e) => {
 						e.stopPropagation();
 						if (!toggleCompare(property._id)) sweetMixinErrorAlert(t('You can compare up to 3 cars.') as string).then();
@@ -73,7 +73,7 @@ const CarCard = ({ property, onLike }: CarCardProps) => {
 				{onLike && (
 					<button
 						className={`ma-car-card__like ${liked ? 'is-liked' : ''}`}
-						aria-label={'favorite'}
+						aria-label={t('Save to favorites') as string}
 						onClick={(e) => {
 							e.stopPropagation();
 							onLike(property._id);

@@ -154,7 +154,7 @@ const Top = () => {
 					</Box>
 					<button
 						className={'ma-burger'}
-						aria-label={'menu'}
+						aria-label={t('Menu') as string}
 						onClick={() => setMenuOpen((prev) => !prev)}
 					>
 						{menuOpen ? <CloseIcon /> : <MenuIcon />}
@@ -173,14 +173,15 @@ const Top = () => {
 						<Link href={'/agent'}>
 							<div> {t('Sellers')} </div>
 						</Link>
-						<Link href={'/community?articleCategory=FREE'}>
-							<div> {t('Community')} </div>
-						</Link>
 						{user?._id && (
 							<Link href={'/mypage'}>
 								<div> {t('My Page')} </div>
 							</Link>
 						)}
+						{/* buying and selling first; articles are secondary */}
+						<Link href={'/community?articleCategory=FREE'}>
+							<div> {t('Community')} </div>
+						</Link>
 						<Link href={'/cs'}>
 							<div> {t('CS')} </div>
 						</Link>

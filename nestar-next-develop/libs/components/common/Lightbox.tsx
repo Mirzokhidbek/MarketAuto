@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { useTranslation } from 'next-i18next';
 import CloseIcon from '@mui/icons-material/Close';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
@@ -14,6 +15,7 @@ interface LightboxProps {
 
 /** full-screen photo viewer: arrows / keyboard / swipe, Esc or background click closes */
 const Lightbox = ({ images, index, onIndex, onClose, alt }: LightboxProps) => {
+	const { t } = useTranslation('common');
 	const touchX = useRef<number | null>(null);
 	const go = (step: number) => onIndex((index + step + images.length) % images.length);
 
@@ -45,7 +47,7 @@ const Lightbox = ({ images, index, onIndex, onClose, alt }: LightboxProps) => {
 				touchX.current = null;
 			}}
 		>
-			<button className={'ma-lightbox__close'} onClick={onClose} aria-label={'close'}>
+			<button className={'ma-lightbox__close'} onClick={onClose} aria-label={t('Close') as string}>
 				<CloseIcon />
 			</button>
 			{images.length > 1 && (
@@ -55,7 +57,7 @@ const Lightbox = ({ images, index, onIndex, onClose, alt }: LightboxProps) => {
 						e.stopPropagation();
 						go(-1);
 					}}
-					aria-label={'previous'}
+					aria-label={t('Previous photo') as string}
 				>
 					<ChevronLeftIcon />
 				</button>
@@ -68,7 +70,7 @@ const Lightbox = ({ images, index, onIndex, onClose, alt }: LightboxProps) => {
 						e.stopPropagation();
 						go(1);
 					}}
-					aria-label={'next'}
+					aria-label={t('Next photo') as string}
 				>
 					<ChevronRightIcon />
 				</button>

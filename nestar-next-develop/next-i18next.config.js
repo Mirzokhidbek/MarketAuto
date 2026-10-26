@@ -1,6 +1,7 @@
 module.exports = {
 	i18n: {
-		defaultLocale: 'en',
+		// most visitors read Uzbek: plain URLs are Uzbek, /ru and /en are prefixed
+		defaultLocale: 'uz',
 		locales: ['en', 'uz', 'ru'],
 		localeDetection: false,
 	},

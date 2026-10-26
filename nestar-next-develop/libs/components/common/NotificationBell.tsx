@@ -23,6 +23,7 @@ const messages: Record<string, string> = {
 	LISTING_APPROVED_PROPERTY: 'Your listing was approved and is now visible',
 	LISTING_REJECTED_PROPERTY: 'Your listing was rejected by moderation',
 	NEW_LISTING_PROPERTY: 'New car for your saved search',
+	PRICE_DROP_PROPERTY: 'Price dropped on a car you saved',
 };
 
 const NotificationBell = () => {
