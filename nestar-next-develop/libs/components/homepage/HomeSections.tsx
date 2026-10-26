@@ -19,7 +19,7 @@ import { Member } from '../../types/member/member';
 import { CarCountry } from '../../enums/property.enum';
 import { Direction } from '../../enums/common.enum';
 import DealerCard from '../common/DealerCard';
-import { SUPPORT_PHONE } from '../../config';
+import { useSiteSettings } from '../../hooks/useSiteSettings';
 
 const searchLink = (country: CarCountry) =>
 	`/property?input=${JSON.stringify({ page: 1, limit: 9, sort: 'createdAt', search: { countryList: [country] } })}`;
@@ -176,6 +176,7 @@ export const TopDealers = () => {
 /** SELL CTA **/
 export const SellCta = () => {
 	const { t } = useTranslation('common');
+	const { phone: supportPhone } = useSiteSettings();
 	const user = useReactiveVar(userVar);
 	const sellHref = user?._id ? '/mypage?category=addProperty' : '/account/join';
 
@@ -208,7 +209,7 @@ export const SellCta = () => {
 						</div>
 						<div className={'ma-cta__card-row ma-cta__card-row--split'}>
 							<span>{t('Call center')}</span>
-							<strong>{SUPPORT_PHONE}</strong>
+							<strong>{supportPhone}</strong>
 						</div>
 					</div>
 				</div>

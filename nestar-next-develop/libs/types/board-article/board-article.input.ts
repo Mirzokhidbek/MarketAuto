@@ -25,6 +25,7 @@ export interface BoardArticlesInquiry {
 interface ABAISearch {
 	articleStatus?: BoardArticleStatus;
 	articleCategory?: BoardArticleCategory;
+	text?: string;
 }
 
 export interface AllBoardArticlesInquiry {

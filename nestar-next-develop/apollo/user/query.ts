@@ -232,6 +232,7 @@ export const GET_AGENT_PROPERTIES = gql`
 				_id
 				propertyType
 				propertyStatus
+				propertyRejectReason
 				propertyLocation
 				propertyAddress
 				propertyTitle
@@ -678,6 +679,7 @@ export const GET_NOTIFICATIONS = gql`
 				notificationStatus
 				notificationGroup
 				notificationTitle
+				notificationDesc
 				authorId
 				propertyId
 				articleId
@@ -832,6 +834,19 @@ export const GET_PRICE_ESTIMATE = gql`
 			average
 			count
 			verdict
+		}
+	}
+`;
+
+/** support contacts and social links edited in the admin panel */
+export const GET_SITE_SETTINGS = gql`
+	query GetSiteSettings {
+		getSiteSettings {
+			supportPhone
+			supportEmail
+			telegramUrl
+			instagramUrl
+			facebookUrl
 		}
 	}
 `;

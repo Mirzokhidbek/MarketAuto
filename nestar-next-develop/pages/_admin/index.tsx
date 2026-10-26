@@ -4,9 +4,12 @@ import React from 'react';
 import type { NextPage } from 'next';
 import Link from 'next/link';
 import { useQuery } from '@apollo/client';
+import moment from 'moment';
 import { Box, Typography } from '@mui/material';
 import withAdminLayout from '../../libs/components/layout/LayoutAdmin';
-import { GET_DASHBOARD_STATS } from '../../apollo/admin/query';
+import DailyColumns from '../../libs/components/admin/DailyColumns';
+import { GET_ALL_PROPERTIES_BY_ADMIN, GET_DASHBOARD_STATS, GET_REPORTS_BY_ADMIN } from '../../apollo/admin/query';
+import { formatterStr, imageUrl } from '../../libs/utils';
 import { T } from '../../libs/types/common';
 
 const cards = [
@@ -33,6 +36,18 @@ const AdminHome: NextPage = () => {
 	const { t } = useTranslation('common');
 	const { data, loading } = useQuery(GET_DASHBOARD_STATS, { fetchPolicy: 'network-only', pollInterval: 60000 });
 	const stats: T = data?.getDashboardStats ?? {};
+	const daily: T[] = stats.daily ?? [];
+	// the work queue: newest cars waiting for review and open complaints
+	const { data: pendingData } = useQuery(GET_ALL_PROPERTIES_BY_ADMIN, {
+		fetchPolicy: 'network-only',
+		variables: { input: { page: 1, limit: 5, sort: 'createdAt', direction: 'ASC', search: { propertyStatus: 'PENDING' } } },
+	});
+	const { data: reportsData } = useQuery(GET_REPORTS_BY_ADMIN, {
+		fetchPolicy: 'network-only',
+		variables: { input: { page: 1, limit: 5, reportStatus: 'OPEN' } },
+	});
+	const pending: T[] = pendingData?.getAllPropertiesByAdmin?.list ?? [];
+	const reports: T[] = reportsData?.getReportsByAdmin?.list ?? [];
 
 	return (
 		<Box component={'div'} className={'content'}>
@@ -49,6 +64,63 @@ const AdminHome: NextPage = () => {
 						</div>
 					</Link>
 				))}
+			</div>
+
+			{daily.length > 0 && (
+				<div className={'ma-admin-grid'}>
+					<DailyColumns
+						title={t('New cars per day')}
+						total={t('last 14 days') as string}
+						points={daily.map((day) => ({ date: day.date, value: day.cars }))}
+					/>
+					<DailyColumns
+						title={t('New members per day')}
+						total={t('last 14 days') as string}
+						points={daily.map((day) => ({ date: day.date, value: day.members }))}
+					/>
+				</div>
+			)}
+
+			<div className={'ma-admin-grid'}>
+				<section className={'ma-admin-card'}>
+					<header className={'ma-admin-card__head'}>
+						<h3>{t('Cars to review')}</h3>
+						<Link href={'/_admin/properties?status=PENDING'}>{t('See all')} →</Link>
+					</header>
+					{!pending.length && <p className={'ma-admin-card__empty'}>{t('Nothing waiting. Good job!')}</p>}
+					{pending.map((car) => (
+						<Link key={car._id} href={'/_admin/properties?status=PENDING'} className={'ma-admin-row'}>
+							{car.propertyImages?.[0] ? (
+								<img className={'ma-admin-thumb'} src={imageUrl(car.propertyImages[0])} alt={''} />
+							) : (
+								<span className={'ma-admin-thumb'} />
+							)}
+							<span>
+								<strong>{car.propertyTitle}</strong>
+								<small>
+									${formatterStr(car.propertyPrice)} · {car.memberData?.memberNick} · {moment(car.createdAt).fromNow()}
+								</small>
+							</span>
+						</Link>
+					))}
+				</section>
+				<section className={'ma-admin-card'}>
+					<header className={'ma-admin-card__head'}>
+						<h3>{t('Open reports')}</h3>
+						<Link href={'/_admin/reports'}>{t('See all')} →</Link>
+					</header>
+					{!reports.length && <p className={'ma-admin-card__empty'}>{t('No reports')}</p>}
+					{reports.map((report) => (
+						<Link key={report._id} href={'/_admin/reports'} className={'ma-admin-row'}>
+							<span>
+								<strong>{report.propertyData?.propertyTitle ?? t('Deleted listing')}</strong>
+								<small>
+									{t(`report_${report.reportReason}`)} · {report.memberData?.memberNick ?? '—'} · {moment(report.createdAt).fromNow()}
+								</small>
+							</span>
+						</Link>
+					))}
+				</section>
 			</div>
 		</Box>
 	);

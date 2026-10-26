@@ -51,7 +51,9 @@ const NotificationBell = () => {
 
 	const goHandler = async (item: T) => {
 		setAnchor(null);
-		if (item.propertyId) await router.push(`/property/detail?id=${item.propertyId}`);
+		// a rejected listing is not public: send the seller to the list where it can be fixed
+		if (item.notificationType === 'LISTING_REJECTED') await router.push('/mypage?category=myProperties&status=REJECTED');
+		else if (item.propertyId) await router.push(`/property/detail?id=${item.propertyId}`);
 		else if (item.articleId) await router.push(`/community/detail?id=${item.articleId}`);
 		else await router.push(`/member?memberId=${item.authorId}`);
 	};
@@ -92,6 +94,11 @@ const NotificationBell = () => {
 										{t(messages[key] ?? '{{name}}', { name })}
 										{item.notificationGroup !== 'MEMBER' && <strong> “{item.notificationTitle}”</strong>}
 									</p>
+									{item.notificationType === 'LISTING_REJECTED' && item.notificationDesc && (
+										<em className={'ma-bell__reason'}>
+											{t('Reason')}: {item.notificationDesc}
+										</em>
+									)}
 									<span>{moment(item.createdAt).fromNow()}</span>
 								</div>
 							</button>

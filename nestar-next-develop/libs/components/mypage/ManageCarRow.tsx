@@ -48,6 +48,15 @@ const ManageCarRow = ({ property, onDelete, onStatusChange }: ManageCarRowProps)
 			</div>
 			<div className={'ma-manage-row__info'}>
 				<strong onClick={openDetail}>{property.propertyTitle}</strong>
+				{/* moderation said why: fix the listing (edit) and it goes back to review */}
+				{property.propertyStatus === PropertyStatus.REJECTED && (
+					<p className={'ma-manage-row__reject'}>
+						<b>{t('Rejected')}:</b> {property.propertyRejectReason || t('No reason given')}.{' '}
+						<button type="button" className={'ma-link-btn'} onClick={openEdit}>
+							{t('Fix and send again')}
+						</button>
+					</p>
+				)}
 				<span>
 					{formatCountry(property.carCountry, t)} · {property.carYear} · {formatMileage(property.carMileage)} ·{' '}
 					{formatEnumLabel(property.carTransmission, t)}
@@ -70,6 +79,8 @@ const ManageCarRow = ({ property, onDelete, onStatusChange }: ManageCarRowProps)
 					<span className={'ma-status ma-status--pending'} title={t('Waiting for moderation') as string}>
 						{t('Under review')}
 					</span>
+				) : property.propertyStatus === PropertyStatus.REJECTED ? (
+					<span className={'ma-status ma-status--rejected'}>{t('Rejected')}</span>
 				) : (
 					<select
 						className={'ma-manage-row__status'}

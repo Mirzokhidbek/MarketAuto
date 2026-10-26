@@ -8,7 +8,7 @@ import withLayoutBasic from '../../libs/components/layout/LayoutBasic';
 import Notice from '../../libs/components/cs/Notice';
 import Faq from '../../libs/components/cs/Faq';
 import Inquiry from '../../libs/components/cs/Inquiry';
-import { SUPPORT_EMAIL, SUPPORT_PHONE, supportPhoneHref } from '../../libs/config';
+import { useSiteSettings } from '../../libs/hooks/useSiteSettings';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 
 export const getStaticProps = async ({ locale }: any) => ({
@@ -19,6 +19,7 @@ export const getStaticProps = async ({ locale }: any) => ({
 
 const CS: NextPage = () => {
 	const { t } = useTranslation('common');
+	const site = useSiteSettings();
 	const router = useRouter();
 
 	/** HANDLERS **/
@@ -62,11 +63,11 @@ const CS: NextPage = () => {
 				<aside className={'ma-panel ma-cs__contact'}>
 					<h3>{t('Still need help?')}</h3>
 					<p>{t('Ask a question in the Support Center — the answer appears in your account.')}</p>
-					<a className={'ma-btn ma-btn--primary ma-btn--block'} href={supportPhoneHref}>
-						<PhoneOutlinedIcon /> {SUPPORT_PHONE}
+					<a className={'ma-btn ma-btn--primary ma-btn--block'} href={site.phoneHref}>
+						<PhoneOutlinedIcon /> {site.phone}
 					</a>
-					<a className={'ma-btn ma-btn--outline ma-btn--block'} href={`mailto:${SUPPORT_EMAIL}`}>
-						<MailOutlineIcon /> {SUPPORT_EMAIL}
+					<a className={'ma-btn ma-btn--outline ma-btn--block'} href={`mailto:${site.email}`}>
+						<MailOutlineIcon /> {site.email}
 					</a>
 					<button className={'ma-btn ma-btn--outline ma-btn--block'} onClick={() => changeTabHandler('inquiry')}>
 						{t('Ask a question')}
