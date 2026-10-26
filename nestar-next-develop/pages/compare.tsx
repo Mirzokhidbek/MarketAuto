@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { NextPage } from 'next';
 import Link from 'next/link';
 import { useTranslation } from 'next-i18next';
@@ -27,6 +27,7 @@ const ComparePage: NextPage = () => {
 	const { t } = useTranslation('common');
 	const { price } = usePrice();
 	const ids = useReactiveVar(compareVar);
+	const [failed, setFailed] = useState<string[]>([]);
 	const cars = [useCar(ids[0]), useCar(ids[1]), useCar(ids[2])].filter(Boolean) as Property[];
 
 	if (!ids.length) {
@@ -83,10 +84,14 @@ const ComparePage: NextPage = () => {
 							<tr>
 								<th />
 								{cars.map((car) => (
-									<td key={car._id}>
+									<td key={car._id} style={{ width: `${Math.floor(100 / Math.max(cars.length, 1))}%` }}>
 										<div className={'ma-compare__car'}>
-											{car.propertyImages?.[0] ? (
-												<img src={imageUrl(car.propertyImages[0])} alt={car.propertyTitle} />
+											{car.propertyImages?.[0] && !failed.includes(car._id) ? (
+												<img
+													src={imageUrl(car.propertyImages[0])}
+													alt={car.propertyTitle}
+													onError={() => setFailed((prev) => [...prev, car._id])}
+												/>
 											) : (
 												<div className={'ma-car-card__placeholder'}>
 													<DirectionsCarFilledOutlinedIcon />

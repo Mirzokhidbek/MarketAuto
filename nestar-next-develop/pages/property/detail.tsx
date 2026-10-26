@@ -1,3 +1,4 @@
+import { fetchWithTimeout } from '../../libs/utils';
 import Lightbox from '../../libs/components/common/Lightbox';
 import ReportButton from '../../libs/components/common/ReportButton';
 import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
@@ -52,9 +53,11 @@ import { CREATE_COMMENT, LIKE_TARGET_PROPERTY } from '../../apollo/user/mutation
 
 /** car basics fetched on the server so search engines and link previews (Telegram etc.) see real title, price and photo */
 const fetchCarSeo = async (id?: string) => {
-	if (!id || !process.env.REACT_APP_API_GRAPHQL_URL) return null;
+	// API_INTERNAL_GRAPHQL_URL: server-only address (e.g. http://api:3007/graphql inside docker)
+	const url = process.env.API_INTERNAL_GRAPHQL_URL || process.env.REACT_APP_API_GRAPHQL_URL;
+	if (!id || !url) return null;
 	try {
-		const response = await fetch(process.env.REACT_APP_API_GRAPHQL_URL, {
+		const response = await fetchWithTimeout(url, {
 			method: 'POST',
 			headers: { 'content-type': 'application/json' },
 			body: JSON.stringify({
@@ -62,7 +65,6 @@ const fetchCarSeo = async (id?: string) => {
 					'query($id:String!){getProperty(propertyId:$id){propertyTitle propertyPrice carYear carMileage carBrand carModel propertyImages propertyDesc}}',
 				variables: { id },
 			}),
-			signal: AbortSignal.timeout(3000),
 		});
 		const { data } = await response.json();
 		return data?.getProperty ?? null;

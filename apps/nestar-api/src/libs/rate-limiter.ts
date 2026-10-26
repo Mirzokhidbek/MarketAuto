@@ -48,15 +48,17 @@ export class RateLimiter {
 }
 
 const MINUTE = 60 * 1000;
+// per-IP limits are strict in production; in development many tests run from one IP (localhost)
+const ipFactor = process.env.NODE_ENV === 'production' ? 1 : 20;
 
 export const limiters = {
 	// wrong passwords per nick and per IP
 	loginNick: new RateLimiter(5, 15 * MINUTE),
-	loginIp: new RateLimiter(30, 15 * MINUTE),
-	signupIp: new RateLimiter(10, 60 * MINUTE),
+	loginIp: new RateLimiter(30 * ipFactor, 15 * MINUTE),
+	signupIp: new RateLimiter(10 * ipFactor, 60 * MINUTE),
 	// SMS codes per phone and per IP
 	smsPhone: new RateLimiter(3, 10 * MINUTE),
-	smsIp: new RateLimiter(10, 60 * MINUTE),
+	smsIp: new RateLimiter(10 * ipFactor, 60 * MINUTE),
 	// wrong SMS codes per phone
 	codeCheck: new RateLimiter(5, 15 * MINUTE),
 	messages: new RateLimiter(30, MINUTE),

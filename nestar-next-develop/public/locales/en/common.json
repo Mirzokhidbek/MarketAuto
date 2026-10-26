@@ -740,5 +740,12 @@
 	"member_AGENT": "Dealer",
 	"member_ADMIN": "Admin",
 	"Back on sale": "Back on sale",
-	"terms_suffix": ""
+	"terms_suffix": "",
+	"Your listing was approved and is now visible": "Your listing was approved and is now visible",
+	"Your listing was rejected by moderation": "Your listing was rejected by moderation",
+	"New car for your saved search": "New car for your saved search",
+	"Home / Compare": "Home / Compare",
+	"Home / Terms of Use": "Home / Terms of Use",
+	"Home / Privacy Policy": "Home / Privacy Policy",
+	"You haven't saved any cars yet. Tap the heart on a car to save it.": "You haven't saved any cars yet. Tap the heart on a car to save it."
 }

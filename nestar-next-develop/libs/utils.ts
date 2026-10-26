@@ -114,3 +114,14 @@ export const imageUrl = (path?: string | null): string => {
 	if (!path) return '';
 	return /^https?:\/\//.test(path) ? path : `${process.env.REACT_APP_API_URL}/${path}`;
 };
+
+/** fetch that gives up after `ms` (server-side rendering must not hang when the API is slow) */
+export const fetchWithTimeout = async (url: string, init: RequestInit, ms = 3000): Promise<Response> => {
+	const controller = new AbortController();
+	const timer = setTimeout(() => controller.abort(), ms);
+	try {
+		return await fetch(url, { ...init, signal: controller.signal });
+	} finally {
+		clearTimeout(timer);
+	}
+};

@@ -20,6 +20,9 @@ const messages: Record<string, string> = {
 	COMMENT_ARTICLE: '{{name}} commented on your article',
 	COMMENT_MEMBER: '{{name}} left a review on your profile',
 	FOLLOW_MEMBER: '{{name}} started following you',
+	LISTING_APPROVED_PROPERTY: 'Your listing was approved and is now visible',
+	LISTING_REJECTED_PROPERTY: 'Your listing was rejected by moderation',
+	NEW_LISTING_PROPERTY: 'New car for your saved search',
 };
 
 const NotificationBell = () => {

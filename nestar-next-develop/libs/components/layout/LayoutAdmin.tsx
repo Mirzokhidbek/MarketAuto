@@ -174,6 +174,8 @@ const withAdminLayout = (Component: ComponentType) => {
 						variant={compact ? 'temporary' : 'permanent'}
 						open={compact ? drawerOpen : true}
 						onClose={() => setDrawerOpen(false)}
+						// stay inside #pc-wrap.admin so the dark admin theme applies to the mobile drawer too
+						ModalProps={{ disablePortal: true, keepMounted: true }}
 						anchor="left"
 						className="aside"
 					>
