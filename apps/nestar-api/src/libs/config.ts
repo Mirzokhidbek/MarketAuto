@@ -19,31 +19,11 @@ export const availableBoardArticleSorts = ['createdAt', 'updatedAt', 'articleLik
 export const availableCommentSorts = ['createdAt', 'updatedAt'];
 
 /** IMAGE CONFIGURATION **/
-import { v4 as uuidv4 } from 'uuid';
-import * as path from 'path';
-import * as fs from 'fs';
 import { T } from './types/common';
 
-export const validMimeTypes = ['image/png', 'image/jpg', 'image/jpeg', 'image/webp'];
-const mimeExtensions: Record<string, string> = {
-	'image/png': '.png',
-	'image/jpg': '.jpg',
-	'image/jpeg': '.jpg',
-	'image/webp': '.webp',
-};
-export const getSerialForImage = (mimetype: string) => {
-	// extension comes from the validated mimetype, never from the client file name
-	return uuidv4() + (mimeExtensions[mimetype] ?? '.jpg');
-};
-
+export const validMimeTypes = ['image/png', 'image/jpg', 'image/jpeg', 'image/webp', 'image/heic', 'image/heif'];
 // only these folders can be written to; anything else (e.g. '../../') is rejected
 export const uploadTargets = ['member', 'property', 'article'];
-export const getUploadDir = (target: string): string | null => {
-	if (!uploadTargets.includes(target)) return null;
-	const dir = path.join('uploads', target);
-	fs.mkdirSync(dir, { recursive: true });
-	return dir;
-};
 
 /** caller IP from the GraphQL context (set TRUST_PROXY=1 behind nginx so X-Forwarded-For is used) */
 export const clientIp = (context: any): string =>
