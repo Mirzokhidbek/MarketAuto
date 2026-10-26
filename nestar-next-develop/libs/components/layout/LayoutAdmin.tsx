@@ -50,9 +50,10 @@ const withAdminLayout = (Component: ComponentType) => {
 		}, []);
 
 		useEffect(() => {
-			if (!loading && user.memberType !== MemberType.ADMIN) {
-				router.push('/').then();
-			}
+			if (loading || user.memberType === MemberType.ADMIN) return;
+			// not logged in: log in first and come back here; logged in but not an admin: home page
+			if (!getJwtToken()) router.replace(`/account/join?referrer=${encodeURIComponent(router.asPath)}`).then();
+			else router.replace('/').then();
 		}, [loading, user, router]);
 
 		/** HANDLERS **/

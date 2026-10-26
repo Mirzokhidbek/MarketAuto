@@ -50,6 +50,19 @@ export class PasswordInput {
 }
 
 @InputType()
+export class AdminCodeInput {
+	@IsNotEmpty()
+	@Length(3, 20)
+	@Field(() => String)
+	memberNick!: string;
+
+	@IsNotEmpty()
+	@Length(6, 6)
+	@Field(() => String)
+	code!: string;
+}
+
+@InputType()
 export class LoginInput {
 	/** nickname or phone number */
 	@IsNotEmpty()

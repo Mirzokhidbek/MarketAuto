@@ -2,7 +2,7 @@ import { Query, Resolver } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { DashboardStats } from '../../libs/dto/dashboard/dashboard';
+import { DailyStat, DashboardStats } from '../../libs/dto/dashboard/dashboard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { MemberStatus, MemberType } from '../../libs/enums/member.enum';
@@ -20,6 +20,28 @@ export class DashboardResolver {
 		@InjectModel('Notice') private readonly noticeModel: Model<any>,
 		@InjectModel('Report') private readonly reportModel: Model<any>,
 	) {}
+
+	/** new members and new listings per day, oldest first, days without activity included */
+	private async daily(days: number): Promise<DailyStat[]> {
+		const since = new Date(Date.now() - (days - 1) * 24 * 60 * 60 * 1000);
+		since.setHours(0, 0, 0, 0);
+		const perDay = async (model: Model<any>, match: Record<string, any>) => {
+			const rows = await model
+				.aggregate([
+					{ $match: { ...match, createdAt: { $gte: since } } },
+					{ $group: { _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt', timezone: 'Asia/Tashkent' } }, count: { $sum: 1 } } },
+				])
+				.exec();
+			return new Map(rows.map((row: any) => [row._id, row.count]));
+		};
+		const members = await perDay(this.memberModel, { memberType: { $ne: MemberType.ADMIN } });
+		const cars = await perDay(this.propertyModel, {});
+		return Array.from({ length: days }, (_, index) => {
+			const day = new Date(since.getTime() + index * 24 * 60 * 60 * 1000);
+			const date = day.toLocaleDateString('sv-SE', { timeZone: 'Asia/Tashkent' });
+			return { date, members: (members.get(date) as number) ?? 0, cars: (cars.get(date) as number) ?? 0 };
+		});
+	}
 
 	@Roles(MemberType.ADMIN)
 	@UseGuards(RolesGuard)
@@ -58,6 +80,7 @@ export class DashboardResolver {
 		]);
 
 		return {
+			daily: await this.daily(14),
 			membersTotal,
 			membersBlocked,
 			dealers,

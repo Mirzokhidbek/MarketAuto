@@ -35,7 +35,17 @@ export enum VerificationPurpose {
 	RESET_PASSWORD = 'RESET_PASSWORD',
 	CHANGE_PHONE = 'CHANGE_PHONE',
 	LOGIN = 'LOGIN',
+	ADMIN_2FA = 'ADMIN_2FA', // second step of an admin login
 }
 registerEnumType(VerificationPurpose, {
 	name: 'VerificationPurpose',
+});
+
+/** SUPER: everything; MODERATOR: listings, reports, community and support, but not members, settings or the log */
+export enum AdminRole {
+	SUPER = 'SUPER',
+	MODERATOR = 'MODERATOR',
+}
+registerEnumType(AdminRole, {
+	name: 'AdminRole',
 });

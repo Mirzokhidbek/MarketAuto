@@ -1,6 +1,6 @@
 import { PriceEstimate } from '../../libs/dto/property/price-estimate';
 import { CarBrand } from '../../libs/enums/property.enum';
-import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { Args, Int, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { PropertyService } from './property.service';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { MemberType } from '../../libs/enums/member.enum';
@@ -18,7 +18,7 @@ import { AuthMember } from '../auth/decorators/authMember.decorator';
 import type { ObjectId } from 'mongoose';
 import { WithoutGuard } from '../auth/guards/without.guard';
 import { shapeIntoMongoObjectId } from '../../libs/config';
-import { PropertyUpdate } from '../../libs/dto/property/property.update';
+import { BulkModerationInput, PropertyUpdate } from '../../libs/dto/property/property.update';
 import { AuthGuard } from '../auth/guards/auth.guard';
 
 @Resolver()
@@ -128,19 +128,36 @@ export class PropertyResolver {
 	@Roles(MemberType.ADMIN)
 	@UseGuards(RolesGuard)
 	@Mutation((returns) => Property)
-	public async updatePropertyByAdmin(@Args('input') input: PropertyUpdate): Promise<Property> {
+	public async updatePropertyByAdmin(
+		@Args('input') input: PropertyUpdate,
+		@AuthMember('_id') adminId: ObjectId,
+	): Promise<Property> {
 		console.log('Mutation: updatePropertyByAdmin');
 		input._id = shapeIntoMongoObjectId(input._id);
-		return await this.propertyService.updatePropertyByAdmin(input);
+		return await this.propertyService.updatePropertyByAdmin(input, adminId);
+	}
+
+	@Roles(MemberType.ADMIN)
+	@UseGuards(RolesGuard)
+	@Mutation(() => Int)
+	public async bulkModerateByAdmin(
+		@Args('input') input: BulkModerationInput,
+		@AuthMember('_id') adminId: ObjectId,
+	): Promise<number> {
+		console.log('Mutation: bulkModerateByAdmin');
+		return await this.propertyService.bulkModerateByAdmin(input, adminId);
 	}
 
 	@Roles(MemberType.ADMIN)
 	@UseGuards(RolesGuard)
 	@Mutation((returns) => Property)
-	public async removePropertyByAdmin(@Args('propertyId') input: string): Promise<Property> {
+	public async removePropertyByAdmin(
+		@Args('propertyId') input: string,
+		@AuthMember('_id') adminId: ObjectId,
+	): Promise<Property> {
 		console.log('Mutation: removePropertyByAdmin');
 		const propertyId = shapeIntoMongoObjectId(input);
-		return await this.propertyService.removePropertyByAdmin(propertyId);
+		return await this.propertyService.removePropertyByAdmin(propertyId, adminId);
 	}
 
 	/** models already listed for a brand, for the model filter / autocomplete */

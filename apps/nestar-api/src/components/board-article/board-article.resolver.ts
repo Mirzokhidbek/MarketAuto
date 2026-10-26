@@ -1,3 +1,4 @@
+import { AdminLogService } from '../admin-log/admin-log.service';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
 import type { ObjectId } from 'mongoose';
@@ -19,7 +20,10 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 
 @Resolver()
 export class BoardArticleResolver {
-	constructor(private readonly boardArticleService: BoardArticleService) {}
+	constructor(
+		private readonly boardArticleService: BoardArticleService,
+		private readonly adminLogService: AdminLogService,
+	) {}
 
 	@UseGuards(AuthGuard)
 	@Mutation((returns) => BoardArticle)
@@ -96,7 +100,9 @@ export class BoardArticleResolver {
 	): Promise<BoardArticle> {
 		console.log('Mutation: updateBoardArticleByAdmin');
 		input._id = shapeIntoMongoObjectId(input._id);
-		return await this.boardArticleService.updateBoardArticleByAdmin(input);
+		const result = await this.boardArticleService.updateBoardArticleByAdmin(input);
+		if (input.articleStatus) await this.adminLogService.log(memberId, `ARTICLE_${input.articleStatus}`, 'ARTICLE', result._id, result.articleTitle);
+		return result;
 	}
 
 	@Roles(MemberType.ADMIN)
@@ -108,6 +114,8 @@ export class BoardArticleResolver {
 	): Promise<BoardArticle> {
 		console.log('Mutation: removeBoardArticleByAdmin');
 		const articleId = shapeIntoMongoObjectId(input);
-		return await this.boardArticleService.removeBoardArticleByAdmin(articleId);
+		const result = await this.boardArticleService.removeBoardArticleByAdmin(articleId);
+		await this.adminLogService.log(memberId, 'ARTICLE_REMOVE', 'ARTICLE', result._id, result.articleTitle);
+		return result;
 	}
 }

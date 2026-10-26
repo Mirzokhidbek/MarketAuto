@@ -153,7 +153,29 @@ export class PropertyUpdate {
 
 	propertyPriceOriginal?: number;
 
+	/** admin: reason sent to the seller when the listing is rejected */
+	@IsOptional()
+	@Length(2, 300)
+	@Field(() => String, { nullable: true })
+	propertyRejectReason?: string;
+
 	soldAt?: Date;
 
 	deletedAt?: Date;
+}
+
+@InputType()
+export class BulkModerationInput {
+	@IsNotEmpty()
+	@Field(() => [String])
+	ids!: string[];
+
+	@IsNotEmpty()
+	@Field(() => PropertyStatus)
+	propertyStatus!: PropertyStatus;
+
+	@IsOptional()
+	@Length(2, 300)
+	@Field(() => String, { nullable: true })
+	propertyRejectReason?: string;
 }

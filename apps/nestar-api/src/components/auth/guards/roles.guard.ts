@@ -29,6 +29,10 @@ export class RolesGuard implements CanActivate {
 				hasPermission: boolean = hasRole();
 
 			if (!authMember || !hasPermission) throw new ForbiddenException(Message.ONLY_SPECIFIC_ROLES_ALLOWED);
+			// moderators cannot touch members, settings or the admin log
+			const superOnly = this.reflector.get<boolean>('superAdmin', context.getHandler());
+			if (superOnly && (authMember as any).memberAdminRole === 'MODERATOR')
+				throw new ForbiddenException(Message.ONLY_SPECIFIC_ROLES_ALLOWED);
 
 			console.log('memberNick[roles] =>', authMember.memberNick);
 			request.body.authMember = authMember;

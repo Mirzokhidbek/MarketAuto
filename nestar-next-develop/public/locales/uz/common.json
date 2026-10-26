@@ -797,5 +797,7 @@
 	"Show {{count}} cars": "{{count}} ta mashinani ko'rsatish",
 	"Please add at least 3 photos": "Kamida 3 ta rasm qo'shing",
 	"Price dropped on a car you saved": "Saqlagan mashinangiz narxi tushdi",
-	"No account with this nickname or phone!": "Bunday nik yoki telefon raqamli akkaunt yo'q!"
+	"No account with this nickname or phone!": "Bunday nik yoki telefon raqamli akkaunt yo'q!",
+	"Rows per page": "Sahifada",
+	"Unresolved": "Ko'rib chiqilmagan"
 }

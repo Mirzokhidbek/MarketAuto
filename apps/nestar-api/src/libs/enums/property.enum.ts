@@ -17,6 +17,7 @@ registerEnumType(PropertyType, {
 
 export enum PropertyStatus {
 	PENDING = 'PENDING', // waiting for admin approval (listings of new, not yet trusted members)
+	REJECTED = 'REJECTED', // moderation said no (see propertyRejectReason); the owner can fix it and resubmit
 	ACTIVE = 'ACTIVE',
 	SOLD = 'SOLD',
 	DELETE = 'DELETE',

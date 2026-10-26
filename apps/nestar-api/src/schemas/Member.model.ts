@@ -1,5 +1,5 @@
 import { Schema } from 'mongoose';
-import { MemberAuthType, MemberStatus, MemberType } from '../libs/enums/member.enum';
+import { AdminRole, MemberAuthType, MemberStatus, MemberType } from '../libs/enums/member.enum';
 
 const MemberSchema = new Schema(
 	{
@@ -43,6 +43,17 @@ const MemberSchema = new Schema(
 		memberTrusted: {
 			type: Boolean,
 			default: false,
+		},
+
+		// only for admins
+		memberAdminRole: {
+			type: String,
+			enum: AdminRole,
+		},
+
+		// why an admin blocked this member (shown in the admin panel)
+		memberBlockReason: {
+			type: String,
 		},
 
 		// admin checked the dealership documents

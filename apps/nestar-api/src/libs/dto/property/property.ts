@@ -91,6 +91,9 @@ export class Property {
 	@Field(() => Boolean, { nullable: true })
 	propertyNegotiable?: boolean;
 
+	@Field(() => String, { nullable: true })
+	propertyRejectReason?: string;
+
 	@Field(() => PriceCurrency, { nullable: true })
 	propertyPriceCurrency?: PriceCurrency;
 

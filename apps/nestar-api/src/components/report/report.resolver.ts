@@ -1,3 +1,4 @@
+import { AdminLogService } from '../admin-log/admin-log.service';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
 import type { ObjectId } from 'mongoose';
@@ -11,7 +12,10 @@ import { MemberType } from '../../libs/enums/member.enum';
 
 @Resolver()
 export class ReportResolver {
-	constructor(private readonly reportService: ReportService) {}
+	constructor(
+		private readonly reportService: ReportService,
+		private readonly adminLogService: AdminLogService,
+	) {}
 
 	@UseGuards(AuthGuard)
 	@Mutation(() => Report)
@@ -30,8 +34,13 @@ export class ReportResolver {
 	@Roles(MemberType.ADMIN)
 	@UseGuards(RolesGuard)
 	@Mutation(() => Report)
-	public async resolveReport(@Args('input') input: ResolveReportInput): Promise<Report> {
+	public async resolveReport(
+		@Args('input') input: ResolveReportInput,
+		@AuthMember('_id') adminId: ObjectId,
+	): Promise<Report> {
 		console.log('Mutation: resolveReport');
-		return await this.reportService.resolveReport(input);
+		const result = await this.reportService.resolveReport(input);
+		await this.adminLogService.log(adminId, `REPORT_${input.action}`, 'REPORT', input.reportId, String(result.propertyId));
+		return result;
 	}
 }
