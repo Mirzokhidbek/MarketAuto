@@ -18,7 +18,6 @@ import { useReactiveVar } from '@apollo/client';
 import { userVar } from '../../apollo/store';
 import { Logout } from '@mui/icons-material';
 import { REACT_APP_API_URL } from '../config';
-import { MemberType } from '../enums/member.enum';
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 
@@ -185,11 +184,6 @@ const Top = () => {
 						<Link href={'/cs'}>
 							<div> {t('CS')} </div>
 						</Link>
-						{user?.memberType === MemberType.ADMIN && (
-							<Link href={'/_admin'}>
-								<div> {t('Admin')} </div>
-							</Link>
-						)}
 						{/* phones: actions that do not fit into the header bar */}
 						<div className={'ma-burger-extras'} onClick={(e) => e.stopPropagation()}>
 							<Link href={user?._id ? '/mypage?category=addProperty' : '/account/join'}>

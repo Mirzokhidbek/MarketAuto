@@ -1,6 +1,19 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql';
 
 @ObjectType()
+export class DailyStat {
+	/** YYYY-MM-DD (Tashkent time) */
+	@Field(() => String)
+	date!: string;
+
+	@Field(() => Int)
+	members!: number;
+
+	@Field(() => Int)
+	cars!: number;
+}
+
+@ObjectType()
 export class DashboardStats {
 	@Field(() => Int)
 	membersTotal!: number;
@@ -37,4 +50,7 @@ export class DashboardStats {
 
 	@Field(() => Int)
 	reportsOpen!: number;
+
+	@Field(() => [DailyStat])
+	daily!: DailyStat[];
 }

@@ -5,12 +5,14 @@ import { BadRequestException, Injectable, InternalServerErrorException } from '@
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, ObjectId } from 'mongoose';
 import { Member, Members } from '../../libs/dto/member/member';
-import { AgentsInquiry, LoginInput, MemberInput, MembersInquiry, PasswordInput } from '../../libs/dto/member/member.input';
+import { AdminCodeInput, AgentsInquiry, LoginInput, MemberInput, MembersInquiry, PasswordInput } from '../../libs/dto/member/member.input';
 import { ChangePhoneInput, CodeLoginInput, ResetPasswordInput } from '../../libs/dto/verification/verification';
 import { VerificationService } from '../verification/verification.service';
 import { isValidPhone, limiters, normalizePhone } from '../../libs/rate-limiter';
 import { Direction, Message } from '../../libs/enums/common.enum';
-import { MemberStatus, MemberType, VerificationPurpose } from '../../libs/enums/member.enum';
+import { AdminRole, MemberStatus, MemberType, VerificationPurpose } from '../../libs/enums/member.enum';
+import { AdminLogService } from '../admin-log/admin-log.service';
+import { MemberAdminDetail } from '../../libs/dto/member/member-admin';
 import { AuthService } from '../auth/auth.service';
 import { MemberUpdate } from '../../libs/dto/member/member.update';
 import { StatisticModifier, T } from '../../libs/types/common';
@@ -33,6 +35,7 @@ export class MemberService {
 		private notificationService: NotificationService,
 		private verificationService: VerificationService,
 		private storageService: StorageService,
+		private adminLogService: AdminLogService,
 	) {}
 
 	public async signup(input: MemberInput, ip: string, userAgent?: string): Promise<Member> {
@@ -84,7 +87,21 @@ export class MemberService {
 			throw new InternalServerErrorException(Message.WRONG_PASSWORD);
 		}
 		limiters.loginNick.reset(nickKey);
+
+		// admins: the password is only the first step, an SMS code to the admin phone is the second
+		if (response.memberType === MemberType.ADMIN && process.env.ADMIN_2FA !== 'off') {
+			const sent = await this.verificationService.requestCode(response.memberPhone, VerificationPurpose.ADMIN_2FA, ip);
+			return { memberNick: response.memberNick, twoFactorRequired: true, devCode: sent.devCode } as Member;
+		}
 		return await this.authService.issueTokens(response, userAgent);
+	}
+
+	/** second step of an admin login */
+	public async verifyAdminLogin(input: AdminCodeInput, userAgent?: string): Promise<Member> {
+		const member = await this.memberModel.findOne({ memberNick: input.memberNick, memberType: MemberType.ADMIN }).exec();
+		if (!member || member.memberStatus !== MemberStatus.ACTIVE) throw new BadRequestException(Message.WRONG_CODE);
+		await this.verificationService.consumeCode(member.memberPhone, VerificationPurpose.ADMIN_2FA, input.code);
+		return await this.authService.issueTokens(member, userAgent);
 	}
 
 	/** password-less login: SMS code to the account phone */
@@ -93,6 +110,8 @@ export class MemberService {
 		const member = await this.memberModel.findOne({ memberPhone }).exec();
 		if (!member || member.memberStatus === MemberStatus.DELETE) throw new BadRequestException(Message.WRONG_CODE);
 		if (member.memberStatus === MemberStatus.BLOCK) throw new InternalServerErrorException(Message.BLOCKED_USER);
+		// an SMS alone is not enough for an admin account
+		if (member.memberType === MemberType.ADMIN) throw new BadRequestException(Message.NOT_ALLOWED_REQUEST);
 		return await this.authService.issueTokens(member, userAgent);
 	}
 
@@ -215,8 +234,12 @@ export class MemberService {
 		};
 		const sort: T = { [input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC };
 
-		if (text) match.memberNick = { $regex: searchRegex(text) };
-		console.log('match:', match);
+		// admins search by nickname, name or phone ("90 123 45 67" finds 998901234567)
+		if (text) {
+			const digits = text.replace(/\D/g, '');
+			match.$or = [{ memberNick: { $regex: searchRegex(text) } }, { memberFullName: { $regex: searchRegex(text) } }];
+			if (digits.length >= 4) match.$or.push({ memberPhone: { $regex: searchRegex(digits) } });
+		}
 
 		const result = (await this.memberModel
 			.aggregate([
@@ -298,9 +321,18 @@ export class MemberService {
 		return result[0];
 	}
 
-	public async updateMemberByAdmin(input: MemberUpdate): Promise<Member> {
+	public async updateMemberByAdmin(input: MemberUpdate, adminId?: ObjectId): Promise<Member> {
+		const before = await this.memberModel.findById(input._id).lean().exec();
+		if (!before) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
 		// admin can reset a password; it must be stored hashed like on signup
 		if (input.memberPassword) input.memberPassword = await this.authService.hashPassword(input.memberPassword);
+		// block reason is kept only while the member is blocked
+		if (input.memberStatus && input.memberStatus !== MemberStatus.BLOCK) (input as T).memberBlockReason = null;
+		// an admin role only makes sense for admins
+		const becomesAdmin = (input.memberType ?? before.memberType) === MemberType.ADMIN;
+		if (!becomesAdmin) (input as T).memberAdminRole = null;
+		else if (input.memberType === MemberType.ADMIN && !input.memberAdminRole && !before.memberAdminRole)
+			input.memberAdminRole = AdminRole.MODERATOR;
 		// a new password, block or delete ends every session of that member
 		if (input.memberPassword || (input.memberStatus && input.memberStatus !== MemberStatus.ACTIVE))
 			await this.authService.revokeAllSessions(input._id);
@@ -308,7 +340,43 @@ export class MemberService {
 			.findOneAndUpdate({ _id: input._id }, input, { new: true })
 			.exec();
 		if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED);
+
+		// audit: one entry per kind of change
+		const changes: [string, string | undefined][] = [];
+		if (input.memberStatus && input.memberStatus !== before.memberStatus)
+			changes.push([`MEMBER_${input.memberStatus}`, input.memberBlockReason]);
+		if (input.memberType && input.memberType !== before.memberType) changes.push(['MEMBER_TYPE', `${before.memberType} -> ${input.memberType}`]);
+		if (input.memberAdminRole && input.memberAdminRole !== before.memberAdminRole) changes.push(['MEMBER_ADMIN_ROLE', input.memberAdminRole]);
+		if (input.memberPassword) changes.push(['MEMBER_PASSWORD_RESET', undefined]);
+		if (input.memberTrusted !== undefined && input.memberTrusted !== before.memberTrusted) changes.push(['MEMBER_TRUSTED', String(input.memberTrusted)]);
+		if (input.memberDealerVerified !== undefined && input.memberDealerVerified !== before.memberDealerVerified)
+			changes.push(['MEMBER_DEALER_VERIFIED', String(input.memberDealerVerified)]);
+		for (const [action, details] of changes)
+			await this.adminLogService.log(adminId, action, 'MEMBER', result._id, `${result.memberNick}${details ? ': ' + details : ''}`);
 		return result;
+	}
+
+	/** everything an admin needs about one member on a single screen */
+	public async getMemberAdminDetail(memberId: ObjectId): Promise<MemberAdminDetail> {
+		const member = await this.memberModel.findById(memberId).lean().exec();
+		if (!member) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+		const db = this.memberModel.db;
+		const cars = await db.collection('properties').aggregate([{ $match: { memberId: member._id } }, { $group: { _id: '$propertyStatus', count: { $sum: 1 } } }]).toArray();
+		const carIds = (await db.collection('properties').find({ memberId: member._id }, { projection: { _id: 1 } }).toArray()).map((car: any) => car._id);
+		const count = (status: string) => cars.find((row: any) => row._id === status)?.count ?? 0;
+		return {
+			member: member as Member,
+			carsActive: count('ACTIVE'),
+			carsPending: count('PENDING'),
+			carsRejected: count('REJECTED'),
+			carsSold: count('SOLD'),
+			carsDeleted: count('DELETE'),
+			reportsAgainst: await db.collection('reports').countDocuments({ propertyId: { $in: carIds } }),
+			reportsMade: await db.collection('reports').countDocuments({ memberId: member._id }),
+			reviewsReceived: await db.collection('comments').countDocuments({ commentRefId: member._id, commentStatus: 'ACTIVE' }),
+			conversations: await db.collection('conversations').countDocuments({ participants: member._id }),
+			activeSessions: await db.collection('sessions').countDocuments({ memberId: member._id, expiresAt: { $gt: new Date() } }),
+		};
 	}
 
 	public async isTrusted(memberId: ObjectId): Promise<boolean> {

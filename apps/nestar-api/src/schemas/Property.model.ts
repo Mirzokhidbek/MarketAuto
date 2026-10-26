@@ -172,6 +172,11 @@ const PropertySchema = new Schema(
 			default: false,
 		},
 
+		// moderation: why the listing was rejected (shown to the seller)
+		propertyRejectReason: {
+			type: String,
+		},
+
 		propertyNegotiable: {
 			type: Boolean,
 			default: false,

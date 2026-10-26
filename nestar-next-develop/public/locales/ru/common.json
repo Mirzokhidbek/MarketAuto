@@ -797,5 +797,7 @@
 	"Show {{count}} cars": "Показать {{count}} авто",
 	"Please add at least 3 photos": "Добавьте минимум 3 фото",
 	"Price dropped on a car you saved": "Цена на сохранённое авто снизилась",
-	"No account with this nickname or phone!": "Аккаунт с таким никнеймом или телефоном не найден!"
+	"No account with this nickname or phone!": "Аккаунт с таким никнеймом или телефоном не найден!",
+	"Rows per page": "На странице",
+	"Unresolved": "Нерассмотренные"
 }

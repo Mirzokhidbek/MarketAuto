@@ -74,7 +74,7 @@ const AdminReports: NextPage = () => {
 								setPage(1);
 							}}
 						>
-							{t(item === 'OPEN' ? 'Open' : 'Resolved')}
+							{t(item === 'OPEN' ? 'Unresolved' : 'Resolved')}
 						</ListItem>
 					))}
 				</List>
@@ -163,6 +163,8 @@ const AdminReports: NextPage = () => {
 					</Table>
 				</TableContainer>
 				<TablePagination
+					labelRowsPerPage={t('Rows per page')}
+					labelDisplayedRows={({ from, to, count }: any) => `${from}–${to} / ${count}`}
 					rowsPerPageOptions={[10, 20, 40]}
 					component="div"
 					count={total}

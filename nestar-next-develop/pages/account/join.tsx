@@ -41,7 +41,10 @@ const Join: NextPage = () => {
 	};
 	const goAfterAuth = async () => {
 		const isAdmin = userVar()?.memberType === MemberType.ADMIN;
-		await router.push(isAdmin ? '/_admin' : `${router.query.referrer ?? '/'}`);
+		const referrer = typeof router.query.referrer === 'string' ? router.query.referrer : '';
+		// only same-site paths; an admin always lands in the admin panel
+		const safeReferrer = referrer.startsWith('/') && !referrer.startsWith('//') ? referrer : '/';
+		await router.push(isAdmin ? (safeReferrer.startsWith('/_admin') ? safeReferrer : '/_admin') : safeReferrer);
 	};
 
 	const submitHandler = async (e: React.FormEvent) => {

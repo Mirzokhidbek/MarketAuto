@@ -1,6 +1,6 @@
 import { Field, InputType, Int, ObjectType } from '@nestjs/graphql';
 import type { ObjectId } from 'mongoose';
-import { MemberAuthType, MemberStatus, MemberType } from '../../enums/member.enum';
+import { MemberAuthType, MemberStatus, MemberType, AdminRole } from '../../enums/member.enum';
 import { IsNotEmpty, Min } from 'class-validator';
 import { MeLiked } from '../like/like';
 import { MeFollowed } from '../follow/follow';
@@ -35,6 +35,20 @@ export class Member {
 
 	@Field(() => Boolean, { nullable: true })
 	memberDealerVerified?: boolean;
+
+	@Field(() => AdminRole, { nullable: true })
+	memberAdminRole?: AdminRole;
+
+	@Field(() => String, { nullable: true })
+	memberBlockReason?: string;
+
+	/** admin login: the password was right, now the SMS code is needed */
+	@Field(() => Boolean, { nullable: true })
+	twoFactorRequired?: boolean;
+
+	/** development only (no SMS provider): the code, so the flow can be tested */
+	@Field(() => String, { nullable: true })
+	devCode?: string;
 
 	@Field(() => Int, { nullable: true })
 	memberResponseMinutes?: number;

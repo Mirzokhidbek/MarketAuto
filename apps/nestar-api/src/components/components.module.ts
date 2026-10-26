@@ -15,6 +15,8 @@ import { ReportModule } from './report/report.module';
 import { SavedSearchModule } from './saved-search/saved-search.module';
 import { ExchangeModule } from './exchange/exchange.module';
 import { MessageModule } from './message/message.module';
+import { AdminLogModule } from './admin-log/admin-log.module';
+import { SettingModule } from './setting/setting.module';
 import { VerificationModule } from './verification/verification.module';
 
 @Module({
@@ -36,6 +38,8 @@ import { VerificationModule } from './verification/verification.module';
 		SavedSearchModule,
 		ExchangeModule,
 		MessageModule,
+		AdminLogModule,
+		SettingModule,
 	],
 })
 export class ComponentsModule {}

@@ -131,6 +131,19 @@ export class MessageService {
 		return result as ChatMessages;
 	}
 
+	/** admin: read a dialog (e.g. after a complaint) without marking anything as read */
+	public async getMessagesByAdmin(input: MessagesInquiry): Promise<ChatMessages> {
+		const conversationId = shapeIntoMongoObjectId(input.conversationId);
+		const [result] = await this.messageModel
+			.aggregate([
+				{ $match: { conversationId } },
+				{ $sort: { createdAt: -1 } },
+				{ $facet: { list: [{ $skip: (input.page - 1) * input.limit }, { $limit: input.limit }], metaCounter: [{ $count: 'total' }] } },
+			])
+			.exec();
+		return result as ChatMessages;
+	}
+
 	public async getUnreadMessagesCount(memberId: ObjectId): Promise<number> {
 		const key = String(memberId);
 		const [result] = await this.conversationModel

@@ -1,3 +1,4 @@
+import { AdminLogService } from '../admin-log/admin-log.service';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
 import type { ObjectId } from 'mongoose';
@@ -13,7 +14,10 @@ import { shapeIntoMongoObjectId } from '../../libs/config';
 
 @Resolver()
 export class NoticeResolver {
-	constructor(private readonly noticeService: NoticeService) {}
+	constructor(
+		private readonly noticeService: NoticeService,
+		private readonly adminLogService: AdminLogService,
+	) {}
 
 	@Query(() => Notices)
 	public async getNotices(@Args('input') input: NoticesInquiry): Promise<Notices> {
@@ -56,14 +60,17 @@ export class NoticeResolver {
 	@Mutation(() => Notice)
 	public async createNotice(@Args('input') input: NoticeInput, @AuthMember('_id') memberId: ObjectId): Promise<Notice> {
 		console.log('Mutation: createNotice');
-		return await this.noticeService.createNotice(memberId, input);
+		const result = await this.noticeService.createNotice(memberId, input);
+		await this.adminLogService.log(memberId, `NOTICE_CREATE`, 'NOTICE', result._id, `${input.noticeCategory}: ${input.noticeTitle}`);
+		return result;
 	}
 
 	@Roles(MemberType.ADMIN)
 	@UseGuards(RolesGuard)
 	@Mutation(() => Notice)
-	public async updateNoticeByAdmin(@Args('input') input: NoticeUpdate): Promise<Notice> {
+	public async updateNoticeByAdmin(@Args('input') input: NoticeUpdate, @AuthMember('_id') adminId: ObjectId): Promise<Notice> {
 		console.log('Mutation: updateNoticeByAdmin');
+		await this.adminLogService.log(adminId, input.noticeAnswer ? 'INQUIRY_ANSWER' : 'NOTICE_UPDATE', 'NOTICE', input._id, input.noticeStatus);
 		input._id = shapeIntoMongoObjectId(input._id);
 		return await this.noticeService.updateNoticeByAdmin(input);
 	}
@@ -71,8 +78,9 @@ export class NoticeResolver {
 	@Roles(MemberType.ADMIN)
 	@UseGuards(RolesGuard)
 	@Mutation(() => Notice)
-	public async removeNoticeByAdmin(@Args('noticeId') input: string): Promise<Notice> {
+	public async removeNoticeByAdmin(@Args('noticeId') input: string, @AuthMember('_id') adminId: ObjectId): Promise<Notice> {
 		console.log('Mutation: removeNoticeByAdmin');
+		await this.adminLogService.log(adminId, 'NOTICE_REMOVE', 'NOTICE', input);
 		return await this.noticeService.removeNoticeByAdmin(shapeIntoMongoObjectId(input));
 	}
 }

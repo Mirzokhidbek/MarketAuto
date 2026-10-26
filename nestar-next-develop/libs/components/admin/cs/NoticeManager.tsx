@@ -280,6 +280,8 @@ const NoticeManager = ({ category }: NoticeManagerProps) => {
 					</Table>
 				</TableContainer>
 				<TablePagination
+					labelRowsPerPage={t('Rows per page')}
+					labelDisplayedRows={({ from, to, count }: any) => `${from}–${to} / ${count}`}
 					rowsPerPageOptions={[10, 20, 40]}
 					component="div"
 					count={total}

@@ -1,6 +1,6 @@
 import { Field, InputType } from '@nestjs/graphql';
 import { IsNotEmpty, IsOptional, Length } from 'class-validator';
-import { MemberStatus, MemberType } from '../../enums/member.enum';
+import { AdminRole, MemberStatus, MemberType } from '../../enums/member.enum';
 import type { ObjectId } from 'mongoose';
 
 @InputType()
@@ -21,6 +21,17 @@ export class MemberUpdate {
 	@IsOptional()
 	@Field(() => Boolean, { nullable: true })
 	memberTrusted?: boolean;
+
+	/** super admin only: makes a member an admin with this role */
+	@IsOptional()
+	@Field(() => AdminRole, { nullable: true })
+	memberAdminRole?: AdminRole;
+
+	/** admin only: shown in the admin panel when the member is blocked */
+	@IsOptional()
+	@Length(0, 300)
+	@Field(() => String, { nullable: true })
+	memberBlockReason?: string;
 
 	/** admin only: dealership documents checked */
 	@IsOptional()

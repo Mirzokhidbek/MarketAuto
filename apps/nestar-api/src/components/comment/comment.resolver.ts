@@ -1,3 +1,4 @@
+import { AdminLogService } from '../admin-log/admin-log.service';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { CommentService } from './comment.service';
 import { UseGuards } from '@nestjs/common';
@@ -15,7 +16,10 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 
 @Resolver()
 export class CommentResolver {
-	constructor(private readonly commentService: CommentService) {}
+	constructor(
+		private readonly commentService: CommentService,
+		private readonly adminLogService: AdminLogService,
+	) {}
 
 	@UseGuards(AuthGuard)
 	@Mutation((returns) => Comment)
@@ -54,9 +58,11 @@ export class CommentResolver {
 	@Roles(MemberType.ADMIN)
 	@UseGuards(RolesGuard)
 	@Mutation((returns) => Comment)
-	public async removeCommentByAdmin(@Args('commentId') input: string): Promise<Comment> {
+	public async removeCommentByAdmin(@Args('commentId') input: string, @AuthMember('_id') adminId: ObjectId): Promise<Comment> {
 		console.log('Mutation: removeCommentByAdmin');
 		const commentId = shapeIntoMongoObjectId(input);
-		return await this.commentService.removeCommentByAdmin(commentId);
+		const result = await this.commentService.removeCommentByAdmin(commentId);
+		await this.adminLogService.log(adminId, 'COMMENT_REMOVE', 'COMMENT', commentId, result.commentContent?.slice(0, 100));
+		return result;
 	}
 }

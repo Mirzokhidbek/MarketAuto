@@ -1,3 +1,5 @@
+import { AdminLogService } from '../admin-log/admin-log.service';
+import { BulkModerationInput } from '../../libs/dto/property/property.update';
 import { StorageService } from '../storage/storage.service';
 import { NotificationService } from '../notification/notification.service';
 import { NotificationGroup, NotificationType } from '../../libs/enums/notification.enum';
@@ -38,6 +40,7 @@ export class PropertyService {
 		private notificationService: NotificationService,
 		private storageService: StorageService,
 		private exchangeService: ExchangeService,
+		private adminLogService: AdminLogService,
 		@InjectModel('SavedSearch') private readonly savedSearchModel: Model<any>,
 	) {}
 
@@ -84,7 +87,11 @@ export class PropertyService {
 			$or: [
 				{ propertyStatus: { $in: [PropertyStatus.ACTIVE, PropertyStatus.SOLD] } },
 				// a pending listing: its owner and moderators can open it
-				...(isAdmin ? [{ propertyStatus: PropertyStatus.PENDING }] : memberId ? [{ propertyStatus: PropertyStatus.PENDING, memberId }] : []),
+				...(isAdmin
+					? [{ propertyStatus: { $in: [PropertyStatus.PENDING, PropertyStatus.REJECTED] } }]
+					: memberId
+					? [{ propertyStatus: { $in: [PropertyStatus.PENDING, PropertyStatus.REJECTED] }, memberId }]
+					: []),
 			],
 		};
 
@@ -111,12 +118,15 @@ export class PropertyService {
 	public async updateProperty(memberId: ObjectId, input: PropertyUpdate): Promise<Property> {
 		// owners can edit pending, active and sold cars; deleted ones are final
 		const search: T = { _id: input._id, memberId: memberId, propertyStatus: { $ne: PropertyStatus.DELETE } };
-		// only an admin can publish a listing that waits for moderation
-		if (input.propertyStatus === PropertyStatus.ACTIVE || input.propertyStatus === PropertyStatus.PENDING) {
-			const current = await this.propertyModel.findOne(search).select('propertyStatus').lean().exec();
-			if (current?.propertyStatus === PropertyStatus.PENDING) delete input.propertyStatus;
-			if (input.propertyStatus === PropertyStatus.PENDING) delete input.propertyStatus;
+		const current = await this.propertyModel.findOne(search).select('propertyStatus').lean().exec();
+		// only an admin can publish a listing that waits for moderation or set REJECTED
+		if (input.propertyStatus === PropertyStatus.PENDING || input.propertyStatus === PropertyStatus.REJECTED) delete input.propertyStatus;
+		if (input.propertyStatus === PropertyStatus.ACTIVE && current?.propertyStatus === PropertyStatus.PENDING) delete input.propertyStatus;
+		// a rejected listing that the owner fixed goes back to the moderation queue
+		if (current?.propertyStatus === PropertyStatus.REJECTED && input.propertyStatus !== PropertyStatus.DELETE) {
+			input.propertyStatus = PropertyStatus.PENDING;
 		}
+		delete input.propertyRejectReason;
 		return await this.changeProperty(search, input);
 	}
 
@@ -130,6 +140,8 @@ export class PropertyService {
 
 		const prevStatus = current.propertyStatus;
 		const nextStatus = input.propertyStatus ?? prevStatus;
+		// leaving REJECTED (fixed and resubmitted, or approved): the old reason no longer applies
+		if (prevStatus === PropertyStatus.REJECTED && nextStatus !== PropertyStatus.REJECTED) (input as T).propertyRejectReason = null;
 		if (nextStatus !== prevStatus) {
 			if (nextStatus === PropertyStatus.SOLD) input.soldAt = moment().toDate();
 			if (nextStatus === PropertyStatus.DELETE) input.deletedAt = moment().toDate();
@@ -163,14 +175,16 @@ export class PropertyService {
 			await this.notifyPriceDrop(result);
 		}
 
-		// moderation result for the seller
-		if (prevStatus === PropertyStatus.PENDING && nextStatus !== PropertyStatus.PENDING) {
-			const approved = nextStatus === PropertyStatus.ACTIVE;
-			if (approved) await this.memberService.markTrusted(result.memberId);
+		// moderation result for the seller (approved, or rejected with the reason)
+		const approved = prevStatus === PropertyStatus.PENDING && nextStatus === PropertyStatus.ACTIVE;
+		const rejected = nextStatus === PropertyStatus.REJECTED && prevStatus !== PropertyStatus.REJECTED;
+		if (approved) await this.memberService.markTrusted(result.memberId);
+		if (approved || rejected) {
 			await this.notificationService.notify({
 				notificationType: approved ? NotificationType.LISTING_APPROVED : NotificationType.LISTING_REJECTED,
 				notificationGroup: NotificationGroup.PROPERTY,
 				notificationTitle: result.propertyTitle,
+				notificationDesc: rejected ? result.propertyRejectReason : undefined,
 				authorId: result.memberId, // system message: shown without an author
 				receiverId: result.memberId,
 				propertyId: result._id,
@@ -415,7 +429,7 @@ export class PropertyService {
 	}
 
 	public async getAllPropertiesByAdmin(input: AllPropertiesInquiry): Promise<Properties> {
-		const { propertyStatus, propertyLocationList, countryList, brandList, text } = input.search;
+		const { propertyStatus, propertyLocationList, countryList, brandList, text, memberId } = input.search;
 		const match: T = {};
 		const sort: T = { [input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC };
 
@@ -424,6 +438,7 @@ export class PropertyService {
 		if (countryList?.length) match.carCountry = { $in: countryList };
 		if (brandList?.length) match.carBrand = { $in: brandList };
 		if (text) match.propertyTitle = { $regex: searchRegex(text) };
+		if (memberId) match.memberId = shapeIntoMongoObjectId(memberId);
 
 		const result = await this.propertyModel
 			.aggregate([
@@ -447,16 +462,42 @@ export class PropertyService {
 		return result[0] as Properties;
 	}
 
-	public async updatePropertyByAdmin(input: PropertyUpdate): Promise<Property> {
+	public async updatePropertyByAdmin(input: PropertyUpdate, adminId?: ObjectId): Promise<Property> {
+		if (input.propertyStatus === PropertyStatus.REJECTED && !input.propertyRejectReason?.trim())
+			throw new BadRequestException(Message.REJECT_REASON_REQUIRED);
 		// admin can move a car between any statuses (e.g. restore a deleted or sold listing)
-		return await this.changeProperty({ _id: input._id }, input);
+		const before = await this.propertyModel.findById(input._id).select('propertyStatus').lean().exec();
+		const result = await this.changeProperty({ _id: input._id }, input);
+		if (input.propertyStatus && input.propertyStatus !== before?.propertyStatus) {
+			const action = input.propertyStatus === PropertyStatus.ACTIVE && before?.propertyStatus === PropertyStatus.PENDING ? 'PROPERTY_APPROVE' : `PROPERTY_${input.propertyStatus}`;
+			await this.adminLogService.log(adminId, action, 'PROPERTY', result._id, `${result.propertyTitle}${input.propertyRejectReason ? ': ' + input.propertyRejectReason : ''}`);
+		}
+		return result;
 	}
 
-	public async removePropertyByAdmin(propertyId: ObjectId): Promise<Property> {
+	/** approve or reject many listings at once (moderation queue) */
+	public async bulkModerateByAdmin(input: BulkModerationInput, adminId?: ObjectId): Promise<number> {
+		let done = 0;
+		for (const id of input.ids) {
+			try {
+				await this.updatePropertyByAdmin(
+					{ _id: shapeIntoMongoObjectId(id), propertyStatus: input.propertyStatus, propertyRejectReason: input.propertyRejectReason } as PropertyUpdate,
+					adminId,
+				);
+				done++;
+			} catch (err: any) {
+				console.log('bulk moderation skipped', id, err.message);
+			}
+		}
+		return done;
+	}
+
+	public async removePropertyByAdmin(propertyId: ObjectId, adminId?: ObjectId): Promise<Property> {
 		const search: T = { _id: propertyId, propertyStatus: PropertyStatus.DELETE };
 		const result = await this.propertyModel.findOneAndDelete(search).exec();
 		if (!result) throw new InternalServerErrorException(Message.REMOVE_FAILED);
 		await this.storageService.removeImages(result.propertyImages);
+		await this.adminLogService.log(adminId, 'PROPERTY_REMOVE', 'PROPERTY', result._id, result.propertyTitle);
 
 		return result;
 	}

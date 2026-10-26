@@ -30,6 +30,8 @@ export enum Message {
 	SESSION_EXPIRED = 'Your session has expired, please login again!',
 	NOT_PARTICIPANT = 'You are not part of this conversation!',
 	ALREADY_REPORTED = 'You have already reported this listing.',
+	REJECT_REASON_REQUIRED = 'Please give the reason for rejecting.',
+	ADMIN_CODE_LOGIN = 'Admins log in with password and SMS code.',
 }
 
 export enum Direction {

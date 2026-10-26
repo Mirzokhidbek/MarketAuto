@@ -167,8 +167,9 @@ export class BoardArticleService {
 	}
 
 	public async getAllBoardArticlesByAdmin(input: AllBoardArticlesInquiry): Promise<BoardArticles> {
-		const { articleStatus, articleCategory } = input.search;
+		const { articleStatus, articleCategory, text } = input.search;
 		const match: T = {};
+		if (text) match.articleTitle = { $regex: searchRegex(text) };
 		const sort: T = { [input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC };
 
 		if (articleStatus) match.articleStatus = articleStatus;

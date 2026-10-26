@@ -2,7 +2,9 @@
 /* eslint-disable @typescript-eslint/no-base-to-string */
 import { Args, Context, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { MemberService } from './member.service';
-import { AgentsInquiry, LoginInput, MemberInput, MembersInquiry, PasswordInput } from '../../libs/dto/member/member.input';
+import { AdminCodeInput, AgentsInquiry, LoginInput, MemberInput, MembersInquiry, PasswordInput } from '../../libs/dto/member/member.input';
+import { MemberAdminDetail } from '../../libs/dto/member/member-admin';
+import { SuperAdminOnly } from '../auth/decorators/super-admin.decorator';
 import { Member, Members } from '../../libs/dto/member/member';
 import { BadRequestException, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '../auth/guards/auth.guard';
@@ -158,7 +160,22 @@ export class MemberResolver {
 
 	//** ADMIN **/
 	// Authorization: ADMIN
+	@Mutation(() => Member)
+	public async verifyAdminLogin(@Args('input') input: AdminCodeInput, @Context() context: any): Promise<Member> {
+		console.log('Mutation: verifyAdminLogin');
+		return await this.memberService.verifyAdminLogin(input, context?.req?.headers?.['user-agent']);
+	}
+
 	@Roles(MemberType.ADMIN)
+	@SuperAdminOnly()
+	@UseGuards(RolesGuard)
+	@Query(() => MemberAdminDetail)
+	public async getMemberAdminDetail(@Args('memberId') input: string): Promise<MemberAdminDetail> {
+		return await this.memberService.getMemberAdminDetail(shapeIntoMongoObjectId(input));
+	}
+
+	@Roles(MemberType.ADMIN)
+	@SuperAdminOnly()
 	@UseGuards(RolesGuard)
 	@Query(() => Members)
 	public async getAllMembersByAdmin(@Args('input') input: MembersInquiry): Promise<Members> {
@@ -167,6 +184,7 @@ export class MemberResolver {
 
 	// Authorization: ADMIN
 	@Roles(MemberType.ADMIN)
+	@SuperAdminOnly()
 	@UseGuards(RolesGuard)
 	@Mutation(() => Member)
 	public async updateMemberByAdmin(
@@ -177,7 +195,7 @@ export class MemberResolver {
 		// an admin must not demote or block their own account and lock everyone out of the panel
 		if (String(input._id) === String(adminId) && (input.memberType || input.memberStatus))
 			throw new BadRequestException(Message.NOT_ALLOWED_REQUEST);
-		return await this.memberService.updateMemberByAdmin(input);
+		return await this.memberService.updateMemberByAdmin(input, adminId);
 	}
 
 	//** UPLOADER **/

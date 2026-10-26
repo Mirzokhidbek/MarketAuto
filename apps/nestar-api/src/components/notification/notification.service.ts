@@ -10,6 +10,7 @@ export interface NotifyInput {
 	notificationType: NotificationType;
 	notificationGroup: NotificationGroup;
 	notificationTitle: string;
+	notificationDesc?: string;
 	authorId: ObjectId;
 	receiverId: ObjectId;
 	propertyId?: ObjectId;
