@@ -296,3 +296,28 @@
 		}
 	}
 }
+
+/* terms & privacy */
+.ma-legal {
+	padding: 8px 0 48px;
+	font-size: 15px;
+	line-height: 1.7;
+	color: $ma-dark;
+	&__updated {
+		font-size: 13px;
+		color: $ma-muted;
+	}
+	&__intro {
+		font-size: 17px;
+	}
+	section {
+		margin-top: 26px;
+	}
+	h2 {
+		margin: 0 0 8px;
+		font-size: 19px;
+	}
+	p {
+		margin: 0 0 10px;
+	}
+}

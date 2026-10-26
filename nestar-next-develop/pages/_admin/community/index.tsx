@@ -1,3 +1,6 @@
+import { articleCategoryLabels } from '../../../libs/utils';
+import { useTranslation } from 'next-i18next';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import React, { useEffect, useState } from 'react';
 import type { NextPage } from 'next';
 import withAdminLayout from '../../../libs/components/layout/LayoutAdmin';
@@ -19,7 +22,13 @@ import { useMutation, useQuery } from '@apollo/client';
 import { GET_ALL_BOARD_ARTICLES_BY_ADMIN } from '../../../apollo/admin/query';
 import { T } from '../../../libs/types/common';
 
+
+export const getStaticProps = async ({ locale }: any) => ({
+	props: { ...(await serverSideTranslations(locale, ['common'])) },
+});
+
 const AdminCommunity: NextPage = ({ initialInquiry, ...props }: any) => {
+	const { t } = useTranslation('common');
 	const [anchorEl, setAnchorEl] = useState<any>([]);
 	const [communityInquiry, setCommunityInquiry] = useState<AllBoardArticlesInquiry>(initialInquiry);
 	const [articles, setArticles] = useState<BoardArticle[]>([]);
@@ -152,7 +161,7 @@ const AdminCommunity: NextPage = ({ initialInquiry, ...props }: any) => {
 	return (
 		<Box component={'div'} className={'content'}>
 			<Typography variant={'h2'} className={'tit'} sx={{ mb: '24px' }}>
-				Article List
+				{t('Article List')}
 			</Typography>
 			<Box component={'div'} className={'table-wrap'}>
 				<Box component={'div'} sx={{ width: '100%', typography: 'body1' }}>
@@ -164,32 +173,32 @@ const AdminCommunity: NextPage = ({ initialInquiry, ...props }: any) => {
 									value="ALL"
 									className={value === 'ALL' ? 'li on' : 'li'}
 								>
-									All
+									{t('All')}
 								</ListItem>
 								<ListItem
 									onClick={(e: React.MouseEvent) => tabChangeHandler(e, 'ACTIVE')}
 									value="ACTIVE"
 									className={value === 'ACTIVE' ? 'li on' : 'li'}
 								>
-									Active
+									{t('Active')}
 								</ListItem>
 								<ListItem
 									onClick={(e: React.MouseEvent) => tabChangeHandler(e, 'DELETE')}
 									value="DELETE"
 									className={value === 'DELETE' ? 'li on' : 'li'}
 								>
-									Delete
+									{t('Delete')}
 								</ListItem>
 							</List>
 							<Divider />
 							<Stack className={'search-area'} sx={{ m: '24px' }}>
 								<Select sx={{ width: '160px', mr: '20px' }} value={searchType}>
 									<MenuItem value={'ALL'} onClick={() => searchTypeHandler('ALL')}>
-										ALL
+										{t('ALL')}
 									</MenuItem>
 									{Object.values(BoardArticleCategory).map((category: string) => (
 										<MenuItem value={category} onClick={() => searchTypeHandler(category)} key={category}>
-											{category}
+											{t(articleCategoryLabels[category] ?? category)}
 										</MenuItem>
 									))}
 								</Select>

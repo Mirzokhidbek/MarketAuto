@@ -4,6 +4,7 @@ import { Pagination } from '@mui/material';
 import CarCard from '../../libs/components/common/CarCard';
 import withLayoutBasic from '../../libs/components/layout/LayoutBasic';
 import Filter from '../../libs/components/property/Filter';
+import CarGridSkeleton from '../../libs/components/common/CarGridSkeleton';
 import { useRouter } from 'next/router';
 import { PropertiesInquiry } from '../../libs/types/property/property.input';
 import { Property } from '../../libs/types/property/property';
@@ -17,19 +18,64 @@ import { T } from '../../libs/types/common';
 import { LIKE_TARGET_PROPERTY } from '../../apollo/user/mutation';
 import { sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../libs/sweetAlert';
 
-export const getStaticProps = async ({ locale }: any) => ({
-	props: {
-		...(await serverSideTranslations(locale, ['common'])),
-	},
-});
+const defaultInput = {
+	page: 1,
+	limit: 9,
+	sort: 'createdAt',
+	direction: 'DESC',
+	search: { mileageRange: { start: 0, end: 500000 }, pricesRange: { start: 0, end: 2000000 } },
+};
 
-const PropertyList: NextPage = ({ initialInput, ...props }: any) => {
+const parseInput = (raw?: string | string[]) => {
+	try {
+		return raw ? JSON.parse(String(raw)) : defaultInput;
+	} catch (err) {
+		return defaultInput;
+	}
+};
+
+const SSR_FIELDS = `list { _id propertyType propertyStatus propertyLocation propertyAddress propertyTitle propertyPrice
+	carBrand carModel carYear carMileage carFuel carTransmission carEngine carTrim carCountry carCustomsCleared
+	propertyBarter propertyNegotiable propertyImages propertyLikes propertyViews memberId createdAt } metaCounter { total }`;
+
+/**
+ * The first page of results is rendered on the server, so search engines and slow phones see the cars
+ * immediately; after that the client takes over with Apollo as before.
+ */
+export const getServerSideProps = async ({ locale, query }: any) => {
+	let initialList: Property[] = [];
+	let initialTotal = 0;
+	try {
+		const response = await fetch(process.env.REACT_APP_API_GRAPHQL_URL as string, {
+			method: 'POST',
+			headers: { 'content-type': 'application/json' },
+			body: JSON.stringify({
+				query: `query($input: PropertiesInquiry!){ getProperties(input: $input){ ${SSR_FIELDS} } }`,
+				variables: { input: parseInput(query?.input) },
+			}),
+			signal: AbortSignal.timeout(3000),
+		});
+		const { data } = await response.json();
+		initialList = data?.getProperties?.list ?? [];
+		initialTotal = data?.getProperties?.metaCounter?.[0]?.total ?? 0;
+	} catch (err) {
+		// API down: the page still renders and the client retries
+	}
+	return {
+		props: {
+			...(await serverSideTranslations(locale, ['common'])),
+			initialList,
+			initialTotal,
+		},
+	};
+};
+
+const PropertyList: NextPage = ({ initialList = [], initialTotal = 0 }: any) => {
+	const initialInput = defaultInput as unknown as PropertiesInquiry;
 	const router = useRouter();
-	const [searchFilter, setSearchFilter] = useState<PropertiesInquiry>(
-		router?.query?.input ? JSON.parse(router?.query?.input as string) : initialInput,
-	);
-	const [properties, setProperties] = useState<Property[]>([]);
-	const [total, setTotal] = useState<number>(0);
+	const [searchFilter, setSearchFilter] = useState<PropertiesInquiry>(parseInput(router?.query?.input));
+	const [properties, setProperties] = useState<Property[]>(initialList);
+	const [total, setTotal] = useState<number>(initialTotal);
 	const [currentPage, setCurrentPage] = useState<number>(1);
 	const user = useReactiveVar(userVar);
 	const { t } = useTranslation('common');
@@ -54,10 +100,7 @@ const PropertyList: NextPage = ({ initialInput, ...props }: any) => {
 
 	/** LIFECYCLES **/
 	useEffect(() => {
-		if (router.query.input) {
-			const inputObj = JSON.parse(router?.query?.input as string);
-			setSearchFilter(inputObj);
-		}
+		if (router.query.input) setSearchFilter(parseInput(router.query.input));
 
 		setCurrentPage(searchFilter.page === undefined ? 1 : searchFilter.page);
 	}, [router]);
@@ -146,11 +189,17 @@ const PropertyList: NextPage = ({ initialInput, ...props }: any) => {
 					</div>
 
 					{getPropertiesLoading && !properties?.length ? (
-						<div className={'ma-empty'}>{t('Loading...')}</div>
+						<CarGridSkeleton count={6} />
 					) : properties?.length === 0 ? (
-						<div className={'ma-empty'}>
+						<div className={'ma-empty ma-empty--cta'}>
 							<strong>{t('No cars found')}</strong>
-							<p>{t('Try changing or clearing your filters.')}</p>
+							<p>{t('Try changing or clearing your filters, or save this search to get an alert when such a car appears.')}</p>
+							<button
+								className={'ma-btn ma-btn--outline'}
+								onClick={() => router.push(`/property?input=${JSON.stringify(defaultInput)}`)}
+							>
+								{t('Clear all')}
+							</button>
 						</div>
 					) : (
 						<div className={'ma-grid ma-grid--3'}>
@@ -174,25 +223,6 @@ const PropertyList: NextPage = ({ initialInput, ...props }: any) => {
 			</div>
 		</div>
 	);
-};
-
-PropertyList.defaultProps = {
-	initialInput: {
-		page: 1,
-		limit: 9,
-		sort: 'createdAt',
-		direction: 'DESC',
-		search: {
-			mileageRange: {
-				start: 0,
-				end: 500000,
-			},
-			pricesRange: {
-				start: 0,
-				end: 2000000,
-			},
-		},
-	},
 };
 
 export default withLayoutBasic(PropertyList);

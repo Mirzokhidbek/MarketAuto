@@ -1,3 +1,4 @@
+import { useTranslation } from 'next-i18next';
 import { imageUrl } from '../../../utils';
 import React, { useState } from 'react';
 import moment from 'moment';
@@ -57,6 +58,7 @@ const statusLabels = (category: Category): Record<string, string> => ({
 const emptyForm = { _id: '', noticeTitle: '', noticeContent: '', noticeStatus: 'ACTIVE', noticeAnswer: '' };
 
 const NoticeManager = ({ category }: NoticeManagerProps) => {
+	const { t } = useTranslation('common');
 	const labels = statusLabels(category);
 	const isInquiry = category === 'INQUIRY';
 	const [status, setStatus] = useState<string>('ALL');
@@ -113,7 +115,7 @@ const NoticeManager = ({ category }: NoticeManagerProps) => {
 			}
 			setForm(null);
 			await refetch({ input });
-			await sweetTopSmallSuccessAlert('Saved', 800);
+			await sweetTopSmallSuccessAlert(t('Saved') as string, 800);
 		} catch (err: any) {
 			sweetErrorHandling(err).then();
 		}
@@ -130,7 +132,7 @@ const NoticeManager = ({ category }: NoticeManagerProps) => {
 
 	const removeHandler = async (id: string) => {
 		try {
-			if (!(await sweetConfirmAlert('Delete permanently?'))) return;
+			if (!(await sweetConfirmAlert(t('Delete permanently?') as string))) return;
 			await removeNoticeByAdmin({ variables: { input: id } });
 			await refetch({ input });
 		} catch (err: any) {
@@ -145,11 +147,11 @@ const NoticeManager = ({ category }: NoticeManagerProps) => {
 	return (
 		<Box component={'div'} className={'content'}>
 			<Box component={'div'} className={'title flex_space'}>
-				<Typography variant={'h2'}>{titles[category]}</Typography>
+				<Typography variant={'h2'}>{t(titles[category])}</Typography>
 				{!isInquiry && (
 					<Button className="btn_add" variant={'contained'} size={'medium'} onClick={() => setForm({ ...emptyForm })}>
 						<AddRoundedIcon sx={{ mr: '8px' }} />
-						ADD
+						{t('ADD')}
 					</Button>
 				)}
 			</Box>
@@ -164,7 +166,7 @@ const NoticeManager = ({ category }: NoticeManagerProps) => {
 								setPage(1);
 							}}
 						>
-							{item === 'ALL' ? 'All' : labels[item]}
+							{item === 'ALL' ? t('All') : t(labels[item])}
 						</ListItem>
 					))}
 				</List>
@@ -178,7 +180,7 @@ const NoticeManager = ({ category }: NoticeManagerProps) => {
 						}}
 						sx={{ width: '100%' }}
 						className={'search'}
-						placeholder="Search by title"
+						placeholder={t('Search by title') as string}
 						endAdornment={
 							<InputAdornment position="end">
 								<SearchIcon />
@@ -191,18 +193,18 @@ const NoticeManager = ({ category }: NoticeManagerProps) => {
 					<Table sx={{ minWidth: 750 }} size={'medium'}>
 						<TableHead>
 							<TableRow>
-								<TableCell>TITLE</TableCell>
-								{isInquiry && <TableCell>WRITER</TableCell>}
-								<TableCell>DATE</TableCell>
-								<TableCell align="center">STATUS</TableCell>
-								<TableCell align="right">ACTIONS</TableCell>
+								<TableCell>{t('TITLE')}</TableCell>
+								{isInquiry && <TableCell>{t('WRITER')}</TableCell>}
+								<TableCell>{t('DATE')}</TableCell>
+								<TableCell align="center">{t('STATUS')}</TableCell>
+								<TableCell align="right">{t('ACTIONS')}</TableCell>
 							</TableRow>
 						</TableHead>
 						<TableBody>
 							{!list.length && (
 								<TableRow>
 									<TableCell colSpan={5} align="center">
-										{loading ? 'Loading...' : 'No items found'}
+										{loading ? t('Loading...') : t('No items found')}
 									</TableCell>
 								</TableRow>
 							)}
@@ -243,7 +245,7 @@ const NoticeManager = ({ category }: NoticeManagerProps) => {
 										>
 											{['ACTIVE', 'HOLD', 'DELETE'].map((option) => (
 												<MenuItem key={option} value={option}>
-													{labels[option]}
+													{t(labels[option])}
 												</MenuItem>
 											))}
 										</Select>
@@ -263,11 +265,11 @@ const NoticeManager = ({ category }: NoticeManagerProps) => {
 													})
 												}
 											>
-												{isInquiry ? 'Answer' : 'Edit'}
+												{isInquiry ? t('Answer') : t('Edit')}
 											</Button>
 											{item.noticeStatus === 'DELETE' && (
 												<Button size="small" color="error" variant="outlined" onClick={() => removeHandler(item._id)}>
-													Remove
+													{t('Remove')}
 												</Button>
 											)}
 										</Stack>
@@ -292,7 +294,7 @@ const NoticeManager = ({ category }: NoticeManagerProps) => {
 			</Box>
 
 			<Dialog open={!!form} onClose={() => setForm(null)} fullWidth maxWidth="sm">
-				<DialogTitle>{isInquiry ? 'Answer inquiry' : form?._id ? 'Edit' : 'Add new'}</DialogTitle>
+				<DialogTitle>{isInquiry ? t('Answer inquiry') : form?._id ? t('Edit') : t('Add new')}</DialogTitle>
 				<DialogContent>
 					{isInquiry ? (
 						<>
@@ -303,7 +305,7 @@ const NoticeManager = ({ category }: NoticeManagerProps) => {
 								{form?.noticeContent}
 							</Typography>
 							<TextField
-								label="Answer"
+								label={t('Answer')}
 								multiline
 								minRows={5}
 								fullWidth
@@ -314,14 +316,14 @@ const NoticeManager = ({ category }: NoticeManagerProps) => {
 					) : (
 						<Stack gap={2} sx={{ mt: 1 }}>
 							<TextField
-								label="Title"
+								label={t('Title')}
 								fullWidth
 								inputProps={{ maxLength: 150 }}
 								value={form?.noticeTitle ?? ''}
 								onChange={(e) => setForm({ ...form, noticeTitle: e.target.value })}
 							/>
 							<TextField
-								label="Content"
+								label={t('Content')}
 								multiline
 								minRows={6}
 								fullWidth
@@ -336,7 +338,7 @@ const NoticeManager = ({ category }: NoticeManagerProps) => {
 								>
 									{['ACTIVE', 'HOLD', 'DELETE'].map((option) => (
 										<MenuItem key={option} value={option}>
-											{labels[option]}
+											{t(labels[option])}
 										</MenuItem>
 									))}
 								</Select>
@@ -345,9 +347,9 @@ const NoticeManager = ({ category }: NoticeManagerProps) => {
 					)}
 				</DialogContent>
 				<DialogActions>
-					<Button onClick={() => setForm(null)}>Cancel</Button>
+					<Button onClick={() => setForm(null)}>{t('Cancel')}</Button>
 					<Button variant="contained" disabled={!formValid} onClick={saveHandler}>
-						Save
+						{t('Save')}
 					</Button>
 				</DialogActions>
 			</Dialog>

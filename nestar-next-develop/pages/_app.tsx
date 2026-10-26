@@ -6,6 +6,12 @@ import { light } from '../scss/MaterialTheme';
 import { ApolloProvider } from '@apollo/client';
 import { useApollo } from '../apollo/client';
 import { appWithTranslation } from 'next-i18next';
+import * as Sentry from '@sentry/browser';
+
+// browser error tracking in production: set NEXT_PUBLIC_SENTRY_DSN; nothing is sent without it
+if (typeof window !== 'undefined' && process.env.NEXT_PUBLIC_SENTRY_DSN) {
+	Sentry.init({ dsn: process.env.NEXT_PUBLIC_SENTRY_DSN, environment: process.env.NODE_ENV, tracesSampleRate: 0.1 });
+}
 import { useRouter } from 'next/router';
 import moment from 'moment';
 import 'moment/locale/ru';

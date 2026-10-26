@@ -42,6 +42,8 @@ const Footer = () => {
 					<strong>{t('COMPANY')}</strong>
 					<Link href={'/about'}>{t('About Us')}</Link>
 					<Link href={'/cs'}>{t('Support Center')}</Link>
+					<Link href={'/terms'}>{t('Terms of Use')}</Link>
+					<Link href={'/privacy'}>{t('Privacy Policy')}</Link>
 					<span>{SUPPORT_PHONE}</span>
 				</div>
 			</div>

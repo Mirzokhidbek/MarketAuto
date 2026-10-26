@@ -1,3 +1,5 @@
+import { articleCategoryLabels } from '../../../utils';
+import { useTranslation } from 'next-i18next';
 import { imageUrl } from '../../../utils';
 import React from 'react';
 import Link from 'next/link';
@@ -103,6 +105,7 @@ interface EnhancedTableProps {
 }
 
 function EnhancedTableHead(props: EnhancedTableProps) {
+	const { t } = useTranslation('common');
 	return (
 		<TableHead>
 			<TableRow>
@@ -112,7 +115,7 @@ function EnhancedTableHead(props: EnhancedTableProps) {
 						align={headCell.numeric ? 'left' : 'center'}
 						padding={headCell.disablePadding ? 'none' : 'normal'}
 					>
-						{headCell.label}
+						{t(headCell.label)}
 					</TableCell>
 				))}
 			</TableRow>
@@ -130,6 +133,7 @@ interface CommunityArticleListProps {
 }
 
 const CommunityArticleList = (props: CommunityArticleListProps) => {
+	const { t } = useTranslation('common');
 	const { articles, anchorEl, menuIconClickHandler, menuIconCloseHandler, updateArticleHandler, removeArticleHandler } =
 		props;
 
@@ -169,7 +173,7 @@ const CommunityArticleList = (props: CommunityArticleListProps) => {
 											)}
 										</Box>
 									</TableCell>
-									<TableCell align="left">{article.articleCategory}</TableCell>
+									<TableCell align="left">{t(articleCategoryLabels[article.articleCategory] ?? article.articleCategory)}</TableCell>
 									<TableCell align="left" className={'name'}>
 										<Link href={`/member?memberId=${article?.memberData?._id}`}>
 											<Avatar
@@ -201,7 +205,7 @@ const CommunityArticleList = (props: CommunityArticleListProps) => {
 										) : (
 											<>
 												<Button onClick={(e: any) => menuIconClickHandler(e, index)} className={'badge success'}>
-													{article.articleStatus}
+													{t(`status_${article.articleStatus}`)}
 												</Button>
 
 												<Menu
@@ -223,7 +227,7 @@ const CommunityArticleList = (props: CommunityArticleListProps) => {
 																key={status}
 															>
 																<Typography variant={'subtitle1'} component={'span'}>
-																	{status}
+																	{t(`status_${status}`)}
 																</Typography>
 															</MenuItem>
 														))}

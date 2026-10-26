@@ -25,7 +25,7 @@ const values = [
 	{
 		icon: <ForumOutlinedIcon />,
 		title: 'Direct Contact',
-		text: 'Call or message the seller directly. No middlemen and no hidden fees.',
+		text: 'Call the seller or write a private message. No middlemen and no hidden fees.',
 	},
 	{
 		icon: <SellOutlinedIcon />,
@@ -34,8 +34,8 @@ const values = [
 	},
 	{
 		icon: <VerifiedUserOutlinedIcon />,
-		title: 'Open Dealer Profiles',
-		text: 'Every dealer has a public profile with all their cars, likes, followers and ranking.',
+		title: 'Verified Sellers',
+		text: 'Every seller confirms the phone number by SMS, and the first listing of a new seller is checked by our team.',
 	},
 ];
 
@@ -84,7 +84,7 @@ const About: NextPage = () => {
 					<div className={'ma-cta'}>
 						<div className={'ma-cta__text'}>
 							<h2>{t('Need help? Talk to our team.')}</h2>
-							<p>{t('Our team answers every day from 9 AM to 9 PM (Tashkent time).')}</p>
+							<p>{t('Ask a question in the Support Center — the answer appears in your account.')}</p>
 							<div className={'ma-cta__actions'}>
 								<Link href={'/cs'}>
 									<span className={'ma-btn ma-btn--primary'}>{t('Support Center')}</span>

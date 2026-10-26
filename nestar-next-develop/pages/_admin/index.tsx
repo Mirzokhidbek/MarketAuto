@@ -1,3 +1,5 @@
+import { useTranslation } from 'next-i18next';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import React from 'react';
 import type { NextPage } from 'next';
 import Link from 'next/link';
@@ -18,24 +20,32 @@ const cards = [
 	{ key: 'carsDeleted', label: 'Deleted cars', hint: 'can be restored or removed', href: '/_admin/properties' },
 	{ key: 'articlesActive', label: 'Articles', hint: 'published in community', href: '/_admin/community' },
 	{ key: 'inquiriesWaiting', label: 'Open inquiries', hint: 'waiting for an answer', href: '/_admin/cs/inquiry', warn: true },
+	{ key: 'carsPending', label: 'Cars to review', hint: 'new sellers waiting for approval', href: '/_admin/properties?status=PENDING', warn: true },
+	{ key: 'reportsOpen', label: 'Open reports', hint: 'complaints about listings', href: '/_admin/reports', warn: true },
 ];
 
+
+export const getStaticProps = async ({ locale }: any) => ({
+	props: { ...(await serverSideTranslations(locale, ['common'])) },
+});
+
 const AdminHome: NextPage = () => {
+	const { t } = useTranslation('common');
 	const { data, loading } = useQuery(GET_DASHBOARD_STATS, { fetchPolicy: 'network-only', pollInterval: 60000 });
 	const stats: T = data?.getDashboardStats ?? {};
 
 	return (
 		<Box component={'div'} className={'content'}>
 			<Typography variant={'h2'} className={'tit'} sx={{ mb: '24px' }}>
-				Dashboard
+				{t('Dashboard')}
 			</Typography>
 			<div className={'ma-admin-stats'}>
 				{cards.map((card) => (
 					<Link href={card.href} key={card.key}>
 						<div className={`ma-admin-stat ${card.warn && stats[card.key] > 0 ? 'is-warn' : ''}`}>
-							<span>{card.label}</span>
+							<span>{t(card.label)}</span>
 							<strong>{loading && stats[card.key] === undefined ? '…' : stats[card.key] ?? 0}</strong>
-							<em>{card.hint}</em>
+							<em>{t(card.hint)}</em>
 						</div>
 					</Link>
 				))}

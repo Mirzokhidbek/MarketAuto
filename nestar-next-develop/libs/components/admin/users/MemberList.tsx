@@ -1,3 +1,4 @@
+import { useTranslation } from 'next-i18next';
 import { imageUrl } from '../../../utils';
 import React from 'react';
 import Link from 'next/link';
@@ -118,6 +119,7 @@ interface EnhancedTableProps {
 }
 
 function EnhancedTableHead(props: EnhancedTableProps) {
+	const { t } = useTranslation('common');
 	const { onSelectAllClick } = props;
 
 	return (
@@ -129,7 +131,7 @@ function EnhancedTableHead(props: EnhancedTableProps) {
 						align={headCell.numeric ? 'left' : 'center'}
 						padding={headCell.disablePadding ? 'none' : 'normal'}
 					>
-						{headCell.label}
+						{t(headCell.label)}
 					</TableCell>
 				))}
 			</TableRow>
@@ -147,6 +149,7 @@ interface MemberPanelListType {
 }
 
 export const MemberPanelList = (props: MemberPanelListType) => {
+	const { t } = useTranslation('common');
 	const { members, anchorEl, menuIconClickHandler, menuIconCloseHandler, updateMemberHandler, resetPasswordHandler } =
 		props;
 
@@ -192,7 +195,7 @@ export const MemberPanelList = (props: MemberPanelListType) => {
 
 										<TableCell align="center">
 											<Button onClick={(e: any) => menuIconClickHandler(e, index)} className={'badge success'}>
-												{member.memberType}
+												{t(`member_${member.memberType}`)}
 											</Button>
 
 											<Menu
@@ -214,7 +217,7 @@ export const MemberPanelList = (props: MemberPanelListType) => {
 															key={type}
 														>
 															<Typography variant={'subtitle1'} component={'span'}>
-																{type}
+																{t(`member_${type}`)}
 															</Typography>
 														</MenuItem>
 													))}
@@ -236,7 +239,7 @@ export const MemberPanelList = (props: MemberPanelListType) => {
 												onClick={(e: any) => menuIconClickHandler(e, member._id)}
 												className={`badge ${member.memberStatus === 'ACTIVE' ? 'success' : member.memberStatus === 'BLOCK' ? 'warning' : 'error'}`}
 											>
-												{member.memberStatus}
+												{t(`status_${member.memberStatus}`)}
 											</Button>
 
 											<Menu
@@ -258,7 +261,7 @@ export const MemberPanelList = (props: MemberPanelListType) => {
 															key={status}
 														>
 															<Typography variant={'subtitle1'} component={'span'}>
-																{status}
+																{t(`status_${status}`)}
 															</Typography>
 														</MenuItem>
 													))}
@@ -266,7 +269,7 @@ export const MemberPanelList = (props: MemberPanelListType) => {
 										</TableCell>
 										<TableCell align="center">
 											<Button size="small" variant="outlined" onClick={() => resetPasswordHandler(member._id, member.memberNick)}>
-												Reset password
+												{t('Reset password')}
 											</Button>
 										</TableCell>
 									</TableRow>

@@ -148,3 +148,45 @@
 	object-fit: cover;
 	background: $ma-bg-alt;
 }
+
+/* admin top bar */
+.ma-admin-bar {
+	gap: 14px;
+	justify-content: flex-end;
+	&__site {
+		margin-right: auto;
+		font-size: 14px;
+		font-weight: 500;
+		color: $ma-primary;
+	}
+	&__lang {
+		padding: 6px 10px;
+		border: 1px solid $ma-border;
+		border-radius: 8px;
+		background: #fff;
+		font: inherit;
+		font-size: 13px;
+	}
+}
+
+@media (max-width: 900px) {
+	#pc-wrap.admin {
+		#bunker .content {
+			padding: 84px 14px 24px !important;
+		}
+		.table-wrap {
+			overflow-x: auto;
+		}
+		.search-area {
+			flex-wrap: wrap;
+			margin: 16px !important;
+			> * {
+				width: 100% !important;
+			}
+		}
+		.tab-menu {
+			overflow-x: auto;
+			white-space: nowrap;
+		}
+	}
+}
