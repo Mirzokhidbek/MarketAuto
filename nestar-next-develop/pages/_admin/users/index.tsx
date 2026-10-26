@@ -17,11 +17,12 @@ import CancelRoundedIcon from '@mui/icons-material/CancelRounded';
 import { MembersInquiry } from '../../../libs/types/member/member.input';
 import { Member } from '../../../libs/types/member/member';
 import { MemberStatus, MemberType } from '../../../libs/enums/member.enum';
-import { sweetTopSmallSuccessAlert, sweetErrorHandling } from '../../../libs/sweetAlert';
+import { sweetConfirmAlert, sweetTopSmallSuccessAlert, sweetErrorHandling } from '../../../libs/sweetAlert';
 import { MemberUpdate } from '../../../libs/types/member/member.update';
 import { UPDATE_MEMBER_BY_ADMIN } from '../../../apollo/admin/mutation';
 import { GET_ALL_MEMBERS_BY_ADMIN } from '../../../apollo/admin/query';
 import { useMutation, useQuery } from '@apollo/client';
+import ReasonDialog from '../../../libs/components/admin/ReasonDialog';
 import { T } from '../../../libs/types/common';
 
 
@@ -40,6 +41,8 @@ const AdminUsers: NextPage = ({ initialInquiry, ...props }: any) => {
 	);
 	const [searchText, setSearchText] = useState('');
 	const [searchType, setSearchType] = useState('ALL');
+	// member waiting for a block reason
+	const [blockTarget, setBlockTarget] = useState<Member | null>(null);
 
 	/** APOLLO REQUESTS **/
 	const [updateMemberByAdmin] = useMutation(UPDATE_MEMBER_BY_ADMIN);
@@ -60,6 +63,15 @@ const AdminUsers: NextPage = ({ initialInquiry, ...props }: any) => {
 	});
 
 	/** LIFECYCLES **/
+	// nick, name or phone; searched after the admin stops typing
+	useEffect(() => {
+		const timer = setTimeout(() => {
+			const text = searchText.trim();
+			if ((membersInquiry.search.text ?? '') === text) return;
+			setMembersInquiry({ ...membersInquiry, page: 1, search: { ...membersInquiry.search, text: text || undefined } });
+		}, 400);
+		return () => clearTimeout(timer);
+	}, [searchText]);
 
 	/** HANDLERS **/
 	const changePageHandler = async (event: unknown, newPage: number) => {
@@ -108,7 +120,17 @@ const AdminUsers: NextPage = ({ initialInquiry, ...props }: any) => {
 		}
 	};
 
+	/** blocking needs a reason, deleting and giving admin rights need a confirmation */
 	const updateMemberHandler = async (updateData: MemberUpdate) => {
+		const member = members.find((item) => item._id === updateData._id);
+		if (updateData.memberStatus === MemberStatus.BLOCK && !updateData.memberBlockReason) {
+			menuIconCloseHandler();
+			setBlockTarget(member ?? null);
+			return;
+		}
+		if (updateData.memberStatus === MemberStatus.DELETE && !(await sweetConfirmAlert(t('Delete this account?') as string))) return;
+		if (updateData.memberType === MemberType.ADMIN && !(await sweetConfirmAlert(t('Give admin rights (moderator) to this member?') as string)))
+			return;
 		try {
 			await updateMemberByAdmin({
 				variables: {
@@ -148,19 +170,6 @@ const AdminUsers: NextPage = ({ initialInquiry, ...props }: any) => {
 		} catch (err: any) {
 		}
 	}, []);
-
-	const searchTextHandler = () => {
-		try {
-			setMembersInquiry({
-				...membersInquiry,
-				search: {
-					...membersInquiry.search,
-					text: searchText,
-				},
-			});
-		} catch (err: any) {
-		}
-	};
 
 	const searchTypeHandler = async (newValue: string) => {
 		try {
@@ -230,29 +239,13 @@ const AdminUsers: NextPage = ({ initialInquiry, ...props }: any) => {
 									onChange={(e: any) => textHandler(e.target.value)}
 									sx={{ width: '100%' }}
 									className={'search'}
-									placeholder={t('Search user name') as string}
-									onKeyDown={(event) => {
-										if (event.key == 'Enter') searchTextHandler();
-									}}
+									placeholder={t('Nickname, name or phone') as string}
 									endAdornment={
 										<>
 											{searchText && (
-												<CancelRoundedIcon
-													style={{ cursor: 'pointer' }}
-													onClick={async () => {
-														setSearchText('');
-														setMembersInquiry({
-															...membersInquiry,
-															search: {
-																...membersInquiry.search,
-																text: '',
-															},
-														});
-														await getAllMembersRefetch({ input: membersInquiry });
-													}}
-												/>
+												<CancelRoundedIcon style={{ cursor: 'pointer' }} onClick={() => setSearchText('')} />
 											)}
-											<InputAdornment position="end" onClick={() => searchTextHandler()}>
+											<InputAdornment position="end">
 												<img src="/img/icons/search_icon.png" alt={'searchIcon'} />
 											</InputAdornment>
 										</>
@@ -296,6 +289,19 @@ const AdminUsers: NextPage = ({ initialInquiry, ...props }: any) => {
 							onRowsPerPageChange={changeRowsPerPageHandler}
 						/>
 					</TabContext>
+					<ReasonDialog
+						open={!!blockTarget}
+						title={`${t('Block')} ${blockTarget?.memberNick ?? ''}`}
+						description={t('The member is logged out everywhere and sees this reason when trying to log in.') as string}
+						presets={['Fraud or fake listings', 'Spam', 'Insulting other members', 'Selling forbidden goods']}
+						confirmLabel={t('Block')}
+						onConfirm={(reason) => {
+							const id = blockTarget?._id ?? '';
+							setBlockTarget(null);
+							updateMemberHandler({ _id: id, memberStatus: MemberStatus.BLOCK, memberBlockReason: reason });
+						}}
+						onClose={() => setBlockTarget(null)}
+					/>
 				</Box>
 			</Box>
 		</Box>

@@ -23,8 +23,12 @@ export class DashboardResolver {
 
 	/** new members and new listings per day, oldest first, days without activity included */
 	private async daily(days: number): Promise<DailyStat[]> {
-		const since = new Date(Date.now() - (days - 1) * 24 * 60 * 60 * 1000);
-		since.setHours(0, 0, 0, 0);
+		const DAY = 24 * 60 * 60 * 1000;
+		// calendar days in Tashkent time, oldest first; the extra day covers the timezone gap
+		const dates = Array.from({ length: days }, (_, index) =>
+			new Date(Date.now() - (days - 1 - index) * DAY).toLocaleDateString('sv-SE', { timeZone: 'Asia/Tashkent' }),
+		);
+		const since = new Date(Date.now() - days * DAY);
 		const perDay = async (model: Model<any>, match: Record<string, any>) => {
 			const rows = await model
 				.aggregate([
@@ -36,11 +40,7 @@ export class DashboardResolver {
 		};
 		const members = await perDay(this.memberModel, { memberType: { $ne: MemberType.ADMIN } });
 		const cars = await perDay(this.propertyModel, {});
-		return Array.from({ length: days }, (_, index) => {
-			const day = new Date(since.getTime() + index * 24 * 60 * 60 * 1000);
-			const date = day.toLocaleDateString('sv-SE', { timeZone: 'Asia/Tashkent' });
-			return { date, members: (members.get(date) as number) ?? 0, cars: (cars.get(date) as number) ?? 0 };
-		});
+		return dates.map((date) => ({ date, members: (members.get(date) as number) ?? 0, cars: (cars.get(date) as number) ?? 0 }));
 	}
 
 	@Roles(MemberType.ADMIN)

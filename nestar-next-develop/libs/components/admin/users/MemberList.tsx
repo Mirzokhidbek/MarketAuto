@@ -18,7 +18,6 @@ import Avatar from '@mui/material/Avatar';
 import Typography from '@mui/material/Typography';
 import { Stack, Switch } from '@mui/material';
 import { Member } from '../../../types/member/member';
-import { REACT_APP_API_URL } from '../../../config';
 import { MemberStatus, MemberType } from '../../../enums/member.enum';
 
 interface Data {
@@ -54,12 +53,6 @@ interface HeadCell {
 }
 
 const headCells: readonly HeadCell[] = [
-	{
-		id: 'id',
-		numeric: true,
-		disablePadding: false,
-		label: 'ID',
-	},
 	{
 		id: 'nickname',
 		numeric: true,
@@ -170,7 +163,7 @@ export const MemberPanelList = (props: MemberPanelListType) => {
 						{members.length === 0 && (
 							<TableRow>
 								<TableCell align="center" colSpan={10}>
-									<span className={'no-data'}>data not found!</span>
+									<span className={'no-data'}>{t('No members found')}</span>
 								</TableCell>
 							</TableRow>
 						)}
@@ -182,17 +175,23 @@ export const MemberPanelList = (props: MemberPanelListType) => {
 									: '/img/profile/defaultUser.svg';
 								return (
 									<TableRow hover key={member?._id} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-										<TableCell align="left">{member._id}</TableCell>
 
 										<TableCell align="left" className={'name'}>
 											<Stack direction={'row'}>
-												<Link href={`/member?memberId=${member._id}`}>
+												<Link href={`/_admin/users/detail?id=${member._id}`}>
 													<div>
-														<Avatar alt="Remy Sharp" src={member_image} sx={{ ml: '2px', mr: '10px' }} />
+														<Avatar alt={member.memberNick} src={member_image} sx={{ ml: '2px', mr: '10px' }} />
 													</div>
 												</Link>
-												<Link href={`/member?memberId=${member._id}`}>
-													<div>{member.memberNick}</div>
+												<Link href={`/_admin/users/detail?id=${member._id}`}>
+													<div>
+														{member.memberNick}
+														{member.memberType === 'ADMIN' && member.memberAdminRole && (
+															<Typography variant="caption" display="block" color="text.secondary">
+																{t(`role_${member.memberAdminRole}`)}
+															</Typography>
+														)}
+													</div>
 												</Link>
 											</Stack>
 										</TableCell>
@@ -257,6 +256,11 @@ export const MemberPanelList = (props: MemberPanelListType) => {
 											>
 												{t(`status_${member.memberStatus}`)}
 											</Button>
+											{member.memberStatus === 'BLOCK' && member.memberBlockReason && (
+												<Typography variant="caption" display="block" color="text.secondary" sx={{ maxWidth: 180, mx: 'auto' }}>
+													{member.memberBlockReason}
+												</Typography>
+											)}
 
 											<Menu
 												className={'menu-modal'}

@@ -21,6 +21,7 @@ export const userVar = makeVar<CustomJwtPayload>({
 	memberViews: 0,
 	memberPhoneVerified: false,
 	memberTrusted: false,
+	memberAdminRole: '',
 });
 
 // @ts-ignore

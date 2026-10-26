@@ -12,6 +12,7 @@ export enum PropertyType {
 
 export enum PropertyStatus {
 	PENDING = 'PENDING',
+	REJECTED = 'REJECTED',
 	ACTIVE = 'ACTIVE',
 	SOLD = 'SOLD',
 	DELETE = 'DELETE',

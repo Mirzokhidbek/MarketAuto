@@ -11,6 +11,8 @@ export const GET_ALL_MEMBERS_BY_ADMIN = gql`
 				_id
 				memberType
 				memberStatus
+				memberAdminRole
+				memberBlockReason
 				memberTrusted
 				memberDealerVerified
 				memberPhoneVerified
@@ -49,6 +51,7 @@ export const GET_ALL_PROPERTIES_BY_ADMIN = gql`
 				_id
 				propertyType
 				propertyStatus
+				propertyRejectReason
 				propertyLocation
 				propertyAddress
 				propertyTitle
@@ -245,6 +248,11 @@ export const GET_DASHBOARD_STATS = gql`
 			inquiriesWaiting
 			carsPending
 			reportsOpen
+			daily {
+				date
+				members
+				cars
+			}
 		}
 	}
 `;
@@ -273,6 +281,117 @@ export const GET_REPORTS_BY_ADMIN = gql`
 			}
 			metaCounter {
 				total
+			}
+		}
+	}
+`;
+
+/** small query for the menu badges, polled */
+export const GET_ADMIN_BADGES = gql`
+	query GetAdminBadges {
+		getDashboardStats {
+			carsPending
+			reportsOpen
+			inquiriesWaiting
+		}
+	}
+`;
+
+export const GET_MEMBER_ADMIN_DETAIL = gql`
+	query GetMemberAdminDetail($memberId: String!) {
+		getMemberAdminDetail(memberId: $memberId) {
+			carsActive
+			carsPending
+			carsRejected
+			carsSold
+			carsDeleted
+			reportsAgainst
+			reportsMade
+			reviewsReceived
+			conversations
+			activeSessions
+			member {
+				_id
+				memberType
+				memberStatus
+				memberAdminRole
+				memberBlockReason
+				memberTrusted
+				memberDealerVerified
+				memberPhoneVerified
+				memberPhone
+				memberNick
+				memberFullName
+				memberImage
+				memberAddress
+				memberDesc
+				memberProperties
+				memberArticles
+				memberFollowers
+				memberFollowings
+				createdAt
+			}
+		}
+	}
+`;
+
+export const GET_ADMIN_LOGS = gql`
+	query GetAdminLogs($input: AdminLogsInquiry!) {
+		getAdminLogs(input: $input) {
+			list {
+				_id
+				action
+				targetType
+				targetId
+				details
+				createdAt
+				adminData {
+					_id
+					memberNick
+				}
+			}
+			metaCounter {
+				total
+			}
+		}
+	}
+`;
+
+export const GET_CONVERSATIONS_BY_ADMIN = gql`
+	query GetConversationsByAdmin($memberId: String!, $input: OrdinaryInquiry!) {
+		getConversationsByAdmin(memberId: $memberId, input: $input) {
+			list {
+				_id
+				propertyId
+				lastMessage
+				lastMessageAt
+				otherMember {
+					_id
+					memberNick
+					memberFullName
+					memberImage
+				}
+				propertyData {
+					_id
+					propertyTitle
+				}
+			}
+			metaCounter {
+				total
+			}
+		}
+	}
+`;
+
+export const GET_MESSAGES_BY_ADMIN = gql`
+	query GetMessagesByAdmin($input: MessagesInquiry!) {
+		getMessagesByAdmin(input: $input) {
+			list {
+				_id
+				senderId
+				text
+				image
+				createdAt
 			}
 		}
 	}

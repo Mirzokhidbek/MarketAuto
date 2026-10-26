@@ -13,6 +13,8 @@ export interface Member {
 	memberPhoneVerified?: boolean;
 	memberTrusted?: boolean;
 	memberDealerVerified?: boolean;
+	memberAdminRole?: string;
+	memberBlockReason?: string;
 	memberResponseMinutes?: number;
 	memberFullName?: string;
 	memberImage?: string;

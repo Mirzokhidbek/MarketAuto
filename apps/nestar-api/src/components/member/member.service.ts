@@ -24,6 +24,10 @@ import { LikeService } from '../like/like.service';
 import { Follower, Following, MeFollowed } from '../../libs/dto/follow/follow';
 import { lookupAuthMemberLiked, searchRegex } from '../../libs/config';
 
+/** "You have been blocked!" + the admin's reason; the client translates the fixed first part */
+const blockedMessage = (member: { memberBlockReason?: string | null }): string =>
+	member.memberBlockReason ? `${Message.BLOCKED_USER} ${member.memberBlockReason}` : Message.BLOCKED_USER;
+
 @Injectable()
 export class MemberService {
 	constructor(
@@ -76,8 +80,6 @@ export class MemberService {
 		if (!response || response.memberStatus === MemberStatus.DELETE) {
 			limiters.loginIp.hit(ip);
 			throw new InternalServerErrorException(Message.NO_MEMBER_NICK);
-		} else if (response.memberStatus === MemberStatus.BLOCK) {
-			throw new InternalServerErrorException(Message.BLOCKED_USER);
 		}
 
 		const isMatch = await this.authService.comparePasswords(input.memberPassword, response.memberPassword!);
@@ -87,6 +89,8 @@ export class MemberService {
 			throw new InternalServerErrorException(Message.WRONG_PASSWORD);
 		}
 		limiters.loginNick.reset(nickKey);
+		// checked after the password, so the block reason is shown only to the account owner
+		if (response.memberStatus === MemberStatus.BLOCK) throw new InternalServerErrorException(blockedMessage(response));
 
 		// admins: the password is only the first step, an SMS code to the admin phone is the second
 		if (response.memberType === MemberType.ADMIN && process.env.ADMIN_2FA !== 'off') {
@@ -109,7 +113,7 @@ export class MemberService {
 		const memberPhone = await this.verificationService.consumeCode(input.phone, VerificationPurpose.LOGIN, input.code);
 		const member = await this.memberModel.findOne({ memberPhone }).exec();
 		if (!member || member.memberStatus === MemberStatus.DELETE) throw new BadRequestException(Message.WRONG_CODE);
-		if (member.memberStatus === MemberStatus.BLOCK) throw new InternalServerErrorException(Message.BLOCKED_USER);
+		if (member.memberStatus === MemberStatus.BLOCK) throw new InternalServerErrorException(blockedMessage(member));
 		// an SMS alone is not enough for an admin account
 		if (member.memberType === MemberType.ADMIN) throw new BadRequestException(Message.NOT_ALLOWED_REQUEST);
 		return await this.authService.issueTokens(member, userAgent);
@@ -300,8 +304,13 @@ export class MemberService {
 
 		if (memberStatus) match.memberStatus = memberStatus;
 		if (memberType) match.memberType = memberType;
-		if (text) match.memberNick = { $regex: searchRegex(text) };
-		console.log('match:', match);
+		if (text) {
+			// nick, name or (4+ digits) part of the phone number
+			const or: T[] = [{ memberNick: { $regex: searchRegex(text) } }, { memberFullName: { $regex: searchRegex(text) } }];
+			const digits = text.replace(/\D/g, '');
+			if (digits.length >= 4) or.push({ memberPhone: { $regex: digits } });
+			match.$or = or;
+		}
 
 		const result = (await this.memberModel
 			.aggregate([

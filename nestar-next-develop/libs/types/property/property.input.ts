@@ -85,6 +85,7 @@ interface ALPISearch {
 	countryList?: CarCountry[];
 	brandList?: CarBrand[];
 	text?: string;
+	memberId?: string;
 }
 
 export interface AllPropertiesInquiry {

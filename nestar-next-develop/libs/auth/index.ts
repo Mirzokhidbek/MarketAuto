@@ -2,7 +2,7 @@ import decodeJWT from 'jwt-decode';
 import { initializeApollo } from '../../apollo/client';
 import { userVar } from '../../apollo/store';
 import { CustomJwtPayload } from '../types/customJwtPayload';
-import { LOGIN, LOGIN_WITH_CODE, RESET_PASSWORD, SIGN_UP } from '../../apollo/user/mutation';
+import { LOGIN, LOGIN_WITH_CODE, RESET_PASSWORD, SIGN_UP, VERIFY_ADMIN_LOGIN } from '../../apollo/user/mutation';
 
 /**
  * Session = short-lived access token (JWT, ~1h) + long-lived refresh token.
@@ -44,7 +44,14 @@ export const applySession = (session: { accessToken?: string; refreshToken?: str
 	updateUserInfo(session.accessToken);
 };
 
-export const logIn = async (nick: string, password: string): Promise<void> => {
+/** admins get no tokens from the password step: an SMS code is sent and must be confirmed with verifyAdminLogin */
+export interface LoginResult {
+	twoFactorRequired: boolean;
+	memberNick?: string;
+	devCode?: string;
+}
+
+export const logIn = async (nick: string, password: string): Promise<LoginResult> => {
 	const apolloClient = await initializeApollo();
 	try {
 		const result = await apolloClient.mutate({
@@ -52,9 +59,26 @@ export const logIn = async (nick: string, password: string): Promise<void> => {
 			variables: { input: { memberNick: nick, memberPassword: password } },
 			fetchPolicy: 'network-only',
 		});
-		applySession(result?.data?.login);
+		const login = result?.data?.login;
+		if (login?.twoFactorRequired) return { twoFactorRequired: true, memberNick: login.memberNick, devCode: login.devCode ?? '' };
+		applySession(login);
+		return { twoFactorRequired: false };
 	} catch (err: any) {
 		// surface the backend message (wrong password, blocked user, too many attempts, ...)
+		throw graphqlError(err);
+	}
+};
+
+export const verifyAdminLogin = async (nick: string, code: string): Promise<void> => {
+	const apolloClient = await initializeApollo();
+	try {
+		const result = await apolloClient.mutate({
+			mutation: VERIFY_ADMIN_LOGIN,
+			variables: { input: { memberNick: nick, code } },
+			fetchPolicy: 'network-only',
+		});
+		applySession(result?.data?.verifyAdminLogin);
+	} catch (err: any) {
 		throw graphqlError(err);
 	}
 };
@@ -175,6 +199,7 @@ export const updateUserInfo = (jwtToken: any) => {
 		memberViews: claims.memberViews,
 		memberPhoneVerified: !!claims.memberPhoneVerified,
 		memberTrusted: !!claims.memberTrusted,
+		memberAdminRole: claims.memberAdminRole ?? '',
 	});
 };
 
@@ -219,5 +244,6 @@ const deleteUserInfo = () => {
 		memberViews: 0,
 		memberPhoneVerified: false,
 		memberTrusted: false,
+		memberAdminRole: '',
 	});
 };
