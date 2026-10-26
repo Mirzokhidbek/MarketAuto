@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import Seo from '../common/Seo';
 import Top from '../Top';
 import Footer from '../Footer';
+import CompareBar from '../common/CompareBar';
 import { Stack } from '@mui/material';
 import { getJwtToken, updateUserInfo } from '../../auth';
 import { useReactiveVar } from '@apollo/client';
@@ -67,6 +68,21 @@ const withLayoutBasic = (Component: any) => {
 					bgImage = '/img/banner/header2.svg';
 					setAuthHeader(true);
 					break;
+				case '/compare':
+					title = 'Compare cars';
+					desc = 'Home / Compare';
+					bgImage = '/img/banner/header1.svg';
+					break;
+				case '/terms':
+					title = 'Terms of Use';
+					desc = 'Home / Terms of Use';
+					bgImage = '/img/banner/header2.svg';
+					break;
+				case '/privacy':
+					title = 'Privacy Policy';
+					desc = 'Home / Privacy Policy';
+					bgImage = '/img/banner/header2.svg';
+					break;
 				case '/member':
 					title = 'Seller profile';
 					desc = 'Home / Sellers';
@@ -112,6 +128,8 @@ const withLayoutBasic = (Component: any) => {
 					<Stack id={'main'}>
 						<Component {...props} />
 					</Stack>
+
+					<CompareBar />
 
 					<Stack id={'footer'}>
 						<Footer />

@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import Seo from '../common/Seo';
 import Top from '../Top';
 import Footer from '../Footer';
+import CompareBar from '../common/CompareBar';
 import { Stack } from '@mui/material';
 import { getJwtToken, updateUserInfo } from '../../auth';
 import { useReactiveVar } from '@apollo/client';
@@ -32,6 +33,8 @@ const withLayoutFull = (Component: any) => {
 					<Stack id={'main'}>
 						<Component {...props} />
 					</Stack>
+
+					<CompareBar />
 
 					<Stack id={'footer'}>
 						<Footer />

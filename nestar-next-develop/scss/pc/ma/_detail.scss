@@ -512,3 +512,104 @@
 .ma-link-btn--danger {
 	color: #dc2626;
 }
+
+/* full-screen gallery */
+.ma-gallery__zoom {
+	cursor: zoom-in;
+}
+
+.ma-lightbox {
+	position: fixed;
+	inset: 0;
+	z-index: 2000;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: rgba(2, 6, 23, 0.94);
+	img {
+		max-width: 92vw;
+		max-height: 86vh;
+		object-fit: contain;
+		border-radius: 8px;
+		user-select: none;
+	}
+	&__close,
+	&__nav {
+		position: absolute;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		border: 0;
+		border-radius: 50%;
+		background: rgba(255, 255, 255, 0.12);
+		color: #fff;
+		cursor: pointer;
+		&:hover {
+			background: rgba(255, 255, 255, 0.24);
+		}
+	}
+	&__close {
+		top: 18px;
+		right: 18px;
+		width: 44px;
+		height: 44px;
+	}
+	&__nav {
+		top: 50%;
+		width: 52px;
+		height: 52px;
+		transform: translateY(-50%);
+		svg {
+			font-size: 32px;
+		}
+		&--prev {
+			left: 18px;
+		}
+		&--next {
+			right: 18px;
+		}
+	}
+	&__count {
+		position: absolute;
+		bottom: 22px;
+		color: #e2e8f0;
+		font-size: 14px;
+	}
+}
+
+@media (max-width: 600px) {
+	.ma-lightbox__nav {
+		display: none;
+	}
+}
+
+.ma-note--warn {
+	background: #fef7e0;
+	color: #7a5200;
+}
+
+.ma-report-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	align-self: center;
+	margin-top: 4px;
+	font-size: 13px;
+	color: $ma-muted !important;
+	svg {
+		font-size: 16px;
+	}
+	&:hover {
+		color: #d93025 !important;
+	}
+}
+
+.ma-price-card .ma-btn svg {
+	font-size: 18px;
+	margin-right: 4px;
+}
+
+.ma-status--pending {
+	background: #fef7e0;
+	color: #7a5200;
+}

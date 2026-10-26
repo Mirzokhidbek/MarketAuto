@@ -1,3 +1,8 @@
+import Lightbox from '../../libs/components/common/Lightbox';
+import ReportButton from '../../libs/components/common/ReportButton';
+import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
+import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
+import { toggleCompare } from '../../libs/compare';
 import React, { ChangeEvent, useEffect, useState } from 'react';
 import { CircularProgress } from '@mui/material';
 import { usePrice } from '../../libs/hooks/usePrice';
@@ -32,7 +37,7 @@ import {
 	formatPhone,
 	formatterStr, imageUrl } from '../../libs/utils';
 import { REACT_APP_API_URL } from '../../libs/config';
-import { userVar } from '../../apollo/store';
+import { compareVar, userVar } from '../../apollo/store';
 import { CommentInput, CommentsInquiry } from '../../libs/types/comment/comment.input';
 import { Comment } from '../../libs/types/comment/comment';
 import { CommentGroup } from '../../libs/enums/comment.enum';
@@ -81,6 +86,8 @@ const PropertyDetail: NextPage = ({ initialComment, carSeo, ...props }: any) => 
 	const [propertyId, setPropertyId] = useState<string | null>(null);
 	const [property, setProperty] = useState<Property | null>(null);
 	const [slideImage, setSlideImage] = useState<string>('');
+	const [lightbox, setLightbox] = useState<number | null>(null);
+	const compareIds = useReactiveVar(compareVar);
 	const [failedImages, setFailedImages] = useState<string[]>([]);
 	const [showPhone, setShowPhone] = useState<boolean>(false);
 	const [destinationProperties, setDestinationProperties] = useState<Property[]>([]);
@@ -289,7 +296,25 @@ const PropertyDetail: NextPage = ({ initialComment, carSeo, ...props }: any) => 
 		{ label: 'Transmission', value: formatEnumLabel(property.carTransmission, t) },
 		{ label: 'Body type', value: formatEnumLabel(property.propertyType, t) },
 		{ label: 'Color', value: property.carColor || '—' },
+		{ label: 'VIN', value: property.carVin || '—' },
+		{
+			label: 'Accidents',
+			value: property.carAccidentHistory ? t(`accident_${property.carAccidentHistory}`) : '—',
+		},
+		{ label: 'Owners', value: property.carOwners ?? '—' },
+		{
+			label: 'Customs cleared in Uzbekistan',
+			value: property.carCustomsCleared === undefined || property.carCustomsCleared === null ? '—' : t(property.carCustomsCleared ? 'Yes' : 'No'),
+		},
+		...(property.carCountry !== 'UZBEKISTAN'
+			? [
+					{ label: 'Delivery time (days)', value: property.carDeliveryDays ?? '—' },
+					{ label: 'Delivery cost ($)', value: property.carDeliveryCost ? `$${formatterStr(property.carDeliveryCost)}` : '—' },
+			  ]
+			: []),
 	];
+	const inCompare = compareIds.includes(property._id);
+	const isOwner = user?._id === property.memberId;
 
 	return (
 		<div className={'ma-page ma-detail'}>
@@ -302,6 +327,12 @@ const PropertyDetail: NextPage = ({ initialComment, carSeo, ...props }: any) => 
 					<span>/</span>
 					<em>{property.propertyTitle}</em>
 				</nav>
+
+				{property.propertyStatus === 'PENDING' && (
+					<div className={'ma-note ma-note--warn'}>
+						{t('This listing is waiting for moderation. Only you can see it until it is approved.')}
+					</div>
+				)}
 
 				<header className={'ma-detail__head'}>
 					<div>
@@ -329,6 +360,15 @@ const PropertyDetail: NextPage = ({ initialComment, carSeo, ...props }: any) => 
 							<ShareOutlinedIcon />
 							<span>{t('Share')}</span>
 						</button>
+						<button
+							className={`ma-icon-btn ${inCompare ? 'is-liked' : ''}`}
+							onClick={() => {
+								if (!toggleCompare(property._id)) sweetMixinErrorAlert(t('You can compare up to 3 cars.') as string).then();
+							}}
+						>
+							<CompareArrowsIcon />
+							<span>{inCompare ? t('In comparison') : t('Compare')}</span>
+						</button>
 					</div>
 				</header>
 
@@ -338,6 +378,8 @@ const PropertyDetail: NextPage = ({ initialComment, carSeo, ...props }: any) => 
 							<div className={'ma-gallery__main'}>
 								{slideImage && !failedImages.includes(slideImage) ? (
 									<img
+										className={'ma-gallery__zoom'}
+										onClick={() => setLightbox(Math.max(0, property.propertyImages.indexOf(slideImage)))}
 										src={imageUrl(slideImage)}
 										alt={property.propertyTitle}
 										onError={() => setFailedImages((prev) => [...prev, slideImage])}
@@ -348,6 +390,15 @@ const PropertyDetail: NextPage = ({ initialComment, carSeo, ...props }: any) => 
 									</div>
 								)}
 							</div>
+							{lightbox !== null && (
+								<Lightbox
+									images={property.propertyImages.filter((image) => !failedImages.includes(image))}
+									index={lightbox}
+									onIndex={setLightbox}
+									onClose={() => setLightbox(null)}
+									alt={property.propertyTitle}
+								/>
+							)}
 							{property.propertyImages.length > 1 && (
 								<div className={'ma-gallery__thumbs'}>
 									{property.propertyImages.map((image: string) => (
@@ -445,8 +496,12 @@ const PropertyDetail: NextPage = ({ initialComment, carSeo, ...props }: any) => 
 							<span className={'ma-price-card__other'}>≈ {otherPrice(property.propertyPrice)}</span>
 							<div className={'ma-price-card__badges'}>
 								<span className={`ma-status ma-status--${property.propertyStatus.toLowerCase()}`}>
-									{t(property.propertyStatus === 'SOLD' ? 'Sold' : 'For sale')}
+									{t(property.propertyStatus === 'SOLD' ? 'Sold' : property.propertyStatus === 'PENDING' ? 'Under review' : 'For sale')}
 								</span>
+								{property.carCustomsCleared && <span className={'ma-badge ma-badge--primary'}>{t('Customs cleared')}</span>}
+								{property.carAccidentHistory === 'NONE' && (
+									<span className={'ma-badge ma-badge--primary'}>{t('No accidents')}</span>
+								)}
 								{property.propertyBarter && <span className={'ma-badge ma-badge--primary'}>{t('Barter')}</span>}
 								{property.propertyNegotiable && (
 									<span className={'ma-badge ma-badge--primary'}>{t('Negotiable')}</span>
@@ -477,9 +532,23 @@ const PropertyDetail: NextPage = ({ initialComment, carSeo, ...props }: any) => 
 									<PhoneOutlinedIcon /> {t('Show phone number')}
 								</button>
 							)}
+							{!isOwner && (
+								<Link
+									href={
+										user?._id
+											? `/mypage?category=messages&to=${seller?._id}&propertyId=${property._id}`
+											: '/account/join'
+									}
+								>
+									<span className={'ma-btn ma-btn--outline ma-btn--block'}>
+										<ChatBubbleOutlineIcon /> {t('Write to seller')}
+									</span>
+								</Link>
+							)}
 							<Link href={`/member?memberId=${seller?._id}`}>
 								<span className={'ma-btn ma-btn--outline ma-btn--block'}>{t("View seller's cars")}</span>
 							</Link>
+							{!isOwner && <ReportButton propertyId={property._id} />}
 						</div>
 
 						<div className={'ma-panel ma-tips'}>

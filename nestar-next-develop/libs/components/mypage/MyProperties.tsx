@@ -1,3 +1,4 @@
+import EmptyState from '../common/EmptyState';
 import React, { useState } from 'react';
 import { NextPage } from 'next';
 import { Pagination } from '@mui/material';
@@ -114,6 +115,12 @@ const MyProperties: NextPage = ({ initialInput, ...props }: any) => {
 					{t('For sale')}
 				</button>
 				<button
+					className={`ma-tab ${status === PropertyStatus.PENDING ? 'is-active' : ''}`}
+					onClick={() => changeStatusHandler(PropertyStatus.PENDING)}
+				>
+					{t('Under review')}
+				</button>
+				<button
 					className={`ma-tab ${status === PropertyStatus.SOLD ? 'is-active' : ''}`}
 					onClick={() => changeStatusHandler(PropertyStatus.SOLD)}
 				>
@@ -133,7 +140,12 @@ const MyProperties: NextPage = ({ initialInput, ...props }: any) => {
 					))}
 				</div>
 			) : (
-				<div className={'ma-empty'}>{getAgentPropertiesLoading ? t('Loading...') : t('No cars in this list yet.')}</div>
+				<EmptyState
+					loading={getAgentPropertiesLoading}
+					text={status === PropertyStatus.ACTIVE ? t('You have no cars for sale yet.') : t('No cars in this list yet.')}
+					actionLabel={status === PropertyStatus.ACTIVE ? t('Add your first car') : undefined}
+					actionHref={'/mypage?category=addProperty'}
+				/>
 			)}
 
 			{total > searchFilter.limit && (

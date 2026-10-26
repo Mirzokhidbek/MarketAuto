@@ -1,3 +1,8 @@
+import { useReactiveVar } from '@apollo/client';
+import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
+import { compareVar } from '../../../apollo/store';
+import { toggleCompare } from '../../compare';
+import { sweetMixinErrorAlert } from '../../sweetAlert';
 import { usePrice } from '../../hooks/usePrice';
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
@@ -6,7 +11,6 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import DirectionsCarFilledOutlinedIcon from '@mui/icons-material/DirectionsCarFilledOutlined';
 import { Property } from '../../types/property/property';
-import { REACT_APP_API_URL } from '../../config';
 import { formatCountry, formatEnumLabel, formatMileage, formatterStr, imageUrl } from '../../utils';
 
 interface CarCardProps {
@@ -30,6 +34,8 @@ const CarCard = ({ property, onLike }: CarCardProps) => {
 		place,
 	].filter(Boolean);
 
+	const compareIds = useReactiveVar(compareVar);
+	const inCompare = compareIds.includes(property._id);
 	const openDetail = () => router.push({ pathname: '/property/detail', query: { id: property._id } });
 
 	return (
@@ -47,6 +53,17 @@ const CarCard = ({ property, onLike }: CarCardProps) => {
 					{property.propertyBarter && <span className={'ma-badge ma-badge--primary'}>{t('Barter')}</span>}
 					{property.carCustomsCleared && <span className={'ma-badge ma-badge--primary'}>{t('Customs cleared')}</span>}
 				</div>
+				<button
+					className={`ma-car-card__compare ${inCompare ? 'is-active' : ''}`}
+					title={(inCompare ? t('Remove from comparison') : t('Compare')) as string}
+					aria-label={'compare'}
+					onClick={(e) => {
+						e.stopPropagation();
+						if (!toggleCompare(property._id)) sweetMixinErrorAlert(t('You can compare up to 3 cars.') as string).then();
+					}}
+				>
+					<CompareArrowsIcon />
+				</button>
 				{onLike && (
 					<button
 						className={`ma-car-card__like ${liked ? 'is-liked' : ''}`}

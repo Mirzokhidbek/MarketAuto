@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import Seo from '../common/Seo';
 import Top from '../Top';
 import Footer from '../Footer';
+import CompareBar from '../common/CompareBar';
 import { Stack } from '@mui/material';
 import { userVar } from '../../../apollo/store';
 import { useReactiveVar } from '@apollo/client';
@@ -30,6 +31,8 @@ const withLayoutMain = (Component: any) => {
 					<Stack id={'main'}>
 						<Component {...props} />
 					</Stack>
+
+					<CompareBar />
 
 					<Stack id={'footer'}>
 						<Footer />

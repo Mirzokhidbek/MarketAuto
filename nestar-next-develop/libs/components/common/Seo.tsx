@@ -22,6 +22,9 @@ const routeTitles: Record<string, string> = {
 	'/about': 'About Us',
 	'/cs': 'Support Center',
 	'/account/join': 'Login / Register',
+	'/compare': 'Compare cars',
+	'/terms': 'Terms of Use',
+	'/privacy': 'Privacy Policy',
 };
 
 const ogLocales: Record<string, string> = { en: 'en_US', uz: 'uz_UZ', ru: 'ru_RU' };
