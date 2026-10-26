@@ -1,5 +1,6 @@
 import React, { ChangeEvent, useEffect, useState } from 'react';
 import { CircularProgress } from '@mui/material';
+import { usePrice } from '../../libs/hooks/usePrice';
 import Seo from '../../libs/components/common/Seo';
 import withLayoutFull from '../../libs/components/layout/LayoutFull';
 import { NextPage } from 'next';
@@ -76,6 +77,7 @@ export const getServerSideProps = async ({ locale, query }: any) => ({
 const PropertyDetail: NextPage = ({ initialComment, carSeo, ...props }: any) => {
 	const router = useRouter();
 	const { t } = useTranslation('common');
+	const { price, other: otherPrice } = usePrice();
 	const user = useReactiveVar(userVar);
 	const [propertyId, setPropertyId] = useState<string | null>(null);
 	const [property, setProperty] = useState<Property | null>(null);
@@ -440,7 +442,8 @@ const PropertyDetail: NextPage = ({ initialComment, carSeo, ...props }: any) => 
 					<aside className={'ma-detail__side'}>
 						<div className={'ma-panel ma-price-card'}>
 							<span className={'ma-price-card__label'}>{t('Price')}</span>
-							<strong className={'ma-price-card__price'}>${formatterStr(property.propertyPrice)}</strong>
+							<strong className={'ma-price-card__price'}>{price(property.propertyPrice)}</strong>
+							<span className={'ma-price-card__other'}>≈ {otherPrice(property.propertyPrice)}</span>
 							<div className={'ma-price-card__badges'}>
 								<span className={`ma-status ma-status--${property.propertyStatus.toLowerCase()}`}>
 									{t(property.propertyStatus === 'SOLD' ? 'Sold' : 'For sale')}

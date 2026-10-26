@@ -1,3 +1,4 @@
+import { usePrice } from '../../hooks/usePrice';
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
@@ -21,6 +22,7 @@ interface ManageCarRowProps {
 const ManageCarRow = ({ property, onDelete, onStatusChange }: ManageCarRowProps) => {
 	const router = useRouter();
 	const { t } = useTranslation('common');
+	const { price } = usePrice();
 	const [imageFailed, setImageFailed] = useState(false);
 	const image = property.propertyImages?.[0];
 	const isActive = property.propertyStatus === PropertyStatus.ACTIVE;
@@ -62,7 +64,7 @@ const ManageCarRow = ({ property, onDelete, onStatusChange }: ManageCarRowProps)
 					</span>
 				</div>
 			</div>
-			<div className={'ma-manage-row__price'}>${formatterStr(property.propertyPrice)}</div>
+			<div className={'ma-manage-row__price'}>{price(property.propertyPrice)}</div>
 			<div className={'ma-manage-row__actions'}>
 				{isActive ? (
 					<select
