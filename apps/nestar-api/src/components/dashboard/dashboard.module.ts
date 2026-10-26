@@ -4,6 +4,7 @@ import MemberSchema from '../../schemas/Member.model';
 import PropertySchema from '../../schemas/Property.model';
 import BoardArticleSchema from '../../schemas/BoardArticle.model';
 import NoticeSchema from '../../schemas/Notice.model';
+import ReportSchema from '../../schemas/Report.model';
 import { AuthModule } from '../auth/auth.module';
 import { DashboardResolver } from './dashboard.resolver';
 
@@ -14,6 +15,7 @@ import { DashboardResolver } from './dashboard.resolver';
 			{ name: 'Property', schema: PropertySchema },
 			{ name: 'BoardArticle', schema: BoardArticleSchema },
 			{ name: 'Notice', schema: NoticeSchema },
+			{ name: 'Report', schema: ReportSchema },
 		]),
 		AuthModule,
 	],

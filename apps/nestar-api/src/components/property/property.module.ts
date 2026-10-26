@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { PropertyResolver } from './property.resolver';
 import { PropertyService } from './property.service';
 import PropertySchema from '../../schemas/Property.model';
+import SavedSearchSchema from '../../schemas/SavedSearch.model';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from '../auth/auth.module';
 import { NotificationModule } from '../notification/notification.module';
@@ -16,6 +17,7 @@ import { LikeModule } from '../like/like.module';
 				name: 'Property',
 				schema: PropertySchema,
 			},
+			{ name: 'SavedSearch', schema: SavedSearchSchema },
 		]),
 		AuthModule,
 		NotificationModule,

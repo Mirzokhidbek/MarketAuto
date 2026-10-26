@@ -18,11 +18,8 @@ export const GET_AGENTS = gql`
 				memberImage
 				memberAddress
 				memberDesc
-				memberWarnings
-				memberBlocks
 				memberProperties
 				memberRank
-				memberPoints
 				memberLikes
 				memberViews
 				deletedAt
@@ -48,6 +45,7 @@ export const GET_MEMBER = gql(`
         _id
         memberType
         memberStatus
+        memberPhoneVerified
         memberAuthType
         memberPhone
         memberNick
@@ -58,14 +56,11 @@ export const GET_MEMBER = gql(`
         memberProperties
         memberArticles
         memberComments
-        memberPoints
         memberLikes
         memberViews
         memberFollowings
 				memberFollowers
         memberRank
-        memberWarnings
-        memberBlocks
         deletedAt
         createdAt
         updatedAt
@@ -108,7 +103,13 @@ export const GET_PROPERTY = gql`
 			propertyImages
 			propertyDesc
 			propertyBarter
-			propertyRent
+			propertyNegotiable
+			carVin
+			carAccidentHistory
+			carOwners
+			carCustomsCleared
+			carDeliveryDays
+			carDeliveryCost
 			memberId
 			soldAt
 			deletedAt
@@ -125,9 +126,6 @@ export const GET_PROPERTY = gql`
 				memberImage
 				memberAddress
 				memberDesc
-				memberWarnings
-				memberBlocks
-				memberPoints
 				memberLikes
 				memberViews
 				deletedAt
@@ -171,7 +169,13 @@ export const GET_PROPERTIES = gql`
 				propertyImages
 				propertyDesc
 				propertyBarter
-				propertyRent
+				propertyNegotiable
+				carVin
+				carAccidentHistory
+				carOwners
+				carCustomsCleared
+				carDeliveryDays
+				carDeliveryCost
 				memberId
 				soldAt
 				deletedAt
@@ -188,11 +192,8 @@ export const GET_PROPERTIES = gql`
 					memberImage
 					memberAddress
 					memberDesc
-					memberWarnings
-					memberBlocks
 					memberProperties
 					memberRank
-					memberPoints
 					memberLikes
 					memberViews
 					deletedAt
@@ -238,7 +239,13 @@ export const GET_AGENT_PROPERTIES = gql`
 				propertyImages
 				propertyDesc
 				propertyBarter
-				propertyRent
+				propertyNegotiable
+				carVin
+				carAccidentHistory
+				carOwners
+				carCustomsCleared
+				carDeliveryDays
+				carDeliveryCost
 				memberId
 				soldAt
 				deletedAt
@@ -280,7 +287,13 @@ export const GET_FAVORITES = gql`
 				propertyImages
 				propertyDesc
 				propertyBarter
-				propertyRent
+				propertyNegotiable
+				carVin
+				carAccidentHistory
+				carOwners
+				carCustomsCleared
+				carDeliveryDays
+				carDeliveryCost
 				memberId
 				soldAt
 				deletedAt
@@ -299,15 +312,12 @@ export const GET_FAVORITES = gql`
 					memberDesc
 					memberProperties
 					memberArticles
-					memberPoints
 					memberLikes
 					memberViews
 					memberComments
 					memberFollowings
 					memberFollowers
 					memberRank
-					memberWarnings
-					memberBlocks
 					deletedAt
 					createdAt
 					updatedAt
@@ -349,7 +359,13 @@ export const GET_VISITED = gql`
 				propertyImages
 				propertyDesc
 				propertyBarter
-				propertyRent
+				propertyNegotiable
+				carVin
+				carAccidentHistory
+				carOwners
+				carCustomsCleared
+				carDeliveryDays
+				carDeliveryCost
 				memberId
 				soldAt
 				deletedAt
@@ -368,15 +384,12 @@ export const GET_VISITED = gql`
 					memberDesc
 					memberProperties
 					memberArticles
-					memberPoints
 					memberLikes
 					memberViews
 					memberComments
 					memberFollowings
 					memberFollowers
 					memberRank
-					memberWarnings
-					memberBlocks
 					deletedAt
 					createdAt
 					updatedAt
@@ -420,11 +433,8 @@ export const GET_BOARD_ARTICLE = gql`
 				memberImage
 				memberAddress
 				memberDesc
-				memberWarnings
-				memberBlocks
 				memberProperties
 				memberRank
-				memberPoints
 				memberLikes
 				memberViews
 				deletedAt
@@ -472,11 +482,8 @@ export const GET_BOARD_ARTICLES = gql`
 					memberImage
 					memberAddress
 					memberDesc
-					memberWarnings
-					memberBlocks
 					memberProperties
 					memberRank
-					memberPoints
 					memberLikes
 					memberViews
 					deletedAt
@@ -518,11 +525,8 @@ export const GET_COMMENTS = gql`
 					memberImage
 					memberAddress
 					memberDesc
-					memberWarnings
-					memberBlocks
 					memberProperties
 					memberRank
-					memberPoints
 					memberLikes
 					memberViews
 					deletedAt
@@ -573,15 +577,12 @@ export const GET_MEMBER_FOLLOWERS = gql`
 					memberDesc
 					memberProperties
 					memberArticles
-					memberPoints
 					memberLikes
 					memberViews
 					memberComments
 					memberFollowings
 					memberFollowers
 					memberRank
-					memberWarnings
-					memberBlocks
 					deletedAt
 					createdAt
 					updatedAt
@@ -616,15 +617,12 @@ export const GET_MEMBER_FOLLOWINGS = gql`
 					memberDesc
 					memberProperties
 					memberArticles
-					memberPoints
 					memberLikes
 					memberViews
 					memberComments
 					memberFollowings
 					memberFollowers
 					memberRank
-					memberWarnings
-					memberBlocks
 					deletedAt
 					createdAt
 					updatedAt
@@ -712,5 +710,97 @@ export const GET_MY_INQUIRIES = gql`
 				total
 			}
 		}
+	}
+`;
+
+/**************************
+ *   RATE / MODELS / LISTS *
+ *************************/
+
+export const GET_EXCHANGE_RATE = gql`
+	query GetExchangeRate {
+		getExchangeRate {
+			usdToUzs
+			updatedAt
+			source
+		}
+	}
+`;
+
+export const GET_CAR_MODELS = gql`
+	query GetCarModels($brand: CarBrand!) {
+		getCarModels(brand: $brand)
+	}
+`;
+
+export const GET_SAVED_SEARCHES = gql`
+	query GetSavedSearches {
+		getSavedSearches {
+			_id
+			title
+			search
+			lastNotifiedAt
+			createdAt
+		}
+	}
+`;
+
+/**************************
+ *        MESSAGES        *
+ *************************/
+
+export const GET_CONVERSATIONS = gql`
+	query GetConversations($input: OrdinaryInquiry!) {
+		getConversations(input: $input) {
+			list {
+				_id
+				propertyId
+				lastMessage
+				lastSenderId
+				lastMessageAt
+				unreadCount
+				otherMember {
+					_id
+					memberNick
+					memberFullName
+					memberImage
+					memberType
+				}
+				propertyData {
+					_id
+					propertyTitle
+					propertyPrice
+					propertyImages
+					propertyStatus
+				}
+			}
+			metaCounter {
+				total
+			}
+		}
+	}
+`;
+
+export const GET_MESSAGES = gql`
+	query GetMessages($input: MessagesInquiry!) {
+		getMessages(input: $input) {
+			list {
+				_id
+				conversationId
+				senderId
+				text
+				readAt
+				createdAt
+			}
+			metaCounter {
+				total
+			}
+		}
+	}
+`;
+
+export const GET_UNREAD_MESSAGES_COUNT = gql`
+	query GetUnreadMessagesCount {
+		getUnreadMessagesCount
 	}
 `;

@@ -1,4 +1,5 @@
 import {
+	CarAccidentHistory,
 	CarBrand,
 	CarCountry,
 	CarFuel,
@@ -44,7 +45,13 @@ export interface Property {
 	propertyImages: string[];
 	propertyDesc?: string;
 	propertyBarter: boolean;
-	propertyRent: boolean;
+	propertyNegotiable?: boolean;
+	carVin?: string;
+	carAccidentHistory?: CarAccidentHistory;
+	carOwners?: number;
+	carCustomsCleared?: boolean;
+	carDeliveryDays?: number;
+	carDeliveryCost?: number;
 	memberId: string;
 	soldAt?: Date;
 	deletedAt?: Date;

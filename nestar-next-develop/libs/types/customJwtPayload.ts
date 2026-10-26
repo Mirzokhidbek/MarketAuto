@@ -14,9 +14,8 @@ export interface CustomJwtPayload extends JwtPayload {
 	memberProperties: number;
 	memberRank: number;
 	memberArticles: number;
-	memberPoints: number;
 	memberLikes: number;
 	memberViews: number;
-	memberWarnings: number;
-	memberBlocks: number;
+	memberPhoneVerified?: boolean;
+	memberTrusted?: boolean;
 }

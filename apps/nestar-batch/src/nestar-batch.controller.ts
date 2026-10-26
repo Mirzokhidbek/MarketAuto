@@ -1,7 +1,7 @@
 import { Controller, Get, Logger } from '@nestjs/common';
 import { BatchService } from './batch.service';
 import { Cron, Interval, Timeout } from '@nestjs/schedule';
-import { BATCH_ROLLBACK, BATCH_TOP_PROPERTIES, BATCH_TOP_AGENTS } from './lib/config';
+import { BATCH_ROLLBACK, BATCH_TOP_PROPERTIES, BATCH_TOP_AGENTS, BATCH_CLEAN_UPLOADS } from './lib/config';
 
 @Controller()
 export class BatchController {
@@ -42,6 +42,17 @@ export class BatchController {
 			this.logger['context'] = BATCH_TOP_AGENTS;
 			this.logger.debug('EXECUTED!');
 			await this.batchService.batchTopAgents();
+		} catch (err) {
+			this.logger.error(err);
+		}
+	}
+
+	@Cron('00 30 03 * * *', { name: BATCH_CLEAN_UPLOADS })
+	public async batchCleanUploads() {
+		try {
+			this.logger['context'] = BATCH_CLEAN_UPLOADS;
+			const removed = await this.batchService.batchCleanUploads();
+			this.logger.debug(`EXECUTED! removed ${removed} unused files`);
 		} catch (err) {
 			this.logger.error(err);
 		}

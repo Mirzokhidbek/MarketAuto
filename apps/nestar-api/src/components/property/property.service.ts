@@ -1,3 +1,4 @@
+import { StorageService } from '../storage/storage.service';
 import { NotificationService } from '../notification/notification.service';
 import { NotificationGroup, NotificationType } from '../../libs/enums/notification.enum';
 import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
@@ -14,7 +15,7 @@ import {
 import { Properties, Property } from '../../libs/dto/property/property';
 import { Direction, Message } from '../../libs/enums/common.enum';
 import { ViewService } from '../view/view.service';
-import { CarAccidentHistory, CarCountry, PropertyStatus } from '../../libs/enums/property.enum';
+import { CarAccidentHistory, CarBrand, CarCountry, PropertyStatus } from '../../libs/enums/property.enum';
 import { MemberStatus } from '../../libs/enums/member.enum';
 import { StatisticModifier, T } from '../../libs/types/common';
 import { ViewGroup } from '../../libs/enums/view.enum';
@@ -33,6 +34,8 @@ export class PropertyService {
 		private viewService: ViewService,
 		private likeService: LikeService,
 		private notificationService: NotificationService,
+		private storageService: StorageService,
+		@InjectModel('SavedSearch') private readonly savedSearchModel: Model<any>,
 	) {}
 
 	public async createProperty(input: PropertyInput): Promise<Property> {
@@ -40,25 +43,44 @@ export class PropertyService {
 			throw new BadRequestException(Message.BAD_REQUEST);
 		}
 		if (input.carCountry !== CarCountry.UZBEKISTAN) delete input.propertyLocation;
+		if (input.carVin) input.carVin = input.carVin.toUpperCase();
+
+		// the same seller cannot publish the same car twice
+		const duplicate = await this.propertyModel.exists({
+			memberId: input.memberId,
+			carBrand: input.carBrand,
+			carModel: { $regex: searchRegex(input.carModel) },
+			carYear: input.carYear,
+			carMileage: input.carMileage,
+			propertyStatus: { $in: [PropertyStatus.PENDING, PropertyStatus.ACTIVE] },
+		});
+		if (duplicate) throw new BadRequestException(Message.DUPLICATE_LISTING);
+
+		// new sellers' listings wait for moderation; trusted sellers publish instantly
+		const trusted = await this.memberService.isTrusted(input.memberId as ObjectId);
+		const propertyStatus = trusted ? PropertyStatus.ACTIVE : PropertyStatus.PENDING;
+		let result: Property;
 		try {
-			const result = await this.propertyModel.create(input);
-			await this.memberService.memberStatsEditor({
-				_id: result.memberId,
-				targetKey: 'memberProperties',
-				modifier: 1,
-			});
-			return result;
+			result = await this.propertyModel.create({ ...input, propertyStatus });
 		} catch (err: any) {
 			console.log('Error, Service.model:', err.message);
 			throw new BadRequestException(Message.CREATE_FAILED);
 		}
+		if (propertyStatus === PropertyStatus.ACTIVE) {
+			await this.memberService.memberStatsEditor({ _id: result.memberId, targetKey: 'memberProperties', modifier: 1 });
+			await this.notifySavedSearches(result);
+		}
+		return result;
 	}
 
 	public async getProperty(memberId: ObjectId, propertyId: ObjectId): Promise<Property> {
-		// sold cars stay viewable (marked as sold); deleted ones are gone
+		// sold cars stay viewable (marked as sold); a pending listing only for its owner; deleted ones are gone
 		const search: T = {
 			_id: propertyId,
-			propertyStatus: { $in: [PropertyStatus.ACTIVE, PropertyStatus.SOLD] },
+			$or: [
+				{ propertyStatus: { $in: [PropertyStatus.ACTIVE, PropertyStatus.SOLD] } },
+				...(memberId ? [{ propertyStatus: PropertyStatus.PENDING, memberId }] : []),
+			],
 		};
 
 		const targetProperty: Property | null = await this.propertyModel.findOne(search).lean().exec();
@@ -82,8 +104,14 @@ export class PropertyService {
 	}
 
 	public async updateProperty(memberId: ObjectId, input: PropertyUpdate): Promise<Property> {
-		// owners can edit active and sold cars; deleted ones are final
+		// owners can edit pending, active and sold cars; deleted ones are final
 		const search: T = { _id: input._id, memberId: memberId, propertyStatus: { $ne: PropertyStatus.DELETE } };
+		// only an admin can publish a listing that waits for moderation
+		if (input.propertyStatus === PropertyStatus.ACTIVE || input.propertyStatus === PropertyStatus.PENDING) {
+			const current = await this.propertyModel.findOne(search).select('propertyStatus').lean().exec();
+			if (current?.propertyStatus === PropertyStatus.PENDING) delete input.propertyStatus;
+			if (input.propertyStatus === PropertyStatus.PENDING) delete input.propertyStatus;
+		}
 		return await this.changeProperty(search, input);
 	}
 
@@ -103,8 +131,15 @@ export class PropertyService {
 			if (nextStatus === PropertyStatus.ACTIVE) (input as T).soldAt = null;
 		}
 
+		if (input.carVin) input.carVin = input.carVin.toUpperCase();
 		const result = await this.propertyModel.findByIdAndUpdate(current._id, input, { new: true }).exec();
 		if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED);
+
+		// photos removed from the listing are deleted from storage
+		if (input.propertyImages) {
+			const kept = new Set(input.propertyImages);
+			await this.storageService.removeImages(current.propertyImages.filter((image) => !kept.has(image)));
+		}
 
 		// memberProperties counts only cars that are currently for sale
 		const wasActive = prevStatus === PropertyStatus.ACTIVE;
@@ -117,7 +152,47 @@ export class PropertyService {
 			});
 		}
 
+		// moderation result for the seller
+		if (prevStatus === PropertyStatus.PENDING && nextStatus !== PropertyStatus.PENDING) {
+			const approved = nextStatus === PropertyStatus.ACTIVE;
+			if (approved) await this.memberService.markTrusted(result.memberId);
+			await this.notificationService.notify({
+				notificationType: approved ? NotificationType.LISTING_APPROVED : NotificationType.LISTING_REJECTED,
+				notificationGroup: NotificationGroup.PROPERTY,
+				notificationTitle: result.propertyTitle,
+				authorId: result.memberId, // system message: shown without an author
+				receiverId: result.memberId,
+				propertyId: result._id,
+				system: true,
+			});
+		}
+		// a car that just went on sale may match someone's saved search
+		if (!wasActive && isActive && prevStatus !== PropertyStatus.SOLD) await this.notifySavedSearches(result);
+
 		return result;
+	}
+
+	/** tells members whose saved search matches this newly published car */
+	private async notifySavedSearches(property: Property): Promise<void> {
+		try {
+			const searches = await this.savedSearchModel.find({ memberId: { $ne: property.memberId } }).lean().exec();
+			for (const saved of searches) {
+				const match: T = { _id: property._id };
+				this.shapeMatchQuery(match, { page: 1, limit: 1, search: saved.search ?? {} } as PropertiesInquiry);
+				if (!(await this.propertyModel.exists(match))) continue;
+				await this.notificationService.notify({
+					notificationType: NotificationType.NEW_LISTING,
+					notificationGroup: NotificationGroup.PROPERTY,
+					notificationTitle: property.propertyTitle,
+					authorId: property.memberId,
+					receiverId: saved.memberId,
+					propertyId: property._id,
+				});
+				await this.savedSearchModel.updateOne({ _id: saved._id }, { lastNotifiedAt: new Date() }).exec();
+			}
+		} catch (err: any) {
+			console.log('Error, notifySavedSearches:', err.message);
+		}
 	}
 
 	public async getProperties(memberId: ObjectId, input: PropertiesInquiry): Promise<Properties> {
@@ -189,6 +264,15 @@ export class PropertyService {
 		if (noAccident) match.carAccidentHistory = CarAccidentHistory.NONE;
 		// every ticked option must hold (barter AND customs cleared, ...)
 		options?.forEach((ele) => (match[ele] = true));
+	}
+
+	public async getCarModels(brand: CarBrand): Promise<string[]> {
+		const models: string[] = await this.propertyModel
+			.distinct('carModel', { carBrand: brand, propertyStatus: { $in: [PropertyStatus.ACTIVE, PropertyStatus.SOLD] } })
+			.exec();
+		// "K5", "k5 " -> one entry
+		const unique = new Map(models.map((model) => [model.trim().toLowerCase(), model.trim()]));
+		return [...unique.values()].sort((a, b) => a.localeCompare(b));
 	}
 
 	public async getFavorites(memberId: ObjectId, input: OrdinaryInquiry): Promise<Properties> {
@@ -302,6 +386,7 @@ export class PropertyService {
 		const search: T = { _id: propertyId, propertyStatus: PropertyStatus.DELETE };
 		const result = await this.propertyModel.findOneAndDelete(search).exec();
 		if (!result) throw new InternalServerErrorException(Message.REMOVE_FAILED);
+		await this.storageService.removeImages(result.propertyImages);
 
 		return result;
 	}

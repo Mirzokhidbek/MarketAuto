@@ -17,18 +17,16 @@ export const SIGN_UP = gql`
 			memberImage
 			memberAddress
 			memberDesc
-			memberWarnings
-			memberBlocks
 			memberProperties
 			memberRank
 			memberArticles
-			memberPoints
 			memberLikes
 			memberViews
 			deletedAt
 			createdAt
 			updatedAt
 			accessToken
+			refreshToken
 		}
 	}
 `;
@@ -46,17 +44,15 @@ export const LOGIN = gql`
 			memberImage
 			memberAddress
 			memberDesc
-			memberWarnings
-			memberBlocks
 			memberProperties
 			memberRank
-			memberPoints
 			memberLikes
 			memberViews
 			deletedAt
 			createdAt
 			updatedAt
 			accessToken
+			refreshToken
 		}
 	}
 `;
@@ -77,11 +73,8 @@ export const UPDATE_MEMBER = gql`
 			memberProperties
 			memberRank
 			memberArticles
-			memberPoints
 			memberLikes
 			memberViews
-			memberWarnings
-			memberBlocks
 			deletedAt
 			createdAt
 			updatedAt
@@ -103,11 +96,8 @@ export const LIKE_TARGET_MEMBER = gql`
 			memberImage
 			memberAddress
 			memberDesc
-			memberWarnings
-			memberBlocks
 			memberProperties
 			memberRank
-			memberPoints
 			memberLikes
 			memberViews
 			deletedAt
@@ -147,7 +137,13 @@ export const CREATE_PROPERTY = gql`
 			propertyImages
 			propertyDesc
 			propertyBarter
-			propertyRent
+			propertyNegotiable
+			carVin
+			carAccidentHistory
+			carOwners
+			carCustomsCleared
+			carDeliveryDays
+			carDeliveryCost
 			memberId
 			soldAt
 			deletedAt
@@ -182,7 +178,13 @@ export const UPDATE_PROPERTY = gql`
 			propertyImages
 			propertyDesc
 			propertyBarter
-			propertyRent
+			propertyNegotiable
+			carVin
+			carAccidentHistory
+			carOwners
+			carCustomsCleared
+			carDeliveryDays
+			carDeliveryCost
 			memberId
 			soldAt
 			deletedAt
@@ -217,7 +219,13 @@ export const LIKE_TARGET_PROPERTY = gql`
 			propertyImages
 			propertyDesc
 			propertyBarter
-			propertyRent
+			propertyNegotiable
+			carVin
+			carAccidentHistory
+			carOwners
+			carCustomsCleared
+			carDeliveryDays
+			carDeliveryCost
 			memberId
 			soldAt
 			deletedAt
@@ -372,6 +380,84 @@ export const CREATE_INQUIRY = gql`
 			_id
 			noticeTitle
 			noticeStatus
+			createdAt
+		}
+	}
+`;
+
+/**************************
+ *   PHONE / SESSION      *
+ *************************/
+
+export const REQUEST_PHONE_CODE = gql`
+	mutation RequestPhoneCode($input: PhoneCodeInput!) {
+		requestPhoneCode(input: $input) {
+			sent
+			expiresIn
+			devCode
+		}
+	}
+`;
+
+export const RESET_PASSWORD = gql`
+	mutation ResetPassword($input: ResetPasswordInput!) {
+		resetPassword(input: $input) {
+			_id
+			accessToken
+			refreshToken
+		}
+	}
+`;
+
+export const CHANGE_PHONE = gql`
+	mutation ChangePhone($input: ChangePhoneInput!) {
+		changePhone(input: $input) {
+			_id
+			memberPhone
+			accessToken
+		}
+	}
+`;
+
+/**************************
+ *  REPORT / SAVED SEARCH *
+ *************************/
+
+export const REPORT_PROPERTY = gql`
+	mutation ReportProperty($input: ReportInput!) {
+		reportProperty(input: $input) {
+			_id
+		}
+	}
+`;
+
+export const SAVE_SEARCH = gql`
+	mutation SaveSearch($input: SavedSearchInput!) {
+		saveSearch(input: $input) {
+			_id
+			title
+			search
+		}
+	}
+`;
+
+export const REMOVE_SAVED_SEARCH = gql`
+	mutation RemoveSavedSearch($id: String!) {
+		removeSavedSearch(id: $id)
+	}
+`;
+
+/**************************
+ *        MESSAGES        *
+ *************************/
+
+export const SEND_MESSAGE = gql`
+	mutation SendMessage($input: SendMessageInput!) {
+		sendMessage(input: $input) {
+			_id
+			conversationId
+			senderId
+			text
 			createdAt
 		}
 	}

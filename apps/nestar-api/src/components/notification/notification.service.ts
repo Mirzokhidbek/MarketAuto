@@ -14,6 +14,7 @@ export interface NotifyInput {
 	receiverId: ObjectId;
 	propertyId?: ObjectId;
 	articleId?: ObjectId;
+	system?: boolean; // moderation messages: sent to the author himself
 }
 
 @Injectable()
@@ -22,9 +23,10 @@ export class NotificationService {
 
 	/** never throws: a failed notification must not break the action that triggered it */
 	public async notify(input: NotifyInput): Promise<void> {
-		if (!input.receiverId || String(input.authorId) === String(input.receiverId)) return;
+		if (!input.receiverId || (!input.system && String(input.authorId) === String(input.receiverId))) return;
 		try {
-			await this.notificationModel.create(input);
+			const { system, ...data } = input;
+			await this.notificationModel.create(data);
 		} catch (err: any) {
 			console.log('Error, notify:', err.message);
 		}

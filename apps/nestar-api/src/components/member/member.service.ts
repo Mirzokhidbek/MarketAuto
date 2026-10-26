@@ -1,3 +1,4 @@
+import { StorageService } from '../storage/storage.service';
 import { NotificationService } from '../notification/notification.service';
 import { NotificationGroup, NotificationType } from '../../libs/enums/notification.enum';
 import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
@@ -31,6 +32,7 @@ export class MemberService {
 		private likeService: LikeService,
 		private notificationService: NotificationService,
 		private verificationService: VerificationService,
+		private storageService: StorageService,
 	) {}
 
 	public async signup(input: MemberInput, ip: string, userAgent?: string): Promise<Member> {
@@ -119,6 +121,7 @@ export class MemberService {
 	}
 
 	public async updateMember(memberId: ObjectId, input: MemberUpdate): Promise<Member> {
+		const previous = await this.memberModel.findById(memberId).select('memberImage').lean().exec();
 		const result: Member | null = await this.memberModel
 			.findOneAndUpdate(
 				{
@@ -130,6 +133,9 @@ export class MemberService {
 			)
 			.exec();
 		if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED);
+		// the replaced avatar file is no longer needed
+		if (input.memberImage && previous?.memberImage && previous.memberImage !== input.memberImage)
+			await this.storageService.removeImage(previous.memberImage);
 
 		result.accessToken = await this.authService.createToken(result);
 		return result;
@@ -291,6 +297,16 @@ export class MemberService {
 			.exec();
 		if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED);
 		return result;
+	}
+
+	public async isTrusted(memberId: ObjectId): Promise<boolean> {
+		const member = await this.memberModel.findById(memberId).select('memberTrusted memberType').lean().exec();
+		return !!member?.memberTrusted;
+	}
+
+	/** after the first approved listing the seller publishes without moderation */
+	public async markTrusted(memberId: ObjectId): Promise<void> {
+		await this.memberModel.updateOne({ _id: memberId }, { memberTrusted: true }).exec();
 	}
 
 	public async memberStatsEditor(input: StatisticModifier): Promise<Member> {

@@ -31,4 +31,10 @@ export class DashboardStats {
 
 	@Field(() => Int)
 	inquiriesWaiting!: number;
+
+	@Field(() => Int)
+	carsPending!: number;
+
+	@Field(() => Int)
+	reportsOpen!: number;
 }

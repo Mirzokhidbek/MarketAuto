@@ -1,18 +1,10 @@
 import { Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
 import { SocketGateway } from './socket.gateway';
 import { AuthModule } from '../components/auth/auth.module';
-import ChatMessageSchema from '../schemas/ChatMessage.model';
-import MemberSchema from '../schemas/Member.model';
 
 @Module({
-	imports: [
-		AuthModule,
-		MongooseModule.forFeature([
-			{ name: 'ChatMessage', schema: ChatMessageSchema },
-			{ name: 'Member', schema: MemberSchema },
-		]),
-	],
+	imports: [AuthModule],
 	providers: [SocketGateway],
+	exports: [SocketGateway],
 })
 export class SocketModule {}
