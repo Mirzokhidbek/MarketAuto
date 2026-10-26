@@ -202,7 +202,7 @@ const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 					<span>{t('Nickname')}</span>
 					<input
 						type="text"
-						placeholder={'nickname'}
+						placeholder={t('Enter nickname') as string}
 						value={updateData.memberNick ?? ''}
 						onChange={({ target: { value } }) => setUpdateData({ ...updateData, memberNick: value })}
 					/>
@@ -211,7 +211,7 @@ const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 					<span>{t('Full name')}</span>
 					<input
 						type="text"
-						placeholder={'Full name / company name'}
+						placeholder={t('Full name / company name') as string}
 						value={updateData.memberFullName || ''}
 						onChange={({ target: { value } }) => setUpdateData({ ...updateData, memberFullName: value })}
 					/>
@@ -231,7 +231,7 @@ const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 					<span>{t('Address')}</span>
 					<input
 						type="text"
-						placeholder={'Tashkent, Chilonzor'}
+						placeholder={t('e.g. Tashkent, Chilonzor') as string}
 						value={updateData.memberAddress ?? ''}
 						onChange={({ target: { value } }) => setUpdateData({ ...updateData, memberAddress: value })}
 					/>

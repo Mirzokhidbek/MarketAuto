@@ -40,7 +40,7 @@ const Inquiry = () => {
 
 	if (!user?._id)
 		return (
-			<div className={'ma-empty'}>
+			<div className={'ma-empty ma-empty--cta'}>
 				<p>{t('Log in to send a question to our support team.')}</p>
 				<Link href={'/account/join'}>
 					<span className={'ma-btn ma-btn--primary'}>{t('Login')}</span>

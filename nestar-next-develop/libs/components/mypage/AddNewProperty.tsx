@@ -351,7 +351,7 @@ const AddProperty = () => {
 						</label>
 						<label className={'ma-input'}>
 							<span>{t('Color')}</span>
-							<input type="text" placeholder={'White'} value={car.carColor ?? ''} onChange={({ target: { value } }) => set('carColor', value)} />
+							<input type="text" placeholder={t('e.g. White') as string} value={car.carColor ?? ''} onChange={({ target: { value } }) => set('carColor', value)} />
 						</label>
 						<label className={'ma-input ma-input--wide'}>
 							<span>{t('VIN (17 characters)')}</span>
