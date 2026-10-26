@@ -1,7 +1,7 @@
+import { uploadImage as uploadFile } from '../../upload';
 import React, { useCallback, useEffect, useState } from 'react';
 import { NextPage } from 'next';
 import { useTranslation } from 'next-i18next';
-import axios from 'axios';
 import { Messages, REACT_APP_API_URL } from '../../config';
 import { getJwtToken, updateStorage, updateUserInfo } from '../../auth';
 import { useMutation, useReactiveVar } from '@apollo/client';
@@ -55,44 +55,13 @@ const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 
 	/** HANDLERS **/
 	const uploadImage = async (e: any) => {
+		const file: File | undefined = e.target.files?.[0];
+		if (!file) return;
 		try {
-			const image = e.target.files[0];
-
-			const formData = new FormData();
-			formData.append(
-				'operations',
-				JSON.stringify({
-					query: `mutation ImageUploader($file: Upload!, $target: String!) {
-						imageUploader(file: $file, target: $target) 
-				  }`,
-					variables: {
-						file: null,
-						target: 'member',
-					},
-				}),
-			);
-			formData.append(
-				'map',
-				JSON.stringify({
-					'0': ['variables.file'],
-				}),
-			);
-			formData.append('0', image);
-
-			const response = await axios.post(`${process.env.REACT_APP_API_GRAPHQL_URL}`, formData, {
-				headers: {
-					'Content-Type': 'multipart/form-data',
-					'apollo-require-preflight': true,
-					Authorization: `Bearer ${token}`,
-				},
-			});
-
-			const responseImage = response.data.data.imageUploader;
-			updateData.memberImage = responseImage;
-			setUpdateData({ ...updateData });
-
-			return imageUrl(responseImage);
-		} catch (err) {
+			const memberImage = await uploadFile(file, 'member');
+			setUpdateData((prev: MemberUpdate) => ({ ...prev, memberImage }));
+		} catch (err: any) {
+			sweetErrorHandling(err).then();
 		}
 	};
 

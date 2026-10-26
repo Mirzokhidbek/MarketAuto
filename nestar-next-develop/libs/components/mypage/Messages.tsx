@@ -1,3 +1,5 @@
+import AttachFileIcon from '@mui/icons-material/AttachFile';
+import { uploadImage } from '../../upload';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -31,6 +33,7 @@ const Messages = () => {
 	const toId = (router.query.to as string) || '';
 	const propertyId = (router.query.propertyId as string) || '';
 	const [text, setText] = useState<string>('');
+	const [attaching, setAttaching] = useState<boolean>(false);
 	const [messages, setMessages] = useState<T[]>([]);
 	const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -99,13 +102,20 @@ const Messages = () => {
 	/** HANDLERS **/
 	const open = (id: string) => router.push({ pathname: '/mypage', query: { category: 'messages', c: id } }, undefined, { shallow: true });
 
-	const sendHandler = async (e?: React.FormEvent) => {
+	const sendHandler = async (e?: React.FormEvent, image?: string) => {
 		e?.preventDefault();
 		const body = text.trim();
-		if (!body || !other?._id) return;
+		if ((!body && !image) || !other?._id) return;
 		try {
 			const { data } = await sendMessage({
-				variables: { input: { receiverId: other._id, propertyId: existing?.propertyId ?? (propertyId || undefined), text: body } },
+				variables: {
+					input: {
+						receiverId: other._id,
+						propertyId: existing?.propertyId ?? (propertyId || undefined),
+						text: image ? undefined : body,
+						image,
+					},
+				},
 			});
 			setText('');
 			const sent = data?.sendMessage;
@@ -118,6 +128,22 @@ const Messages = () => {
 			}
 		} catch (err: any) {
 			sweetErrorHandling(err).then();
+		}
+	};
+
+	/** photo of a document or a scratch: uploaded first, then sent as its own message */
+	const attachHandler = async (e: React.ChangeEvent<HTMLInputElement>) => {
+		const file = e.target.files?.[0];
+		e.target.value = '';
+		if (!file) return;
+		setAttaching(true);
+		try {
+			const image = await uploadImage(file, 'message');
+			await sendHandler(undefined, image);
+		} catch (err: any) {
+			sweetErrorHandling(err).then();
+		} finally {
+			setAttaching(false);
 		}
 	};
 
@@ -188,7 +214,12 @@ const Messages = () => {
 									const mine = String(message.senderId) === String(user._id);
 									return (
 										<div key={message._id} className={`ma-bubble ${mine ? 'is-mine' : ''}`}>
-											<p>{message.text}</p>
+											{message.image && (
+												<a href={imageUrl(message.image)} target={'_blank'} rel={'noopener noreferrer'}>
+													<img className={'ma-bubble__image'} src={imageUrl(message.image)} alt={t('Photo') as string} />
+												</a>
+											)}
+											{message.text && <p>{message.text}</p>}
 											<small>
 												{moment(message.createdAt).format('HH:mm')}
 												{mine && message.readAt ? ' ✓✓' : mine ? ' ✓' : ''}
@@ -198,7 +229,11 @@ const Messages = () => {
 								})}
 								<div ref={bottomRef} />
 							</div>
-							<form className={'ma-messages__form'} onSubmit={sendHandler}>
+							<form className={'ma-messages__form'} onSubmit={(e) => sendHandler(e)}>
+								<label className={`ma-icon-btn ma-messages__attach ${attaching ? 'is-busy' : ''}`} aria-label={t('Send a photo') as string}>
+									<AttachFileIcon />
+									<input type="file" hidden accept="image/jpeg, image/png, image/webp" onChange={attachHandler} disabled={attaching} />
+								</label>
 								<textarea
 									maxLength={1000}
 									rows={1}

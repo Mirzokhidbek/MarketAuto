@@ -1182,3 +1182,21 @@
 .ma-preview {
 	pointer-events: none;
 }
+
+.ma-messages__attach {
+	align-self: center;
+	cursor: pointer;
+	&.is-busy {
+		opacity: 0.4;
+		cursor: progress;
+	}
+}
+
+.ma-bubble__image {
+	display: block;
+	max-width: 240px;
+	max-height: 240px;
+	margin-bottom: 4px;
+	border-radius: 10px;
+	object-fit: cover;
+}
