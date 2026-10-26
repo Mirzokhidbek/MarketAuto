@@ -5,6 +5,7 @@ import { Pagination } from '@mui/material';
 import CarCard from '../../libs/components/common/CarCard';
 import withLayoutBasic from '../../libs/components/layout/LayoutBasic';
 import Filter from '../../libs/components/property/Filter';
+import FilterChips from '../../libs/components/property/FilterChips';
 import CarGridSkeleton from '../../libs/components/common/CarGridSkeleton';
 import { useRouter } from 'next/router';
 import { PropertiesInquiry } from '../../libs/types/property/property.input';
@@ -163,7 +164,7 @@ const PropertyList: NextPage = ({ initialList = [], initialTotal = 0 }: any) => 
 		<div id="property-list-page" className={'ma-page ma-list-page'}>
 			<div className={'ma-container ma-list-layout'}>
 				{/* @ts-ignore */}
-				<Filter searchFilter={searchFilter} setSearchFilter={setSearchFilter} initialInput={initialInput} />
+				<Filter searchFilter={searchFilter} setSearchFilter={setSearchFilter} initialInput={initialInput} total={total} />
 
 				<section className={'ma-results'}>
 					<div className={'ma-results__bar'}>
@@ -184,6 +185,14 @@ const PropertyList: NextPage = ({ initialList = [], initialTotal = 0 }: any) => 
 							</select>
 						</label>
 					</div>
+					<FilterChips
+						search={searchFilter.search ?? {}}
+						defaults={defaultInput.search}
+						onChange={(search) => {
+							const next = JSON.stringify({ ...searchFilter, page: 1, search });
+							router.replace(`/property?input=${next}`, `/property?input=${next}`, { scroll: false });
+						}}
+					/>
 
 					{getPropertiesLoading && !properties?.length ? (
 						<CarGridSkeleton count={6} />
