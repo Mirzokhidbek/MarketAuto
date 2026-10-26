@@ -11,7 +11,7 @@ import DirectionsCarFilledOutlinedIcon from '@mui/icons-material/DirectionsCarFi
 import { Property } from '../../types/property/property';
 import { PropertyStatus } from '../../enums/property.enum';
 import { REACT_APP_API_URL } from '../../config';
-import { formatCountry, formatEnumLabel, formatMileage, formatterStr } from '../../utils';
+import { formatCountry, formatEnumLabel, formatMileage, formatterStr, imageUrl } from '../../utils';
 
 interface ManageCarRowProps {
 	property: Property;
@@ -36,7 +36,7 @@ const ManageCarRow = ({ property, onDelete, onStatusChange }: ManageCarRowProps)
 			<div className={'ma-manage-row__media'} onClick={openDetail}>
 				{image && !imageFailed ? (
 					<img
-						src={`${REACT_APP_API_URL}/${image}`}
+						src={imageUrl(image)}
 						alt={property.propertyTitle}
 						onError={() => setImageFailed(true)}
 					/>

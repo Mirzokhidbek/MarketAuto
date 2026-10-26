@@ -1,3 +1,4 @@
+import { imageUrl } from '../utils';
 import React, { useCallback, useEffect, useRef } from 'react';
 import { useState } from 'react';
 import { useRouter, withRouter } from 'next/router';
@@ -198,7 +199,7 @@ const Top = () => {
 								<div className={'login-user'} onClick={(event: any) => setLogoutAnchor(event.currentTarget)}>
 									<img
 										src={
-											user?.memberImage ? `${REACT_APP_API_URL}/${user?.memberImage}` : '/img/profile/defaultUser.svg'
+											user?.memberImage ? imageUrl(user?.memberImage) : '/img/profile/defaultUser.svg'
 										}
 										alt=""
 									/>

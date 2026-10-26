@@ -1,3 +1,4 @@
+import { imageUrl } from '../../utils';
 import React from 'react';
 import Link from 'next/link';
 import { useTranslation } from 'next-i18next';
@@ -25,7 +26,7 @@ const DealerCard = ({ dealer, onLike }: DealerCardProps) => {
 			)}
 			<Link href={href}>
 				<img
-					src={dealer.memberImage ? `${REACT_APP_API_URL}/${dealer.memberImage}` : '/img/profile/defaultUser.svg'}
+					src={dealer.memberImage ? imageUrl(dealer.memberImage) : '/img/profile/defaultUser.svg'}
 					alt={dealer.memberNick}
 				/>
 			</Link>

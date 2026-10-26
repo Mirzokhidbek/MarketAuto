@@ -1,3 +1,4 @@
+import { imageUrl } from '../../utils';
 import React from 'react';
 import { Stack, Typography } from '@mui/material';
 import { Comment } from '../../types/comment/comment';
@@ -16,7 +17,7 @@ const Review = (props: ReviewProps) => {
 	const router = useRouter();
 	const user = useReactiveVar(userVar);
 	const imagePath: string = comment?.memberData?.memberImage
-		? `${REACT_APP_API_URL}/${comment?.memberData?.memberImage}`
+		? imageUrl(comment?.memberData?.memberImage)
 		: '/img/profile/defaultUser.svg';
 
 	/** HANDLERS **/

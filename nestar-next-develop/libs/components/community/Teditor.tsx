@@ -1,3 +1,4 @@
+import { imageUrl } from '../../utils';
 import { useTranslation } from 'next-i18next';
 import React, { useMemo, useRef, useState } from 'react';
 import { Box, Button, FormControl, MenuItem, Stack, Typography, Select, TextField } from '@mui/material';
@@ -68,7 +69,7 @@ const TuiEditor = () => {
 			const responseImage = response.data.data.imageUploader;
 			memoizedValues.articleImage = responseImage;
 
-			return `${REACT_APP_API_URL}/${responseImage}`;
+			return imageUrl(responseImage);
 		} catch (err) {
 		}
 	};

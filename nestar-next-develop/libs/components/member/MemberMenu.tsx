@@ -13,7 +13,7 @@ import { REACT_APP_API_URL } from '../../config';
 import { T } from '../../types/common';
 import { GET_MEMBER } from '../../../apollo/user/query';
 import { userVar } from '../../../apollo/store';
-import { formatPhone } from '../../utils';
+import { formatPhone, imageUrl } from '../../utils';
 import Seo from '../common/Seo';
 
 interface MemberMenuProps {
@@ -59,12 +59,12 @@ const MemberMenu = (props: MemberMenuProps) => {
 				<Seo
 					title={member.memberFullName || member.memberNick}
 					description={member.memberDesc || undefined}
-					image={member.memberImage ? `${REACT_APP_API_URL}/${member.memberImage}` : undefined}
+					image={member.memberImage ? imageUrl(member.memberImage) : undefined}
 				/>
 			)}
 			<div className={'ma-side-menu__profile'}>
 				<img
-					src={member?.memberImage ? `${REACT_APP_API_URL}/${member?.memberImage}` : '/img/profile/defaultUser.svg'}
+					src={member?.memberImage ? imageUrl(member?.memberImage) : '/img/profile/defaultUser.svg'}
 					alt={member?.memberNick}
 				/>
 				<strong>{member?.memberFullName || member?.memberNick}</strong>

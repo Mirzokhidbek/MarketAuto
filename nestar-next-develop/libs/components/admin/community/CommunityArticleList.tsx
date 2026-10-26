@@ -1,3 +1,4 @@
+import { imageUrl } from '../../../utils';
 import React from 'react';
 import Link from 'next/link';
 import {
@@ -175,7 +176,7 @@ const CommunityArticleList = (props: CommunityArticleListProps) => {
 												alt="Remy Sharp"
 												src={
 													article?.memberData?.memberImage
-														? `${REACT_APP_API_URL}/${article?.memberData?.memberImage}`
+														? imageUrl(article?.memberData?.memberImage)
 														: `/img/profile/defaultUser.svg`
 												}
 												sx={{ ml: '2px', mr: '10px' }}

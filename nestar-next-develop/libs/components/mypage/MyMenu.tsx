@@ -17,7 +17,7 @@ import { userVar } from '../../../apollo/store';
 import { REACT_APP_API_URL } from '../../config';
 import { logOut } from '../../auth';
 import { sweetConfirmAlert } from '../../sweetAlert';
-import { formatPhone } from '../../utils';
+import { formatPhone, imageUrl } from '../../utils';
 
 const MyMenu = () => {
 	const router = useRouter();
@@ -68,7 +68,7 @@ const MyMenu = () => {
 		<aside className={'ma-side-menu'}>
 			<div className={'ma-side-menu__user'}>
 				<img
-					src={user?.memberImage ? `${REACT_APP_API_URL}/${user?.memberImage}` : '/img/profile/defaultUser.svg'}
+					src={user?.memberImage ? imageUrl(user?.memberImage) : '/img/profile/defaultUser.svg'}
 					alt={user?.memberNick}
 				/>
 				<div>

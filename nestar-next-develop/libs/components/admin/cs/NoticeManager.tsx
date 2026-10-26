@@ -1,3 +1,4 @@
+import { imageUrl } from '../../../utils';
 import React, { useState } from 'react';
 import moment from 'moment';
 import { useMutation, useQuery } from '@apollo/client';
@@ -220,7 +221,7 @@ const NoticeManager = ({ category }: NoticeManagerProps) => {
 													className={'ma-admin-avatar'}
 													src={
 														item.memberData?.memberImage
-															? `${REACT_APP_API_URL}/${item.memberData.memberImage}`
+															? imageUrl(item.memberData.memberImage)
 															: '/img/profile/defaultUser.svg'
 													}
 													alt={''}
