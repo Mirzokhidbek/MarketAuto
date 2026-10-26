@@ -66,32 +66,28 @@ const ManageCarRow = ({ property, onDelete, onStatusChange }: ManageCarRowProps)
 			</div>
 			<div className={'ma-manage-row__price'}>{price(property.propertyPrice)}</div>
 			<div className={'ma-manage-row__actions'}>
-				{isActive ? (
+				{property.propertyStatus === PropertyStatus.PENDING ? (
+					<span className={'ma-status ma-status--pending'} title={t('Waiting for moderation') as string}>
+						{t('Under review')}
+					</span>
+				) : (
 					<select
 						className={'ma-manage-row__status'}
 						value={property.propertyStatus}
 						onChange={(e) => onStatusChange(e.target.value, property._id)}
 					>
-						<option value={PropertyStatus.ACTIVE}>{t('For sale')}</option>
-						<option value={PropertyStatus.SOLD}>{t('Mark as sold')}</option>
+						<option value={PropertyStatus.ACTIVE}>{t(isActive ? 'For sale' : 'Back on sale')}</option>
+						<option value={PropertyStatus.SOLD}>{t(isActive ? 'Mark as sold' : 'Sold')}</option>
 					</select>
-				) : (
-					<span className={'ma-status ma-status--sold'}>{t('Sold')}</span>
 				)}
-				{isActive && (
+				{property.propertyStatus !== PropertyStatus.SOLD && (
 					<button className={'ma-icon-btn'} onClick={openEdit} aria-label={'edit'}>
 						<EditOutlinedIcon />
 					</button>
 				)}
-				{isActive && (
-					<button
-						className={'ma-icon-btn ma-icon-btn--danger'}
-						onClick={() => onDelete(property._id)}
-						aria-label={'delete'}
-					>
-						<DeleteOutlineIcon />
-					</button>
-				)}
+				<button className={'ma-icon-btn ma-icon-btn--danger'} onClick={() => onDelete(property._id)} aria-label={'delete'}>
+					<DeleteOutlineIcon />
+				</button>
 			</div>
 		</div>
 	);
