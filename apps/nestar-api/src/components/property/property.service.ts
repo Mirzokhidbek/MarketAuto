@@ -68,7 +68,7 @@ export class PropertyService {
 			result = await this.propertyModel.create({ ...input, propertyStatus });
 		} catch (err: any) {
 			console.log('Error, Service.model:', err.message);
-			throw new BadRequestException(Message.CREATE_FAILED);
+			throw new BadRequestException(err?.code === 11000 ? Message.DUPLICATE_LISTING : Message.CREATE_FAILED);
 		}
 		if (propertyStatus === PropertyStatus.ACTIVE) {
 			await this.memberService.memberStatsEditor({ _id: result.memberId, targetKey: 'memberProperties', modifier: 1 });

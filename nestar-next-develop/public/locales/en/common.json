@@ -796,5 +796,6 @@
 	"No password needed: we send a code to your phone.": "No password needed: we send a code to your phone.",
 	"Show {{count}} cars": "Show {{count}} cars",
 	"Please add at least 3 photos": "Please add at least 3 photos",
-	"Price dropped on a car you saved": "Price dropped on a car you saved"
+	"Price dropped on a car you saved": "Price dropped on a car you saved",
+	"No account with this nickname or phone!": "No account with this nickname or phone!"
 }

@@ -194,9 +194,10 @@ const PropertySchema = new Schema(
 	{ timestamps: true, collection: 'properties' },
 );
 
-PropertySchema.index(
-	{ memberId: 1, propertyType: 1, propertyLocation: 1, propertyTitle: 1, propertyPrice: 1 },
-	{ unique: true },
-);
+// duplicates are checked in PropertyService (same seller + brand + model + year + mileage);
+// these indexes only speed up the public search
+PropertySchema.index({ propertyStatus: 1, createdAt: -1 });
+PropertySchema.index({ carBrand: 1, carModel: 1, carYear: 1 });
+PropertySchema.index({ memberId: 1, propertyStatus: 1 });
 
 export default PropertySchema;

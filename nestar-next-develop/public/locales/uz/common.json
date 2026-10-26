@@ -796,5 +796,6 @@
 	"No password needed: we send a code to your phone.": "Parol shart emas: telefoningizga kod yuboramiz.",
 	"Show {{count}} cars": "{{count}} ta mashinani ko'rsatish",
 	"Please add at least 3 photos": "Kamida 3 ta rasm qo'shing",
-	"Price dropped on a car you saved": "Saqlagan mashinangiz narxi tushdi"
+	"Price dropped on a car you saved": "Saqlagan mashinangiz narxi tushdi",
+	"No account with this nickname or phone!": "Bunday nik yoki telefon raqamli akkaunt yo'q!"
 }
