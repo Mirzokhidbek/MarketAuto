@@ -4,6 +4,7 @@ export interface MemberUpdate {
 	_id: string;
 	memberType?: MemberType;
 	memberStatus?: MemberStatus;
+	memberTrusted?: boolean;
 	memberPhone?: string;
 	memberNick?: string;
 	memberPassword?: string;

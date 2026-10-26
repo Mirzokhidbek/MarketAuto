@@ -117,7 +117,7 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 		BoardArticleCategory.NEWS,
 		BoardArticleCategory.RECOMMEND,
 		BoardArticleCategory.FREE,
-		BoardArticleCategory.HUMOR,
+		BoardArticleCategory.SERVICE,
 	];
 
 	return (

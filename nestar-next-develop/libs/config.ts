@@ -5,7 +5,7 @@ export const SUPPORT_PHONE = process.env.NEXT_PUBLIC_SUPPORT_PHONE || '+998 71 2
 export const SUPPORT_EMAIL = process.env.NEXT_PUBLIC_SUPPORT_EMAIL || 'support@marketauto.uz';
 export const supportPhoneHref = `tel:${SUPPORT_PHONE.replace(/[^+\d]/g, '')}`;
 
-export const availableOptions = ['propertyBarter', 'propertyRent'];
+export const availableOptions = ['propertyBarter', 'propertyNegotiable', 'carCustomsCleared'];
 
 const thisYear = new Date().getFullYear();
 

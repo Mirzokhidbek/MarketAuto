@@ -446,7 +446,9 @@ const PropertyDetail: NextPage = ({ initialComment, carSeo, ...props }: any) => 
 									{t(property.propertyStatus === 'SOLD' ? 'Sold' : 'For sale')}
 								</span>
 								{property.propertyBarter && <span className={'ma-badge ma-badge--primary'}>{t('Barter')}</span>}
-								{property.propertyRent && <span className={'ma-badge ma-badge--primary'}>{t('Rent')}</span>}
+								{property.propertyNegotiable && (
+									<span className={'ma-badge ma-badge--primary'}>{t('Negotiable')}</span>
+								)}
 							</div>
 
 							<div className={'ma-seller'}>
