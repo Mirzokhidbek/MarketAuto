@@ -41,10 +41,11 @@ export class PropertyResolver {
 	public async getProperty(
 		@Args('propertyId') input: string,
 		@AuthMember('_id') memberId: ObjectId,
+		@AuthMember('memberType') memberType: MemberType,
 	): Promise<Property> {
 		console.log('Query: getProperty');
 		const propertyId = shapeIntoMongoObjectId(input);
-		return await this.propertyService.getProperty(memberId, propertyId);
+		return await this.propertyService.getProperty(memberId, propertyId, memberType === MemberType.ADMIN);
 	}
 
 	@Roles(MemberType.USER, MemberType.AGENT)

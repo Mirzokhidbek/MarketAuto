@@ -1,3 +1,5 @@
+import { useTranslation } from 'next-i18next';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import Swal from 'sweetalert2';
 import React, { useCallback, useEffect, useState } from 'react';
 import type { NextPage } from 'next';
@@ -22,7 +24,13 @@ import { GET_ALL_MEMBERS_BY_ADMIN } from '../../../apollo/admin/query';
 import { useMutation, useQuery } from '@apollo/client';
 import { T } from '../../../libs/types/common';
 
+
+export const getStaticProps = async ({ locale }: any) => ({
+	props: { ...(await serverSideTranslations(locale, ['common'])) },
+});
+
 const AdminUsers: NextPage = ({ initialInquiry, ...props }: any) => {
+	const { t } = useTranslation('common');
 	const [anchorEl, setAnchorEl] = useState<[] | HTMLElement[]>([]);
 	const [membersInquiry, setMembersInquiry] = useState<MembersInquiry>(initialInquiry);
 	const [members, setMembers] = useState<Member[]>([]);
@@ -121,17 +129,17 @@ const AdminUsers: NextPage = ({ initialInquiry, ...props }: any) => {
 	// support flow for "I forgot my password": admin sets a temporary password and tells the member
 	const resetPasswordHandler = async (id: string, nick: string) => {
 		const { value: memberPassword } = await Swal.fire({
-			title: `New password for ${nick}`,
+			title: `${t('New password for')} ${nick}`,
 			input: 'text',
-			inputPlaceholder: '5-12 characters',
+			inputPlaceholder: t('5-12 characters') as string,
 			showCancelButton: true,
 			inputValidator: (value: string) =>
-				!value || value.length < 5 || value.length > 12 ? 'Password must be 5-12 characters' : null,
+				!value || value.length < 5 || value.length > 12 ? (t('Password must be 5-12 characters') as string) : null,
 		});
 		if (!memberPassword) return;
 		try {
 			await updateMemberByAdmin({ variables: { input: { _id: id, memberPassword } } });
-			await sweetTopSmallSuccessAlert('Password updated', 1000);
+			await sweetTopSmallSuccessAlert(t('Password updated') as string, 1000);
 		} catch (err: any) {
 			sweetErrorHandling(err).then();
 		}
@@ -182,7 +190,7 @@ const AdminUsers: NextPage = ({ initialInquiry, ...props }: any) => {
 	return (
 		<Box component={'div'} className={'content'}>
 			<Typography variant={'h2'} className={'tit'} sx={{ mb: '24px' }}>
-				Member List
+				{t('Member List')}
 			</Typography>
 			<Box component={'div'} className={'table-wrap'}>
 				<Box component={'div'} sx={{ width: '100%', typography: 'body1' }}>
@@ -194,28 +202,28 @@ const AdminUsers: NextPage = ({ initialInquiry, ...props }: any) => {
 									value="ALL"
 									className={value === 'ALL' ? 'li on' : 'li'}
 								>
-									All
+									{t('All')}
 								</ListItem>
 								<ListItem
 									onClick={(e: React.MouseEvent) => tabChangeHandler(e, 'ACTIVE')}
 									value="ACTIVE"
 									className={value === 'ACTIVE' ? 'li on' : 'li'}
 								>
-									Active
+									{t('Active')}
 								</ListItem>
 								<ListItem
 									onClick={(e: React.MouseEvent) => tabChangeHandler(e, 'BLOCK')}
 									value="BLOCK"
 									className={value === 'BLOCK' ? 'li on' : 'li'}
 								>
-									Blocked
+									{t('Blocked')}
 								</ListItem>
 								<ListItem
 									onClick={(e: React.MouseEvent) => tabChangeHandler(e, 'DELETE')}
 									value="DELETE"
 									className={value === 'DELETE' ? 'li on' : 'li'}
 								>
-									Deleted
+									{t('Deleted')}
 								</ListItem>
 							</List>
 							<Divider />
@@ -225,7 +233,7 @@ const AdminUsers: NextPage = ({ initialInquiry, ...props }: any) => {
 									onChange={(e: any) => textHandler(e.target.value)}
 									sx={{ width: '100%' }}
 									className={'search'}
-									placeholder="Search user name"
+									placeholder={t('Search user name') as string}
 									onKeyDown={(event) => {
 										if (event.key == 'Enter') searchTextHandler();
 									}}
@@ -255,16 +263,16 @@ const AdminUsers: NextPage = ({ initialInquiry, ...props }: any) => {
 								/>
 								<Select sx={{ width: '160px', ml: '20px' }} value={searchType}>
 									<MenuItem value={'ALL'} onClick={() => searchTypeHandler('ALL')}>
-										All
+										{t('All')}
 									</MenuItem>
 									<MenuItem value={'USER'} onClick={() => searchTypeHandler('USER')}>
-										User
+										{t('User')}
 									</MenuItem>
 									<MenuItem value={'AGENT'} onClick={() => searchTypeHandler('AGENT')}>
-										Agent
+										{t('Agent')}
 									</MenuItem>
 									<MenuItem value={'ADMIN'} onClick={() => searchTypeHandler('ADMIN')}>
-										Admin
+										{t('Admin')}
 									</MenuItem>
 								</Select>
 							</Stack>

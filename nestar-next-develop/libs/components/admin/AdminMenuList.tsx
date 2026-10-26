@@ -1,3 +1,4 @@
+import { useTranslation } from 'next-i18next';
 import React, { useEffect, useState } from 'react';
 import { useRouter, withRouter } from 'next/router';
 import Link from 'next/link';
@@ -10,6 +11,7 @@ import { ChatsCircle, Headset, User, UserCircleGear, ChartBar } from 'phosphor-r
 import cookies from 'js-cookie';
 
 const AdminMenuList = (props: any) => {
+	const { t } = useTranslation('common');
 	const router = useRouter();
 	const [openSubMenu, setOpenSubMenu] = useState('Users');
 	const [openMenu, setOpenMenu] = useState(typeof window === 'object' ? cookies.get('admin_menu') === 'true' : false);
@@ -33,7 +35,11 @@ const AdminMenuList = (props: any) => {
 				setClickMenu(['Community']);
 				break;
 			case 'cs':
-				setClickMenu(['Cs']);
+				setClickMenu(['Support']);
+				break;
+			case 'reports':
+				setClickMenu(['Cars']);
+				setClickSubMenu('Reports');
 				break;
 			case 'users':
 				setClickMenu(['Users']);
@@ -99,18 +105,21 @@ const AdminMenuList = (props: any) => {
 			on_click: () => subMenuChangeHandler('Community'),
 		},
 		{
-			title: 'Cs',
+			title: 'Support',
 			icon: <Headset size={20} color="#bdbdbd" weight="fill" />,
-			on_click: () => subMenuChangeHandler('Cs'),
+			on_click: () => subMenuChangeHandler('Support'),
 		},
 	];
 
 	const sub_menu_set: any = {
 		Dashboard: [{ title: 'Overview', url: '/_admin' }],
 		Users: [{ title: 'List', url: '/_admin/users' }],
-		Cars: [{ title: 'List', url: '/_admin/properties' }],
+		Cars: [
+			{ title: 'List', url: '/_admin/properties' },
+			{ title: 'Reports', url: '/_admin/reports' },
+		],
 		Community: [{ title: 'List', url: '/_admin/community' }],
-		Cs: [
+		Support: [
 			{ title: 'FAQ', url: '/_admin/cs/faq' },
 			{ title: 'Notice', url: '/_admin/cs/notice' },
 			{ title: '1:1 Inquiry', url: '/_admin/cs/inquiry' },
@@ -140,7 +149,7 @@ const AdminMenuList = (props: any) => {
 						>
 							{item.icon}
 						</ListItemIcon>
-						<ListItemText>{item.title}</ListItemText>
+						<ListItemText>{t(item.title)}</ListItemText>
 						{clickMenu.find((menu: string) => item.title === menu) ? <ExpandLess /> : <ExpandMore />}
 					</ListItemButton>
 					<Collapse
@@ -158,8 +167,8 @@ const AdminMenuList = (props: any) => {
 											component="li"
 											className={clickMenu[0] === item.title && clickSubMenu === sub.title ? 'li on' : 'li'}
 										>
-											<Typography variant={sub.title} component={'span'}>
-												{sub.title}
+											<Typography variant={'subtitle2'} component={'span'}>
+												{t(sub.title)}
 											</Typography>
 										</ListItemButton>
 									</Link>

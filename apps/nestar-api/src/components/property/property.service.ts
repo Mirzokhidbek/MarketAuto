@@ -73,13 +73,14 @@ export class PropertyService {
 		return result;
 	}
 
-	public async getProperty(memberId: ObjectId, propertyId: ObjectId): Promise<Property> {
+	public async getProperty(memberId: ObjectId, propertyId: ObjectId, isAdmin = false): Promise<Property> {
 		// sold cars stay viewable (marked as sold); a pending listing only for its owner; deleted ones are gone
 		const search: T = {
 			_id: propertyId,
 			$or: [
 				{ propertyStatus: { $in: [PropertyStatus.ACTIVE, PropertyStatus.SOLD] } },
-				...(memberId ? [{ propertyStatus: PropertyStatus.PENDING, memberId }] : []),
+				// a pending listing: its owner and moderators can open it
+				...(isAdmin ? [{ propertyStatus: PropertyStatus.PENDING }] : memberId ? [{ propertyStatus: PropertyStatus.PENDING, memberId }] : []),
 			],
 		};
 

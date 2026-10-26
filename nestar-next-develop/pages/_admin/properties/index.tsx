@@ -1,3 +1,6 @@
+import { useRouter } from 'next/router';
+import { useTranslation } from 'next-i18next';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import React, { useEffect, useState } from 'react';
 import type { NextPage } from 'next';
 import withAdminLayout from '../../../libs/components/layout/LayoutAdmin';
@@ -27,7 +30,14 @@ import { REMOVE_PROPERTY_BY_ADMIN, UPDATE_PROPERTY_BY_ADMIN } from '../../../apo
 import { formatEnumLabel } from '../../../libs/utils';
 import { T } from '../../../libs/types/common';
 
+
+export const getStaticProps = async ({ locale }: any) => ({
+	props: { ...(await serverSideTranslations(locale, ['common'])) },
+});
+
 const AdminProperties: NextPage = ({ initialInquiry, ...props }: any) => {
+	const router = useRouter();
+	const { t } = useTranslation('common');
 	const [propertiesInquiry, setPropertiesInquiry] = useState<AllPropertiesInquiry>(initialInquiry);
 	const [properties, setProperties] = useState<Property[]>([]);
 	const [propertiesTotal, setPropertiesTotal] = useState<number>(0);
@@ -49,6 +59,12 @@ const AdminProperties: NextPage = ({ initialInquiry, ...props }: any) => {
 	});
 
 	/** LIFECYCLES **/
+	// dashboard links straight to a tab, e.g. ?status=PENDING
+	useEffect(() => {
+		const status = router.query.status as string;
+		if (router.isReady && status && status !== value) tabChangeHandler(status);
+	}, [router.isReady, router.query.status]);
+
 	useEffect(() => {
 		getAllPropertiesByAdminRefetch({ input: propertiesInquiry }).then();
 	}, [propertiesInquiry]);
@@ -92,7 +108,7 @@ const AdminProperties: NextPage = ({ initialInquiry, ...props }: any) => {
 
 	const removePropertyHandler = async (id: string) => {
 		try {
-			if (await sweetConfirmAlert('Remove this car permanently?')) {
+			if (await sweetConfirmAlert(t('Remove this car permanently?') as string)) {
 				await removePropertyByAdmin({ variables: { input: id } });
 				await getAllPropertiesByAdminRefetch({ input: propertiesInquiry });
 			}
@@ -104,13 +120,13 @@ const AdminProperties: NextPage = ({ initialInquiry, ...props }: any) => {
 	return (
 		<Box component={'div'} className={'content'}>
 			<Typography variant={'h2'} className={'tit'} sx={{ mb: '24px' }}>
-				Car List
+				{t('Car List')}
 			</Typography>
 			<Box component={'div'} className={'table-wrap'}>
 				<List className={'tab-menu'}>
-					{['ALL', PropertyStatus.ACTIVE, PropertyStatus.SOLD, PropertyStatus.DELETE].map((status) => (
+					{['ALL', PropertyStatus.PENDING, PropertyStatus.ACTIVE, PropertyStatus.SOLD, PropertyStatus.DELETE].map((status) => (
 						<ListItem key={status} onClick={() => tabChangeHandler(status)} className={value === status ? 'li on' : 'li'}>
-							{{ ALL: 'All', ACTIVE: 'Active', SOLD: 'Sold', DELETE: 'Deleted' }[status]}
+							{t({ ALL: 'All', PENDING: 'Under review', ACTIVE: 'Active', SOLD: 'Sold', DELETE: 'Deleted' }[status] as string)}
 						</ListItem>
 					))}
 				</List>
@@ -121,7 +137,7 @@ const AdminProperties: NextPage = ({ initialInquiry, ...props }: any) => {
 						onChange={(e) => setSearchText(e.target.value)}
 						sx={{ flex: 1 }}
 						className={'search'}
-						placeholder="Search by title"
+						placeholder={t('Search by title') as string}
 						endAdornment={
 							<InputAdornment position="end">
 								<SearchIcon />
@@ -135,7 +151,7 @@ const AdminProperties: NextPage = ({ initialInquiry, ...props }: any) => {
 							updateSearch({ countryList: e.target.value === 'ALL' ? undefined : [e.target.value as CarCountry] })
 						}
 					>
-						<MenuItem value={'ALL'}>All countries</MenuItem>
+						<MenuItem value={'ALL'}>{t('All countries')}</MenuItem>
 						{Object.values(CarCountry).map((country) => (
 							<MenuItem value={country} key={country}>
 								{formatEnumLabel(country)}
@@ -149,7 +165,7 @@ const AdminProperties: NextPage = ({ initialInquiry, ...props }: any) => {
 							updateSearch({ brandList: e.target.value === 'ALL' ? undefined : [e.target.value as CarBrand] })
 						}
 					>
-						<MenuItem value={'ALL'}>All brands</MenuItem>
+						<MenuItem value={'ALL'}>{t('All brands')}</MenuItem>
 						{Object.values(CarBrand).map((brand) => (
 							<MenuItem value={brand} key={brand}>
 								{formatEnumLabel(brand)}

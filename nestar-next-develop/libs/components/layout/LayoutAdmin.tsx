@@ -3,6 +3,10 @@ import type { ComponentType } from 'react';
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
+import Link from 'next/link';
+import { useTranslation } from 'next-i18next';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import MenuIcon from '@mui/icons-material/Menu';
 import MenuList from '../admin/AdminMenuList';
 import Toolbar from '@mui/material/Toolbar';
 import Box from '@mui/material/Box';
@@ -32,6 +36,11 @@ const withAdminLayout = (Component: ComponentType) => {
 		const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
 		const [title, setTitle] = useState('admin');
 		const [loading, setLoading] = useState(true);
+		const { t } = useTranslation('common');
+		// phones/tablets: the side menu becomes a drawer opened with the burger button
+		const compact = useMediaQuery('(max-width:900px)');
+		const [drawerOpen, setDrawerOpen] = useState(false);
+		useEffect(() => setDrawerOpen(false), [router.asPath]);
 
 		/** LIFECYCLES **/
 		useEffect(() => {
@@ -65,21 +74,41 @@ const withAdminLayout = (Component: ComponentType) => {
 		return (
 			<main id="pc-wrap" className="admin">
 				<Head>
-					<title>Admin | MarketAuto</title>
+					<title>{`${t('Admin panel')} | MarketAuto`}</title>
 					<meta name="robots" content="noindex" />
 				</Head>
 				<Box component={'div'} sx={{ display: 'flex' }}>
 					<AppBar
 						position="fixed"
 						sx={{
-							width: `calc(100% - ${drawerWidth}px)`,
-							ml: `${drawerWidth}px`,
+							width: compact ? '100%' : `calc(100% - ${drawerWidth}px)`,
+							ml: compact ? 0 : `${drawerWidth}px`,
 							boxShadow: 'rgb(100 116 139 / 12%) 0px 1px 4px',
 							background: 'none',
 						}}
 					>
-						<Toolbar>
-							<Tooltip title="Open settings">
+						<Toolbar className={'ma-admin-bar'}>
+							{compact && (
+								<IconButton onClick={() => setDrawerOpen(true)} aria-label={'menu'}>
+									<MenuIcon />
+								</IconButton>
+							)}
+							<Link href={'/'} className={'ma-admin-bar__site'}>
+								← {t('Back to site')}
+							</Link>
+							<select
+								className={'ma-admin-bar__lang'}
+								value={router.locale}
+								onChange={(e) => {
+									localStorage.setItem('locale', e.target.value);
+									router.push(router.asPath, router.asPath, { locale: e.target.value });
+								}}
+							>
+								<option value={'uz'}>O'zbekcha</option>
+								<option value={'ru'}>Русский</option>
+								<option value={'en'}>English</option>
+							</select>
+							<Tooltip title={t('Account') as string}>
 								<IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
 									<Avatar
 										src={
@@ -124,7 +153,7 @@ const withAdminLayout = (Component: ComponentType) => {
 									<Box component={'div'} sx={{ p: 1, py: '6px' }} onClick={logoutHandler}>
 										<MenuItem sx={{ px: '16px', py: '6px' }}>
 											<Typography variant={'subtitle1'} component={'span'}>
-												Logout
+												{t('Logout')}
 											</Typography>
 										</MenuItem>
 									</Box>
@@ -142,7 +171,9 @@ const withAdminLayout = (Component: ComponentType) => {
 								boxSizing: 'border-box',
 							},
 						}}
-						variant="permanent"
+						variant={compact ? 'temporary' : 'permanent'}
+						open={compact ? drawerOpen : true}
+						onClose={() => setDrawerOpen(false)}
 						anchor="left"
 						className="aside"
 					>
@@ -177,7 +208,7 @@ const withAdminLayout = (Component: ComponentType) => {
 						<MenuList />
 					</Drawer>
 
-					<Box component={'div'} id="bunker" sx={{ flexGrow: 1 }}>
+					<Box component={'div'} id="bunker" sx={{ flexGrow: 1, minWidth: 0 }}>
 						{/*@ts-ignore*/}
 						<Component {...props} setSnackbar={setSnackbar} setTitle={setTitle} />
 					</Box>

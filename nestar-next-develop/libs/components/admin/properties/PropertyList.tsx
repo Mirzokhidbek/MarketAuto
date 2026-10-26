@@ -1,3 +1,4 @@
+import { useTranslation } from 'next-i18next';
 import React from 'react';
 import Link from 'next/link';
 import moment from 'moment';
@@ -27,7 +28,7 @@ interface PropertyPanelListType {
 	removePropertyHandler: (id: string) => void;
 }
 
-const statusClass: Record<string, string> = { ACTIVE: 'success', SOLD: 'warning', DELETE: 'error' };
+const statusClass: Record<string, string> = { PENDING: 'warning', ACTIVE: 'success', SOLD: 'warning', DELETE: 'error' };
 
 export const PropertyPanelList = ({
 	properties,
@@ -35,24 +36,25 @@ export const PropertyPanelList = ({
 	updatePropertyHandler,
 	removePropertyHandler,
 }: PropertyPanelListType) => {
+	const { t } = useTranslation('common');
 	return (
 		<TableContainer>
 			<Table sx={{ minWidth: 900 }} size={'medium'}>
 				<TableHead>
 					<TableRow>
-						<TableCell>CAR</TableCell>
-						<TableCell align="right">PRICE</TableCell>
-						<TableCell>SELLER</TableCell>
-						<TableCell>LOCATION</TableCell>
-						<TableCell>LISTED</TableCell>
-						<TableCell align="center">STATUS</TableCell>
+						<TableCell>{t('CAR')}</TableCell>
+						<TableCell align="right">{t('PRICE')}</TableCell>
+						<TableCell>{t('SELLER')}</TableCell>
+						<TableCell>{t('LOCATION')}</TableCell>
+						<TableCell>{t('LISTED')}</TableCell>
+						<TableCell align="center">{t('STATUS')}</TableCell>
 					</TableRow>
 				</TableHead>
 				<TableBody>
 					{properties.length === 0 && (
 						<TableRow>
 							<TableCell align="center" colSpan={6}>
-								<span className={'no-data'}>{loading ? 'Loading...' : 'No cars found'}</span>
+								<span className={'no-data'}>{loading ? t('Loading...') : t('No cars found')}</span>
 							</TableCell>
 						</TableRow>
 					)}
@@ -91,7 +93,7 @@ export const PropertyPanelList = ({
 								<TableCell>
 									<Link href={`/member?memberId=${property.memberId}`}>{property.memberData?.memberNick ?? '-'}</Link>
 									<Typography variant="caption" display="block" color="text.secondary">
-										{property.memberData?.memberType === 'AGENT' ? 'Dealer' : 'Private seller'}
+										{t(property.memberData?.memberType === 'AGENT' ? 'Dealer' : 'Private seller')}
 									</Typography>
 								</TableCell>
 								<TableCell>{formatCarPlace(property)}</TableCell>
@@ -108,7 +110,7 @@ export const PropertyPanelList = ({
 										>
 											{Object.values(PropertyStatus).map((status) => (
 												<MenuItem key={status} value={status}>
-													{status}
+													{t(`status_${status}`)}
 												</MenuItem>
 											))}
 										</Select>
@@ -117,7 +119,7 @@ export const PropertyPanelList = ({
 												color="error"
 												variant="outlined"
 												size="small"
-												title="Remove permanently"
+												title={t('Remove permanently') as string}
 												onClick={() => removePropertyHandler(property._id)}
 											>
 												<DeleteIcon fontSize="small" />

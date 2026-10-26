@@ -13,7 +13,9 @@ import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import GroupOutlinedIcon from '@mui/icons-material/GroupOutlined';
 import PersonAddAltOutlinedIcon from '@mui/icons-material/PersonAddAltOutlined';
 import LogoutIcon from '@mui/icons-material/Logout';
-import { userVar } from '../../../apollo/store';
+import { unreadMessagesVar, userVar } from '../../../apollo/store';
+import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
+import NotificationsActiveOutlinedIcon from '@mui/icons-material/NotificationsActiveOutlined';
 import { REACT_APP_API_URL } from '../../config';
 import { logOut } from '../../auth';
 import { sweetConfirmAlert } from '../../sweetAlert';
@@ -25,6 +27,7 @@ const MyMenu = () => {
 	const user = useReactiveVar(userVar);
 	const category: string = (router.query?.category as string) ?? 'myProfile';
 	const isSeller = user?.memberType !== 'ADMIN';
+	const unread = useReactiveVar(unreadMessagesVar);
 
 	const groups = [
 		{
@@ -36,6 +39,8 @@ const MyMenu = () => {
 							{ key: 'myProperties', label: 'My Cars', icon: <DirectionsCarOutlinedIcon /> },
 					  ]
 					: []),
+				{ key: 'messages', label: 'Messages', icon: <ChatBubbleOutlineIcon />, badge: unread },
+				{ key: 'savedSearches', label: 'Saved searches', icon: <NotificationsActiveOutlinedIcon /> },
 				{ key: 'myFavorites', label: 'My Favorites', icon: <FavoriteBorderIcon /> },
 				{ key: 'recentlyVisited', label: 'Recently Visited', icon: <HistoryIcon /> },
 			],
@@ -94,6 +99,7 @@ const MyMenu = () => {
 							<span className={`ma-side-menu__item ${category === item.key ? 'is-active' : ''}`}>
 								{item.icon}
 								{t(item.label)}
+								{!!(item as any).badge && <em className={'ma-side-menu__count ma-side-menu__count--new'}>{(item as any).badge}</em>}
 							</span>
 						</Link>
 					))}

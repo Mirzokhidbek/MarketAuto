@@ -86,6 +86,11 @@ const MemberMenu = (props: MemberMenuProps) => {
 						{t('Follow')}
 					</button>
 				)}
+				{user?._id && member?._id && user?._id !== member?._id && (
+					<Link href={`/mypage?category=messages&to=${member._id}`}>
+						<span className={'ma-btn ma-btn--block ma-btn--outline'}>{t('Write a message')}</span>
+					</Link>
+				)}
 				{user?._id && user?._id !== member?._id && (
 					<button
 						className={`ma-btn ma-btn--block ${following ? 'ma-btn--outline' : 'ma-btn--primary'}`}

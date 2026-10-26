@@ -12,6 +12,8 @@ import MyArticles from '../../libs/components/mypage/MyArticles';
 import { useMutation, useReactiveVar } from '@apollo/client';
 import { userVar } from '../../apollo/store';
 import MyMenu from '../../libs/components/mypage/MyMenu';
+import MessagesPanel from '../../libs/components/mypage/Messages';
+import SavedSearches from '../../libs/components/mypage/SavedSearches';
 import WriteArticle from '../../libs/components/mypage/WriteArticle';
 import MemberFollowers from '../../libs/components/member/MemberFollowers';
 import { sweetErrorHandling, sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../libs/sweetAlert';
@@ -114,6 +116,8 @@ const MyPage: NextPage = () => {
 					{category === 'myArticles' && <MyArticles />}
 					{category === 'writeArticle' && <WriteArticle />}
 					{category === 'myProfile' && <MyProfile />}
+					{category === 'messages' && <MessagesPanel />}
+					{category === 'savedSearches' && <SavedSearches />}
 					{category === 'followers' && (
 						<MemberFollowers
 							subscribeHandler={subscribeHandler}
