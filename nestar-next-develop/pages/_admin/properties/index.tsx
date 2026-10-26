@@ -100,11 +100,14 @@ const AdminProperties: NextPage = ({ initialInquiry, ...props }: any) => {
 
 	/** HANDLERS **/
 	const updateSearch = (patch: T) => {
-		const search: T = { ...propertiesInquiry.search, ...patch };
-		Object.keys(search).forEach((key) => {
-			if (search[key] === undefined) delete search[key];
+		// functional update: several filters can arrive from the URL in the same render
+		setPropertiesInquiry((prev) => {
+			const search: T = { ...prev.search, ...patch };
+			Object.keys(search).forEach((key) => {
+				if (search[key] === undefined) delete search[key];
+			});
+			return { ...prev, page: 1, search };
 		});
-		setPropertiesInquiry({ ...propertiesInquiry, page: 1, search });
 	};
 
 	const changePageHandler = (event: unknown, newPage: number) => {
