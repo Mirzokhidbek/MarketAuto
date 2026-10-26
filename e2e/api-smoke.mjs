@@ -61,7 +61,7 @@ const run = async () => {
 
 	// moderation: first listing of a new seller waits for approval
 	const car = await gql(
-		`mutation{createProperty(input:{propertyType:SEDAN,carCountry:SOUTH_KOREA,propertyAddress:"Seoul",propertyTitle:"E2E Sonata",propertyPrice:15000,carBrand:HYUNDAI,carModel:"Sonata",carYear:2021,carMileage:40000,carFuel:PETROL,carTransmission:AUTOMATIC,carAccidentHistory:NONE,propertyImages:["uploads/property/x.webp"]}){_id propertyStatus}}`,
+		`mutation{createProperty(input:{propertyType:SEDAN,carCountry:SOUTH_KOREA,propertyAddress:"Seoul",propertyTitle:"E2E Sonata",propertyPrice:15000,carBrand:HYUNDAI,carModel:"Sonata",carYear:2021,carMileage:40000,carFuel:PETROL,carTransmission:AUTOMATIC,carAccidentHistory:NONE,propertyImages:["uploads/property/x1.webp","uploads/property/x2.webp","uploads/property/x3.webp"]}){_id propertyStatus}}`,
 		token,
 	);
 	const carId = car.data?.createProperty?._id;

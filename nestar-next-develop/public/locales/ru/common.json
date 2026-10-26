@@ -796,5 +796,6 @@
 	"No password needed: we send a code to your phone.": "Пароль не нужен: мы отправим код на телефон.",
 	"Show {{count}} cars": "Показать {{count}} авто",
 	"Please add at least 3 photos": "Добавьте минимум 3 фото",
-	"Price dropped on a car you saved": "Цена на сохранённое авто снизилась"
+	"Price dropped on a car you saved": "Цена на сохранённое авто снизилась",
+	"No account with this nickname or phone!": "Аккаунт с таким никнеймом или телефоном не найден!"
 }

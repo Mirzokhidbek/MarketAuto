@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { ApolloClient, ApolloLink, InMemoryCache, from, NormalizedCacheObject, Observable } from '@apollo/client';
 import createUploadLink from 'apollo-upload-client/public/createUploadLink.js';
 import { onError } from '@apollo/client/link/error';
+import { getMainDefinition } from '@apollo/client/utilities';
 import { getJwtToken, getRefreshToken, isTokenExpired, logOut, refreshAccessToken } from '../libs/auth';
 import { sweetErrorAlert } from '../libs/sweetAlert';
 let apolloClient: ApolloClient<NormalizedCacheObject>;
@@ -49,7 +50,10 @@ function createIsomorphicLink() {
 			uri: process.env.REACT_APP_API_GRAPHQL_URL,
 		});
 
-		const errorLink = onError(({ graphQLErrors, networkError }) => {
+		const errorLink = onError(({ graphQLErrors, networkError, operation }) => {
+			// mutations are started by a form/button that shows its own error (inline or popup); only queries alert here
+			const isMutation = getMainDefinition(operation.query)?.kind === 'OperationDefinition' &&
+				(getMainDefinition(operation.query) as any).operation === 'mutation';
 			if (graphQLErrors) {
 				graphQLErrors.forEach(({ message }) => {
 					// blocked/removed account or a dead session: end it instead of failing every request
@@ -60,7 +64,7 @@ function createIsomorphicLink() {
 					}
 					// a logged-out visitor on a members-only page is redirected anyway: no extra alert
 					if (message === 'Bearer Token is not provided!' && !getJwtToken()) return;
-					if (!message.includes('input')) sweetErrorAlert(message);
+					if (!isMutation && !message.includes('input')) sweetErrorAlert(message);
 				});
 			}
 			if (networkError) console.warn(`[Network error]: ${networkError}`);

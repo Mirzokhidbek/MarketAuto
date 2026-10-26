@@ -620,6 +620,13 @@ const Filter = (props: FilterType) => {
 				<span>{t('No accidents only')}</span>
 			</label>
 
+			{/* phones: the open filter is a full-screen sheet; this closes it and shows the results */}
+			<div className={'ma-filter__apply'}>
+				<button className={'ma-btn ma-btn--primary ma-btn--block'} onClick={() => setMobileOpen(false)}>
+					{t('Show {{count}} cars', { count: total })}
+				</button>
+			</div>
+
 			<button className={'ma-btn ma-btn--outline ma-btn--block ma-filter__save'} onClick={saveSearchHandler}>
 				<NotificationsActiveOutlinedIcon /> {t('Save search & get alerts')}
 			</button>
