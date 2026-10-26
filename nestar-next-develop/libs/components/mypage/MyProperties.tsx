@@ -1,5 +1,5 @@
 import EmptyState from '../common/EmptyState';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { NextPage } from 'next';
 import { Pagination } from '@mui/material';
 import { useTranslation } from 'next-i18next';
@@ -40,6 +40,13 @@ const MyProperties: NextPage = ({ initialInput, ...props }: any) => {
 			setTotal(data?.getAgentProperties?.metaCounter[0]?.total ?? 0);
 		},
 	});
+
+	// the bell links straight to a tab, e.g. ?status=REJECTED
+	useEffect(() => {
+		const status = router.query.status as PropertyStatus;
+		if (status && Object.values(PropertyStatus).includes(status) && status !== PropertyStatus.DELETE)
+			setSearchFilter((prev: AgentPropertiesInquiry) => ({ ...prev, page: 1, search: { propertyStatus: status } }));
+	}, [router.query.status]);
 
 	/** HANDLERS **/
 	const paginationHandler = (e: T, value: number) => {
@@ -119,6 +126,12 @@ const MyProperties: NextPage = ({ initialInput, ...props }: any) => {
 					onClick={() => changeStatusHandler(PropertyStatus.PENDING)}
 				>
 					{t('Under review')}
+				</button>
+				<button
+					className={`ma-tab ${status === PropertyStatus.REJECTED ? 'is-active' : ''}`}
+					onClick={() => changeStatusHandler(PropertyStatus.REJECTED)}
+				>
+					{t('Rejected')}
 				</button>
 				<button
 					className={`ma-tab ${status === PropertyStatus.SOLD ? 'is-active' : ''}`}

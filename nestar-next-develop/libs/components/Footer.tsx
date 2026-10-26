@@ -5,17 +5,17 @@ import { Stack, Box } from '@mui/material';
 import moment from 'moment';
 import Link from 'next/link';
 import { useTranslation } from 'next-i18next';
-import { SUPPORT_EMAIL, SUPPORT_PHONE } from '../config';
-
-// only the networks that are configured in .env are shown
-const socials = [
-	{ href: process.env.NEXT_PUBLIC_TELEGRAM_URL, icon: <TelegramIcon />, label: 'Telegram' },
-	{ href: process.env.NEXT_PUBLIC_INSTAGRAM_URL, icon: <InstagramIcon />, label: 'Instagram' },
-	{ href: process.env.NEXT_PUBLIC_FACEBOOK_URL, icon: <FacebookOutlinedIcon />, label: 'Facebook' },
-].filter((item) => !!item.href);
+import { useSiteSettings } from '../hooks/useSiteSettings';
 
 const Footer = () => {
 	const { t } = useTranslation('common');
+	const site = useSiteSettings();
+	// only the networks that are configured (admin panel or .env) are shown
+	const socials = [
+		{ href: site.telegramUrl, icon: <TelegramIcon />, label: 'Telegram' },
+		{ href: site.instagramUrl, icon: <InstagramIcon />, label: 'Instagram' },
+		{ href: site.facebookUrl, icon: <FacebookOutlinedIcon />, label: 'Facebook' },
+	].filter((item) => !!item.href);
 
 	const countryLink = (country: string) =>
 		`/property?input=${JSON.stringify({ page: 1, limit: 9, sort: 'createdAt', search: { countryList: [country] } })}`;
@@ -54,14 +54,14 @@ const Footer = () => {
 					<Link href={'/cs'}>{t('Support Center')}</Link>
 					<Link href={'/terms'}>{t('Terms of Use')}</Link>
 					<Link href={'/privacy'}>{t('Privacy Policy')}</Link>
-					<span>{SUPPORT_PHONE}</span>
+					<a href={site.phoneHref}>{site.phone}</a>
 				</div>
 			</div>
 			<div className={'ma-container ma-footer__bottom'}>
 				<span>
 					© {moment().year()} MarketAuto. {t('All rights reserved.')}
 				</span>
-				<span>{t('Tashkent, Uzbekistan')} · {SUPPORT_EMAIL}</span>
+				<span>{t('Tashkent, Uzbekistan')} · {site.email}</span>
 			</div>
 		</footer>
 	);

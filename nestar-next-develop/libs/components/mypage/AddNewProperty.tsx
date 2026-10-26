@@ -243,8 +243,12 @@ const AddProperty = () => {
 	const submitHandler = async () => {
 		try {
 			if (editId) {
+				const wasRejected = propertyData?.getProperty?.propertyStatus === 'REJECTED';
 				await updateProperty({ variables: { input: { _id: editId, ...buildPayload() } } });
-				await sweetMixinSuccessAlert(t('This car has been updated successfully.') as string);
+				// a fixed rejected listing goes back to moderation
+				await sweetMixinSuccessAlert(
+					(wasRejected ? t('Sent for review again. We will check the changes soon.') : t('This car has been updated successfully.')) as string,
+				);
 			} else {
 				const { data } = await createProperty({ variables: { input: buildPayload() } });
 				localStorage.removeItem(DRAFT_KEY);
