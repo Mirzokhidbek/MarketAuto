@@ -29,3 +29,12 @@ export enum MemberAuthType {
 registerEnumType(MemberAuthType, {
 	name: 'MemberAuthType',
 });
+
+export enum VerificationPurpose {
+	SIGNUP = 'SIGNUP',
+	RESET_PASSWORD = 'RESET_PASSWORD',
+	CHANGE_PHONE = 'CHANGE_PHONE',
+}
+registerEnumType(VerificationPurpose, {
+	name: 'VerificationPurpose',
+});

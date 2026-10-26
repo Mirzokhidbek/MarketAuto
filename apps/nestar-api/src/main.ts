@@ -8,6 +8,8 @@ import graphqlUploadExpress from 'graphql-upload/graphqlUploadExpress.mjs';
 
 async function bootstrap() {
 	const app = await NestFactory.create(AppModule);
+	// behind nginx/load balancer: take the client IP from X-Forwarded-For (used by rate limits)
+	if (process.env.TRUST_PROXY) app.getHttpAdapter().getInstance().set('trust proxy', 1);
 	app.useGlobalPipes(new ValidationPipe());
 	app.useGlobalInterceptors(new LoggingInterceptor());
 	// CORS_ORIGINS="https://marketauto.uz,https://admin.marketauto.uz" in production; any origin in development

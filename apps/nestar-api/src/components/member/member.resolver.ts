@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-base-to-string */
-import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { Args, Context, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { MemberService } from './member.service';
 import { AgentsInquiry, LoginInput, MemberInput, MembersInquiry, PasswordInput } from '../../libs/dto/member/member.input';
 import { Member, Members } from '../../libs/dto/member/member';
@@ -12,7 +12,9 @@ import { Roles } from '../auth/decorators/roles.decorator';
 import { MemberType } from '../../libs/enums/member.enum';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { MemberUpdate } from '../../libs/dto/member/member.update';
-import { getSerialForImage, getUploadDir, shapeIntoMongoObjectId, validMimeTypes } from '../../libs/config';
+import { clientIp, getSerialForImage, getUploadDir, shapeIntoMongoObjectId, validMimeTypes } from '../../libs/config';
+import { ChangePhoneInput, ResetPasswordInput } from '../../libs/dto/verification/verification';
+import { AuthService } from '../auth/auth.service';
 import { WithoutGuard } from '../auth/guards/without.guard';
 import { Message } from '../../libs/enums/common.enum';
 import { createWriteStream } from 'fs';
@@ -27,18 +29,46 @@ interface FileUpload {
 
 @Resolver()
 export class MemberResolver {
-	constructor(private readonly memberService: MemberService) {}
+	constructor(
+		private readonly memberService: MemberService,
+		private readonly authService: AuthService,
+	) {}
 
 	@Mutation(() => Member)
-	public async signup(@Args('input') input: MemberInput): Promise<Member> {
+	public async signup(@Args('input') input: MemberInput, @Context() context: any): Promise<Member> {
 		console.log('Mutation: signup');
-		return await this.memberService.signup(input);
+		return await this.memberService.signup(input, clientIp(context), context?.req?.headers?.['user-agent']);
 	}
 
 	@Mutation(() => Member)
-	public async login(@Args('input') input: LoginInput): Promise<Member> {
+	public async login(@Args('input') input: LoginInput, @Context() context: any): Promise<Member> {
 		console.log('Mutation: login');
-		return await this.memberService.login(input);
+		return await this.memberService.login(input, clientIp(context), context?.req?.headers?.['user-agent']);
+	}
+
+	/** new access + refresh token pair for a valid refresh token (the old refresh token is revoked) */
+	@Mutation(() => Member)
+	public async refreshSession(@Args('refreshToken') refreshToken: string, @Context() context: any): Promise<Member> {
+		return await this.authService.refreshSession(refreshToken, context?.req?.headers?.['user-agent']);
+	}
+
+	@Mutation(() => Boolean)
+	public async logout(@Args('refreshToken') refreshToken: string): Promise<boolean> {
+		await this.authService.revokeSession(refreshToken);
+		return true;
+	}
+
+	@Mutation(() => Member)
+	public async resetPassword(@Args('input') input: ResetPasswordInput, @Context() context: any): Promise<Member> {
+		console.log('Mutation: resetPassword');
+		return await this.memberService.resetPassword(input, context?.req?.headers?.['user-agent']);
+	}
+
+	@UseGuards(AuthGuard)
+	@Mutation(() => Member)
+	public async changePhone(@Args('input') input: ChangePhoneInput, @AuthMember('_id') memberId: ObjectId): Promise<Member> {
+		console.log('Mutation: changePhone');
+		return await this.memberService.changePhone(memberId, input);
 	}
 
 	@UseGuards(AuthGuard)
@@ -69,8 +99,10 @@ export class MemberResolver {
 		// role and status are changed only by admin (updateMemberByAdmin)
 		delete input.memberType;
 		delete input.memberStatus;
-		// password is changed only through changePassword (checks the current one and hashes the new one)
+		// password and phone change through their own checked flows (changePassword / changePhone)
 		delete input.memberPassword;
+		delete input.memberPhone;
+		delete input.memberTrusted;
 		console.log('memberId:', memberId);
 		return await this.memberService.updateMember(memberId, input);
 	}

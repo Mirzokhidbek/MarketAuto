@@ -1,5 +1,5 @@
 import { Field, InputType, Int } from '@nestjs/graphql';
-import { IsIn, IsNotEmpty, IsOptional, Length, Min, Max } from 'class-validator';
+import { IsIn, IsNotEmpty, IsOptional, Length, Min, Max, Matches } from 'class-validator';
 import { MemberAuthType, MemberStatus, MemberType } from '../../enums/member.enum';
 import { Direction } from '../../enums/common.enum';
 import { availableAgentSorts, availableMemberSorts } from '../../config';
@@ -8,6 +8,7 @@ import { availableAgentSorts, availableMemberSorts } from '../../config';
 export class MemberInput {
 	@IsNotEmpty()
 	@Length(3, 12)
+	@Matches(/^[a-zA-Z0-9_.]+$/, { message: 'Nickname may contain only latin letters, digits, "_" and "."' })
 	@Field(() => String)
 	memberNick!: string;
 
@@ -19,6 +20,12 @@ export class MemberInput {
 	@IsNotEmpty()
 	@Field(() => String)
 	memberPhone!: string;
+
+	/** 6-digit SMS code from requestPhoneCode(purpose: SIGNUP) */
+	@IsNotEmpty()
+	@Length(6, 6)
+	@Field(() => String)
+	verificationCode!: string;
 
 	@IsOptional()
 	@Field(() => MemberType, { nullable: true })

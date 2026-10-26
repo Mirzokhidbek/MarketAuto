@@ -22,6 +22,14 @@ export enum Message {
 	SELF_LIKE_DENIED = 'You cannot like yourself!',
 	WRONG_CURRENT_PASSWORD = 'Current password is incorrect!',
 	INVALID_UPLOAD_TARGET = 'Invalid upload target!',
+	TOO_MANY_ATTEMPTS = 'Too many attempts. Please try again later.',
+	INVALID_PHONE = 'Please enter a valid phone number with country code!',
+	WRONG_CODE = 'The code is wrong or expired!',
+	CODE_NOT_SENT = 'Could not send the SMS code. Please try again later.',
+	DUPLICATE_LISTING = 'You have already listed this car!',
+	SESSION_EXPIRED = 'Your session has expired, please login again!',
+	NOT_PARTICIPANT = 'You are not part of this conversation!',
+	ALREADY_REPORTED = 'You have already reported this listing.',
 }
 
 export enum Direction {

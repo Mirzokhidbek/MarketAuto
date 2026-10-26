@@ -14,7 +14,7 @@ import {
 import { Properties, Property } from '../../libs/dto/property/property';
 import { Direction, Message } from '../../libs/enums/common.enum';
 import { ViewService } from '../view/view.service';
-import { CarCountry, PropertyStatus } from '../../libs/enums/property.enum';
+import { CarAccidentHistory, CarCountry, PropertyStatus } from '../../libs/enums/property.enum';
 import { MemberStatus } from '../../libs/enums/member.enum';
 import { StatisticModifier, T } from '../../libs/types/common';
 import { ViewGroup } from '../../libs/enums/view.enum';
@@ -152,7 +152,8 @@ export class PropertyService {
 		return result[0] as Properties;
 	}
 
-	private shapeMatchQuery(match: T, input: PropertiesInquiry): void {
+	/** also used to test new cars against members' saved searches */
+	public shapeMatchQuery(match: T, input: PropertiesInquiry): void {
 		const {
 			memberId,
 			countryList,
@@ -167,6 +168,8 @@ export class PropertyService {
 			mileageRange,
 			options,
 			text,
+			model,
+			noAccident,
 		} = input.search;
 		if (memberId) match.memberId = shapeIntoMongoObjectId(memberId);
 		if (countryList && countryList.length) match.carCountry = { $in: countryList };
@@ -182,11 +185,10 @@ export class PropertyService {
 		if (mileageRange) match.carMileage = { $gte: mileageRange.start, $lte: mileageRange.end };
 
 		if (text) match.propertyTitle = { $regex: searchRegex(text) };
-		if (options) {
-			match['$or'] = options.map((ele) => {
-				return { [ele]: true };
-			});
-		}
+		if (model) match.carModel = { $regex: searchRegex(model) };
+		if (noAccident) match.carAccidentHistory = CarAccidentHistory.NONE;
+		// every ticked option must hold (barter AND customs cleared, ...)
+		options?.forEach((ele) => (match[ele] = true));
 	}
 
 	public async getFavorites(memberId: ObjectId, input: OrdinaryInquiry): Promise<Properties> {

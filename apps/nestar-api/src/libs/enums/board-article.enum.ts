@@ -4,7 +4,7 @@ export enum BoardArticleCategory {
 	FREE = 'FREE',
 	RECOMMEND = 'RECOMMEND',
 	NEWS = 'NEWS',
-	HUMOR = 'HUMOR',
+	SERVICE = 'SERVICE', // repair & maintenance tips
 }
 registerEnumType(BoardArticleCategory, {
 	name: 'BoardArticleCategory',

@@ -33,6 +33,18 @@ const MemberSchema = new Schema(
 			required: true,
 		},
 
+		// set after the SMS code is confirmed
+		memberPhoneVerified: {
+			type: Boolean,
+			default: false,
+		},
+
+		// trusted members publish instantly; others wait for admin approval
+		memberTrusted: {
+			type: Boolean,
+			default: false,
+		},
+
 		memberPassword: {
 			type: String,
 			select: false,
@@ -76,10 +88,6 @@ const MemberSchema = new Schema(
 			default: 0,
 		},
 
-		memberPoints: {
-			type: Number,
-			default: 0,
-		},
 
 		memberLikes: {
 			type: Number,
@@ -101,15 +109,7 @@ const MemberSchema = new Schema(
 			default: 0,
 		},
 
-		memberWarnings: {
-			type: Number,
-			default: 0,
-		},
 
-		memberBlocks: {
-			type: Number,
-			default: 0,
-		},
 
 		deletedAt: {
 			type: Date,

@@ -27,6 +27,12 @@ export class Member {
 
 	memberPassword?: string;
 
+	@Field(() => Boolean)
+	memberPhoneVerified!: boolean;
+
+	@Field(() => Boolean)
+	memberTrusted!: boolean;
+
 	@Field(() => String, { nullable: true })
 	memberFullName?: string;
 
@@ -51,8 +57,6 @@ export class Member {
 	@Field(() => Int)
 	memberFollowings!: number;
 
-	@Field(() => Int)
-	memberPoints!: number;
 
 	@Field(() => Int)
 	memberLikes!: number;
@@ -66,11 +70,7 @@ export class Member {
 	@Field(() => Int)
 	memberRank!: number;
 
-	@Field(() => Int)
-	memberWarnings!: number;
 
-	@Field(() => Int)
-	memberBlocks!: number;
 
 	@Field(() => Date, { nullable: true })
 	deletedAt?: Date;
@@ -83,6 +83,9 @@ export class Member {
 
 	@Field(() => String, { nullable: true })
 	accessToken?: string;
+
+	@Field(() => String, { nullable: true })
+	refreshToken?: string;
 
 	/** from aggregation **/
 

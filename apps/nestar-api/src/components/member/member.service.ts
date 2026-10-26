@@ -5,8 +5,11 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, ObjectId } from 'mongoose';
 import { Member, Members } from '../../libs/dto/member/member';
 import { AgentsInquiry, LoginInput, MemberInput, MembersInquiry, PasswordInput } from '../../libs/dto/member/member.input';
+import { ChangePhoneInput, ResetPasswordInput } from '../../libs/dto/verification/verification';
+import { VerificationService } from '../verification/verification.service';
+import { limiters } from '../../libs/rate-limiter';
 import { Direction, Message } from '../../libs/enums/common.enum';
-import { MemberStatus, MemberType } from '../../libs/enums/member.enum';
+import { MemberStatus, MemberType, VerificationPurpose } from '../../libs/enums/member.enum';
 import { AuthService } from '../auth/auth.service';
 import { MemberUpdate } from '../../libs/dto/member/member.update';
 import { StatisticModifier, T } from '../../libs/types/common';
@@ -27,42 +30,92 @@ export class MemberService {
 		private viewService: ViewService,
 		private likeService: LikeService,
 		private notificationService: NotificationService,
+		private verificationService: VerificationService,
 	) {}
 
-	public async signup(input: MemberInput): Promise<Member> {
+	public async signup(input: MemberInput, ip: string, userAgent?: string): Promise<Member> {
 		if (input.memberType === MemberType.ADMIN) throw new BadRequestException(Message.NOT_ALLOWED_REQUEST);
-		input.memberPassword = await this.authService.hashPassword(input.memberPassword);
+		limiters.signupIp.consume(ip);
+		// the phone must be confirmed with the SMS code before the account exists
+		const memberPhone = await this.verificationService.consumeCode(
+			input.memberPhone,
+			VerificationPurpose.SIGNUP,
+			input.verificationCode,
+		);
+		const { verificationCode, ...data } = input;
+		const memberPassword = await this.authService.hashPassword(input.memberPassword);
 		try {
-			const result = await this.memberModel.create(input);
-			result.accessToken = await this.authService.createToken(result); // Authentication via TOKEN
-			// console.log('accessToken:', accessToken);
-			return result;
+			const result = await this.memberModel.create({ ...data, memberPhone, memberPassword, memberPhoneVerified: true });
+			return await this.authService.issueTokens(result, userAgent);
 		} catch (err) {
 			console.log('Error on Service.model:', err instanceof Error ? err.message : String(err));
-			// console.log('Error on Service.model:', err.message);
 			throw new BadRequestException(Message.USED_MEMBER_NICK_OR_PHONE);
 		}
 	}
 
-	public async login(input: LoginInput): Promise<Member> {
-		const { memberNick, memberPassword } = input;
+	public async login(input: LoginInput, ip: string, userAgent?: string): Promise<Member> {
+		const { memberNick } = input;
+		const nickKey = memberNick.toLowerCase();
+		// brute-force protection: limited wrong passwords per nickname and per IP
+		limiters.loginIp.assert(ip);
+		limiters.loginNick.assert(nickKey);
+
 		const response: Member | null = await this.memberModel
 			.findOne({ memberNick: memberNick })
 			.select('+memberPassword')
 			.exec();
 
 		if (!response || response.memberStatus === MemberStatus.DELETE) {
+			limiters.loginIp.hit(ip);
 			throw new InternalServerErrorException(Message.NO_MEMBER_NICK);
 		} else if (response.memberStatus === MemberStatus.BLOCK) {
 			throw new InternalServerErrorException(Message.BLOCKED_USER);
 		}
 
-		// TODO: Compare password
 		const isMatch = await this.authService.comparePasswords(input.memberPassword, response.memberPassword!);
-		if (!isMatch) throw new InternalServerErrorException(Message.WRONG_PASSWORD);
-		response.accessToken = await this.authService.createToken(response);
+		if (!isMatch) {
+			limiters.loginIp.hit(ip);
+			limiters.loginNick.hit(nickKey);
+			throw new InternalServerErrorException(Message.WRONG_PASSWORD);
+		}
+		limiters.loginNick.reset(nickKey);
+		return await this.authService.issueTokens(response, userAgent);
+	}
 
-		return response;
+	/** "forgot password": SMS code to the account phone, then a new password; all old sessions end */
+	public async resetPassword(input: ResetPasswordInput, userAgent?: string): Promise<Member> {
+		const memberPhone = await this.verificationService.consumeCode(
+			input.phone,
+			VerificationPurpose.RESET_PASSWORD,
+			input.code,
+		);
+		const memberPassword = await this.authService.hashPassword(input.newPassword);
+		const member = await this.memberModel
+			.findOneAndUpdate({ memberPhone, memberStatus: MemberStatus.ACTIVE }, { memberPassword }, { new: true })
+			.exec();
+		if (!member) throw new BadRequestException(Message.WRONG_CODE);
+		await this.authService.revokeAllSessions(member._id);
+		return await this.authService.issueTokens(member, userAgent);
+	}
+
+	/** a new phone number is accepted only with the SMS code sent to that number */
+	public async changePhone(memberId: ObjectId, input: ChangePhoneInput): Promise<Member> {
+		const memberPhone = await this.verificationService.consumeCode(input.phone, VerificationPurpose.CHANGE_PHONE, input.code);
+		try {
+			const result = await this.memberModel
+				.findOneAndUpdate(
+					{ _id: memberId, memberStatus: MemberStatus.ACTIVE },
+					{ memberPhone, memberPhoneVerified: true },
+					{ new: true },
+				)
+				.exec();
+			if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED);
+			result.accessToken = await this.authService.createToken(result);
+			return result;
+		} catch (err: any) {
+			if (err instanceof InternalServerErrorException) throw err;
+			throw new BadRequestException(Message.USED_MEMBER_NICK_OR_PHONE);
+		}
 	}
 
 	public async updateMember(memberId: ObjectId, input: MemberUpdate): Promise<Member> {
@@ -96,8 +149,9 @@ export class MemberService {
 		const result = await this.memberModel.findByIdAndUpdate(memberId, { memberPassword }, { new: true }).exec();
 		if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED);
 
-		result.accessToken = await this.authService.createToken(result);
-		return result;
+		// other devices are logged out; this one gets a fresh session
+		await this.authService.revokeAllSessions(memberId);
+		return await this.authService.issueTokens(result);
 	}
 
 	public async getMember(memberId: ObjectId | null, targetId: ObjectId): Promise<Member> {
@@ -229,6 +283,9 @@ export class MemberService {
 	public async updateMemberByAdmin(input: MemberUpdate): Promise<Member> {
 		// admin can reset a password; it must be stored hashed like on signup
 		if (input.memberPassword) input.memberPassword = await this.authService.hashPassword(input.memberPassword);
+		// a new password, block or delete ends every session of that member
+		if (input.memberPassword || (input.memberStatus && input.memberStatus !== MemberStatus.ACTIVE))
+			await this.authService.revokeAllSessions(input._id);
 		const result: Member | null = await this.memberModel
 			.findOneAndUpdate({ _id: input._id }, input, { new: true })
 			.exec();
