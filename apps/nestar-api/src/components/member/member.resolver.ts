@@ -12,12 +12,12 @@ import { Roles } from '../auth/decorators/roles.decorator';
 import { MemberType } from '../../libs/enums/member.enum';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { MemberUpdate } from '../../libs/dto/member/member.update';
-import { clientIp, getSerialForImage, getUploadDir, shapeIntoMongoObjectId, validMimeTypes } from '../../libs/config';
+import { clientIp, shapeIntoMongoObjectId, uploadTargets, validMimeTypes } from '../../libs/config';
+import { StorageService } from '../storage/storage.service';
 import { ChangePhoneInput, ResetPasswordInput } from '../../libs/dto/verification/verification';
 import { AuthService } from '../auth/auth.service';
 import { WithoutGuard } from '../auth/guards/without.guard';
 import { Message } from '../../libs/enums/common.enum';
-import { createWriteStream } from 'fs';
 import GraphQLUpload from 'graphql-upload/GraphQLUpload.mjs';
 
 interface FileUpload {
@@ -32,6 +32,7 @@ export class MemberResolver {
 	constructor(
 		private readonly memberService: MemberService,
 		private readonly authService: AuthService,
+		private readonly storageService: StorageService,
 	) {}
 
 	@Mutation(() => Member)
@@ -182,25 +183,13 @@ export class MemberResolver {
 		@Args('target') target: string,
 	): Promise<string> {
 		console.log('Mutation: imageUploader');
-
 		if (!filename) throw new Error(Message.UPLOAD_FAILED);
-		const validMime = validMimeTypes.includes(mimetype);
-		if (!validMime) throw new Error(Message.PROVIDE_ALLOWED_FORMAT);
+		if (!validMimeTypes.includes(mimetype)) throw new Error(Message.PROVIDE_ALLOWED_FORMAT);
+		if (!uploadTargets.includes(target)) throw new Error(Message.INVALID_UPLOAD_TARGET);
 
-		const uploadDir = getUploadDir(target);
-		if (!uploadDir) throw new Error(Message.INVALID_UPLOAD_TARGET);
-		const url = `${uploadDir}/${getSerialForImage(mimetype)}`;
-		const stream = createReadStream();
-
-		const result = await new Promise((resolve, reject) => {
-			stream
-				.pipe(createWriteStream(url))
-				.on('finish', () => resolve(true))
-				.on('error', () => reject(new Error(Message.UPLOAD_FAILED)));
-		});
-		if (!result) throw new Error(Message.UPLOAD_FAILED);
-
-		return url;
+		// compressed to WebP and stored locally or on S3 (see StorageService)
+		const buffer = await this.storageService.readStream(createReadStream());
+		return await this.storageService.saveImage(buffer, target);
 	}
 
 	@UseGuards(AuthGuard)
@@ -211,36 +200,22 @@ export class MemberResolver {
 		@Args('target') target: string,
 	): Promise<string[]> {
 		console.log('Mutation: imagesUploader');
-		const uploadDir = getUploadDir(target);
-		if (!uploadDir) throw new Error(Message.INVALID_UPLOAD_TARGET);
+		if (!uploadTargets.includes(target)) throw new Error(Message.INVALID_UPLOAD_TARGET);
 
 		const uploadedImages: string[] = [];
-		const promisedList = files.map(async (img: Promise<FileUpload>, index: number): Promise<Promise<void>> => {
-			try {
-				const { filename, mimetype, encoding, createReadStream } = await img;
-
-				const validMime = validMimeTypes.includes(mimetype);
-				if (!validMime) throw new Error(Message.PROVIDE_ALLOWED_FORMAT);
-
-				const url = `${uploadDir}/${getSerialForImage(mimetype)}`;
-				const stream = createReadStream();
-
-				const result = await new Promise((resolve, reject) => {
-					stream
-						.pipe(createWriteStream(url))
-						.on('finish', () => resolve(true))
-						.on('error', () => reject(new Error(Message.UPLOAD_FAILED)));
-				});
-				if (!result) throw new Error(Message.UPLOAD_FAILED);
-
-				uploadedImages[index] = url;
-			} catch (err) {
-				console.log('Error, file missing!');
-			}
-		});
-
-		await Promise.all(promisedList);
-		// skip files that failed so the client never receives empty slots
+		await Promise.all(
+			files.map(async (img: Promise<FileUpload>, index: number) => {
+				try {
+					const { mimetype, createReadStream } = await img;
+					if (!validMimeTypes.includes(mimetype)) throw new Error(Message.PROVIDE_ALLOWED_FORMAT);
+					const buffer = await this.storageService.readStream(createReadStream());
+					uploadedImages[index] = await this.storageService.saveImage(buffer, target);
+				} catch (err) {
+					console.log('Error, image skipped:', err instanceof Error ? err.message : err);
+				}
+			}),
+		);
+		// keep the original order, skip files that failed
 		return uploadedImages.filter(Boolean);
 	}
 }

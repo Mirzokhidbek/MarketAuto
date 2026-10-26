@@ -10,9 +10,13 @@ import { BoardArticleModule } from './board-article/board-article.module';
 import { NotificationModule } from './notification/notification.module';
 import { NoticeModule } from './notice/notice.module';
 import { DashboardModule } from './dashboard/dashboard.module';
+import { StorageModule } from './storage/storage.module';
+import { VerificationModule } from './verification/verification.module';
 
 @Module({
 	imports: [
+		StorageModule,
+		VerificationModule,
 		MemberModule,
 		AuthModule,
 		PropertyModule,
