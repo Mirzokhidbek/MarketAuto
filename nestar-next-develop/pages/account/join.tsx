@@ -167,6 +167,7 @@ const Join: NextPage = () => {
 									<Link href={'/privacy'} target={'_blank'}>
 										{t('Privacy Policy')}
 									</Link>
+									{t('terms_suffix')}
 								</span>
 							</label>
 						</>
