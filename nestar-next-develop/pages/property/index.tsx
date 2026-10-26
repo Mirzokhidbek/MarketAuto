@@ -105,9 +105,6 @@ const PropertyList: NextPage = ({ initialList = [], initialTotal = 0 }: any) => 
 		setCurrentPage(searchFilter.page === undefined ? 1 : searchFilter.page);
 	}, [router]);
 
-	useEffect(() => {
-		// getPropertiesRefetch({ input: searchFilter }).then();
-	}, [searchFilter]);
 
 	/** HANDLERS **/
 	const handlePaginationChange = async (event: ChangeEvent<unknown>, value: number) => {

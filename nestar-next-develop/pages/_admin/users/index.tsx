@@ -60,9 +60,6 @@ const AdminUsers: NextPage = ({ initialInquiry, ...props }: any) => {
 	});
 
 	/** LIFECYCLES **/
-	useEffect(() => {
-		getAllMembersRefetch({ input: membersInquiry }).then();
-	}, [membersInquiry]);
 
 	/** HANDLERS **/
 	const changePageHandler = async (event: unknown, newPage: number) => {

@@ -1,12 +1,18 @@
 import FacebookOutlinedIcon from '@mui/icons-material/FacebookOutlined';
 import InstagramIcon from '@mui/icons-material/Instagram';
 import TelegramIcon from '@mui/icons-material/Telegram';
-import TwitterIcon from '@mui/icons-material/Twitter';
 import { Stack, Box } from '@mui/material';
 import moment from 'moment';
 import Link from 'next/link';
 import { useTranslation } from 'next-i18next';
 import { SUPPORT_EMAIL, SUPPORT_PHONE } from '../config';
+
+// only the networks that are configured in .env are shown
+const socials = [
+	{ href: process.env.NEXT_PUBLIC_TELEGRAM_URL, icon: <TelegramIcon />, label: 'Telegram' },
+	{ href: process.env.NEXT_PUBLIC_INSTAGRAM_URL, icon: <InstagramIcon />, label: 'Instagram' },
+	{ href: process.env.NEXT_PUBLIC_FACEBOOK_URL, icon: <FacebookOutlinedIcon />, label: 'Facebook' },
+].filter((item) => !!item.href);
 
 const Footer = () => {
 	const { t } = useTranslation('common');
@@ -19,11 +25,15 @@ const Footer = () => {
 				<div className={'ma-footer__brand'}>
 					<img src="/img/logo/logoDark.svg" alt="MarketAuto" />
 					<p>{t('The marketplace connecting car sellers in Uzbekistan and abroad with buyers across Uzbekistan.')}</p>
-					<div className={'ma-footer__social'}>
-						<TelegramIcon />
-						<InstagramIcon />
-						<FacebookOutlinedIcon />
-					</div>
+					{socials.length > 0 && (
+						<div className={'ma-footer__social'}>
+							{socials.map(({ href, icon, label }) => (
+								<a key={label} href={href} target={'_blank'} rel={'noopener noreferrer'} aria-label={label}>
+									{icon}
+								</a>
+							))}
+						</div>
+					)}
 				</div>
 				<div>
 					<strong>{t('MARKETPLACE')}</strong>

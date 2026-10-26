@@ -158,7 +158,14 @@
 	gap: 28px;
 	align-items: start;
 	&__switch {
-		max-width: 480px;
+		display: grid !important;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		max-width: 520px;
+		button {
+			white-space: nowrap;
+			padding-left: 6px !important;
+			padding-right: 6px !important;
+		}
 		margin-bottom: 20px;
 	}
 	&__contact {

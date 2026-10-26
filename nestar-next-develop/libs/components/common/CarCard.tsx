@@ -4,7 +4,7 @@ import { compareVar } from '../../../apollo/store';
 import { toggleCompare } from '../../compare';
 import { sweetMixinErrorAlert } from '../../sweetAlert';
 import { usePrice } from '../../hooks/usePrice';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
 import FavoriteIcon from '@mui/icons-material/Favorite';
@@ -23,6 +23,12 @@ const CarCard = ({ property, onLike }: CarCardProps) => {
 	const { t } = useTranslation('common');
 	const { price } = usePrice();
 	const [imageFailed, setImageFailed] = useState(false);
+	const imageRef = useRef<HTMLImageElement>(null);
+	// a server-rendered <img> can fail before React attaches onError: check once after mount
+	useEffect(() => {
+		const img = imageRef.current;
+		if (img && img.complete && img.naturalWidth === 0) setImageFailed(true);
+	}, [property._id]);
 	const image = property.propertyImages?.[0];
 	const liked = !!property.meLiked?.[0]?.myFavorite;
 	const place =
@@ -42,7 +48,7 @@ const CarCard = ({ property, onLike }: CarCardProps) => {
 		<div className={'ma-car-card'}>
 			<div className={'ma-car-card__media'} onClick={openDetail}>
 				{image && !imageFailed ? (
-					<img src={imageUrl(image)} alt={property.propertyTitle} onError={() => setImageFailed(true)} />
+					<img ref={imageRef} src={imageUrl(image)} alt={property.propertyTitle} onError={() => setImageFailed(true)} />
 				) : (
 					<div className={'ma-car-card__placeholder'}>
 						<DirectionsCarFilledOutlinedIcon />

@@ -55,9 +55,6 @@ const MemberFollowings = (props: MemberFollowingsProps) => {
 		else setFollowInquiry({ ...followInquiry, search: { followerId: user?._id } });
 	}, [router]);
 
-	useEffect(() => {
-		getMemberFollowingsRefetch({ input: followInquiry }).then();
-	}, [followInquiry]);
 
 	/** HANDLERS **/
 	const paginationHandler = async (event: ChangeEvent<unknown>, value: number) => {

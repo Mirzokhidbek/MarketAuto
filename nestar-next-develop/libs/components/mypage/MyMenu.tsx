@@ -70,7 +70,7 @@ const MyMenu = () => {
 	};
 
 	return (
-		<aside className={'ma-side-menu'}>
+		<aside className={'ma-side-menu ma-side-menu--mine'}>
 			<div className={'ma-side-menu__user'}>
 				<img
 					src={user?.memberImage ? imageUrl(user?.memberImage) : '/img/profile/defaultUser.svg'}

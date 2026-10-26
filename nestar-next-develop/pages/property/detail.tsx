@@ -154,7 +154,8 @@ const PropertyDetail: NextPage = ({ initialComment, carSeo, ...props }: any) => 
 		refetch: getCommentsRefetch,
 	} = useQuery(GET_COMMENTS, {
 		fetchPolicy: 'network-only',
-		variables: { input: initialComment },
+		// re-runs by itself when commentInquiry changes (page / car id)
+		variables: { input: commentInquiry },
 		skip: !commentInquiry.search.commentRefId,
 		notifyOnNetworkStatusChange: true,
 		onCompleted: (data: T) => {
@@ -180,11 +181,6 @@ const PropertyDetail: NextPage = ({ initialComment, carSeo, ...props }: any) => 
 		}
 	}, [router]);
 
-	useEffect(() => {
-		if (commentInquiry.search.commentRefId) {
-			getCommentsRefetch({ input: commentInquiry });
-		}
-	}, [commentInquiry]);
 
 	/** HANDLERS **/
 	const changeImageHandler = (image: string) => {
