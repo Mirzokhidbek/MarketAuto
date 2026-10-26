@@ -16,6 +16,7 @@ registerEnumType(PropertyType, {
 });
 
 export enum PropertyStatus {
+	PENDING = 'PENDING', // waiting for admin approval (listings of new, not yet trusted members)
 	ACTIVE = 'ACTIVE',
 	SOLD = 'SOLD',
 	DELETE = 'DELETE',
@@ -99,4 +100,33 @@ export enum CarTransmission {
 }
 registerEnumType(CarTransmission, {
 	name: 'CarTransmission',
+});
+
+export enum CarAccidentHistory {
+	NONE = 'NONE',
+	MINOR = 'MINOR',
+	SERIOUS = 'SERIOUS',
+}
+registerEnumType(CarAccidentHistory, {
+	name: 'CarAccidentHistory',
+});
+
+export enum ReportReason {
+	FAKE = 'FAKE',
+	WRONG_PRICE = 'WRONG_PRICE',
+	ALREADY_SOLD = 'ALREADY_SOLD',
+	DUPLICATE = 'DUPLICATE',
+	SPAM = 'SPAM',
+	OTHER = 'OTHER',
+}
+registerEnumType(ReportReason, {
+	name: 'ReportReason',
+});
+
+export enum ReportStatus {
+	OPEN = 'OPEN',
+	RESOLVED = 'RESOLVED',
+}
+registerEnumType(ReportStatus, {
+	name: 'ReportStatus',
 });

@@ -4,7 +4,7 @@ import { ObjectId } from 'bson';
 export const availableAgentSorts = ['createdAt', 'updatedAt', 'memberLikes', 'memberViews', 'memberRank'];
 export const availableMemberSorts = ['createdAt', 'updatedAt', 'memberLikes', 'memberViews'];
 
-export const availableOptions = ['propertyBarter', 'propertyRent'];
+export const availableOptions = ['propertyBarter', 'propertyNegotiable', 'carCustomsCleared'];
 export const availablePropertySorts = [
 	'createdAt',
 	'updatedAt',
@@ -44,6 +44,10 @@ export const getUploadDir = (target: string): string | null => {
 	fs.mkdirSync(dir, { recursive: true });
 	return dir;
 };
+
+/** caller IP from the GraphQL context (set TRUST_PROXY=1 behind nginx so X-Forwarded-For is used) */
+export const clientIp = (context: any): string =>
+	context?.req?.ip ?? context?.req?.socket?.remoteAddress ?? 'unknown';
 
 // user text is matched literally: '(' or '.*' must not break or slow down the query
 export const searchRegex = (text: string): RegExp =>

@@ -17,6 +17,11 @@ export class MemberUpdate {
 	@Field(() => MemberStatus, { nullable: true })
 	memberStatus?: MemberStatus;
 
+	/** admin only: trusted members publish listings without moderation */
+	@IsOptional()
+	@Field(() => Boolean, { nullable: true })
+	memberTrusted?: boolean;
+
 	@IsOptional()
 	@Field(() => String, { nullable: true })
 	memberPhone?: string;

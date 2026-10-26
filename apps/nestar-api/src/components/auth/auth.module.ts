@@ -4,16 +4,20 @@ import { HttpModule } from '@nestjs/axios';
 import { JwtModule } from '@nestjs/jwt';
 import { MongooseModule } from '@nestjs/mongoose';
 import MemberSchema from '../../schemas/Member.model';
+import SessionSchema from '../../schemas/Session.model';
 
 @Module({
 	imports: [
 		HttpModule,
 		JwtModule.register({
 			secret: `${process.env.SECRET_TOKEN}`,
-			signOptions: { expiresIn: '30d' },
+			signOptions: { expiresIn: (process.env.ACCESS_TOKEN_TTL ?? '1h') as any },
 		}),
 		// the token is only proof of identity; status and role are always read from the database
-		MongooseModule.forFeature([{ name: 'Member', schema: MemberSchema }]),
+		MongooseModule.forFeature([
+			{ name: 'Member', schema: MemberSchema },
+			{ name: 'Session', schema: SessionSchema },
+		]),
 	],
 	providers: [AuthService],
 	exports: [AuthService],

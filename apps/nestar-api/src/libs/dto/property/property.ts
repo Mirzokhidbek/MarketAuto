@@ -1,6 +1,7 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql';
 import type { ObjectId } from 'mongoose';
 import {
+	CarAccidentHistory,
 	CarBrand,
 	CarCountry,
 	CarFuel,
@@ -86,8 +87,26 @@ export class Property {
 	@Field(() => Boolean)
 	propertyBarter!: boolean;
 
-	@Field(() => Boolean)
-	propertyRent!: boolean;
+	@Field(() => Boolean, { nullable: true })
+	propertyNegotiable?: boolean;
+
+	@Field(() => String, { nullable: true })
+	carVin?: string;
+
+	@Field(() => CarAccidentHistory, { nullable: true })
+	carAccidentHistory?: CarAccidentHistory;
+
+	@Field(() => Int, { nullable: true })
+	carOwners?: number;
+
+	@Field(() => Boolean, { nullable: true })
+	carCustomsCleared?: boolean;
+
+	@Field(() => Int, { nullable: true })
+	carDeliveryDays?: number;
+
+	@Field(() => Int, { nullable: true })
+	carDeliveryCost?: number;
 
 	@Field(() => String)
 	memberId!: ObjectId;

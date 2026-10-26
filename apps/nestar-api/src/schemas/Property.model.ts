@@ -1,5 +1,6 @@
 import { Schema } from 'mongoose';
 import {
+	CarAccidentHistory,
 	CarBrand,
 	CarCountry,
 	CarFuel,
@@ -20,7 +21,7 @@ const PropertySchema = new Schema(
 		propertyStatus: {
 			type: String,
 			enum: PropertyStatus,
-			default: PropertyStatus.ACTIVE,
+			default: PropertyStatus.PENDING,
 		},
 
 		carCountry: {
@@ -96,6 +97,34 @@ const PropertySchema = new Schema(
 			type: String,
 		},
 
+		/** buyer-trust & import details **/
+		carVin: {
+			type: String,
+		},
+
+		carAccidentHistory: {
+			type: String,
+			enum: CarAccidentHistory,
+		},
+
+		carOwners: {
+			type: Number,
+		},
+
+		// customs cleared in Uzbekistan ("rastamojka")
+		carCustomsCleared: {
+			type: Boolean,
+		},
+
+		// for cars abroad: days and cost (USD) to deliver to Uzbekistan
+		carDeliveryDays: {
+			type: Number,
+		},
+
+		carDeliveryCost: {
+			type: Number,
+		},
+
 		propertyViews: {
 			type: Number,
 			default: 0,
@@ -130,7 +159,7 @@ const PropertySchema = new Schema(
 			default: false,
 		},
 
-		propertyRent: {
+		propertyNegotiable: {
 			type: Boolean,
 			default: false,
 		},

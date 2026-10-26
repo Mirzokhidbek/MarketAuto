@@ -1,5 +1,5 @@
 import { Field, InputType, Int } from '@nestjs/graphql';
-import { IsInt, IsNotEmpty, IsOptional, Length, Max, Min } from 'class-validator';
+import { IsInt, IsNotEmpty, IsOptional, Length, Max, Min, Matches } from 'class-validator';
 import {
 	CarBrand,
 	CarCountry,
@@ -8,6 +8,7 @@ import {
 	PropertyLocation,
 	PropertyStatus,
 	PropertyType,
+	CarAccidentHistory,
 } from '../../enums/property.enum';
 import type { ObjectId } from 'mongoose';
 
@@ -107,8 +108,42 @@ export class PropertyUpdate {
 	propertyBarter?: boolean;
 
 	@IsOptional()
+	@Matches(/^[A-HJ-NPR-Z0-9]{17}$/i, { message: 'VIN must be 17 letters/digits (no I, O, Q)' })
+	@Field(() => String, { nullable: true })
+	carVin?: string;
+
+	@IsOptional()
+	@Field(() => CarAccidentHistory, { nullable: true })
+	carAccidentHistory?: CarAccidentHistory;
+
+	@IsOptional()
+	@IsInt()
+	@Min(0)
+	@Max(20)
+	@Field(() => Int, { nullable: true })
+	carOwners?: number;
+
+	@IsOptional()
 	@Field(() => Boolean, { nullable: true })
-	propertyRent?: boolean;
+	carCustomsCleared?: boolean;
+
+	@IsOptional()
+	@IsInt()
+	@Min(0)
+	@Max(365)
+	@Field(() => Int, { nullable: true })
+	carDeliveryDays?: number;
+
+	@IsOptional()
+	@IsInt()
+	@Min(0)
+	@Max(100000)
+	@Field(() => Int, { nullable: true })
+	carDeliveryCost?: number;
+
+	@IsOptional()
+	@Field(() => Boolean, { nullable: true })
+	propertyNegotiable?: boolean;
 
 	soldAt?: Date;
 
