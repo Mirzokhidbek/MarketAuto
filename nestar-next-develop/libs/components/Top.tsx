@@ -189,6 +189,13 @@ const Top = () => {
 								<div> {t('Admin')} </div>
 							</Link>
 						)}
+						{/* phones: actions that do not fit into the header bar */}
+						<div className={'ma-burger-extras'} onClick={(e) => e.stopPropagation()}>
+							<Link href={user?._id ? '/mypage?category=addProperty' : '/account/join'}>
+								<span className={'ma-btn ma-btn--primary ma-btn--block'}>{t('Sell a car')}</span>
+							</Link>
+							<CurrencySwitch />
+						</div>
 					</Box>
 					<Box component={'div'} className={'user-box'}>
 						<Link href={user?._id ? '/mypage?category=addProperty' : '/account/join'}>

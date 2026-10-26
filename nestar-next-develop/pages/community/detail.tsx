@@ -85,6 +85,7 @@ const CommunityDetail: NextPage = ({ initialInput, ...props }: T) => {
 		variables: {
 			input: articleId,
 		},
+		skip: !articleId, // router query is empty on the first render
 		notifyOnNetworkStatusChange: true,
 		onCompleted(data: any) {
 			setBoardArticle(data?.getBoardArticle);

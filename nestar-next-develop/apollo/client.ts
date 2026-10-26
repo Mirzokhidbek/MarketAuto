@@ -58,6 +58,8 @@ function createIsomorphicLink() {
 						sweetErrorAlert(message).then(() => logOut());
 						return;
 					}
+					// a logged-out visitor on a members-only page is redirected anyway: no extra alert
+					if (message === 'Bearer Token is not provided!' && !getJwtToken()) return;
 					if (!message.includes('input')) sweetErrorAlert(message);
 				});
 			}

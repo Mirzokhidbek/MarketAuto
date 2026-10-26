@@ -366,3 +366,99 @@
 		flex-wrap: wrap;
 	}
 }
+
+/* burger menu extras (sell button + currency) exist only for phones */
+.ma-burger-extras {
+	display: none;
+}
+
+@media (max-width: 600px) {
+	.ma-burger-extras {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 12px;
+		margin-top: 8px;
+		padding: 12px 6px 4px;
+		border-top: 1px solid $ma-border;
+		a {
+			flex: 1;
+		}
+	}
+	/* keep the header to: logo, account, messages, bell, flag, burger */
+	#pc-wrap #top .navbar .navbar-main .container {
+		.logo-box img {
+			width: 118px;
+		}
+		.user-box {
+			gap: 2px;
+			> .ma-currency,
+			.lan-box > .ma-currency {
+				display: none;
+			}
+			.lan-box {
+				gap: 0;
+			}
+			.lan-box .btn-lang .MuiButton-endIcon {
+				display: none;
+			}
+			.login-user img {
+				width: 32px;
+				height: 32px;
+			}
+		}
+		.ma-bell {
+			padding: 4px;
+		}
+	}
+}
+
+/* My Page on tablets/phones: the menu turns into one scrollable row of tabs above the content */
+@media (max-width: 900px) {
+	.ma-side-menu--mine {
+		display: flex;
+		align-items: center;
+		gap: 6px;
+		padding: 8px !important;
+		overflow-x: auto;
+		scrollbar-width: none;
+		&::-webkit-scrollbar {
+			display: none;
+		}
+		.ma-side-menu__user,
+		.ma-side-menu__public,
+		.ma-side-menu__title {
+			display: none;
+		}
+		.ma-side-menu__group {
+			display: flex;
+			flex-direction: row;
+			gap: 6px;
+			margin: 0;
+			padding: 0;
+			border: 0;
+		}
+		.ma-side-menu__item {
+			flex: 0 0 auto;
+			width: auto;
+			gap: 6px;
+			padding: 8px 12px;
+			border: 1px solid $ma-border;
+			border-radius: 999px;
+			white-space: nowrap;
+			font-size: 13px;
+			svg {
+				font-size: 18px;
+			}
+		}
+		.ma-side-menu__logout {
+			flex: 0 0 auto;
+			margin: 0;
+			border-top: 0;
+			width: auto;
+		}
+		.ma-side-menu__count {
+			margin-left: 2px;
+		}
+	}
+}

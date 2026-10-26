@@ -65,9 +65,6 @@ const AdminProperties: NextPage = ({ initialInquiry, ...props }: any) => {
 		if (router.isReady && status && status !== value) tabChangeHandler(status);
 	}, [router.isReady, router.query.status]);
 
-	useEffect(() => {
-		getAllPropertiesByAdminRefetch({ input: propertiesInquiry }).then();
-	}, [propertiesInquiry]);
 
 	// search by title after the admin stops typing
 	useEffect(() => {
