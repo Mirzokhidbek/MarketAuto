@@ -33,6 +33,12 @@ export class Member {
 	@Field(() => Boolean)
 	memberTrusted!: boolean;
 
+	@Field(() => Boolean, { nullable: true })
+	memberDealerVerified?: boolean;
+
+	@Field(() => Int, { nullable: true })
+	memberResponseMinutes?: number;
+
 	@Field(() => String, { nullable: true })
 	memberFullName?: string;
 

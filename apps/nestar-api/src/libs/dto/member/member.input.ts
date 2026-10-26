@@ -51,8 +51,9 @@ export class PasswordInput {
 
 @InputType()
 export class LoginInput {
+	/** nickname or phone number */
 	@IsNotEmpty()
-	@Length(3, 12)
+	@Length(3, 20)
 	@Field(() => String)
 	memberNick!: string;
 

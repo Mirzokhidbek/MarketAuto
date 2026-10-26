@@ -1,6 +1,7 @@
 import { Schema } from 'mongoose';
 import {
 	CarAccidentHistory,
+	PriceCurrency,
 	CarBrand,
 	CarCountry,
 	CarFuel,
@@ -46,9 +47,21 @@ const PropertySchema = new Schema(
 			required: true,
 		},
 
+		// always USD: used for filters, sorting and the price estimate
 		propertyPrice: {
 			type: Number,
 			required: true,
+		},
+
+		// what the seller actually typed (e.g. 300 000 000 so'm), shown as is
+		propertyPriceCurrency: {
+			type: String,
+			enum: PriceCurrency,
+			default: PriceCurrency.USD,
+		},
+
+		propertyPriceOriginal: {
+			type: Number,
 		},
 
 		carBrand: {

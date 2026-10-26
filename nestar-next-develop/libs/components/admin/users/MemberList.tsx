@@ -31,6 +31,7 @@ interface Data {
 	warning: string;
 	block: string;
 	actions: string;
+	dealer: string;
 }
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
@@ -94,6 +95,12 @@ const headCells: readonly HeadCell[] = [
 		numeric: false,
 		disablePadding: false,
 		label: 'TRUSTED',
+	},
+	{
+		id: 'dealer',
+		numeric: false,
+		disablePadding: false,
+		label: 'VERIFIED DEALER',
 	},
 	{
 		id: 'state',
@@ -162,7 +169,7 @@ export const MemberPanelList = (props: MemberPanelListType) => {
 					<TableBody>
 						{members.length === 0 && (
 							<TableRow>
-								<TableCell align="center" colSpan={9}>
+								<TableCell align="center" colSpan={10}>
 									<span className={'no-data'}>data not found!</span>
 								</TableCell>
 							</TableRow>
@@ -232,6 +239,15 @@ export const MemberPanelList = (props: MemberPanelListType) => {
 												checked={!!member.memberTrusted}
 												disabled={member.memberType === 'ADMIN'}
 												onChange={(e) => updateMemberHandler({ _id: member._id, memberTrusted: e.target.checked })}
+											/>
+										</TableCell>
+										<TableCell align="center">
+											{/* documents of the dealership were checked by the admin */}
+											<Switch
+												size="small"
+												checked={!!member.memberDealerVerified}
+												disabled={member.memberType !== 'AGENT'}
+												onChange={(e) => updateMemberHandler({ _id: member._id, memberDealerVerified: e.target.checked })}
 											/>
 										</TableCell>
 										<TableCell align="center">

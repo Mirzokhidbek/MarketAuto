@@ -34,6 +34,7 @@ export enum VerificationPurpose {
 	SIGNUP = 'SIGNUP',
 	RESET_PASSWORD = 'RESET_PASSWORD',
 	CHANGE_PHONE = 'CHANGE_PHONE',
+	LOGIN = 'LOGIN',
 }
 registerEnumType(VerificationPurpose, {
 	name: 'VerificationPurpose',

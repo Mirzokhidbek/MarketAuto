@@ -176,7 +176,7 @@ const Messages = () => {
 									{car && (
 										<Link href={`/property/detail?id=${car._id}`}>
 											<span>
-												{car.propertyTitle} · {price(car.propertyPrice)}
+												{car.propertyTitle} · {price(car)}
 											</span>
 										</Link>
 									)}

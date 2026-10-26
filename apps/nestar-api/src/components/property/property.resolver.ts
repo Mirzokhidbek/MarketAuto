@@ -1,3 +1,4 @@
+import { PriceEstimate } from '../../libs/dto/property/price-estimate';
 import { CarBrand } from '../../libs/enums/property.enum';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { PropertyService } from './property.service';
@@ -146,5 +147,10 @@ export class PropertyResolver {
 	@Query(() => [String])
 	public async getCarModels(@Args('brand', { type: () => CarBrand }) brand: CarBrand): Promise<string[]> {
 		return await this.propertyService.getCarModels(brand);
+	}
+
+	@Query(() => PriceEstimate)
+	public async getPriceEstimate(@Args('propertyId') input: string): Promise<PriceEstimate> {
+		return await this.propertyService.getPriceEstimate(shapeIntoMongoObjectId(input));
 	}
 }

@@ -25,7 +25,7 @@ import { T } from './types/common';
 
 export const validMimeTypes = ['image/png', 'image/jpg', 'image/jpeg', 'image/webp', 'image/heic', 'image/heif'];
 // only these folders can be written to; anything else (e.g. '../../') is rejected
-export const uploadTargets = ['member', 'property', 'article'];
+export const uploadTargets = ['member', 'property', 'article', 'message'];
 
 /** caller IP from the GraphQL context (set TRUST_PROXY=1 behind nginx so X-Forwarded-For is used) */
 export const clientIp = (context: any): string =>

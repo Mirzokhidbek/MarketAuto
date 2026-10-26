@@ -752,5 +752,7 @@
 	"Home / About Us": "Bosh sahifa / Biz haqimizda",
 	"Full name / company name": "To'liq ism yoki kompaniya nomi",
 	"e.g. Tashkent, Chilonzor": "masalan: Toshkent, Chilonzor",
-	"e.g. White": "masalan: Oq"
+	"e.g. White": "masalan: Oq",
+	"mln": "mln",
+	"bln": "mlrd"
 }

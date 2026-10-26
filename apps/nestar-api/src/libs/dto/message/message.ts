@@ -18,6 +18,9 @@ export class ChatMessage {
 	@Field(() => String)
 	text!: string;
 
+	@Field(() => String, { nullable: true })
+	image?: string;
+
 	@Field(() => Date, { nullable: true })
 	readAt?: Date;
 
@@ -81,10 +84,15 @@ export class SendMessageInput {
 	@Field(() => String, { nullable: true })
 	propertyId?: string;
 
-	@IsNotEmpty()
-	@Length(1, 1000)
-	@Field(() => String)
-	text!: string;
+	@IsOptional()
+	@Length(0, 1000)
+	@Field(() => String, { nullable: true })
+	text?: string;
+
+	/** path returned by imageUploader(target: "message") */
+	@IsOptional()
+	@Field(() => String, { nullable: true })
+	image?: string;
 }
 
 @InputType()

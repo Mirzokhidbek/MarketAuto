@@ -130,3 +130,12 @@ export enum ReportStatus {
 registerEnumType(ReportStatus, {
 	name: 'ReportStatus',
 });
+
+/** currency the seller typed the price in; propertyPrice itself is always USD (search, sorting) */
+export enum PriceCurrency {
+	USD = 'USD',
+	UZS = 'UZS',
+}
+registerEnumType(PriceCurrency, {
+	name: 'PriceCurrency',
+});

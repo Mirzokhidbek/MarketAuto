@@ -232,3 +232,17 @@
 		text-decoration: underline;
 	}
 }
+
+.ma-auth__links {
+	display: flex;
+	justify-content: space-between;
+	gap: 12px;
+	margin: -4px 0 8px;
+	font-size: 13px;
+}
+
+.ma-auth__error {
+	padding: 10px 12px;
+	border-radius: 10px;
+	background: #fce8e6;
+}

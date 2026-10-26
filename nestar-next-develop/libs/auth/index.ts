@@ -2,7 +2,7 @@ import decodeJWT from 'jwt-decode';
 import { initializeApollo } from '../../apollo/client';
 import { userVar } from '../../apollo/store';
 import { CustomJwtPayload } from '../types/customJwtPayload';
-import { LOGIN, RESET_PASSWORD, SIGN_UP } from '../../apollo/user/mutation';
+import { LOGIN, LOGIN_WITH_CODE, RESET_PASSWORD, SIGN_UP } from '../../apollo/user/mutation';
 
 /**
  * Session = short-lived access token (JWT, ~1h) + long-lived refresh token.
@@ -55,6 +55,21 @@ export const logIn = async (nick: string, password: string): Promise<void> => {
 		applySession(result?.data?.login);
 	} catch (err: any) {
 		// surface the backend message (wrong password, blocked user, too many attempts, ...)
+		throw graphqlError(err);
+	}
+};
+
+/** password-less login with an SMS code sent to the account phone */
+export const logInWithCode = async (phone: string, code: string): Promise<void> => {
+	const apolloClient = await initializeApollo();
+	try {
+		const result = await apolloClient.mutate({
+			mutation: LOGIN_WITH_CODE,
+			variables: { input: { phone, code } },
+			fetchPolicy: 'network-only',
+		});
+		applySession(result?.data?.loginWithCode);
+	} catch (err: any) {
 		throw graphqlError(err);
 	}
 };

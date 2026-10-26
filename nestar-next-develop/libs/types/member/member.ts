@@ -12,6 +12,8 @@ export interface Member {
 	memberPassword?: string;
 	memberPhoneVerified?: boolean;
 	memberTrusted?: boolean;
+	memberDealerVerified?: boolean;
+	memberResponseMinutes?: number;
 	memberFullName?: string;
 	memberImage?: string;
 	memberAddress?: string;

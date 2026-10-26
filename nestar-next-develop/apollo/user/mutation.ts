@@ -138,6 +138,8 @@ export const CREATE_PROPERTY = gql`
 			propertyDesc
 			propertyBarter
 			propertyNegotiable
+			propertyPriceCurrency
+			propertyPriceOriginal
 			carVin
 			carAccidentHistory
 			carOwners
@@ -179,6 +181,8 @@ export const UPDATE_PROPERTY = gql`
 			propertyDesc
 			propertyBarter
 			propertyNegotiable
+			propertyPriceCurrency
+			propertyPriceOriginal
 			carVin
 			carAccidentHistory
 			carOwners
@@ -220,6 +224,8 @@ export const LIKE_TARGET_PROPERTY = gql`
 			propertyDesc
 			propertyBarter
 			propertyNegotiable
+			propertyPriceCurrency
+			propertyPriceOriginal
 			carVin
 			carAccidentHistory
 			carOwners
@@ -458,7 +464,19 @@ export const SEND_MESSAGE = gql`
 			conversationId
 			senderId
 			text
+			image
 			createdAt
+		}
+	}
+`;
+
+export const LOGIN_WITH_CODE = gql`
+	mutation LoginWithCode($input: CodeLoginInput!) {
+		loginWithCode(input: $input) {
+			_id
+			memberType
+			accessToken
+			refreshToken
 		}
 	}
 `;

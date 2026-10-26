@@ -12,6 +12,7 @@ export const GET_ALL_MEMBERS_BY_ADMIN = gql`
 				memberType
 				memberStatus
 				memberTrusted
+				memberDealerVerified
 				memberPhoneVerified
 				memberAuthType
 				memberPhone
@@ -68,6 +69,8 @@ export const GET_ALL_PROPERTIES_BY_ADMIN = gql`
 				propertyDesc
 				propertyBarter
 				propertyNegotiable
+				propertyPriceCurrency
+				propertyPriceOriginal
 				carVin
 				carAccidentHistory
 				carOwners

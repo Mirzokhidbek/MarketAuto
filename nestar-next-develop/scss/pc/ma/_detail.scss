@@ -613,3 +613,134 @@
 	background: #fef7e0;
 	color: #7a5200;
 }
+
+/* seller trust signals */
+.ma-trust {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	margin: 0 0 14px;
+	padding: 0;
+	list-style: none;
+	li {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		font-size: 13px;
+		color: $ma-muted;
+		svg {
+			font-size: 17px;
+		}
+		&.is-strong {
+			color: #188038;
+			font-weight: 600;
+		}
+	}
+	&--compact {
+		flex-direction: row;
+		flex-wrap: wrap;
+		justify-content: center;
+		gap: 4px 10px;
+		margin: 2px 0 6px;
+	}
+}
+
+/* price estimate */
+.ma-estimate {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	margin: 10px 0 2px;
+	padding: 10px 12px;
+	border-radius: 10px;
+	font-size: 13px;
+	strong {
+		font-size: 14px;
+	}
+	span {
+		color: $ma-muted;
+	}
+	&.is-low {
+		background: #e6f4ea;
+		strong {
+			color: #188038;
+		}
+	}
+	&.is-fair {
+		background: #eff6ff;
+		strong {
+			color: $ma-primary;
+		}
+	}
+	&.is-high {
+		background: #fef7e0;
+		strong {
+			color: #a05a00;
+		}
+	}
+}
+
+/* car abroad: location card instead of a map */
+.ma-abroad {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 12px;
+	div {
+		display: flex;
+		flex-direction: column;
+		gap: 4px;
+		padding: 14px;
+		border-radius: 12px;
+		background: $ma-bg-alt;
+	}
+	span {
+		font-size: 12px;
+		color: $ma-muted;
+	}
+	strong {
+		font-size: 15px;
+		color: $ma-dark;
+	}
+}
+
+/* phones: call / write always visible at the bottom of a car page */
+.ma-contact-bar {
+	display: none;
+}
+
+@media (max-width: 600px) {
+	.ma-abroad {
+		grid-template-columns: 1fr;
+	}
+	.ma-contact-bar {
+		position: fixed;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		z-index: 1100;
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 10px;
+		padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+		background: #fff;
+		border-top: 1px solid $ma-border;
+		box-shadow: 0 -6px 20px rgba(15, 23, 42, 0.08);
+		.ma-btn {
+			display: flex;
+			justify-content: center;
+			gap: 6px;
+			width: 100%;
+		}
+		svg {
+			font-size: 18px;
+		}
+	}
+	/* keep the footer and the compare bar above the contact bar */
+	.ma-detail {
+		padding-bottom: 72px;
+	}
+	.ma-detail ~ .ma-compare-bar,
+	body:has(.ma-contact-bar) .ma-compare-bar {
+		bottom: 84px;
+	}
+}
