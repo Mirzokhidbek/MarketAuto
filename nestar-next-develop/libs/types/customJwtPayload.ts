@@ -18,4 +18,5 @@ export interface CustomJwtPayload extends JwtPayload {
 	memberViews: number;
 	memberPhoneVerified?: boolean;
 	memberTrusted?: boolean;
+	memberAdminRole?: string;
 }

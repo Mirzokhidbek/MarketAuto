@@ -10,6 +10,8 @@ export const UPDATE_MEMBER_BY_ADMIN = gql`
 			_id
 			memberType
 			memberStatus
+			memberAdminRole
+			memberBlockReason
 			memberAuthType
 			memberPhone
 			memberNick
@@ -40,6 +42,7 @@ export const UPDATE_PROPERTY_BY_ADMIN = gql`
 			_id
 			propertyType
 			propertyStatus
+			propertyRejectReason
 			propertyLocation
 			propertyAddress
 			propertyTitle
@@ -214,6 +217,24 @@ export const RESOLVE_REPORT = gql`
 		resolveReport(input: $input) {
 			_id
 			reportStatus
+		}
+	}
+`;
+
+export const BULK_MODERATE_BY_ADMIN = gql`
+	mutation BulkModerateByAdmin($input: BulkModerationInput!) {
+		bulkModerateByAdmin(input: $input)
+	}
+`;
+
+export const UPDATE_SITE_SETTINGS = gql`
+	mutation UpdateSiteSettings($input: SiteSettingsInput!) {
+		updateSiteSettings(input: $input) {
+			supportPhone
+			supportEmail
+			telegramUrl
+			instagramUrl
+			facebookUrl
 		}
 	}
 `;

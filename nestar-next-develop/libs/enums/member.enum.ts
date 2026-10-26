@@ -10,6 +10,11 @@ export enum MemberStatus {
 	DELETE = 'DELETE',
 }
 
+export enum AdminRole {
+	SUPER = 'SUPER',
+	MODERATOR = 'MODERATOR',
+}
+
 export enum MemberAuthType {
 	PHONE = 'PHONE',
 	EMAIL = 'EMAIL',

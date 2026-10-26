@@ -2,13 +2,16 @@ import { useTranslation } from 'next-i18next';
 import React, { useEffect, useState } from 'react';
 import { useRouter, withRouter } from 'next/router';
 import Link from 'next/link';
-import { List, ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
+import { Badge, List, ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
 import Collapse from '@mui/material/Collapse';
 import Typography from '@mui/material/Typography';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
-import { ChatsCircle, Headset, User, UserCircleGear, ChartBar } from 'phosphor-react';
+import { ChatsCircle, Headset, User, UserCircleGear, ChartBar, GearSix } from 'phosphor-react';
 import cookies from 'js-cookie';
+import { useQuery, useReactiveVar } from '@apollo/client';
+import { GET_ADMIN_BADGES } from '../../../apollo/admin/query';
+import { userVar } from '../../../apollo/store';
 
 const AdminMenuList = (props: any) => {
 	const { t } = useTranslation('common');
@@ -23,6 +26,17 @@ const AdminMenuList = (props: any) => {
 	} = props;
 
 	const pathnames = pathname.split('/').filter((x: any) => x);
+	const user = useReactiveVar(userVar);
+	// moderators work with cars, reports, articles and support; members, logs and settings are for SUPER admins
+	const isSuper = user.memberAdminRole !== 'MODERATOR';
+	// waiting work shown as badges; refreshed every minute
+	const { data: badgeData } = useQuery(GET_ADMIN_BADGES, { fetchPolicy: 'network-only', pollInterval: 60000 });
+	const stats = badgeData?.getDashboardStats;
+	const badges: Record<string, number> = {
+		'/_admin/properties': stats?.carsPending ?? 0,
+		'/_admin/reports': stats?.reportsOpen ?? 0,
+		'/_admin/cs/inquiry': stats?.inquiriesWaiting ?? 0,
+	};
 
 	/** LIFECYCLES **/
 	useEffect(() => {
@@ -44,6 +58,9 @@ const AdminMenuList = (props: any) => {
 			case 'users':
 				setClickMenu(['Users']);
 				break;
+			case 'system':
+				setClickMenu(['System']);
+				break;
 			default:
 				setClickMenu(['Dashboard']);
 				setClickSubMenu('Overview');
@@ -52,7 +69,10 @@ const AdminMenuList = (props: any) => {
 
 		switch (pathnames[2]) {
 			case 'logs':
-				setClickSubMenu('Logs');
+				setClickSubMenu('Action log');
+				break;
+			case 'settings':
+				setClickSubMenu('Site settings');
 				break;
 			case 'inquiry':
 				setClickSubMenu('1:1 Inquiry');
@@ -109,7 +129,12 @@ const AdminMenuList = (props: any) => {
 			icon: <Headset size={20} color="#bdbdbd" weight="fill" />,
 			on_click: () => subMenuChangeHandler('Support'),
 		},
-	];
+		{
+			title: 'System',
+			icon: <GearSix size={20} color="#bdbdbd" weight="fill" />,
+			on_click: () => subMenuChangeHandler('System'),
+		},
+	].filter((item) => isSuper || (item.title !== 'Users' && item.title !== 'System'));
 
 	const sub_menu_set: any = {
 		Dashboard: [{ title: 'Overview', url: '/_admin' }],
@@ -124,7 +149,13 @@ const AdminMenuList = (props: any) => {
 			{ title: 'Notice', url: '/_admin/cs/notice' },
 			{ title: '1:1 Inquiry', url: '/_admin/cs/inquiry' },
 		],
+		System: [
+			{ title: 'Action log', url: '/_admin/system/logs' },
+			{ title: 'Site settings', url: '/_admin/system/settings' },
+		],
 	};
+	const menuBadge = (title: string) =>
+		(sub_menu_set[title] ?? []).reduce((sum: number, sub: any) => sum + (badges[sub.url] ?? 0), 0);
 
 	return (
 		<>
@@ -149,7 +180,11 @@ const AdminMenuList = (props: any) => {
 						>
 							{item.icon}
 						</ListItemIcon>
-						<ListItemText>{t(item.title)}</ListItemText>
+						<ListItemText>
+							<Badge color="error" badgeContent={clickMenu.includes(item.title) ? 0 : menuBadge(item.title)} max={99} sx={{ '& .MuiBadge-badge': { right: -14, top: 10 } }}>
+								{t(item.title)}
+							</Badge>
+						</ListItemText>
 						{clickMenu.find((menu: string) => item.title === menu) ? <ExpandLess /> : <ExpandMore />}
 					</ListItemButton>
 					<Collapse
@@ -170,6 +205,7 @@ const AdminMenuList = (props: any) => {
 											<Typography variant={'subtitle2'} component={'span'}>
 												{t(sub.title)}
 											</Typography>
+											{badges[sub.url] > 0 && <span className={'ma-admin-badge'}>{badges[sub.url] > 99 ? '99+' : badges[sub.url]}</span>}
 										</ListItemButton>
 									</Link>
 								))}

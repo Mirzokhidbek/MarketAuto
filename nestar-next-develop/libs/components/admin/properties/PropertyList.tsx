@@ -4,6 +4,7 @@ import Link from 'next/link';
 import moment from 'moment';
 import {
 	Button,
+	Checkbox,
 	MenuItem,
 	Select,
 	Stack,
@@ -18,30 +19,49 @@ import {
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Property } from '../../../types/property/property';
 import { PropertyStatus } from '../../../enums/property.enum';
-import { REACT_APP_API_URL } from '../../../config';
 import { formatCarPlace, formatEnumLabel, formatterStr, imageUrl } from '../../../utils';
 
 interface PropertyPanelListType {
 	properties: Property[];
 	loading?: boolean;
-	updatePropertyHandler: (input: { _id: string; propertyStatus: PropertyStatus }) => void;
+	selected: string[];
+	onSelect: (ids: string[]) => void;
+	/** member card in the admin panel (SUPER) or the public profile */
+	sellerHref: (memberId: string) => string;
+	changeStatusHandler: (property: Property, status: PropertyStatus) => void;
 	removePropertyHandler: (id: string) => void;
 }
 
-const statusClass: Record<string, string> = { PENDING: 'warning', ACTIVE: 'success', SOLD: 'warning', DELETE: 'error' };
+const statusClass: Record<string, string> = { PENDING: 'warning', REJECTED: 'error', ACTIVE: 'success', SOLD: 'warning', DELETE: 'error' };
 
 export const PropertyPanelList = ({
 	properties,
 	loading,
-	updatePropertyHandler,
+	selected,
+	onSelect,
+	sellerHref,
+	changeStatusHandler,
 	removePropertyHandler,
 }: PropertyPanelListType) => {
 	const { t } = useTranslation('common');
+	const ids = properties.map((property) => property._id);
+	const allSelected = ids.length > 0 && ids.every((id) => selected.includes(id));
+
+	const toggle = (id: string) => onSelect(selected.includes(id) ? selected.filter((item) => item !== id) : [...selected, id]);
+
 	return (
 		<TableContainer>
-			<Table sx={{ minWidth: 900 }} size={'medium'}>
+			<Table sx={{ minWidth: 960 }} size={'medium'}>
 				<TableHead>
 					<TableRow>
+						<TableCell padding="checkbox">
+							<Checkbox
+								checked={allSelected}
+								indeterminate={!allSelected && selected.length > 0}
+								onChange={() => onSelect(allSelected ? [] : ids)}
+								inputProps={{ 'aria-label': t('Select all') as string }}
+							/>
+						</TableCell>
 						<TableCell>{t('CAR')}</TableCell>
 						<TableCell align="right">{t('PRICE')}</TableCell>
 						<TableCell>{t('SELLER')}</TableCell>
@@ -53,7 +73,7 @@ export const PropertyPanelList = ({
 				<TableBody>
 					{properties.length === 0 && (
 						<TableRow>
-							<TableCell align="center" colSpan={6}>
+							<TableCell align="center" colSpan={7}>
 								<span className={'no-data'}>{loading ? t('Loading...') : t('No cars found')}</span>
 							</TableCell>
 						</TableRow>
@@ -61,7 +81,7 @@ export const PropertyPanelList = ({
 
 					{properties.map((property: Property) => {
 						const image = property.propertyImages?.[0];
-						const viewable = property.propertyStatus !== PropertyStatus.DELETE;
+						const status = property.propertyStatus;
 						const title = (
 							<Stack direction={'row'} alignItems={'center'} gap={1.5}>
 								{image ? (
@@ -78,20 +98,30 @@ export const PropertyPanelList = ({
 								<span>
 									<strong>{property.propertyTitle}</strong>
 									<Typography variant="caption" display="block" color="text.secondary">
-										{formatEnumLabel(property.carBrand)} · {property.carYear} · {property._id}
+										{formatEnumLabel(property.carBrand)} · {property.carYear} · {formatterStr(property.carMileage)} km
 									</Typography>
 								</span>
 							</Stack>
 						);
 
 						return (
-							<TableRow hover key={property._id}>
+							<TableRow hover key={property._id} selected={selected.includes(property._id)}>
+								<TableCell padding="checkbox">
+									<Checkbox checked={selected.includes(property._id)} onChange={() => toggle(property._id)} />
+								</TableCell>
 								<TableCell className={'name'}>
-									{viewable ? <Link href={`/property/detail?id=${property._id}`}>{title}</Link> : title}
+									{/* admins can open pending and rejected cars too */}
+									{status !== PropertyStatus.DELETE ? (
+										<Link href={`/property/detail?id=${property._id}`} target={'_blank'}>
+											{title}
+										</Link>
+									) : (
+										title
+									)}
 								</TableCell>
 								<TableCell align="right">${formatterStr(property.propertyPrice)}</TableCell>
 								<TableCell>
-									<Link href={`/member?memberId=${property.memberId}`}>{property.memberData?.memberNick ?? '-'}</Link>
+									<Link href={sellerHref(property.memberId)}>{property.memberData?.memberNick ?? '-'}</Link>
 									<Typography variant="caption" display="block" color="text.secondary">
 										{t(property.memberData?.memberType === 'AGENT' ? 'Dealer' : 'Private seller')}
 									</Typography>
@@ -99,33 +129,57 @@ export const PropertyPanelList = ({
 								<TableCell>{formatCarPlace(property)}</TableCell>
 								<TableCell>{moment(property.createdAt).format('DD.MM.YYYY')}</TableCell>
 								<TableCell align="center">
-									<Stack direction={'row'} gap={1} justifyContent={'center'} alignItems={'center'}>
-										<Select
-											size="small"
-											className={`badge ${statusClass[property.propertyStatus]}`}
-											value={property.propertyStatus}
-											onChange={(e) =>
-												updatePropertyHandler({ _id: property._id, propertyStatus: e.target.value as PropertyStatus })
-											}
-										>
-											{Object.values(PropertyStatus).map((status) => (
-												<MenuItem key={status} value={status}>
-													{t(`status_${status}`)}
-												</MenuItem>
-											))}
-										</Select>
-										{property.propertyStatus === PropertyStatus.DELETE && (
+									{status === PropertyStatus.PENDING ? (
+										<Stack direction={'row'} gap={1} justifyContent={'center'}>
 											<Button
+												size="small"
+												color="success"
+												variant="contained"
+												onClick={() => changeStatusHandler(property, PropertyStatus.ACTIVE)}
+											>
+												{t('Approve')}
+											</Button>
+											<Button
+												size="small"
 												color="error"
 												variant="outlined"
-												size="small"
-												title={t('Remove permanently') as string}
-												onClick={() => removePropertyHandler(property._id)}
+												onClick={() => changeStatusHandler(property, PropertyStatus.REJECTED)}
 											>
-												<DeleteIcon fontSize="small" />
+												{t('Reject')}
 											</Button>
-										)}
-									</Stack>
+										</Stack>
+									) : (
+										<Stack direction={'row'} gap={1} justifyContent={'center'} alignItems={'center'}>
+											<Select
+												size="small"
+												className={`badge ${statusClass[status]}`}
+												value={status}
+												onChange={(e) => changeStatusHandler(property, e.target.value as PropertyStatus)}
+											>
+												{Object.values(PropertyStatus).map((item) => (
+													<MenuItem key={item} value={item}>
+														{t(`status_${item}`)}
+													</MenuItem>
+												))}
+											</Select>
+											{status === PropertyStatus.DELETE && (
+												<Button
+													color="error"
+													variant="outlined"
+													size="small"
+													title={t('Remove permanently') as string}
+													onClick={() => removePropertyHandler(property._id)}
+												>
+													<DeleteIcon fontSize="small" />
+												</Button>
+											)}
+										</Stack>
+									)}
+									{status === PropertyStatus.REJECTED && property.propertyRejectReason && (
+										<Typography variant="caption" display="block" color="error" sx={{ mt: 0.5, maxWidth: 220, mx: 'auto' }}>
+											{property.propertyRejectReason}
+										</Typography>
+									)}
 								</TableCell>
 							</TableRow>
 						);

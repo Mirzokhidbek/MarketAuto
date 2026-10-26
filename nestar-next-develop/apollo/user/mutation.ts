@@ -53,6 +53,19 @@ export const LOGIN = gql`
 			updatedAt
 			accessToken
 			refreshToken
+			twoFactorRequired
+			devCode
+		}
+	}
+`;
+
+export const VERIFY_ADMIN_LOGIN = gql`
+	mutation VerifyAdminLogin($input: AdminCodeInput!) {
+		verifyAdminLogin(input: $input) {
+			_id
+			memberType
+			accessToken
+			refreshToken
 		}
 	}
 `;

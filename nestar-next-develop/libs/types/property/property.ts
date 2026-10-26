@@ -24,6 +24,7 @@ export interface Property {
 	_id: string;
 	propertyType: PropertyType;
 	propertyStatus: PropertyStatus;
+	propertyRejectReason?: string;
 	carCountry: CarCountry;
 	propertyLocation?: PropertyLocation;
 	propertyAddress: string;

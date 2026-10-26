@@ -3,7 +3,7 @@ import { NextPage } from 'next';
 import Link from 'next/link';
 import withLayoutFull from '../../libs/components/layout/LayoutFull';
 import { useRouter } from 'next/router';
-import { logIn, logInWithCode, resetPassword, signUp } from '../../libs/auth';
+import { logIn, logInWithCode, resetPassword, signUp, verifyAdminLogin } from '../../libs/auth';
 import { sweetMixinSuccessAlert } from '../../libs/sweetAlert';
 import { userVar } from '../../apollo/store';
 import { MemberType } from '../../libs/enums/member.enum';
@@ -17,7 +17,7 @@ export const getStaticProps = async ({ locale }: any) => ({
 	},
 });
 
-type View = 'login' | 'code' | 'register' | 'reset';
+type View = 'login' | 'code' | 'register' | 'reset' | 'admin2fa';
 
 const NICK_PATTERN = /^[a-zA-Z0-9_.]{3,12}$/;
 
@@ -30,6 +30,8 @@ const Join: NextPage = () => {
 	const [busy, setBusy] = useState<boolean>(false);
 	// errors are shown inside the form, next to the button, not in a popup
 	const [error, setError] = useState<string>('');
+	// admin second step: the nick confirmed by the password step and the dev-mode code hint
+	const [admin, setAdmin] = useState<{ nick: string; devCode: string }>({ nick: '', devCode: '' });
 	const switchView = (next: View) => {
 		setView(next);
 		setError('');
@@ -39,6 +41,13 @@ const Join: NextPage = () => {
 		setInput((prev) => ({ ...prev, [name]: value }));
 		setError('');
 	};
+	// a blocked member gets the fixed message + the admin's reason
+	const BLOCKED = 'You have been blocked!';
+	const errorText = (message: string) => {
+		const reason = message.startsWith(BLOCKED) ? message.slice(BLOCKED.length).trim() : '';
+		return reason ? `${t(BLOCKED)} ${t('Reason')}: ${reason}` : t(message);
+	};
+
 	const goAfterAuth = async () => {
 		const isAdmin = userVar()?.memberType === MemberType.ADMIN;
 		const referrer = typeof router.query.referrer === 'string' ? router.query.referrer : '';
@@ -52,7 +61,15 @@ const Join: NextPage = () => {
 		setBusy(true);
 		try {
 			if (view === 'login') {
-				await logIn(input.nick, input.password);
+				const result = await logIn(input.nick, input.password);
+				if (result.twoFactorRequired) {
+					setAdmin({ nick: result.memberNick ?? input.nick, devCode: result.devCode ?? '' });
+					setInput((prev) => ({ ...prev, code: '' }));
+					setView('admin2fa');
+					return;
+				}
+			} else if (view === 'admin2fa') {
+				await verifyAdminLogin(admin.nick, input.code);
 			} else if (view === 'code') {
 				await logInWithCode(input.phone, input.code);
 			} else if (view === 'register') {
@@ -75,7 +92,7 @@ const Join: NextPage = () => {
 		!busy &&
 		(view === 'login'
 			? input.nick.trim() !== '' && input.password !== ''
-			: view === 'code'
+			: view === 'code' || view === 'admin2fa'
 			? codeOk
 			: view === 'register'
 			? NICK_PATTERN.test(input.nick) && passwordOk && codeOk && agreed
@@ -86,6 +103,7 @@ const Join: NextPage = () => {
 		code: ['Log in with SMS code', 'No password needed: we send a code to your phone.'],
 		register: ['Create your account', 'Confirm your phone with an SMS code — it protects buyers from fake sellers.'],
 		reset: ['Reset password', 'We will send a code to the phone number of your account.'],
+		admin2fa: ['Admin login confirmation', 'We sent a code to the phone number of the admin account.'],
 	};
 
 	return (
@@ -102,7 +120,7 @@ const Join: NextPage = () => {
 				</div>
 
 				<form className={'ma-auth__form'} onSubmit={submitHandler}>
-					{view !== 'reset' && (
+					{view !== 'reset' && view !== 'admin2fa' && (
 						<div className={'ma-segmented'}>
 							<button
 								type="button"
@@ -136,7 +154,29 @@ const Join: NextPage = () => {
 						</label>
 					)}
 
-					{view !== 'login' && (
+					{view === 'admin2fa' && (
+						<label className={'ma-input'}>
+							<span>{t('SMS code')}</span>
+							<input
+								type="text"
+								inputMode="numeric"
+								autoComplete="one-time-code"
+								autoFocus
+								maxLength={6}
+								placeholder={'123456'}
+								value={input.code}
+								onChange={(e) => set('code', e.target.value.replace(/\D/g, ''))}
+							/>
+							{/* only in development without an SMS provider */}
+							{admin.devCode && (
+								<em className={'ma-input__hint'}>
+									{t('Test mode code')}: {admin.devCode}
+								</em>
+							)}
+						</label>
+					)}
+
+					{view !== 'login' && view !== 'admin2fa' && (
 						<PhoneCodeField
 							purpose={view === 'register' ? 'SIGNUP' : view === 'code' ? 'LOGIN' : 'RESET_PASSWORD'}
 							phone={input.phone}
@@ -146,7 +186,7 @@ const Join: NextPage = () => {
 						/>
 					)}
 
-					{view !== 'code' && (
+					{view !== 'code' && view !== 'admin2fa' && (
 					<label className={'ma-input'}>
 						<span>{view === 'reset' ? t('New password') : t('Password')}</span>
 						<input
@@ -210,12 +250,14 @@ const Join: NextPage = () => {
 
 					{error && (
 						<p className={'ma-field-error ma-auth__error'} role={'alert'}>
-							{t(error)}
+							{errorText(error)}
 						</p>
 					)}
 
 					<button type="submit" className={'ma-btn ma-btn--primary ma-btn--block ma-auth__submit'} disabled={!canSubmit}>
-						{view === 'login' || view === 'code'
+						{view === 'admin2fa'
+							? t('Confirm')
+							: view === 'login' || view === 'code'
 							? t('Login')
 							: view === 'register'
 							? t('Create account')
@@ -223,7 +265,7 @@ const Join: NextPage = () => {
 					</button>
 
 					<p className={'ma-auth__switch'}>
-						{view === 'reset' ? (
+						{view === 'reset' || view === 'admin2fa' ? (
 							<button type="button" className={'ma-link-btn'} onClick={() => switchView('login')}>
 								← {t('Back to login')}
 							</button>
