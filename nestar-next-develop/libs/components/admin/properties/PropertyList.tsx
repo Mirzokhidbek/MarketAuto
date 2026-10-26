@@ -18,7 +18,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { Property } from '../../../types/property/property';
 import { PropertyStatus } from '../../../enums/property.enum';
 import { REACT_APP_API_URL } from '../../../config';
-import { formatCarPlace, formatEnumLabel, formatterStr } from '../../../utils';
+import { formatCarPlace, formatEnumLabel, formatterStr, imageUrl } from '../../../utils';
 
 interface PropertyPanelListType {
 	properties: Property[];
@@ -65,7 +65,7 @@ export const PropertyPanelList = ({
 								{image ? (
 									<img
 										className={'ma-admin-thumb'}
-										src={`${REACT_APP_API_URL}/${image}`}
+										src={imageUrl(image)}
 										alt={''}
 										// missing file: keep the grey placeholder box instead of a broken-image icon
 										onError={(e) => (e.currentTarget.style.visibility = 'hidden')}

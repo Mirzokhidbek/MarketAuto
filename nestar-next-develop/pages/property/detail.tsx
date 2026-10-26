@@ -30,8 +30,7 @@ import {
 	formatEnumLabel,
 	formatMileage,
 	formatPhone,
-	formatterStr,
-} from '../../libs/utils';
+	formatterStr, imageUrl } from '../../libs/utils';
 import { REACT_APP_API_URL } from '../../libs/config';
 import { userVar } from '../../apollo/store';
 import { CommentInput, CommentsInquiry } from '../../libs/types/comment/comment.input';
@@ -243,7 +242,7 @@ const PropertyDetail: NextPage = ({ initialComment, carSeo, ...props }: any) => 
 				carSeo.propertyDesc?.slice(0, 160) ||
 				`${carSeo.carYear} ${formatEnumLabel(carSeo.carBrand)} ${carSeo.carModel}, ${formatMileage(carSeo.carMileage)}`
 			}
-			image={carSeo.propertyImages?.[0] ? `${REACT_APP_API_URL}/${carSeo.propertyImages[0]}` : undefined}
+			image={carSeo.propertyImages?.[0] ? imageUrl(carSeo.propertyImages[0]) : undefined}
 		/>
 	) : null;
 
@@ -339,7 +338,7 @@ const PropertyDetail: NextPage = ({ initialComment, carSeo, ...props }: any) => 
 							<div className={'ma-gallery__main'}>
 								{slideImage && !failedImages.includes(slideImage) ? (
 									<img
-										src={`${REACT_APP_API_URL}/${slideImage}`}
+										src={imageUrl(slideImage)}
 										alt={property.propertyTitle}
 										onError={() => setFailedImages((prev) => [...prev, slideImage])}
 									/>
@@ -357,7 +356,7 @@ const PropertyDetail: NextPage = ({ initialComment, carSeo, ...props }: any) => 
 											className={image === slideImage ? 'is-active' : ''}
 											onClick={() => changeImageHandler(image)}
 										>
-											<img src={`${REACT_APP_API_URL}/${image}`} alt={''} />
+											<img src={imageUrl(image)} alt={''} />
 										</button>
 									))}
 								</div>
@@ -457,7 +456,7 @@ const PropertyDetail: NextPage = ({ initialComment, carSeo, ...props }: any) => 
 							<div className={'ma-seller'}>
 								<img
 									src={
-										seller?.memberImage ? `${REACT_APP_API_URL}/${seller.memberImage}` : '/img/profile/defaultUser.svg'
+										seller?.memberImage ? imageUrl(seller.memberImage) : '/img/profile/defaultUser.svg'
 									}
 									alt={seller?.memberNick}
 								/>

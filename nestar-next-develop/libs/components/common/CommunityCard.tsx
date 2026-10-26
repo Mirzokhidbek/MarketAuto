@@ -1,7 +1,7 @@
 import React from 'react';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
-import { articleCategoryLabels, formatEnumLabel } from '../../utils';
+import { articleCategoryLabels, formatEnumLabel, imageUrl } from '../../utils';
 import { BoardArticle } from '../../types/board-article/board-article';
 import Moment from 'react-moment';
 import { REACT_APP_API_URL } from '../../config';
@@ -23,7 +23,7 @@ const CommunityCard = (props: CommunityCardProps) => {
 	const router = useRouter();
 	const user = useReactiveVar(userVar);
 	const imagePath: string = boardArticle?.articleImage
-		? `${REACT_APP_API_URL}/${boardArticle?.articleImage}`
+		? imageUrl(boardArticle?.articleImage)
 		: '/img/community/communityImg.png';
 
 	/** HANDLERS **/

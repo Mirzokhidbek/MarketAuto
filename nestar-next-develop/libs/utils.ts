@@ -108,3 +108,9 @@ export const likeTargetMemberHandler = async (likeTargetMember: any, id: string)
 		sweetMixinErrorAlert(err.message).then();
 	}
 };
+
+/** uploaded image path -> URL; S3/CDN images are already absolute */
+export const imageUrl = (path?: string | null): string => {
+	if (!path) return '';
+	return /^https?:\/\//.test(path) ? path : `${process.env.REACT_APP_API_URL}/${path}`;
+};

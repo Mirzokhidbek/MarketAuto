@@ -8,7 +8,9 @@ import { useMutation, useReactiveVar } from '@apollo/client';
 import { userVar } from '../../../apollo/store';
 import { MemberUpdate } from '../../types/member/member.update';
 import { sweetErrorHandling, sweetMixinSuccessAlert } from '../../sweetAlert';
-import { CHANGE_PASSWORD, UPDATE_MEMBER } from '../../../apollo/user/mutation';
+import { CHANGE_PASSWORD, CHANGE_PHONE, UPDATE_MEMBER } from '../../../apollo/user/mutation';
+import PhoneCodeField from '../common/PhoneCodeField';
+import { formatPhone, imageUrl } from '../../utils';
 
 const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 	const { t } = useTranslation('common');
@@ -19,6 +21,23 @@ const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 	/** APOLLO REQUESTS **/
 	const [updateMember] = useMutation(UPDATE_MEMBER);
 	const [changePassword] = useMutation(CHANGE_PASSWORD);
+	const [changePhone] = useMutation(CHANGE_PHONE);
+	const [phoneEdit, setPhoneEdit] = useState<boolean>(false);
+	const [newPhone, setNewPhone] = useState({ phone: '', code: '' });
+
+	const changePhoneHandler = async () => {
+		try {
+			const result = await changePhone({ variables: { input: newPhone } });
+			const jwtToken = result.data?.changePhone?.accessToken;
+			await updateStorage({ jwtToken });
+			updateUserInfo(jwtToken);
+			setPhoneEdit(false);
+			setNewPhone({ phone: '', code: '' });
+			await sweetMixinSuccessAlert(t('Phone number updated.') as string);
+		} catch (err: any) {
+			sweetErrorHandling(err).then();
+		}
+	};
 	const [passwords, setPasswords] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
 
 	/** LIFECYCLES **/
@@ -72,7 +91,7 @@ const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 			updateData.memberImage = responseImage;
 			setUpdateData({ ...updateData });
 
-			return `${REACT_APP_API_URL}/${responseImage}`;
+			return imageUrl(responseImage);
 		} catch (err) {
 		}
 	};
@@ -86,6 +105,7 @@ const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 			['memberImage', 'memberAddress', 'memberFullName', 'memberDesc'].forEach((key) => {
 				if (!input[key]) delete input[key];
 			});
+			delete input.memberPhone; // changed separately with an SMS code
 			const result = await updateMember({
 				variables: {
 					input,
@@ -127,7 +147,7 @@ const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 	};
 
 	const doDisabledCheck = () => {
-		if (!updateData.memberNick || !updateData.memberPhone) {
+		if (!updateData.memberNick) {
 			return true;
 		}
 	};
@@ -144,7 +164,7 @@ const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 			<div className={'ma-avatar-upload'}>
 				<img
 					src={
-						updateData?.memberImage ? `${REACT_APP_API_URL}/${updateData?.memberImage}` : '/img/profile/defaultUser.svg'
+						updateData?.memberImage ? imageUrl(updateData?.memberImage) : '/img/profile/defaultUser.svg'
 					}
 					alt={''}
 				/>
@@ -156,6 +176,26 @@ const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 					<span>{t('JPG or PNG, square image works best.')}</span>
 				</div>
 			</div>
+
+			{phoneEdit && (
+				<div className={'ma-panel ma-phone-change'}>
+					<PhoneCodeField
+						purpose={'CHANGE_PHONE'}
+						phoneLabel={t('New phone number') as string}
+						phone={newPhone.phone}
+						code={newPhone.code}
+						onPhoneChange={(phone) => setNewPhone({ ...newPhone, phone })}
+						onCodeChange={(code) => setNewPhone({ ...newPhone, code })}
+					/>
+					<button
+						className={'ma-btn ma-btn--primary'}
+						disabled={newPhone.code.length !== 6}
+						onClick={changePhoneHandler}
+					>
+						{t('Confirm new phone')}
+					</button>
+				</div>
+			)}
 
 			<div className={'ma-form-grid'}>
 				<label className={'ma-input'}>
@@ -178,12 +218,14 @@ const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 				</label>
 				<label className={'ma-input'}>
 					<span>{t('Phone')}</span>
-					<input
-						type="tel"
-						placeholder={'998901234567'}
-						value={updateData.memberPhone ?? ''}
-						onChange={({ target: { value } }) => setUpdateData({ ...updateData, memberPhone: value })}
-					/>
+					{/* the phone is changed only with an SMS code to the new number */}
+					<div className={'ma-code-row'}>
+						<input type="tel" value={formatPhone(user.memberPhone)} readOnly />
+						<button type="button" className={'ma-btn ma-btn--outline'} onClick={() => setPhoneEdit(!phoneEdit)}>
+							{phoneEdit ? t('Cancel') : t('Change')}
+						</button>
+					</div>
+					<em className={'ma-input__hint'}>{user.memberPhoneVerified ? `✓ ${t('Phone confirmed')}` : t('Phone not confirmed')}</em>
 				</label>
 				<label className={'ma-input'}>
 					<span>{t('Address')}</span>

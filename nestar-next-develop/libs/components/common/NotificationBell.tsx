@@ -1,3 +1,4 @@
+import { imageUrl } from '../../utils';
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
@@ -79,7 +80,7 @@ const NotificationBell = () => {
 								onClick={() => goHandler(item)}
 							>
 								<img
-									src={author?.memberImage ? `${REACT_APP_API_URL}/${author.memberImage}` : '/img/profile/defaultUser.svg'}
+									src={author?.memberImage ? imageUrl(author.memberImage) : '/img/profile/defaultUser.svg'}
 									alt={''}
 								/>
 								<div>

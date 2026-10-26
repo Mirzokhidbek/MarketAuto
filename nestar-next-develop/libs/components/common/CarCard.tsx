@@ -7,7 +7,7 @@ import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import DirectionsCarFilledOutlinedIcon from '@mui/icons-material/DirectionsCarFilledOutlined';
 import { Property } from '../../types/property/property';
 import { REACT_APP_API_URL } from '../../config';
-import { formatCountry, formatEnumLabel, formatMileage, formatterStr } from '../../utils';
+import { formatCountry, formatEnumLabel, formatMileage, formatterStr, imageUrl } from '../../utils';
 
 interface CarCardProps {
 	property: Property;
@@ -36,7 +36,7 @@ const CarCard = ({ property, onLike }: CarCardProps) => {
 		<div className={'ma-car-card'}>
 			<div className={'ma-car-card__media'} onClick={openDetail}>
 				{image && !imageFailed ? (
-					<img src={`${REACT_APP_API_URL}/${image}`} alt={property.propertyTitle} onError={() => setImageFailed(true)} />
+					<img src={imageUrl(image)} alt={property.propertyTitle} onError={() => setImageFailed(true)} />
 				) : (
 					<div className={'ma-car-card__placeholder'}>
 						<DirectionsCarFilledOutlinedIcon />

@@ -1,3 +1,4 @@
+import { imageUrl } from '../../utils';
 import type { ComponentType } from 'react';
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
@@ -82,7 +83,7 @@ const withAdminLayout = (Component: ComponentType) => {
 								<IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
 									<Avatar
 										src={
-											user?.memberImage ? `${REACT_APP_API_URL}/${user?.memberImage}` : '/img/profile/defaultUser.svg'
+											user?.memberImage ? imageUrl(user?.memberImage) : '/img/profile/defaultUser.svg'
 										}
 									/>
 								</IconButton>
@@ -162,7 +163,7 @@ const withAdminLayout = (Component: ComponentType) => {
 								}}
 							>
 								<Avatar
-									src={user?.memberImage ? `${REACT_APP_API_URL}/${user?.memberImage}` : '/img/profile/defaultUser.svg'}
+									src={user?.memberImage ? imageUrl(user?.memberImage) : '/img/profile/defaultUser.svg'}
 								/>
 								<Typography variant={'body2'} p={1} ml={1}>
 									{user?.memberNick} <br />

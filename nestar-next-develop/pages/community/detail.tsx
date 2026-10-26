@@ -3,7 +3,7 @@ import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
 import Link from 'next/link';
-import { articleCategoryLabels } from '../../libs/utils';
+import { articleCategoryLabels, imageUrl } from '../../libs/utils';
 import withLayoutFull from '../../libs/components/layout/LayoutFull';
 import Seo from '../../libs/components/common/Seo';
 import { Pagination } from '@mui/material';
@@ -89,7 +89,7 @@ const CommunityDetail: NextPage = ({ initialInput, ...props }: T) => {
 		onCompleted(data: any) {
 			setBoardArticle(data?.getBoardArticle);
 			if (data?.getBoardArticle?.memberData?.memberImage) {
-				setMemberImage(`${process.env.REACT_APP_API_URL}/${data?.getBoardArticle?.memberData?.memberImage}`);
+				setMemberImage(imageUrl(data?.getBoardArticle?.memberData?.memberImage));
 			}
 		},
 	});
@@ -217,8 +217,8 @@ const CommunityDetail: NextPage = ({ initialInput, ...props }: T) => {
 		}
 	};
 
-	const getCommentMemberImage = (imageUrl: string | undefined) => {
-		if (imageUrl) return `${process.env.REACT_APP_API_URL}/${imageUrl}`;
+	const getCommentMemberImage = (image: string | undefined) => {
+		if (image) return imageUrl(image);
 		else return '/img/community/articleImg.png';
 	};
 

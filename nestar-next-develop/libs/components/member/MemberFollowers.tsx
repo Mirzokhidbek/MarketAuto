@@ -1,3 +1,4 @@
+import { imageUrl } from '../../utils';
 import React, { ChangeEvent, useEffect, useState } from 'react';
 import { Pagination } from '@mui/material';
 import { useTranslation } from 'next-i18next';
@@ -84,7 +85,7 @@ const MemberFollowers = (props: MemberFollowsProps) => {
 							<div className={'ma-person'} key={follower._id}>
 								<img
 									src={
-										person?.memberImage ? `${REACT_APP_API_URL}/${person?.memberImage}` : '/img/profile/defaultUser.svg'
+										person?.memberImage ? imageUrl(person?.memberImage) : '/img/profile/defaultUser.svg'
 									}
 									alt={person?.memberNick}
 									onClick={() => redirectToMemberPageHandler(person?._id)}
