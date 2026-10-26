@@ -19,7 +19,6 @@ import {
 	Tooltip,
 	IconButton,
 } from '@mui/material';
-import useDeviceDetect from '../../hooks/useDeviceDetect';
 import {
 	CarBrand,
 	CarCountry,
