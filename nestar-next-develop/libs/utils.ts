@@ -62,7 +62,7 @@ export const articleCategoryLabels: Record<string, string> = {
 	NEWS: 'Car News',
 	RECOMMEND: 'Reviews & Tips',
 	FREE: 'Free Talk',
-	HUMOR: 'Humor',
+	SERVICE: 'Repair & Service',
 };
 
 export const formatMileage = (value: number | undefined): string => {

@@ -43,7 +43,7 @@ const CarCard = ({ property, onLike }: CarCardProps) => {
 				<div className={'ma-car-card__badges'}>
 					<span className={'ma-badge ma-badge--light'}>{formatCountry(property.carCountry, t)}</span>
 					{property.propertyBarter && <span className={'ma-badge ma-badge--primary'}>{t('Barter')}</span>}
-					{property.propertyRent && <span className={'ma-badge ma-badge--primary'}>{t('Rent')}</span>}
+					{property.carCustomsCleared && <span className={'ma-badge ma-badge--primary'}>{t('Customs cleared')}</span>}
 				</div>
 				{onLike && (
 					<button

@@ -124,7 +124,7 @@ const TuiEditor = () => {
 						<option value={BoardArticleCategory.NEWS}>{t('Car News')}</option>
 						<option value={BoardArticleCategory.RECOMMEND}>{t('Reviews & Tips')}</option>
 						<option value={BoardArticleCategory.FREE}>{t('Free Talk')}</option>
-						<option value={BoardArticleCategory.HUMOR}>{t('Humor')}</option>
+						<option value={BoardArticleCategory.SERVICE}>{t('Repair & Service')}</option>
 					</select>
 				</label>
 				<label className={'ma-input'}>

@@ -87,11 +87,6 @@ const Faq = () => {
 					'The seller is open to exchanging the car for another car or property, fully or with an additional payment.',
 			},
 			{
-				id: 'faq005',
-				subject: 'Can I rent a car through MarketAuto?',
-				content: 'Yes. Listings marked "Rent" are available for rent. Contact the seller for terms and prices.',
-			},
-			{
 				id: 'faq006',
 				subject: 'How is the mileage shown?',
 				content: 'Mileage is shown in kilometers, exactly as entered by the seller. Verify it during inspection.',
