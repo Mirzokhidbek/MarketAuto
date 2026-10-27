@@ -91,7 +91,12 @@ const AdminHome: NextPage = () => {
 					{pending.map((car) => (
 						<Link key={car._id} href={'/_admin/properties?status=PENDING'} className={'ma-admin-row'}>
 							{car.propertyImages?.[0] ? (
-								<img className={'ma-admin-thumb'} src={imageUrl(car.propertyImages[0])} alt={''} />
+								<img
+									className={'ma-admin-thumb'}
+									src={imageUrl(car.propertyImages[0])}
+									alt={''}
+									onError={(e) => (e.currentTarget.style.visibility = 'hidden')}
+								/>
 							) : (
 								<span className={'ma-admin-thumb'} />
 							)}

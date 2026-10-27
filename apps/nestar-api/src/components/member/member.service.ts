@@ -95,7 +95,9 @@ export class MemberService {
 		// admins: the password is only the first step, an SMS code to the admin phone is the second
 		if (response.memberType === MemberType.ADMIN && process.env.ADMIN_2FA !== 'off') {
 			const sent = await this.verificationService.requestCode(response.memberPhone, VerificationPurpose.ADMIN_2FA, ip);
-			return { memberNick: response.memberNick, twoFactorRequired: true, devCode: sent.devCode } as Member;
+			// the password was right: member fields are returned (the schema needs them), tokens are not
+			const { memberPassword, ...member } = (response as T).toObject();
+			return { ...member, twoFactorRequired: true, devCode: sent.devCode } as Member;
 		}
 		return await this.authService.issueTokens(response, userAgent);
 	}
