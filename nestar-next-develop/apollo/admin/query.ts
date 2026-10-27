@@ -234,8 +234,17 @@ export const GET_ALL_NOTICES_BY_ADMIN = gql`
 `;
 
 export const GET_DASHBOARD_STATS = gql`
-	query GetDashboardStats {
-		getDashboardStats {
+	query GetDashboardStats($days: Int) {
+		getDashboardStats(days: $days) {
+			topSellers {
+				memberId
+				memberNick
+				memberImage
+				memberType
+				cars
+				views
+				likes
+			}
 			membersTotal
 			membersBlocked
 			dealers

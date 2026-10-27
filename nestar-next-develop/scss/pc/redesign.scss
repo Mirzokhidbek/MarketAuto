@@ -338,14 +338,16 @@
 .ma-search {
 	width: 100%;
 	display: grid;
-	grid-template-columns: repeat(6, minmax(0, 1fr)) auto;
-	gap: 12px;
+	/* 4 per row: Uzbek/Russian labels like "Barcha davlatlar" fit without being cut */
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+	gap: 12px 14px;
 	align-items: end;
 	padding: 24px;
 	border-radius: 16px;
 	background: $ma-white;
 	box-shadow: 0 30px 60px rgba(0, 0, 0, 0.35);
 	&__btn {
+		grid-column: span 2;
 		height: 46px;
 		padding: 0 26px;
 	}

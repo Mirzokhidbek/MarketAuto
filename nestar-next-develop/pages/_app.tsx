@@ -16,6 +16,25 @@ import { useRouter } from 'next/router';
 import moment from 'moment';
 import 'moment/locale/ru';
 import 'moment/locale/uz-latn';
+// moment's own Uzbek gives "Bir necha 2 kun oldin"; natural wording instead: "2 kun oldin", "hozirgina"
+moment.updateLocale('uz-latn', {
+	relativeTime: {
+		future: '%s dan keyin',
+		past: '%s oldin',
+		s: 'bir necha soniya',
+		ss: '%d soniya',
+		m: '1 daqiqa',
+		mm: '%d daqiqa',
+		h: '1 soat',
+		hh: '%d soat',
+		d: '1 kun',
+		dd: '%d kun',
+		M: '1 oy',
+		MM: '%d oy',
+		y: '1 yil',
+		yy: '%d yil',
+	},
+});
 import '../scss/app.scss';
 import '../scss/pc/main.scss';
 import 'swiper/css';

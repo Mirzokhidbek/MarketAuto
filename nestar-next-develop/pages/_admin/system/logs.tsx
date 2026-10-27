@@ -20,6 +20,7 @@ import {
 	Typography,
 } from '@mui/material';
 import withAdminLayout from '../../../libs/components/layout/LayoutAdmin';
+import AdminPageHeader from '../../../libs/components/admin/AdminPageHeader';
 import { GET_ADMIN_LOGS } from '../../../apollo/admin/query';
 import { T } from '../../../libs/types/common';
 
@@ -51,9 +52,7 @@ const AdminLogs: NextPage = () => {
 
 	return (
 		<Box component={'div'} className={'content'}>
-			<Typography variant={'h2'} className={'tit'} sx={{ mb: '24px' }}>
-				{t('Action log')}
-			</Typography>
+			<AdminPageHeader title={t('Action log')} description={t('Every action of every admin: who did what and when. Kept for one year.') as string} />
 			<Box component={'div'} className={'table-wrap'}>
 				<List className={'tab-menu'}>
 					{TYPES.map((item) => (

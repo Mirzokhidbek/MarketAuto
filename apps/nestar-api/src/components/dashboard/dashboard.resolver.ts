@@ -1,8 +1,8 @@
-import { Query, Resolver } from '@nestjs/graphql';
+import { Args, Int, Query, Resolver } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { DailyStat, DashboardStats } from '../../libs/dto/dashboard/dashboard';
+import { DailyStat, DashboardStats, TopSeller } from '../../libs/dto/dashboard/dashboard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { MemberStatus, MemberType } from '../../libs/enums/member.enum';
@@ -20,6 +20,29 @@ export class DashboardResolver {
 		@InjectModel('Notice') private readonly noticeModel: Model<any>,
 		@InjectModel('Report') private readonly reportModel: Model<any>,
 	) {}
+
+	/** sellers with the most cars for sale, with the views and likes those cars got */
+	private async topSellers(limit: number): Promise<TopSeller[]> {
+		const rows = await this.propertyModel
+			.aggregate([
+				{ $match: { propertyStatus: PropertyStatus.ACTIVE } },
+				{ $group: { _id: '$memberId', cars: { $sum: 1 }, views: { $sum: '$propertyViews' }, likes: { $sum: '$propertyLikes' } } },
+				{ $sort: { cars: -1, views: -1 } },
+				{ $limit: limit },
+				{ $lookup: { from: 'members', localField: '_id', foreignField: '_id', as: 'member' } },
+				{ $unwind: '$member' },
+			])
+			.exec();
+		return rows.map((row: any) => ({
+			memberId: String(row._id),
+			memberNick: row.member.memberNick,
+			memberImage: row.member.memberImage,
+			memberType: row.member.memberType,
+			cars: row.cars,
+			views: row.views ?? 0,
+			likes: row.likes ?? 0,
+		}));
+	}
 
 	/** new members and new listings per day, oldest first, days without activity included */
 	private async daily(days: number): Promise<DailyStat[]> {
@@ -46,7 +69,11 @@ export class DashboardResolver {
 	@Roles(MemberType.ADMIN)
 	@UseGuards(RolesGuard)
 	@Query(() => DashboardStats)
-	public async getDashboardStats(): Promise<DashboardStats> {
+	public async getDashboardStats(
+		// length of the daily series: 7, 14 or 30 days in the chart switcher
+		@Args('days', { type: () => Int, nullable: true }) days?: number,
+	): Promise<DashboardStats> {
+		const period = Math.min(Math.max(days ?? 14, 7), 90);
 		const today = new Date();
 		today.setHours(0, 0, 0, 0);
 		const members = { memberType: { $ne: MemberType.ADMIN } };
@@ -80,7 +107,8 @@ export class DashboardResolver {
 		]);
 
 		return {
-			daily: await this.daily(14),
+			daily: await this.daily(period),
+			topSellers: await this.topSellers(5),
 			membersTotal,
 			membersBlocked,
 			dealers,

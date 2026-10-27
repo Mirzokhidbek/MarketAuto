@@ -254,6 +254,8 @@ const PropertyDetail: NextPage = ({ carSeo }: any) => {
 			  ]
 			: []),
 	];
+	// a row with no value is noise for the buyer: only filled fields are listed
+	const filledDetails = details.filter((item) => item.value !== '—' && item.value !== '' && item.value !== undefined && item.value !== null);
 	const inCompare = compareIds.includes(property._id);
 	const isOwner = user?._id === property.memberId;
 
@@ -269,6 +271,12 @@ const PropertyDetail: NextPage = ({ carSeo }: any) => {
 					<em>{property.propertyTitle}</em>
 				</nav>
 
+				{property.propertyStatus === 'REJECTED' && (
+					<div className={'ma-note ma-note--warn'}>
+						{t('This listing was rejected by moderation')}
+						{property.propertyRejectReason ? `: ${property.propertyRejectReason}` : ''}. {t('Edit it and it goes back to review.')}
+					</div>
+				)}
 				{property.propertyStatus === 'PENDING' && (
 					<div className={'ma-note ma-note--warn'}>
 						{t('This listing is waiting for moderation. Only you can see it until it is approved.')}
@@ -284,9 +292,14 @@ const PropertyDetail: NextPage = ({ carSeo }: any) => {
 							<span>
 								{t('Posted')} {moment(property.createdAt).fromNow()}
 							</span>
-							<span>
+							<span title={t('Views') as string}>
 								<RemoveRedEyeIcon /> {property.propertyViews}
 							</span>
+						</div>
+						{/* phones: the price card is far below, so the price is repeated under the title */}
+						<div className={'ma-detail__mprice'}>
+							<strong>{price(property)}</strong>
+							<span>≈ {otherPrice(property)}</span>
 						</div>
 					</div>
 					<div className={'ma-detail__actions'}>
@@ -373,7 +386,7 @@ const PropertyDetail: NextPage = ({ carSeo }: any) => {
 						<section className={'ma-panel'}>
 							<h2>{t('Specifications')}</h2>
 							<dl className={'ma-details'}>
-								{details.map((item) => (
+								{filledDetails.map((item) => (
 									<div key={item.label}>
 										<dt>{t(item.label)}</dt>
 										<dd>{item.value}</dd>

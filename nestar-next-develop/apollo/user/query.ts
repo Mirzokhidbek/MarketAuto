@@ -89,6 +89,7 @@ export const GET_PROPERTY = gql`
 			_id
 			propertyType
 			propertyStatus
+			propertyRejectReason
 			propertyLocation
 			propertyAddress
 			propertyTitle

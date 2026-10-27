@@ -28,6 +28,7 @@ import {
 import SearchIcon from '@mui/icons-material/Search';
 import DeleteIcon from '@mui/icons-material/Delete';
 import withAdminLayout from '../../../libs/components/layout/LayoutAdmin';
+import AdminPageHeader from '../../../libs/components/admin/AdminPageHeader';
 import { GET_ALL_BOARD_ARTICLES_BY_ADMIN } from '../../../apollo/admin/query';
 import { REMOVE_BOARD_ARTICLE_BY_ADMIN, UPDATE_BOARD_ARTICLE_BY_ADMIN } from '../../../apollo/admin/mutation';
 import { BoardArticleCategory, BoardArticleStatus } from '../../../libs/enums/board-article.enum';
@@ -105,9 +106,7 @@ const AdminCommunity: NextPage = () => {
 
 	return (
 		<Box component={'div'} className={'content'}>
-			<Typography variant={'h2'} className={'tit'} sx={{ mb: '24px' }}>
-				{t('Article List')}
-			</Typography>
+			<AdminPageHeader title={t('Articles')} description={t('Articles members wrote in the community. Hide the ones that break the rules.') as string} />
 			<Box component={'div'} className={'table-wrap'}>
 				<List className={'tab-menu'}>
 					{(['ALL', BoardArticleStatus.ACTIVE, BoardArticleStatus.DELETE] as const).map((item) => (
