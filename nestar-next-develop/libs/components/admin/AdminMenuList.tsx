@@ -181,7 +181,7 @@ const AdminMenuList = (props: any) => {
 							{item.icon}
 						</ListItemIcon>
 						<ListItemText>
-							<Badge color="error" badgeContent={clickMenu.includes(item.title) ? 0 : menuBadge(item.title)} max={99} sx={{ '& .MuiBadge-badge': { right: -14, top: 10 } }}>
+							<Badge color="error" badgeContent={clickMenu.includes(item.title) ? 0 : menuBadge(item.title)} max={99} sx={{ '& .MuiBadge-badge': { right: -22, top: 12 } }}>
 								{t(item.title)}
 							</Badge>
 						</ListItemText>
