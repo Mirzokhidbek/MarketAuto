@@ -48,7 +48,7 @@ export const MessagesLink = () => {
 	const { t } = useTranslation('common');
 	const unread = useReactiveVar(unreadMessagesVar);
 	return (
-		<Link href={'/mypage?category=messages'} className={'ma-bell'} aria-label={t('Messages') as string}>
+		<Link href={'/mypage?category=messages'} className={'ma-bell'} aria-label={t('Messages') as string} title={t('Messages') as string}>
 			<Badge badgeContent={unread} color="error" max={99}>
 				<ChatBubbleOutlineIcon className={'notification-icon'} />
 			</Badge>
@@ -64,7 +64,7 @@ export const CurrencySwitch = () => {
 		localStorage.setItem('currency', value);
 	};
 	return (
-		<div className={'ma-currency'} role={'group'} aria-label={t('Currency') as string}>
+		<div className={'ma-currency'} role={'group'} aria-label={t('Show prices in') as string} title={t('Show prices in') as string}>
 			{(['USD', 'UZS'] as Currency[]).map((value) => (
 				<button
 					key={value}

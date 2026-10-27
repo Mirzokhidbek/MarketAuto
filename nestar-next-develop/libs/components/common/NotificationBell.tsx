@@ -60,7 +60,7 @@ const NotificationBell = () => {
 
 	return (
 		<>
-			<button className={'ma-bell'} onClick={openHandler} aria-label={t('Notifications') as string}>
+			<button className={'ma-bell'} onClick={openHandler} aria-label={t('Notifications') as string} title={t('Notifications') as string}>
 				<Badge badgeContent={unread} color="error" max={99}>
 					<NotificationsOutlinedIcon className={'notification-icon'} />
 				</Badge>

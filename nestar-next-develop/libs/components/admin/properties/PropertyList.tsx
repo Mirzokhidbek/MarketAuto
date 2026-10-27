@@ -126,7 +126,7 @@ export const PropertyPanelList = ({
 										{t(property.memberData?.memberType === 'AGENT' ? 'Dealer' : 'Private seller')}
 									</Typography>
 								</TableCell>
-								<TableCell>{formatCarPlace(property)}</TableCell>
+								<TableCell>{formatCarPlace(property, t)}</TableCell>
 								<TableCell>{moment(property.createdAt).format('DD.MM.YYYY')}</TableCell>
 								<TableCell align="center">
 									{status === PropertyStatus.PENDING ? (

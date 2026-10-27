@@ -56,7 +56,9 @@ const CarCard = ({ property, onLike }: CarCardProps) => {
 				)}
 				<div className={'ma-car-card__badges'}>
 					<span className={'ma-badge ma-badge--light'}>{formatCountry(property.carCountry, t)}</span>
-					{property.propertyBarter && <span className={'ma-badge ma-badge--primary'}>{t('Barter')}</span>}
+					{property.propertyBarter && <span className={'ma-badge ma-badge--primary'} title={t('The seller accepts a car exchange') as string}>
+							{t('Barter')}
+						</span>}
 					{property.carCustomsCleared && <span className={'ma-badge ma-badge--primary'}>{t('Customs cleared')}</span>}
 				</div>
 				<button
@@ -74,6 +76,7 @@ const CarCard = ({ property, onLike }: CarCardProps) => {
 					<button
 						className={`ma-car-card__like ${liked ? 'is-liked' : ''}`}
 						aria-label={t('Save to favorites') as string}
+						title={(liked ? t('Remove from favorites') : t('Save to favorites')) as string}
 						onClick={(e) => {
 							e.stopPropagation();
 							onLike(property._id);

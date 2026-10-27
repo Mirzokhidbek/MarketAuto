@@ -22,6 +22,7 @@ import {
 	Typography,
 } from '@mui/material';
 import withAdminLayout from '../../../libs/components/layout/LayoutAdmin';
+import AdminPageHeader from '../../../libs/components/admin/AdminPageHeader';
 import { GET_REPORTS_BY_ADMIN } from '../../../apollo/admin/query';
 import { RESOLVE_REPORT } from '../../../apollo/admin/mutation';
 import { sweetConfirmAlert, sweetErrorHandling } from '../../../libs/sweetAlert';
@@ -60,9 +61,7 @@ const AdminReports: NextPage = () => {
 
 	return (
 		<Box component={'div'} className={'content'}>
-			<Typography variant={'h2'} className={'tit'} sx={{ mb: '24px' }}>
-				{t('Reports')}
-			</Typography>
+			<AdminPageHeader title={t('Reports')} description={t('Complaints from buyers about listings. Dismiss a complaint or delete the listing.') as string} />
 			<Box component={'div'} className={'table-wrap'}>
 				<List className={'tab-menu'}>
 					{(['OPEN', 'RESOLVED'] as const).map((item) => (

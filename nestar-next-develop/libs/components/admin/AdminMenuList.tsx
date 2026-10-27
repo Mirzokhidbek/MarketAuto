@@ -1,220 +1,100 @@
-import { useTranslation } from 'next-i18next';
-import React, { useEffect, useState } from 'react';
-import { useRouter, withRouter } from 'next/router';
+import React from 'react';
 import Link from 'next/link';
-import { Badge, List, ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
-import Collapse from '@mui/material/Collapse';
-import Typography from '@mui/material/Typography';
-import ExpandLess from '@mui/icons-material/ExpandLess';
-import ExpandMore from '@mui/icons-material/ExpandMore';
-import { ChatsCircle, Headset, User, UserCircleGear, ChartBar, GearSix } from 'phosphor-react';
-import cookies from 'js-cookie';
+import { useRouter } from 'next/router';
+import { useTranslation } from 'next-i18next';
 import { useQuery, useReactiveVar } from '@apollo/client';
+import { ChartBar, Car, Flag, User, Article, Question, Megaphone, ChatCircleDots, ListChecks, GearSix } from 'phosphor-react';
 import { GET_ADMIN_BADGES } from '../../../apollo/admin/query';
 import { userVar } from '../../../apollo/store';
 
-const AdminMenuList = (props: any) => {
+interface MenuItem {
+	label: string;
+	href: string;
+	icon: React.ReactNode;
+	/** key in the badge counts */
+	badge?: 'carsPending' | 'reportsOpen' | 'inquiriesWaiting';
+	superOnly?: boolean;
+}
+
+const icon = (Icon: any) => <Icon size={20} weight="duotone" />;
+
+/** one click = one page; groups are plain headings, not folders to open */
+const SECTIONS: { title: string; items: MenuItem[] }[] = [
+	{
+		title: 'Overview',
+		items: [{ label: 'Dashboard', href: '/_admin', icon: icon(ChartBar) }],
+	},
+	{
+		title: 'Moderation',
+		items: [
+			{ label: 'Cars', href: '/_admin/properties', icon: icon(Car), badge: 'carsPending' },
+			{ label: 'Reports', href: '/_admin/reports', icon: icon(Flag), badge: 'reportsOpen' },
+			{ label: 'Members', href: '/_admin/users', icon: icon(User), superOnly: true },
+			{ label: 'Articles', href: '/_admin/community', icon: icon(Article) },
+		],
+	},
+	{
+		title: 'Support',
+		items: [
+			{ label: 'Questions from members', href: '/_admin/cs/inquiry', icon: icon(ChatCircleDots), badge: 'inquiriesWaiting' },
+			{ label: 'FAQ', href: '/_admin/cs/faq', icon: icon(Question) },
+			{ label: 'Announcements', href: '/_admin/cs/notice', icon: icon(Megaphone) },
+		],
+	},
+	{
+		title: 'System',
+		items: [
+			{ label: 'Action log', href: '/_admin/system/logs', icon: icon(ListChecks), superOnly: true },
+			{ label: 'Site settings', href: '/_admin/system/settings', icon: icon(GearSix), superOnly: true },
+		],
+	},
+];
+
+const AdminMenuList = () => {
 	const { t } = useTranslation('common');
 	const router = useRouter();
-	const [openSubMenu, setOpenSubMenu] = useState('Users');
-	const [openMenu, setOpenMenu] = useState(typeof window === 'object' ? cookies.get('admin_menu') === 'true' : false);
-	const [clickMenu, setClickMenu] = useState<any>([]);
-	const [clickSubMenu, setClickSubMenu] = useState('');
-
-	const {
-		router: { pathname },
-	} = props;
-
-	const pathnames = pathname.split('/').filter((x: any) => x);
 	const user = useReactiveVar(userVar);
-	// moderators work with cars, reports, articles and support; members, logs and settings are for SUPER admins
+	// moderators work with cars, reports, articles and support; members, logs and settings are for full admins
 	const isSuper = user.memberAdminRole !== 'MODERATOR';
 	// waiting work shown as badges; refreshed every minute
-	const { data: badgeData } = useQuery(GET_ADMIN_BADGES, { fetchPolicy: 'network-only', pollInterval: 60000 });
-	const stats = badgeData?.getDashboardStats;
-	const badges: Record<string, number> = {
-		'/_admin/properties': stats?.carsPending ?? 0,
-		'/_admin/reports': stats?.reportsOpen ?? 0,
-		'/_admin/cs/inquiry': stats?.inquiriesWaiting ?? 0,
-	};
+	const { data } = useQuery(GET_ADMIN_BADGES, { fetchPolicy: 'network-only', pollInterval: 60000 });
+	const counts = data?.getDashboardStats ?? {};
 
-	/** LIFECYCLES **/
-	useEffect(() => {
-
-		switch (pathnames[1]) {
-			case 'properties':
-				setClickMenu(['Cars']);
-				break;
-			case 'community':
-				setClickMenu(['Community']);
-				break;
-			case 'cs':
-				setClickMenu(['Support']);
-				break;
-			case 'reports':
-				setClickMenu(['Cars']);
-				setClickSubMenu('Reports');
-				break;
-			case 'users':
-				setClickMenu(['Users']);
-				break;
-			case 'system':
-				setClickMenu(['System']);
-				break;
-			default:
-				setClickMenu(['Dashboard']);
-				setClickSubMenu('Overview');
-				break;
-		}
-
-		switch (pathnames[2]) {
-			case 'logs':
-				setClickSubMenu('Action log');
-				break;
-			case 'settings':
-				setClickSubMenu('Site settings');
-				break;
-			case 'inquiry':
-				setClickSubMenu('1:1 Inquiry');
-				break;
-			case 'notice':
-				setClickSubMenu('Notice');
-				break;
-			case 'faq':
-				setClickSubMenu('FAQ');
-				break;
-			case 'board_create':
-				setClickSubMenu('Board Create');
-				break;
-			default:
-				setClickSubMenu('List');
-				break;
-		}
-	}, []);
-
-	/** HANDLERS **/
-	const subMenuChangeHandler = (target: string) => {
-		if (clickMenu.find((item: string) => item === target)) {
-			// setOpenSubMenu('');
-			setClickMenu(clickMenu.filter((menu: string) => target !== menu));
-		} else {
-			// setOpenSubMenu(target);
-			setClickMenu([...clickMenu, target]);
-		}
-	};
-
-	const menu_set = [
-		{
-			title: 'Dashboard',
-			icon: <ChartBar size={20} color="#bdbdbd" weight="fill" />,
-			on_click: () => subMenuChangeHandler('Dashboard'),
-		},
-		{
-			title: 'Users',
-			icon: <User size={20} color="#bdbdbd" weight="fill" />,
-			on_click: () => subMenuChangeHandler('Users'),
-		},
-		{
-			title: 'Cars',
-			icon: <UserCircleGear size={20} color="#bdbdbd" weight="fill" />,
-			on_click: () => subMenuChangeHandler('Cars'),
-		},
-		{
-			title: 'Community',
-			icon: <ChatsCircle size={20} color="#bdbdbd" weight="fill" />,
-			on_click: () => subMenuChangeHandler('Community'),
-		},
-		{
-			title: 'Support',
-			icon: <Headset size={20} color="#bdbdbd" weight="fill" />,
-			on_click: () => subMenuChangeHandler('Support'),
-		},
-		{
-			title: 'System',
-			icon: <GearSix size={20} color="#bdbdbd" weight="fill" />,
-			on_click: () => subMenuChangeHandler('System'),
-		},
-	].filter((item) => isSuper || (item.title !== 'Users' && item.title !== 'System'));
-
-	const sub_menu_set: any = {
-		Dashboard: [{ title: 'Overview', url: '/_admin' }],
-		Users: [{ title: 'List', url: '/_admin/users' }],
-		Cars: [
-			{ title: 'List', url: '/_admin/properties' },
-			{ title: 'Reports', url: '/_admin/reports' },
-		],
-		Community: [{ title: 'List', url: '/_admin/community' }],
-		Support: [
-			{ title: 'FAQ', url: '/_admin/cs/faq' },
-			{ title: 'Notice', url: '/_admin/cs/notice' },
-			{ title: '1:1 Inquiry', url: '/_admin/cs/inquiry' },
-		],
-		System: [
-			{ title: 'Action log', url: '/_admin/system/logs' },
-			{ title: 'Site settings', url: '/_admin/system/settings' },
-		],
-	};
-	const menuBadge = (title: string) =>
-		(sub_menu_set[title] ?? []).reduce((sum: number, sub: any) => sum + (badges[sub.url] ?? 0), 0);
+	const isActive = (href: string) =>
+		href === '/_admin' ? router.pathname === '/_admin' : router.pathname === href || router.pathname.startsWith(`${href}/`);
 
 	return (
-		<>
-			{menu_set.map((item, index) => (
-				<List className={'menu_wrap'} key={index} disablePadding>
-					<ListItemButton
-						onClick={item.on_click}
-						component={'li'}
-						className={clickMenu[0] === item.title ? 'menu on' : 'menu'}
-						sx={{
-							minHeight: 48,
-							justifyContent: openMenu ? 'initial' : 'center',
-							px: 2.5,
-						}}
-					>
-						<ListItemIcon
-							sx={{
-								minWidth: 0,
-								mr: openMenu ? 3 : 'auto',
-								justifyContent: 'center',
-							}}
-						>
-							{item.icon}
-						</ListItemIcon>
-						<ListItemText>
-							<Badge color="error" badgeContent={clickMenu.includes(item.title) ? 0 : menuBadge(item.title)} max={99} sx={{ '& .MuiBadge-badge': { right: -22, top: 12 } }}>
-								{t(item.title)}
-							</Badge>
-						</ListItemText>
-						{clickMenu.find((menu: string) => item.title === menu) ? <ExpandLess /> : <ExpandMore />}
-					</ListItemButton>
-					<Collapse
-						in={!!clickMenu.find((menu: string) => menu === item.title)}
-						className="menu"
-						timeout="auto"
-						component="li"
-						unmountOnExit
-					>
-						<List className="menu-list" disablePadding>
-							{sub_menu_set[item.title] &&
-								sub_menu_set[item.title].map((sub: any, i: number) => (
-									<Link href={sub.url} shallow={true} replace={true} key={i}>
-										<ListItemButton
-											component="li"
-											className={clickMenu[0] === item.title && clickSubMenu === sub.title ? 'li on' : 'li'}
-										>
-											<Typography variant={'subtitle2'} component={'span'}>
-												{t(sub.title)}
-											</Typography>
-											{badges[sub.url] > 0 && <span className={'ma-admin-badge'}>{badges[sub.url] > 99 ? '99+' : badges[sub.url]}</span>}
-										</ListItemButton>
-									</Link>
-								))}
-						</List>
-					</Collapse>
-				</List>
-			))}
-		</>
+		<nav className={'ma-admin-nav'} aria-label={t('Admin menu') as string}>
+			{SECTIONS.map((section) => {
+				const items = section.items.filter((item) => isSuper || !item.superOnly);
+				if (!items.length) return null;
+				return (
+					<div key={section.title} className={'ma-admin-nav__group'}>
+						<span className={'ma-admin-nav__title'}>{t(section.title)}</span>
+						{items.map((item) => {
+							const count: number = item.badge ? counts[item.badge] ?? 0 : 0;
+							return (
+								<Link
+									key={item.href}
+									href={item.href}
+									className={`ma-admin-nav__item ${isActive(item.href) ? 'is-active' : ''}`}
+									aria-current={isActive(item.href) ? 'page' : undefined}
+								>
+									{item.icon}
+									<span>{t(item.label)}</span>
+									{count > 0 && (
+										<b className={'ma-admin-badge'} title={t('Waiting') as string}>
+											{count > 99 ? '99+' : count}
+										</b>
+									)}
+								</Link>
+							);
+						})}
+					</div>
+				);
+			})}
+		</nav>
 	);
 };
 
-export default withRouter(AdminMenuList);
+export default AdminMenuList;

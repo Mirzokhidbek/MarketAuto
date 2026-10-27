@@ -2,8 +2,10 @@ import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import Swal from 'sweetalert2';
 import React, { useCallback, useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
 import type { NextPage } from 'next';
 import withAdminLayout from '../../../libs/components/layout/LayoutAdmin';
+import AdminPageHeader from '../../../libs/components/admin/AdminPageHeader';
 import { MemberPanelList } from '../../../libs/components/admin/users/MemberList';
 import { Box, InputAdornment, List, ListItem, Stack } from '@mui/material';
 import Typography from '@mui/material/Typography';
@@ -63,6 +65,12 @@ const AdminUsers: NextPage = ({ initialInquiry, ...props }: any) => {
 	});
 
 	/** LIFECYCLES **/
+	// the search box in the top bar sends ?q=
+	const router = useRouter();
+	useEffect(() => {
+		if (router.isReady && typeof router.query.q === 'string') setSearchText(router.query.q);
+	}, [router.isReady, router.query.q]);
+
 	// nick, name or phone; searched after the admin stops typing
 	useEffect(() => {
 		const timer = setTimeout(() => {
@@ -195,9 +203,7 @@ const AdminUsers: NextPage = ({ initialInquiry, ...props }: any) => {
 
 	return (
 		<Box component={'div'} className={'content'}>
-			<Typography variant={'h2'} className={'tit'} sx={{ mb: '24px' }}>
-				{t('Member List')}
-			</Typography>
+			<AdminPageHeader title={t('Members')} description={t('Find a member by nick, name or phone. Open a member to see their cars, reports and chats.') as string} />
 			<Box component={'div'} className={'table-wrap'}>
 				<Box component={'div'} sx={{ width: '100%', typography: 'body1' }}>
 					<TabContext value={value}>
@@ -253,16 +259,16 @@ const AdminUsers: NextPage = ({ initialInquiry, ...props }: any) => {
 								/>
 								<Select sx={{ width: '160px', ml: '20px' }} value={searchType}>
 									<MenuItem value={'ALL'} onClick={() => searchTypeHandler('ALL')}>
-										{t('All')}
+										{t('All types')}
 									</MenuItem>
 									<MenuItem value={'USER'} onClick={() => searchTypeHandler('USER')}>
-										{t('User')}
+										{t('Private sellers')}
 									</MenuItem>
 									<MenuItem value={'AGENT'} onClick={() => searchTypeHandler('AGENT')}>
-										{t('Agent')}
+										{t('Dealers')}
 									</MenuItem>
 									<MenuItem value={'ADMIN'} onClick={() => searchTypeHandler('ADMIN')}>
-										{t('Admin')}
+										{t('Admins')}
 									</MenuItem>
 								</Select>
 							</Stack>

@@ -772,3 +772,26 @@
 	font-size: 12px;
 	color: #a50e0e;
 }
+
+/* price under the title, phones only (the price card sits below the gallery there) */
+.ma-detail__mprice {
+	display: none;
+	align-items: baseline;
+	gap: 10px;
+	margin-top: 10px;
+	strong {
+		font-size: 26px;
+		font-weight: 800;
+		color: $ma-dark;
+	}
+	span {
+		font-size: 14px;
+		color: $ma-muted;
+	}
+}
+
+@media (max-width: 900px) {
+	.ma-detail__mprice {
+		display: flex;
+	}
+}

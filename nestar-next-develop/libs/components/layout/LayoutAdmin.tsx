@@ -5,42 +5,57 @@ import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useTranslation } from 'next-i18next';
-import useMediaQuery from '@mui/material/useMediaQuery';
+import { useQuery, useReactiveVar } from '@apollo/client';
+import { Badge, Menu, MenuItem, Popover } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
+import SearchIcon from '@mui/icons-material/Search';
+import NotificationsNoneRoundedIcon from '@mui/icons-material/NotificationsNoneRounded';
+import LightbulbOutlinedIcon from '@mui/icons-material/LightbulbOutlined';
 import MenuList from '../admin/AdminMenuList';
-import Toolbar from '@mui/material/Toolbar';
-import Box from '@mui/material/Box';
-import Stack from '@mui/material/Stack';
-import { Menu, MenuItem } from '@mui/material';
-import Drawer from '@mui/material/Drawer';
-import AppBar from '@mui/material/AppBar';
-import Avatar from '@mui/material/Avatar';
-import IconButton from '@mui/material/IconButton';
-import Divider from '@mui/material/Divider';
-import Typography from '@mui/material/Typography';
-import Tooltip from '@mui/material/Tooltip';
 import { getJwtToken, logOut, updateUserInfo } from '../../auth';
-import { useReactiveVar } from '@apollo/client';
 import { userVar } from '../../../apollo/store';
-import { REACT_APP_API_URL } from '../../config';
+import { GET_ADMIN_BADGES } from '../../../apollo/admin/query';
 import { MemberType } from '../../enums/member.enum';
-const drawerWidth = 280;
+
+/** quick tabs in the top bar: the pages used every day */
+const QUICK = [
+	{ label: 'Dashboard', href: '/_admin' },
+	{ label: 'Cars', href: '/_admin/properties' },
+	{ label: 'Reports', href: '/_admin/reports' },
+	{ label: 'Questions', href: '/_admin/cs/inquiry' },
+];
+
+/** short reminders in the side card, one per day */
+const TIPS = [
+	'When you reject a car, write the reason: the seller can fix it and send it again.',
+	'Open a member to see all their cars, reports and chats in one place.',
+	'Select several cars with the checkboxes to approve or reject them at once.',
+	'Every admin action is written to the action log.',
+];
 
 const withAdminLayout = (Component: ComponentType) => {
 	return (props: object) => {
 		const router = useRouter();
 		const user = useReactiveVar(userVar);
-		const [settingsState, setSettingsStateState] = useState(false);
-		const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
-		const [openMenu, setOpenMenu] = useState(false);
-		const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
-		const [title, setTitle] = useState('admin');
-		const [loading, setLoading] = useState(true);
 		const { t } = useTranslation('common');
-		// phones/tablets: the side menu becomes a drawer opened with the burger button
-		const compact = useMediaQuery('(max-width:900px)');
-		const [drawerOpen, setDrawerOpen] = useState(false);
-		useEffect(() => setDrawerOpen(false), [router.asPath]);
+		const [loading, setLoading] = useState(true);
+		const [sideOpen, setSideOpen] = useState(false);
+		const [userMenu, setUserMenu] = useState<HTMLElement | null>(null);
+		const [bellAnchor, setBellAnchor] = useState<HTMLElement | null>(null);
+		const [search, setSearch] = useState('');
+		const [searchOpen, setSearchOpen] = useState(false);
+		const isSuper = user.memberAdminRole !== 'MODERATOR';
+		const isAdmin = user?.memberType === MemberType.ADMIN;
+
+		const { data: badgeData } = useQuery(GET_ADMIN_BADGES, { fetchPolicy: 'cache-and-network', pollInterval: 60000, skip: !isAdmin });
+		const counts = badgeData?.getDashboardStats ?? {};
+		const waiting = [
+			{ label: 'Cars to review', count: counts.carsPending ?? 0, href: '/_admin/properties?status=PENDING' },
+			{ label: 'Open reports', count: counts.reportsOpen ?? 0, href: '/_admin/reports' },
+			{ label: 'Questions from members', count: counts.inquiriesWaiting ?? 0, href: '/_admin/cs/inquiry' },
+		];
+		const waitingTotal = waiting.reduce((sum, item) => sum + item.count, 0);
+		const tip = TIPS[new Date().getDate() % TIPS.length];
 
 		/** LIFECYCLES **/
 		useEffect(() => {
@@ -56,166 +71,160 @@ const withAdminLayout = (Component: ComponentType) => {
 			else router.replace('/').then();
 		}, [loading, user, router]);
 
+		useEffect(() => {
+			setSideOpen(false);
+			setSearchOpen(false);
+		}, [router.asPath]);
+
 		/** HANDLERS **/
-		const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
-			setAnchorElUser(event.currentTarget);
+		// the same text can be a car title or a member nick/phone: the admin picks where to look
+		const searchIn = (target: 'cars' | 'members') => {
+			const q = search.trim();
+			if (!q) return;
+			router.push({ pathname: target === 'cars' ? '/_admin/properties' : '/_admin/users', query: { q } }).then();
+			setSearch('');
 		};
 
-		const handleCloseUserMenu = () => {
-			setAnchorElUser(null);
-		};
+		const isQuickActive = (href: string) => (href === '/_admin' ? router.pathname === '/_admin' : router.pathname.startsWith(href));
 
-		const logoutHandler = () => {
-			logOut();
-			router.push('/').then();
-		};
-
-		if (!user || user?.memberType !== MemberType.ADMIN) return null;
+		if (!user || !isAdmin) return null;
 
 		return (
-			<main id="pc-wrap" className="admin">
+			<main id="pc-wrap" className={'admin ma-adm'}>
 				<Head>
 					<title>{`${t('Admin panel')} | MarketAuto`}</title>
 					<meta name="robots" content="noindex" />
 				</Head>
-				<Box component={'div'} sx={{ display: 'flex' }}>
-					<AppBar
-						position="fixed"
-						sx={{
-							width: compact ? '100%' : `calc(100% - ${drawerWidth}px)`,
-							ml: compact ? 0 : `${drawerWidth}px`,
-							boxShadow: 'rgb(100 116 139 / 12%) 0px 1px 4px',
-							background: 'none',
-						}}
-					>
-						<Toolbar className={'ma-admin-bar'}>
-							{compact && (
-								<IconButton onClick={() => setDrawerOpen(true)} aria-label={'menu'}>
-									<MenuIcon />
-								</IconButton>
-							)}
-							<Link href={'/'} className={'ma-admin-bar__site'}>
-								← {t('Back to site')}
-							</Link>
-							<select
-								className={'ma-admin-bar__lang'}
-								value={router.locale}
+
+				<aside className={`ma-adm__side ${sideOpen ? 'is-open' : ''}`}>
+					<Link href={'/_admin'} className={'ma-adm__logo'}>
+						<img src={'/img/logo/logoDark.svg'} alt={'MarketAuto'} />
+					</Link>
+					<MenuList />
+					<div className={'ma-adm__tip'}>
+						<LightbulbOutlinedIcon />
+						<p>{t(tip)}</p>
+					</div>
+				</aside>
+				{sideOpen && <div className={'ma-adm__overlay'} onClick={() => setSideOpen(false)} />}
+
+				<div className={'ma-adm__main'}>
+					<header className={'ma-adm__top'}>
+						<button className={'ma-adm__icon ma-adm__burger'} onClick={() => setSideOpen(true)} aria-label={t('Menu') as string}>
+							<MenuIcon />
+						</button>
+
+						<nav className={'ma-adm__quick'} aria-label={t('Quick navigation') as string}>
+							{QUICK.map((item) => (
+								<Link key={item.href} href={item.href} className={isQuickActive(item.href) ? 'is-active' : ''}>
+									{t(item.label)}
+								</Link>
+							))}
+						</nav>
+
+						<div className={'ma-adm__search'}>
+							<SearchIcon />
+							<input
+								value={search}
+								placeholder={t('Search cars or members...') as string}
 								onChange={(e) => {
-									localStorage.setItem('locale', e.target.value);
-									router.push(router.asPath, router.asPath, { locale: e.target.value });
+									setSearch(e.target.value);
+									setSearchOpen(true);
+								}}
+								onFocus={() => setSearchOpen(true)}
+								onBlur={() => setTimeout(() => setSearchOpen(false), 150)}
+								onKeyDown={(e) => {
+									if (e.key === 'Enter') searchIn('cars');
+									if (e.key === 'Escape') setSearchOpen(false);
+								}}
+								aria-label={t('Search') as string}
+							/>
+							{searchOpen && search.trim() && (
+								<div className={'ma-adm__search-pop'} role={'listbox'}>
+									<button onMouseDown={() => searchIn('cars')}>
+										{t('Cars')}: <b>{search.trim()}</b>
+									</button>
+									{isSuper && (
+										<button onMouseDown={() => searchIn('members')}>
+											{t('Members')}: <b>{search.trim()}</b>
+										</button>
+									)}
+								</div>
+							)}
+						</div>
+
+						<button
+							className={'ma-adm__icon'}
+							onClick={(e) => setBellAnchor(e.currentTarget)}
+							aria-label={t('Waiting work') as string}
+							title={t('Waiting work') as string}
+						>
+							<Badge color="error" variant={waitingTotal > 0 ? 'dot' : 'standard'} invisible={!waitingTotal}>
+								<NotificationsNoneRoundedIcon />
+							</Badge>
+						</button>
+						<Popover
+							open={!!bellAnchor}
+							anchorEl={bellAnchor}
+							onClose={() => setBellAnchor(null)}
+							anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+							transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+							PaperProps={{ className: 'ma-adm__pop' }}
+						>
+							<strong className={'ma-adm__pop-title'}>{t('Waiting work')}</strong>
+							{waiting.map((item) => (
+								<Link key={item.href} href={item.href} className={'ma-adm__pop-row'} onClick={() => setBellAnchor(null)}>
+									<span>{t(item.label)}</span>
+									<b className={item.count ? 'is-hot' : ''}>{item.count}</b>
+								</Link>
+							))}
+						</Popover>
+
+						<select
+							className={'ma-adm__lang'}
+							value={router.locale}
+							aria-label={t('Language') as string}
+							onChange={(e) => {
+								localStorage.setItem('locale', e.target.value);
+								router.push(router.asPath, router.asPath, { locale: e.target.value });
+							}}
+						>
+							<option value={'uz'}>UZ</option>
+							<option value={'ru'}>RU</option>
+							<option value={'en'}>EN</option>
+						</select>
+
+						<button className={'ma-adm__me'} onClick={(e) => setUserMenu(e.currentTarget)} aria-label={t('Account') as string}>
+							<img src={user?.memberImage ? imageUrl(user.memberImage) : '/img/profile/defaultUser.svg'} alt={''} />
+							<span>
+								<strong>{user.memberNick}</strong>
+								<small>{t(isSuper ? 'role_SUPER' : 'role_MODERATOR')}</small>
+							</span>
+						</button>
+						<Menu
+							anchorEl={userMenu}
+							open={!!userMenu}
+							onClose={() => setUserMenu(null)}
+							anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+							transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+						>
+							<MenuItem onClick={() => router.push('/')}>← {t('Back to site')}</MenuItem>
+							<MenuItem
+								onClick={() => {
+									logOut();
+									router.push('/').then();
 								}}
 							>
-								<option value={'uz'}>O'zbekcha</option>
-								<option value={'ru'}>Русский</option>
-								<option value={'en'}>English</option>
-							</select>
-							<Tooltip title={t('Account') as string}>
-								<IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-									<Avatar
-										src={
-											user?.memberImage ? imageUrl(user?.memberImage) : '/img/profile/defaultUser.svg'
-										}
-									/>
-								</IconButton>
-							</Tooltip>
-							<Menu
-								sx={{ mt: '45px' }}
-								id="menu-appbar"
-								className={'pop-menu'}
-								anchorEl={anchorElUser}
-								anchorOrigin={{
-									vertical: 'top',
-									horizontal: 'right',
-								}}
-								keepMounted
-								transformOrigin={{
-									vertical: 'top',
-									horizontal: 'right',
-								}}
-								open={Boolean(anchorElUser)}
-								onClose={handleCloseUserMenu}
-							>
-								<Box
-									component={'div'}
-									onClick={handleCloseUserMenu}
-									sx={{
-										width: '200px',
-									}}
-								>
-									<Stack sx={{ px: '20px', my: '12px' }}>
-										<Typography variant={'h6'} component={'h6'} sx={{ mb: '4px' }}>
-											{user?.memberNick}
-										</Typography>
-										<Typography variant={'subtitle1'} component={'p'} color={'#757575'}>
-											{user?.memberPhone}
-										</Typography>
-									</Stack>
-									<Divider />
-									<Box component={'div'} sx={{ p: 1, py: '6px' }} onClick={logoutHandler}>
-										<MenuItem sx={{ px: '16px', py: '6px' }}>
-											<Typography variant={'subtitle1'} component={'span'}>
-												{t('Logout')}
-											</Typography>
-										</MenuItem>
-									</Box>
-								</Box>
-							</Menu>
-						</Toolbar>
-					</AppBar>
+								{t('Logout')}
+							</MenuItem>
+						</Menu>
+					</header>
 
-					<Drawer
-						sx={{
-							width: drawerWidth,
-							flexShrink: 0,
-							'& .MuiDrawer-paper': {
-								width: drawerWidth,
-								boxSizing: 'border-box',
-							},
-						}}
-						variant={compact ? 'temporary' : 'permanent'}
-						open={compact ? drawerOpen : true}
-						onClose={() => setDrawerOpen(false)}
-						// stay inside #pc-wrap.admin so the dark admin theme applies to the mobile drawer too
-						ModalProps={{ disablePortal: true, keepMounted: true }}
-						anchor="left"
-						className="aside"
-					>
-						<Toolbar sx={{ flexDirection: 'column', alignItems: 'flexStart' }}>
-							<Stack className={'logo-box'}>
-								<img src={'/img/logo/logoWhite.svg'} alt={'MarketAuto'} />
-							</Stack>
-
-							<Stack
-								className="user"
-								direction={'row'}
-								alignItems={'center'}
-								sx={{
-									bgcolor: openMenu ? 'rgba(255, 255, 255, 0.04)' : 'none',
-									borderRadius: '8px',
-									px: '24px',
-									py: '11px',
-								}}
-							>
-								<Avatar
-									src={user?.memberImage ? imageUrl(user?.memberImage) : '/img/profile/defaultUser.svg'}
-								/>
-								<Typography variant={'body2'} p={1} ml={1}>
-									{user?.memberNick} <br />
-									{user?.memberPhone}
-								</Typography>
-							</Stack>
-						</Toolbar>
-
-						<Divider />
-
-						<MenuList />
-					</Drawer>
-
-					<Box component={'div'} id="bunker" sx={{ flexGrow: 1, minWidth: 0 }}>
+					<div id="bunker">
 						{/*@ts-ignore*/}
-						<Component {...props} setSnackbar={setSnackbar} setTitle={setTitle} />
-					</Box>
-				</Box>
+						<Component {...props} />
+					</div>
+				</div>
 			</main>
 		);
 	};

@@ -5,6 +5,7 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useMutation, useQuery } from '@apollo/client';
 import { Box, Button, Stack, TextField, Typography } from '@mui/material';
 import withAdminLayout from '../../../libs/components/layout/LayoutAdmin';
+import AdminPageHeader from '../../../libs/components/admin/AdminPageHeader';
 import { GET_SITE_SETTINGS } from '../../../apollo/user/query';
 import { UPDATE_SITE_SETTINGS } from '../../../apollo/admin/mutation';
 import { sweetErrorHandling, sweetTopSmallSuccessAlert } from '../../../libs/sweetAlert';
@@ -60,13 +61,8 @@ const AdminSettings: NextPage = () => {
 
 	return (
 		<Box component={'div'} className={'content'}>
-			<Typography variant={'h2'} className={'tit'} sx={{ mb: '24px' }}>
-				{t('Site settings')}
-			</Typography>
+			<AdminPageHeader title={t('Site settings')} description={t('Shown in the footer and the help center. Leave a field empty to hide it.') as string} />
 			<Box component={'form'} className={'ma-admin-card'} sx={{ maxWidth: 640 }} onSubmit={saveHandler}>
-				<Typography color="text.secondary" sx={{ mb: 3 }}>
-					{t('Shown in the footer and the help center. Leave a field empty to hide it.')}
-				</Typography>
 				<Stack gap={2.5}>
 					{FIELDS.map((field) => (
 						<TextField
@@ -81,7 +77,7 @@ const AdminSettings: NextPage = () => {
 						/>
 					))}
 				</Stack>
-				<Button type="submit" variant="contained" disabled={!valid || loading}>
+				<Button type="submit" variant="contained" size="large" disabled={!valid || loading} sx={{ mt: 1 }}>
 					{t('Save')}
 				</Button>
 			</Box>

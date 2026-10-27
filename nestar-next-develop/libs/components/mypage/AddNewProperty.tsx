@@ -72,6 +72,8 @@ const AddProperty = () => {
 	const editId = router.query.propertyId as string | undefined;
 	const [car, setCar] = useState<any>(emptyCar);
 	const [step, setStep] = useState<number>(0);
+	// missing fields are pointed out only after the seller presses Next/Publish, not before typing anything
+	const [tried, setTried] = useState<boolean>(false);
 	const [previewOpen, setPreviewOpen] = useState<boolean>(false);
 	const [dragIndex, setDragIndex] = useState<number | null>(null);
 	const [uploading, setUploading] = useState<boolean>(false);
@@ -661,20 +663,27 @@ const AddProperty = () => {
 					</button>
 				)}
 				{step < STEPS.length - 1 ? (
-					<button className={'ma-btn ma-btn--primary'} disabled={!stepValid[step]} onClick={() => setStep(step + 1)}>
+					<button
+						className={'ma-btn ma-btn--primary'}
+						onClick={() => {
+							if (!stepValid[step]) return setTried(true);
+							setTried(false);
+							setStep(step + 1);
+						}}
+					>
 						{t('Next')} →
 					</button>
 				) : (
 					<button
 						className={'ma-btn ma-btn--primary'}
-						disabled={!stepValid.every(Boolean) || creating || updating || uploading}
-						onClick={submitHandler}
+						disabled={creating || updating || uploading}
+						onClick={() => (stepValid.every(Boolean) ? submitHandler() : setTried(true))}
 					>
 						{editId ? t('Save changes') : t('Publish listing')}
 					</button>
 				)}
 			</div>
-			{!stepValid[step] && missing[step].length > 0 && (
+			{tried && !stepValid[step] && missing[step].length > 0 && (
 				<p className={'ma-field-error ma-form-note'}>
 					{t('Please fill in')}: {missing[step].map((label) => t(label)).join(', ')}
 				</p>

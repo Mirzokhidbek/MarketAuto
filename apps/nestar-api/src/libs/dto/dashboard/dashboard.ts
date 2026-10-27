@@ -13,8 +13,36 @@ export class DailyStat {
 	cars!: number;
 }
 
+/** seller with the most cars for sale */
+@ObjectType()
+export class TopSeller {
+	@Field(() => String)
+	memberId!: string;
+
+	@Field(() => String)
+	memberNick!: string;
+
+	@Field(() => String, { nullable: true })
+	memberImage?: string;
+
+	@Field(() => String)
+	memberType!: string;
+
+	@Field(() => Int)
+	cars!: number;
+
+	@Field(() => Int)
+	views!: number;
+
+	@Field(() => Int)
+	likes!: number;
+}
+
 @ObjectType()
 export class DashboardStats {
+	@Field(() => [TopSeller])
+	topSellers!: TopSeller[];
+
 	@Field(() => Int)
 	membersTotal!: number;
 

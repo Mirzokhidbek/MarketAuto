@@ -34,6 +34,7 @@ import { GET_ALL_NOTICES_BY_ADMIN } from '../../../../apollo/admin/query';
 import { CREATE_NOTICE, REMOVE_NOTICE_BY_ADMIN, UPDATE_NOTICE_BY_ADMIN } from '../../../../apollo/admin/mutation';
 import { sweetConfirmAlert, sweetErrorHandling, sweetTopSmallSuccessAlert } from '../../../sweetAlert';
 import { REACT_APP_API_URL } from '../../../config';
+import AdminPageHeader from '../AdminPageHeader';
 import { T } from '../../../types/common';
 
 type Category = 'FAQ' | 'NOTICE' | 'INQUIRY';
@@ -43,9 +44,23 @@ interface NoticeManagerProps {
 }
 
 const titles: Record<Category, string> = {
-	FAQ: 'FAQ Management',
-	NOTICE: 'Notice Management',
-	INQUIRY: '1:1 Inquiry Management',
+	FAQ: 'FAQ',
+	NOTICE: 'Announcements',
+	INQUIRY: 'Questions from members',
+};
+
+// one sentence under the title: what the page is for and where it shows up
+const descriptions: Record<Category, string> = {
+	FAQ: 'Answers to common questions, shown in the Support Center. Hidden items stay here but visitors do not see them.',
+	NOTICE: 'News and rules for all visitors, shown in the Support Center.',
+	INQUIRY: 'Questions members sent from the Support Center. Your answer appears in their account.',
+};
+
+// empty list: say what to do instead of "nothing found"
+const emptyTexts: Record<Category, string> = {
+	FAQ: 'No questions yet. Press "Add" to write the first one.',
+	NOTICE: 'No announcements yet. Press "Add" to publish one.',
+	INQUIRY: 'No questions from members. New ones appear here and in the menu badge.',
 };
 
 // for inquiries HOLD means "waiting for an answer", for FAQ/notices it means "hidden from the site"
@@ -146,15 +161,17 @@ const NoticeManager = ({ category }: NoticeManagerProps) => {
 
 	return (
 		<Box component={'div'} className={'content'}>
-			<Box component={'div'} className={'title flex_space'}>
-				<Typography variant={'h2'}>{t(titles[category])}</Typography>
-				{!isInquiry && (
-					<Button className="btn_add" variant={'contained'} size={'medium'} onClick={() => setForm({ ...emptyForm })}>
-						<AddRoundedIcon sx={{ mr: '8px' }} />
-						{t('ADD')}
-					</Button>
-				)}
-			</Box>
+			<AdminPageHeader
+				title={t(titles[category])}
+				description={t(descriptions[category]) as string}
+				action={
+					!isInquiry && (
+						<Button variant={'contained'} startIcon={<AddRoundedIcon />} onClick={() => setForm({ ...emptyForm })}>
+							{t('Add')}
+						</Button>
+					)
+				}
+			/>
 			<Box component={'div'} className={'table-wrap'}>
 				<List className={'tab-menu'}>
 					{['ALL', 'ACTIVE', 'HOLD', 'DELETE'].map((item) => (
@@ -204,7 +221,7 @@ const NoticeManager = ({ category }: NoticeManagerProps) => {
 							{!list.length && (
 								<TableRow>
 									<TableCell colSpan={5} align="center">
-										{loading ? t('Loading...') : t('No items found')}
+										{loading ? t('Loading...') : status === 'ALL' ? t(emptyTexts[category]) : t('No items found')}
 									</TableCell>
 								</TableRow>
 							)}

@@ -4,6 +4,7 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import React, { useEffect, useState } from 'react';
 import type { NextPage } from 'next';
 import withAdminLayout from '../../../libs/components/layout/LayoutAdmin';
+import AdminPageHeader from '../../../libs/components/admin/AdminPageHeader';
 import {
 	Box,
 	Button,
@@ -85,6 +86,11 @@ const AdminProperties: NextPage = ({ initialInquiry, ...props }: any) => {
 		const status = router.query.status as string;
 		if (router.isReady && status && status !== value) tabChangeHandler(status);
 	}, [router.isReady, router.query.status]);
+
+	// the search box in the top bar sends ?q=
+	useEffect(() => {
+		if (router.isReady && typeof router.query.q === 'string') setSearchText(router.query.q);
+	}, [router.isReady, router.query.q]);
 
 	// member card links here with ?memberId= to show all cars of one seller
 	useEffect(() => {
@@ -177,9 +183,7 @@ const AdminProperties: NextPage = ({ initialInquiry, ...props }: any) => {
 
 	return (
 		<Box component={'div'} className={'content'}>
-			<Typography variant={'h2'} className={'tit'} sx={{ mb: '24px' }}>
-				{t('Car List')}
-			</Typography>
+			<AdminPageHeader title={t('Cars')} description={t('Approve new listings, reject them with a reason, or change the status of any car.') as string} />
 			<Box component={'div'} className={'table-wrap'}>
 				<List className={'tab-menu'}>
 					{['ALL', PropertyStatus.PENDING, PropertyStatus.REJECTED, PropertyStatus.ACTIVE, PropertyStatus.SOLD, PropertyStatus.DELETE].map((status) => (

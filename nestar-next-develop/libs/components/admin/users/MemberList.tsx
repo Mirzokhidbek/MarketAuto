@@ -15,6 +15,8 @@ import {
 	MenuItem,
 } from '@mui/material';
 import Avatar from '@mui/material/Avatar';
+import Tooltip from '@mui/material/Tooltip';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import Typography from '@mui/material/Typography';
 import { Stack, Switch } from '@mui/material';
 import { Member } from '../../../types/member/member';
@@ -46,6 +48,8 @@ function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
 type Order = 'asc' | 'desc';
 
 interface HeadCell {
+	/** shown as a tooltip with an (i) icon: what the switch in this column does */
+	hint?: string;
 	disablePadding: boolean;
 	id: keyof Data;
 	label: string;
@@ -81,19 +85,22 @@ const headCells: readonly HeadCell[] = [
 		id: 'warning',
 		numeric: false,
 		disablePadding: false,
-		label: 'PHONE ✓',
+		label: 'PHONE CONFIRMED',
+		hint: 'The member confirmed this phone with an SMS code',
 	},
 	{
 		id: 'block',
 		numeric: false,
 		disablePadding: false,
 		label: 'TRUSTED',
+		hint: 'Trusted sellers publish without moderation. Given automatically after the first approved car.',
 	},
 	{
 		id: 'dealer',
 		numeric: false,
 		disablePadding: false,
 		label: 'VERIFIED DEALER',
+		hint: 'You checked the dealership documents. Buyers see a "Verified dealer" badge.',
 	},
 	{
 		id: 'state',
@@ -131,7 +138,15 @@ function EnhancedTableHead(props: EnhancedTableProps) {
 						align={headCell.numeric ? 'left' : 'center'}
 						padding={headCell.disablePadding ? 'none' : 'normal'}
 					>
-						{t(headCell.label)}
+						{headCell.hint ? (
+							<Tooltip title={t(headCell.hint) as string} arrow>
+								<span className={'ma-admin-th-hint'}>
+									{t(headCell.label)} <InfoOutlinedIcon />
+								</span>
+							</Tooltip>
+						) : (
+							t(headCell.label)
+						)}
 					</TableCell>
 				))}
 			</TableRow>
@@ -196,8 +211,8 @@ export const MemberPanelList = (props: MemberPanelListType) => {
 											</Stack>
 										</TableCell>
 
-										<TableCell align="center">{member.memberFullName || '-'}</TableCell>
-										<TableCell align="left">{member.memberPhone}</TableCell>
+										<TableCell align="center">{member.memberFullName || '—'}</TableCell>
+										<TableCell align="left" sx={{ whiteSpace: 'nowrap' }}>{member.memberPhone ? `+${member.memberPhone}` : '—'}</TableCell>
 
 										<TableCell align="center">
 											<Button onClick={(e: any) => menuIconClickHandler(e, index)} className={'badge success'}>
