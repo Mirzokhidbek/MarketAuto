@@ -10,23 +10,38 @@
 	}
 }
 
+// prices, mileage, years, counters: digits line up in lists and tables
+.ma-num {
+	font-variant-numeric: tabular-nums;
+	letter-spacing: -0.01em;
+}
+
 .ma-btn {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
 	gap: 8px;
 	height: 44px;
-	padding: 0 20px;
-	border-radius: 10px;
+	padding: 0 18px;
+	border-radius: $ma-radius-sm;
 	border: 1px solid transparent;
 	font-family: $ma-font;
 	font-size: 14px;
 	font-weight: 600;
 	white-space: nowrap;
 	cursor: pointer;
-	transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+	transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 	svg {
-		font-size: 20px;
+		font-size: 19px;
+	}
+	&:focus-visible {
+		outline: 2px solid $ma-primary;
+		outline-offset: 2px;
+	}
+	&:disabled,
+	&[aria-disabled='true'] {
+		opacity: 0.5;
+		cursor: not-allowed;
 	}
 	&--primary {
 		background: $ma-primary;
@@ -38,8 +53,6 @@
 	&--dark {
 		background: $ma-dark;
 		color: $ma-white;
-		height: 40px;
-		padding: 0 16px;
 		&:hover {
 			background: #1e293b;
 		}
@@ -47,18 +60,28 @@
 	&--outline {
 		background: $ma-white;
 		color: $ma-text;
-		border-color: $ma-border;
+		border-color: $ma-border-strong;
 		&:hover {
-			border-color: $ma-primary;
-			color: $ma-primary;
+			border-color: $ma-dark;
+		}
+	}
+	// a quiet text action ("All cars →"), not a box
+	&--link {
+		height: auto;
+		padding: 0;
+		background: none;
+		color: $ma-primary;
+		&:hover {
+			text-decoration: underline;
+			text-underline-offset: 3px;
 		}
 	}
 	&--ghost {
-		background: rgba(255, 255, 255, 0.1);
+		background: transparent;
 		color: $ma-white;
-		border-color: rgba(255, 255, 255, 0.2);
+		border-color: rgba(255, 255, 255, 0.35);
 		&:hover {
-			background: rgba(255, 255, 255, 0.18);
+			border-color: $ma-white;
 		}
 	}
 }
@@ -66,49 +89,82 @@
 .ma-badge {
 	display: inline-flex;
 	align-items: center;
-	height: 24px;
-	padding: 0 8px;
-	border-radius: 6px;
+	height: 22px;
+	padding: 0 7px;
+	border-radius: 4px;
 	font-family: $ma-font;
 	font-size: 12px;
 	font-weight: 600;
 	&--light {
-		background: rgba(255, 255, 255, 0.95);
+		background: $ma-white;
 		color: $ma-text;
+		box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.08);
 	}
 	&--primary {
-		background: $ma-primary;
-		color: $ma-white;
+		background: $ma-primary-soft;
+		color: $ma-primary-dark;
 	}
 }
 
 .ma-chip {
 	flex-shrink: 0;
-	padding: 3px 8px;
-	border-radius: 6px;
+	padding: 2px 6px;
+	border-radius: 4px;
 	background: $ma-bg-alt;
 	color: $ma-muted;
-	font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-	font-size: 12px;
+	font-family: $ma-mono;
+	font-size: 11.5px;
+}
+
+/*
+ * Origin plate: where the car is. It is the one thing that sets this marketplace apart
+ * (local + imported cars), so it gets its own small, recognizable mark — a registration-plate
+ * style country code instead of an emoji flag.
+ */
+.ma-origin {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	font-family: $ma-font;
+	font-size: 13px;
+	color: $ma-muted;
+	white-space: nowrap;
+	b {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		min-width: 26px;
+		height: 18px;
+		padding: 0 4px;
+		border: 1px solid $ma-dark;
+		border-left-width: 4px;
+		border-radius: 3px;
+		background: $ma-white;
+		color: $ma-dark;
+		font-family: $ma-mono;
+		font-size: 10.5px;
+		font-weight: 700;
+		letter-spacing: 0.04em;
+		line-height: 1;
+	}
+	&--uz b {
+		border-left-color: #1eb53a;
+	}
 }
 
 .ma-pill {
 	display: inline-flex;
 	align-items: center;
 	gap: 8px;
-	padding: 6px 14px;
-	border-radius: 999px;
-	border: 1px solid rgba(255, 255, 255, 0.2);
-	background: rgba(255, 255, 255, 0.08);
-	color: $ma-white;
 	font-family: $ma-font;
 	font-size: 13px;
 	font-weight: 600;
+	color: $ma-muted;
 	.ma-dot {
-		width: 8px;
-		height: 8px;
+		width: 7px;
+		height: 7px;
 		border-radius: 50%;
-		background: #3b82f6;
+		background: $ma-success;
 	}
 }
 
@@ -118,9 +174,9 @@
 	justify-content: center;
 	width: 40px;
 	height: 40px;
-	border-radius: 10px;
-	background: #e0e7ff;
-	color: $ma-primary;
+	border-radius: 50%;
+	background: $ma-bg-alt;
+	color: $ma-text;
 	font-family: $ma-font;
 	font-weight: 700;
 	font-size: 14px;
@@ -140,96 +196,100 @@
 .ma-center {
 	display: flex;
 	justify-content: center;
-	margin-top: 36px;
+	margin-top: 32px;
 }
 
 .ma-empty {
-	padding: 60px 0;
+	padding: 56px 24px;
 	text-align: center;
 	color: $ma-muted;
 	font-family: $ma-font;
-	border: 1px dashed $ma-border;
-	border-radius: $ma-radius;
-	background: $ma-white;
+	font-size: 15px;
+	border-top: 1px solid $ma-border;
+	border-bottom: 1px solid $ma-border;
 }
 
 /* ---------- section scaffolding ---------- */
 .ma-page {
-	background: $ma-bg;
+	background: $ma-white;
 	font-family: $ma-font;
 	color: $ma-text;
 }
 
+// sections are separated by a rule, not by alternating grey bands
 .ma-section {
-	padding: 80px 0;
+	padding: 64px 0;
+	& + & {
+		border-top: 1px solid $ma-border;
+	}
 	&--tight {
-		padding: 0 0 80px;
+		padding: 0 0 64px;
 	}
 	&--alt {
-		background: $ma-bg-alt;
+		background: $ma-white;
 	}
 }
 
 .ma-heading {
-	text-align: center;
 	max-width: 640px;
-	margin: 0 auto 44px;
+	margin: 0 0 32px;
 }
 
+// kept for pages that still use it; shown as a quiet label, not a shouting overline
 .ma-eyebrow {
 	display: block;
-	margin-bottom: 10px;
-	color: $ma-primary;
+	margin-bottom: 8px;
+	color: $ma-muted;
 	font-family: $ma-font;
 	font-size: 13px;
-	font-weight: 700;
-	letter-spacing: 0.08em;
+	font-weight: 600;
 	&--light {
-		color: #93c5fd;
+		color: rgba(255, 255, 255, 0.7);
 	}
 }
 
 .ma-title {
 	margin: 0;
 	font-family: $ma-font;
-	font-size: 32px;
+	font-size: 26px;
+	line-height: 1.2;
 	font-weight: 700;
 	letter-spacing: -0.02em;
 	color: $ma-dark;
 }
 
 .ma-subtitle {
-	margin: 10px 0 0;
+	margin: 6px 0 0;
 	font-family: $ma-font;
-	font-size: 16px;
-	line-height: 1.6;
+	font-size: 15px;
+	line-height: 1.55;
 	color: $ma-muted;
 }
 
 /* ---------- navbar ---------- */
 #pc-wrap #top .navbar .navbar-main {
-	background: rgba(255, 255, 255, 0.96) !important;
-	backdrop-filter: blur(10px);
+	background: $ma-white !important;
+	backdrop-filter: none;
 	border-bottom: 1px solid $ma-border;
-	height: 72px;
+	height: 64px;
 	padding: 0;
 	.container {
 		width: 1240px;
 		max-width: calc(100% - 48px);
 	}
 	.container .logo-box img {
-		width: 160px;
+		width: 150px;
 	}
 	.container .router-box {
 		width: auto;
-		gap: 28px;
+		gap: 24px;
 		margin: 0 32px;
 		div {
 			color: $ma-text;
 			font-family: $ma-font;
-			font-size: 15px;
+			font-size: 14.5px;
 			font-weight: 500;
-			transition: color 0.2s ease;
+			transition: color 0.15s ease;
 			&:hover {
 				color: $ma-primary;
 			}
@@ -238,16 +298,16 @@
 	.container .user-box {
 		width: auto;
 		align-items: center;
-		gap: 14px;
+		gap: 12px;
 		.ma-nav-sell {
-			height: 40px;
+			height: 38px;
 		}
 		.join-box {
 			width: auto;
-			height: 40px;
-			padding: 0 16px;
-			border-radius: 10px;
-			border-color: $ma-border;
+			height: 38px;
+			padding: 0 14px;
+			border-radius: $ma-radius-sm;
+			border-color: $ma-border-strong;
 			svg,
 			span {
 				color: $ma-text;
@@ -263,93 +323,139 @@
 	}
 }
 
-/* ---------- inner page banner (LayoutBasic) ---------- */
+/* ---------- inner page header (LayoutBasic) ---------- */
+// a plain title row on white: the page content starts right below it, no 230px photo banner
 #pc-wrap .header-basic {
-	height: 230px !important;
-	background: linear-gradient(120deg, #0f172a 0%, #1e3a8a 55%, #0b57d0 100%) !important;
+	height: auto !important;
+	min-height: 0 !important;
+	padding: 104px 0 28px;
+	background: $ma-white !important;
+	background-image: none !important;
 	box-shadow: none !important;
+	border-bottom: 1px solid $ma-border;
 	&.auth {
-		height: 220px !important;
+		height: auto !important;
 	}
 	.container {
-		margin-top: 112px;
+		margin-top: 0;
 		width: 1240px;
 		max-width: calc(100% - 48px);
 		strong {
-			font-size: 36px !important;
+			font-size: 28px !important;
+			line-height: 1.2;
 			font-family: $ma-font;
 			font-weight: 700;
 			letter-spacing: -0.02em;
+			color: $ma-dark !important;
 		}
 		span {
+			margin-top: 4px;
 			font-family: $ma-font;
-			opacity: 0.85;
+			font-size: 15px !important;
+			color: $ma-muted !important;
+			opacity: 1;
 		}
 	}
 }
 
 /* ---------- hero ---------- */
+// white, left-aligned, short: the search is the point, the car list follows immediately
 .ma-hero {
 	position: relative;
-	padding: 170px 0 110px;
-	background: radial-gradient(1200px 500px at 70% 0%, rgba(11, 87, 208, 0.45), transparent 60%),
-		linear-gradient(180deg, #0b1220 0%, #111827 60%, #1f2937 100%);
-	overflow: hidden;
-	&::after {
-		content: '';
-		position: absolute;
-		inset: 0;
-		background-image: linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
-			linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
-		background-size: 48px 48px;
-		mask-image: linear-gradient(180deg, black, transparent);
-		pointer-events: none;
-	}
+	padding: 112px 0 40px;
+	background: $ma-white;
+	border-bottom: 1px solid $ma-border;
 	&__inner {
-		position: relative;
-		z-index: 1;
-		width: 1000px;
+		width: 1240px;
 		max-width: calc(100% - 48px);
 		margin: 0 auto;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		text-align: center;
 	}
 	h1 {
-		margin: 24px 0 18px;
+		max-width: 760px;
+		margin: 12px 0 12px;
 		font-family: $ma-font;
-		font-size: 52px;
-		line-height: 1.1;
+		font-size: 44px;
+		line-height: 1.08;
 		font-weight: 800;
-		letter-spacing: -0.03em;
-		color: $ma-white;
+		letter-spacing: -0.035em;
+		color: $ma-dark;
 	}
 	&__lead {
-		max-width: 680px;
-		margin: 0 0 44px;
+		max-width: 640px;
+		margin: 0 0 28px;
 		font-family: $ma-font;
-		font-size: 17px;
-		line-height: 1.6;
-		color: rgba(255, 255, 255, 0.75);
+		font-size: 16px;
+		line-height: 1.55;
+		color: $ma-muted;
+	}
+	&__origins {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 6px 18px;
+		margin-top: 18px;
+		font-family: $ma-font;
+		font-size: 13px;
+		color: $ma-muted;
+		a {
+			display: inline-flex;
+			color: $ma-text;
+			&:hover .ma-origin {
+				color: $ma-primary;
+			}
+		}
+		.ma-origin {
+			color: $ma-text;
+		}
 	}
 }
 
+// one bar: make | model | price | year | search
 .ma-search {
 	width: 100%;
 	display: grid;
-	/* 4 per row: Uzbek/Russian labels like "Barcha davlatlar" fit without being cut */
-	grid-template-columns: repeat(4, minmax(0, 1fr));
-	gap: 12px 14px;
-	align-items: end;
-	padding: 24px;
-	border-radius: 16px;
+	grid-template-columns: 1.1fr 1.1fr 1fr 1fr auto;
+	align-items: stretch;
+	border: 1px solid $ma-border-strong;
+	border-radius: $ma-radius;
 	background: $ma-white;
-	box-shadow: 0 30px 60px rgba(0, 0, 0, 0.35);
+	overflow: hidden;
+	.ma-field {
+		gap: 2px;
+		padding: 10px 14px 8px;
+		border-right: 1px solid $ma-border;
+		&:focus-within {
+			background: $ma-bg;
+		}
+		select,
+		input {
+			height: 26px;
+			padding: 0;
+			border: none;
+			background: transparent;
+			font-size: 15px;
+			font-weight: 500;
+			&:focus {
+				box-shadow: none;
+			}
+		}
+	}
 	&__btn {
-		grid-column: span 2;
-		height: 46px;
-		padding: 0 26px;
+		height: auto;
+		min-height: 58px;
+		margin: 6px;
+		padding: 0 24px;
+		border-radius: $ma-radius-sm;
+	}
+	&__more {
+		display: inline-block;
+		margin-left: auto;
+		font-weight: 600;
+		color: $ma-primary;
+		&:hover {
+			text-decoration: underline;
+			text-underline-offset: 3px;
+		}
 	}
 }
 
@@ -367,11 +473,11 @@
 	select,
 	input {
 		min-width: 0;
-		height: 46px;
+		height: 44px;
 		padding: 0 12px;
-		border-radius: 10px;
-		border: 1px solid $ma-border;
-		background: $ma-bg;
+		border-radius: $ma-radius-sm;
+		border: 1px solid $ma-border-strong;
+		background: $ma-white;
 		font-family: $ma-font;
 		font-size: 14px;
 		color: $ma-text;
@@ -389,218 +495,281 @@
 	display: flex;
 	align-items: flex-end;
 	justify-content: space-between;
-	gap: 24px;
-	margin-bottom: 32px;
+	gap: 16px 24px;
+	margin-bottom: 24px;
 	flex-wrap: wrap;
 }
 
+// underline tabs: a row of filters, not a row of buttons
 .ma-tabs {
 	display: flex;
 	flex-wrap: wrap;
-	gap: 8px;
+	gap: 4px 20px;
 }
 
 .ma-tab {
-	height: 38px;
-	padding: 0 14px;
-	border-radius: 999px;
-	border: 1px solid $ma-border;
-	background: $ma-white;
-	color: $ma-text;
+	height: 34px;
+	padding: 0;
+	border: none;
+	border-bottom: 2px solid transparent;
+	border-radius: 0;
+	background: none;
+	color: $ma-muted;
 	font-family: $ma-font;
-	font-size: 13px;
+	font-size: 14px;
 	font-weight: 600;
 	cursor: pointer;
-	transition: all 0.2s ease;
+	transition: color 0.15s ease, border-color 0.15s ease;
 	&:hover {
-		border-color: $ma-dark;
+		color: $ma-dark;
+	}
+	&:focus-visible {
+		outline: 2px solid $ma-primary;
+		outline-offset: 2px;
 	}
 	&.is-active {
-		background: $ma-dark;
-		border-color: $ma-dark;
-		color: $ma-white;
+		color: $ma-dark;
+		border-bottom-color: $ma-dark;
 	}
 }
 
 /* ---------- car card ---------- */
+// no box: the photo is the container, text sits on the page
 .ma-car-card {
+	position: relative;
 	display: flex;
 	flex-direction: column;
-	border-radius: $ma-radius;
-	background: $ma-white;
-	border: 1px solid $ma-border;
-	box-shadow: $ma-shadow;
-	overflow: hidden;
-	transition: transform 0.25s ease, box-shadow 0.25s ease;
-	&:hover {
-		transform: translateY(-4px);
-		box-shadow: $ma-shadow-hover;
-	}
+	min-width: 0;
+	background: transparent;
+	font-family: $ma-font;
+	cursor: pointer;
 	&__media {
 		position: relative;
-		height: 210px;
-		background: $ma-bg-alt;
-		cursor: pointer;
+		aspect-ratio: 4 / 3;
+		border-radius: $ma-radius;
+		background: $ma-bg;
+		overflow: hidden;
 		img {
 			width: 100%;
 			height: 100%;
 			object-fit: cover;
+			transition: transform 0.4s ease;
 		}
+	}
+	&:hover &__media img {
+		transform: scale(1.025);
 	}
 	&__placeholder {
 		width: 100%;
 		height: 100%;
 		display: flex;
+		flex-direction: column;
 		align-items: center;
 		justify-content: center;
-		background: linear-gradient(135deg, #e2e8f0, #f8fafc);
+		gap: 6px;
+		color: $ma-faint;
+		font-size: 13px;
 		svg {
-			font-size: 72px;
-			color: #cbd5e1;
+			font-size: 36px;
+			color: $ma-border-strong;
 		}
 	}
 	&__badges {
 		position: absolute;
-		top: 12px;
-		left: 12px;
+		left: 10px;
+		bottom: 10px;
 		display: flex;
 		gap: 6px;
 	}
-	&__like {
+	&__actions {
 		position: absolute;
-		top: 12px;
-		right: 12px;
-		width: 36px;
-		height: 36px;
+		top: 10px;
+		right: 10px;
+		display: flex;
+		gap: 6px;
+	}
+	&__like,
+	&__compare {
+		width: 34px;
+		height: 34px;
 		display: flex;
 		align-items: center;
 		justify-content: center;
 		border-radius: 50%;
 		border: none;
-		background: rgba(255, 255, 255, 0.95);
-		color: $ma-muted;
+		background: rgba(255, 255, 255, 0.94);
+		color: $ma-text;
 		cursor: pointer;
+		box-shadow: 0 1px 3px rgba(15, 23, 42, 0.15);
 		svg {
-			font-size: 20px;
+			font-size: 18px;
+		}
+		&:hover {
+			color: $ma-dark;
+		}
+		&:focus-visible {
+			outline: 2px solid $ma-primary;
 		}
 		&.is-liked {
-			color: #e11d48;
+			color: $ma-danger;
+		}
+		&.is-active {
+			background: $ma-dark;
+			color: $ma-white;
 		}
 	}
 	&__body {
 		display: flex;
 		flex-direction: column;
 		flex: 1;
-		padding: 18px 20px 20px;
+		padding: 12px 2px 0;
+	}
+	&__top {
+		display: flex;
+		align-items: baseline;
+		justify-content: space-between;
+		gap: 12px;
 	}
 	&__title-row {
 		display: flex;
-		align-items: flex-start;
-		justify-content: space-between;
-		gap: 10px;
+		align-items: center;
+		gap: 8px;
+		min-width: 0;
 		h3 {
 			margin: 0;
+			min-width: 0;
 			font-family: $ma-font;
-			font-size: 17px;
+			font-size: 15.5px;
 			font-weight: 600;
 			line-height: 1.35;
 			color: $ma-dark;
-			cursor: pointer;
-			&:hover {
-				color: $ma-primary;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+			a {
+				color: inherit;
 			}
 		}
 	}
+	&:hover h3 {
+		color: $ma-primary;
+	}
 	&__specs {
-		margin: 8px 0 18px;
+		margin: 4px 0 8px;
 		font-family: $ma-font;
 		font-size: 13.5px;
-		line-height: 1.5;
+		line-height: 1.45;
 		color: $ma-muted;
+		font-variant-numeric: tabular-nums;
 	}
 	&__footer {
 		margin-top: auto;
-		padding-top: 16px;
-		border-top: 1px solid $ma-border;
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
+		gap: 12px;
 	}
 	&__price {
+		flex-shrink: 0;
 		font-family: $ma-font;
-		font-size: 22px;
+		font-size: 18px;
 		font-weight: 700;
+		letter-spacing: -0.01em;
 		color: $ma-dark;
+		font-variant-numeric: tabular-nums;
 	}
 }
 
-/* ---------- country spotlight ---------- */
+/* ---------- origin columns (was: country spotlight tiles) ---------- */
+.ma-origins {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	border-top: 1px solid $ma-border;
+	border-bottom: 1px solid $ma-border;
+}
+
 .ma-spotlight {
-	position: relative;
-	white-space: normal;
 	display: flex;
 	flex-direction: column;
-	justify-content: flex-end;
-	height: 260px;
-	padding: 28px;
-	border-radius: 18px;
-	color: $ma-white;
+	height: 100%;
+	padding: 28px 28px 28px 0;
+	white-space: normal;
+	color: $ma-text;
 	cursor: pointer;
-	overflow: hidden;
-	transition: transform 0.25s ease;
-	&:hover {
-		transform: translateY(-4px);
-	}
-	&.is-korea {
-		background: linear-gradient(160deg, #1e3a8a, #0f172a 70%);
-	}
-	&.is-china {
-		background: linear-gradient(160deg, #991b1b, #1f2937 70%);
-	}
-	&.is-germany {
-		background: linear-gradient(160deg, #374151, #0f172a 70%);
+	font-family: $ma-font;
+	a:not(:first-child) > & {
+		padding-left: 28px;
+		border-left: 1px solid $ma-border;
 	}
 	&__label {
-		font-family: $ma-font;
-		font-size: 12px;
-		font-weight: 700;
-		letter-spacing: 0.08em;
-		opacity: 0.85;
+		margin-bottom: 14px;
 	}
 	h3 {
-		margin: 8px 0 8px;
-		font-family: $ma-font;
-		font-size: 22px;
-		font-weight: 700;
+		margin: 0 0 6px;
+		font-size: 18px;
+		font-weight: 650;
+		letter-spacing: -0.01em;
+		color: $ma-dark;
 	}
 	p {
-		margin: 0 0 18px;
-		font-family: $ma-font;
+		margin: 0 0 16px;
 		font-size: 14px;
 		line-height: 1.55;
-		opacity: 0.8;
+		color: $ma-muted;
 	}
 	&__cta {
-		font-family: $ma-font;
+		margin-top: auto;
 		font-size: 14px;
 		font-weight: 600;
+		color: $ma-primary;
+	}
+	&:hover &__cta {
+		text-decoration: underline;
+		text-underline-offset: 3px;
 	}
 }
 
-/* ---------- features / steps ---------- */
+/* ---------- how it works ---------- */
+.ma-how {
+	display: grid;
+	grid-template-columns: 320px minmax(0, 1fr);
+	gap: 48px;
+	&__steps {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: 32px;
+		counter-reset: step;
+	}
+	&__trust {
+		grid-column: 2;
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 20px 32px;
+		margin: 0;
+		padding-top: 28px;
+		border-top: 1px solid $ma-border;
+		font-family: $ma-font;
+		dt {
+			font-size: 14.5px;
+			font-weight: 600;
+			color: $ma-dark;
+		}
+		dd {
+			margin: 4px 0 0;
+			font-size: 14px;
+			line-height: 1.55;
+			color: $ma-muted;
+		}
+	}
+}
+
 .ma-feature,
 .ma-step,
-.ma-review,
 .ma-dealer {
-	padding: 28px;
-	border-radius: $ma-radius;
-	background: $ma-white;
-	border: 1px solid $ma-border;
-	box-shadow: $ma-shadow;
 	font-family: $ma-font;
 	h3 {
-		margin: 0 0 8px;
-		font-size: 17px;
+		margin: 0 0 6px;
+		font-size: 16px;
 		font-weight: 600;
 		color: $ma-dark;
 	}
@@ -612,58 +781,45 @@
 	}
 }
 
+// about page still uses feature boxes: keep them flat
 .ma-feature {
-	text-align: center;
+	padding: 24px 0 0;
+	border-top: 1px solid $ma-border;
 	&__icon {
-		width: 52px;
-		height: 52px;
-		margin: 0 auto 18px;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		border-radius: 12px;
-		background: #dbeafe;
-		color: $ma-primary;
-	}
-}
-
-.ma-step {
-	position: relative;
-	&__num {
-		position: absolute;
-		top: -14px;
-		left: 24px;
-		width: 32px;
-		height: 32px;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		border-radius: 8px;
-		background: $ma-primary;
-		color: $ma-white;
-		font-weight: 700;
-	}
-	&__icon {
-		margin: 10px 0 16px;
-		color: $ma-primary;
+		margin-bottom: 12px;
+		color: $ma-dark;
 		svg {
-			font-size: 36px;
+			font-size: 22px;
 		}
 	}
 }
 
+.ma-step {
+	&__num {
+		display: block;
+		margin-bottom: 10px;
+		font-family: $ma-mono;
+		font-size: 13px;
+		font-weight: 600;
+		color: $ma-primary;
+	}
+}
+
 .ma-dealer {
-	text-align: center;
+	padding: 20px;
+	border: 1px solid $ma-border;
+	border-radius: $ma-radius;
+	background: $ma-white;
+	text-align: left;
 	cursor: pointer;
-	transition: transform 0.25s ease, box-shadow 0.25s ease;
+	transition: border-color 0.15s ease;
 	&:hover {
-		transform: translateY(-4px);
-		box-shadow: $ma-shadow-hover;
+		border-color: $ma-border-strong;
 	}
 	img {
-		width: 72px;
-		height: 72px;
-		margin-bottom: 14px;
+		width: 56px;
+		height: 56px;
+		margin-bottom: 12px;
 		border-radius: 50%;
 		object-fit: cover;
 		background: $ma-bg-alt;
@@ -671,113 +827,85 @@
 }
 
 /* ---------- sell CTA ---------- */
+// one flat ink band; the support phone is information, not a decorative card
 .ma-cta {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: 40px;
-	padding: 56px;
-	border-radius: 20px;
-	background: radial-gradient(600px 300px at 90% 100%, rgba(11, 87, 208, 0.5), transparent 70%), #1f2937;
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto;
+	align-items: end;
+	gap: 32px 48px;
+	padding: 48px;
+	border-radius: $ma-radius-lg;
+	background: $ma-dark;
 	color: $ma-white;
 	font-family: $ma-font;
 	&__text {
-		max-width: 560px;
+		max-width: 600px;
 		h2 {
-			margin: 0 0 14px;
+			margin: 0 0 12px;
 			font-size: 28px;
+			line-height: 1.2;
 			font-weight: 700;
+			letter-spacing: -0.02em;
 		}
 		p {
-			margin: 0 0 28px;
-			font-size: 16px;
+			margin: 0 0 24px;
+			font-size: 15.5px;
 			line-height: 1.6;
-			color: rgba(255, 255, 255, 0.75);
+			color: rgba(255, 255, 255, 0.72);
 		}
 	}
 	&__actions {
 		display: flex;
+		flex-wrap: wrap;
 		gap: 12px;
 	}
 	&__card {
-		width: 340px;
-		padding: 22px;
-		border-radius: 14px;
-		background: rgba(255, 255, 255, 0.07);
-		border: 1px solid rgba(255, 255, 255, 0.12);
+		min-width: 240px;
+		padding-left: 32px;
+		border-left: 1px solid rgba(255, 255, 255, 0.16);
 	}
 	&__card-row {
 		display: flex;
-		align-items: center;
-		gap: 14px;
-		strong {
-			display: block;
-			font-size: 15px;
+		flex-direction: column;
+		gap: 2px;
+		svg {
+			display: none;
 		}
-		span {
-			font-size: 13px;
-			color: rgba(255, 255, 255, 0.65);
-		}
-		&--split {
-			justify-content: space-between;
-			margin-top: 18px;
-			padding-top: 18px;
-			border-top: 1px solid rgba(255, 255, 255, 0.12);
-			strong {
-				font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-				font-size: 16px;
-			}
-		}
-	}
-}
-
-/* ---------- testimonials ---------- */
-.ma-review {
-	display: flex;
-	flex-direction: column;
-	&__stars {
-		margin-bottom: 14px;
-		color: #f59e0b;
-		letter-spacing: 2px;
-	}
-	p {
-		flex: 1;
-		color: $ma-text;
-		font-size: 15px;
-	}
-	&__author {
-		display: flex;
-		align-items: center;
-		gap: 12px;
-		margin-top: 22px;
-		padding-top: 18px;
-		border-top: 1px solid $ma-border;
 		strong {
 			display: block;
 			font-size: 14px;
-			color: $ma-dark;
+			font-weight: 600;
 		}
 		span {
-			font-size: 12px;
-			color: $ma-muted;
+			font-size: 13px;
+			color: rgba(255, 255, 255, 0.6);
+		}
+		&--split {
+			margin-top: 16px;
+			strong {
+				font-size: 20px;
+				font-variant-numeric: tabular-nums;
+				letter-spacing: -0.01em;
+			}
 		}
 	}
 }
 
 /* ---------- FAQ ---------- */
 .ma-faq {
-	margin-bottom: 12px;
-	border-radius: 12px;
-	background: $ma-white;
-	border: 1px solid $ma-border;
+	border-bottom: 1px solid $ma-border;
 	font-family: $ma-font;
+	&:first-of-type {
+		border-top: 1px solid $ma-border;
+	}
 	summary {
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		padding: 18px 20px;
-		font-size: 15px;
-		font-weight: 500;
+		gap: 16px;
+		padding: 18px 0;
+		font-size: 15.5px;
+		font-weight: 600;
 		color: $ma-dark;
 		cursor: pointer;
 		list-style: none;
@@ -785,6 +913,7 @@
 			display: none;
 		}
 		svg {
+			flex-shrink: 0;
 			color: $ma-muted;
 			transition: transform 0.2s ease;
 		}
@@ -793,9 +922,10 @@
 		transform: rotate(180deg);
 	}
 	p {
+		max-width: 680px;
 		margin: 0;
-		padding: 0 20px 18px;
-		font-size: 14px;
+		padding: 0 0 20px;
+		font-size: 15px;
 		line-height: 1.65;
 		color: $ma-muted;
 	}
@@ -881,3 +1011,4 @@
 @import '/scss/pc/ma/account';
 @import '/scss/pc/ma/admin';
 @import '/scss/pc/ma/responsive';
+@import '/scss/pc/ma/refine';

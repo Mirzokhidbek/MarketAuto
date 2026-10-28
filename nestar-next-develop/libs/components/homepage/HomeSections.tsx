@@ -2,13 +2,6 @@ import React from 'react';
 import Link from 'next/link';
 import { useTranslation } from 'next-i18next';
 import { useQuery, useReactiveVar } from '@apollo/client';
-import VerifiedUserOutlinedIcon from '@mui/icons-material/VerifiedUserOutlined';
-import PublicOutlinedIcon from '@mui/icons-material/PublicOutlined';
-import ForumOutlinedIcon from '@mui/icons-material/ForumOutlined';
-import SellOutlinedIcon from '@mui/icons-material/SellOutlined';
-import TravelExploreOutlinedIcon from '@mui/icons-material/TravelExploreOutlined';
-import PhoneInTalkOutlinedIcon from '@mui/icons-material/PhoneInTalkOutlined';
-import KeyOutlinedIcon from '@mui/icons-material/KeyOutlined';
 import SupportAgentOutlinedIcon from '@mui/icons-material/SupportAgentOutlined';
 import ExpandMoreRoundedIcon from '@mui/icons-material/ExpandMoreRounded';
 import { GET_AGENTS, GET_BOARD_ARTICLES } from '../../../apollo/user/query';
@@ -20,6 +13,7 @@ import { CarCountry } from '../../enums/property.enum';
 import { Direction } from '../../enums/common.enum';
 import DealerCard from '../common/DealerCard';
 import { useSiteSettings } from '../../hooks/useSiteSettings';
+import Origin from '../common/Origin';
 
 const searchLink = (country: CarCountry) =>
 	`/property?input=${JSON.stringify({ page: 1, limit: 9, sort: 'createdAt', search: { countryList: [country] } })}`;
@@ -28,30 +22,21 @@ const searchLink = (country: CarCountry) =>
 const spotlights = [
 	{
 		country: CarCountry.SOUTH_KOREA,
-		flag: '🇰🇷',
-		label: 'SOUTH KOREA',
 		title: 'Kia, Hyundai & Genesis',
 		text: 'Popular Korean models listed directly by sellers in Seoul, Incheon and Busan.',
 		cta: 'Browse Korean cars',
-		className: 'is-korea',
 	},
 	{
 		country: CarCountry.CHINA,
-		flag: '🇨🇳',
-		label: 'CHINA',
 		title: 'Electric & Hybrid Leaders',
 		text: 'BYD, Chery, Haval and more — the fastest growing brands on Uzbek roads.',
 		cta: 'Browse Chinese cars',
-		className: 'is-china',
 	},
 	{
 		country: CarCountry.GERMANY,
-		flag: '🇩🇪',
-		label: 'GERMANY',
 		title: 'German Engineering',
 		text: 'BMW, Mercedes-Benz, Audi and Volkswagen from sellers across Germany.',
 		cta: 'Browse German cars',
-		className: 'is-germany',
 	},
 ];
 
@@ -59,12 +44,12 @@ export const CountrySpotlight = () => {
 	const { t } = useTranslation('common');
 	return (
 		<section className={'ma-section ma-section--tight'}>
-			<div className={'ma-container ma-grid ma-grid--3'}>
+			<div className={'ma-container ma-origins'}>
 				{spotlights.map((item) => (
 					<Link href={searchLink(item.country)} key={item.country}>
-						<div className={`ma-spotlight ${item.className}`}>
+						<div className={'ma-spotlight'}>
 							<span className={'ma-spotlight__label'}>
-								{item.flag} {t(item.label)}
+								<Origin country={item.country} />
 							</span>
 							<h3>{t(item.title)}</h3>
 							<p>{t(item.text)}</p>
@@ -77,65 +62,46 @@ export const CountrySpotlight = () => {
 	);
 };
 
-/** WHY US **/
+/** HOW IT WORKS (steps + what the buyer can rely on, in one place) **/
 const reasons = [
-	{ icon: <VerifiedUserOutlinedIcon />, title: 'Open Dealer Profiles', text: 'Every dealer has a public profile with all their cars, likes, followers and ranking.' },
-	{ icon: <PublicOutlinedIcon />, title: 'Local & International', text: 'Cars located in Uzbekistan and abroad — all in one search with clear country labels.' },
-	{ icon: <ForumOutlinedIcon />, title: 'Direct Contact', text: 'Call or message the seller directly. No middlemen and no hidden fees.' },
-	{ icon: <SellOutlinedIcon />, title: 'Free Listing', text: 'Private sellers and dealers can list cars for free in a few minutes.' },
+	{ title: 'Open Dealer Profiles', text: 'Every dealer has a public profile with all their cars, likes, followers and ranking.' },
+	{ title: 'Local & International', text: 'Cars located in Uzbekistan and abroad — all in one search with clear country labels.' },
+	{ title: 'Direct Contact', text: 'Call or message the seller directly. No middlemen and no hidden fees.' },
+	{ title: 'Free Listing', text: 'Private sellers and dealers can list cars for free in a few minutes.' },
 ];
 
-export const WhyUs = () => {
-	const { t } = useTranslation('common');
-	return (
-		<section className={'ma-section ma-section--alt'}>
-			<div className={'ma-container'}>
-				<div className={'ma-heading'}>
-					<span className={'ma-eyebrow'}>{t('TRUST & SAFETY')}</span>
-					<h2 className={'ma-title'}>{t('Why MarketAuto')}</h2>
-					<p className={'ma-subtitle'}>{t('A simple and honest place to buy and sell cars.')}</p>
-				</div>
-				<div className={'ma-grid ma-grid--4'}>
-					{reasons.map((item) => (
-						<div className={'ma-feature'} key={item.title}>
-							<div className={'ma-feature__icon'}>{item.icon}</div>
-							<h3>{t(item.title)}</h3>
-							<p>{t(item.text)}</p>
-						</div>
-					))}
-				</div>
-			</div>
-		</section>
-	);
-};
-
-/** HOW IT WORKS **/
 const steps = [
-	{ icon: <TravelExploreOutlinedIcon />, title: 'Search & Compare', text: 'Filter by country, brand, year, mileage, fuel and price to find the right car.' },
-	{ icon: <PhoneInTalkOutlinedIcon />, title: 'Contact the Seller', text: 'Ask questions, request more photos or a video call directly from the car page.' },
-	{ icon: <KeyOutlinedIcon />, title: 'Inspect & Buy', text: 'Check the car and documents in person, agree on the price and close the deal with the seller.' },
+	{ title: 'Search & Compare', text: 'Filter by country, brand, year, mileage, fuel and price to find the right car.' },
+	{ title: 'Contact the Seller', text: 'Ask questions, request more photos or a video call directly from the car page.' },
+	{ title: 'Inspect & Buy', text: 'Check the car and documents in person, agree on the price and close the deal with the seller.' },
 ];
 
 export const HowItWorks = () => {
 	const { t } = useTranslation('common');
 	return (
 		<section className={'ma-section'}>
-			<div className={'ma-container'}>
-				<div className={'ma-heading'}>
-					<span className={'ma-eyebrow'}>{t('SIMPLE & TRANSPARENT')}</span>
+			<div className={'ma-container ma-how'}>
+				<div>
 					<h2 className={'ma-title'}>{t('How MarketAuto Works')}</h2>
 					<p className={'ma-subtitle'}>{t('From search to keys in three simple steps.')}</p>
 				</div>
-				<div className={'ma-grid ma-grid--3'}>
+				<ol className={'ma-how__steps'}>
 					{steps.map((item, index) => (
-						<div className={'ma-step'} key={item.title}>
-							<span className={'ma-step__num'}>{index + 1}</span>
-							<div className={'ma-step__icon'}>{item.icon}</div>
+						<li className={'ma-step'} key={item.title}>
+							<span className={'ma-step__num'}>{String(index + 1).padStart(2, '0')}</span>
 							<h3>{t(item.title)}</h3>
 							<p>{t(item.text)}</p>
+						</li>
+					))}
+				</ol>
+				<dl className={'ma-how__trust'}>
+					{reasons.map((item) => (
+						<div key={item.title}>
+							<dt>{t(item.title)}</dt>
+							<dd>{t(item.text)}</dd>
 						</div>
 					))}
-				</div>
+				</dl>
 			</div>
 		</section>
 	);
@@ -152,7 +118,7 @@ export const TopDealers = () => {
 	if (!dealers.length) return null;
 
 	return (
-		<section className={'ma-section ma-section--alt'}>
+		<section className={'ma-section'}>
 			<div className={'ma-container'}>
 				<div className={'ma-hub__head'}>
 					<div>
@@ -160,7 +126,7 @@ export const TopDealers = () => {
 						<p className={'ma-subtitle'}>{t('Dealers and private sellers you can follow')}</p>
 					</div>
 					<Link href={'/agent'}>
-						<span className={'ma-btn ma-btn--outline'}>{t('See All Sellers')} →</span>
+						<span className={'ma-btn ma-btn--link'}>{t('See All Sellers')} →</span>
 					</Link>
 				</div>
 				<div className={'ma-grid ma-grid--4'}>
@@ -185,7 +151,6 @@ export const SellCta = () => {
 			<div className={'ma-container'}>
 				<div className={'ma-cta'}>
 					<div className={'ma-cta__text'}>
-						<span className={'ma-eyebrow ma-eyebrow--light'}>{t('FOR SELLERS')}</span>
 						<h2>{t('Selling a car in Uzbekistan or abroad?')}</h2>
 						<p>
 							{t('List your car for free and reach buyers across Uzbekistan. Every seller gets a public profile, followers and statistics.')}
@@ -229,7 +194,7 @@ export const LatestArticles = () => {
 	if (!articles.length) return null;
 
 	return (
-		<section className={'ma-section ma-section--alt'}>
+		<section className={'ma-section'}>
 			<div className={'ma-container'}>
 				<div className={'ma-hub__head'}>
 					<div>
@@ -237,7 +202,7 @@ export const LatestArticles = () => {
 						<p className={'ma-subtitle'}>{t('News, reviews and tips written by MarketAuto members')}</p>
 					</div>
 					<Link href={'/community?articleCategory=FREE'}>
-						<span className={'ma-btn ma-btn--outline'}>{t('Go to Community')} →</span>
+						<span className={'ma-btn ma-btn--link'}>{t('Go to Community')} →</span>
 					</Link>
 				</div>
 				<div className={'ma-grid ma-grid--3'}>
@@ -264,7 +229,6 @@ export const HomeFaq = () => {
 		<section className={'ma-section'}>
 			<div className={'ma-container ma-container--narrow'}>
 				<div className={'ma-heading'}>
-					<span className={'ma-eyebrow'}>{t('GOT QUESTIONS?')}</span>
 					<h2 className={'ma-title'}>{t('Frequently Asked Questions')}</h2>
 				</div>
 				{faqs.map((item) => (

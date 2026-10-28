@@ -988,5 +988,8 @@
 	"When you reject a car, write the reason: the seller can fix it and send it again.": "E'lonni rad etganda sababini yozing: sotuvchi tuzatib, qayta yuboradi.",
 	"Open a member to see all their cars, reports and chats in one place.": "A'zoni ochsangiz, uning barcha e'lonlari, shikoyatlari va yozishmalari bir joyda ko'rinadi.",
 	"Select several cars with the checkboxes to approve or reject them at once.": "Bir nechta e'lonni belgilab, birdaniga tasdiqlash yoki rad etish mumkin.",
-	"Every admin action is written to the action log.": "Har bir admin harakati jurnalga yoziladi."
+	"Every admin action is written to the action log.": "Har bir admin harakati jurnalga yoziladi.",
+	"No photo": "Rasm yo'q",
+	"More filters": "Barcha filtrlar",
+	"Cars from": "Qayerdan"
 }

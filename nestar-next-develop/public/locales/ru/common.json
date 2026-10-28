@@ -988,5 +988,8 @@
 	"When you reject a car, write the reason: the seller can fix it and send it again.": "Отклоняя объявление, пишите причину: продавец исправит и отправит снова.",
 	"Open a member to see all their cars, reports and chats in one place.": "Откройте пользователя, чтобы увидеть все его объявления, жалобы и переписки.",
 	"Select several cars with the checkboxes to approve or reject them at once.": "Отметьте несколько объявлений, чтобы одобрить или отклонить их разом.",
-	"Every admin action is written to the action log.": "Каждое действие админа записывается в журнал."
+	"Every admin action is written to the action log.": "Каждое действие админа записывается в журнал.",
+	"No photo": "Нет фото",
+	"More filters": "Все фильтры",
+	"Cars from": "Авто из"
 }

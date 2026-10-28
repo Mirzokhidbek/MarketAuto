@@ -34,6 +34,25 @@ const countryFlags: Record<string, string> = {
 	OTHER: '🌍',
 };
 
+// registration-plate style codes used by the origin mark (see <Origin />)
+export const countryCodes: Record<string, string> = {
+	UZBEKISTAN: 'UZ',
+	SOUTH_KOREA: 'KR',
+	CHINA: 'CN',
+	JAPAN: 'JP',
+	USA: 'US',
+	GERMANY: 'DE',
+	UAE: 'AE',
+	OTHER: '—',
+};
+
+/** country name without the flag */
+export const countryName = (country: string | undefined, t?: Translate): string => {
+	if (!country) return '';
+	const label = country === 'USA' || country === 'UAE' ? country : formatEnumLabel(country);
+	return t ? t(label) : label;
+};
+
 export const formatCountry = (country: string | undefined, t?: Translate): string => {
 	if (!country) return '';
 	const label = country === 'USA' || country === 'UAE' ? country : formatEnumLabel(country);
