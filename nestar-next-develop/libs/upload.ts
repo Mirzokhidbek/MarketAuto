@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { getJwtToken } from './auth';
+import { getFreshToken } from './auth';
 
 /** uploads one image (multipart GraphQL) and returns its stored path, or throws with the server message */
 export const uploadImage = async (file: File, target: 'member' | 'property' | 'article' | 'message'): Promise<string> => {
@@ -17,7 +17,7 @@ export const uploadImage = async (file: File, target: 'member' | 'property' | 'a
 		headers: {
 			'Content-Type': 'multipart/form-data',
 			'apollo-require-preflight': true,
-			Authorization: `Bearer ${getJwtToken()}`,
+			Authorization: `Bearer ${await getFreshToken()}`,
 		},
 	});
 	if (response.data?.errors?.length) throw new Error(response.data.errors[0].message);

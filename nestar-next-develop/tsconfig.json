@@ -18,7 +18,9 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    // only this app's types: the API's node_modules one folder up must not be picked up
+    "typeRoots": ["./node_modules/@types"]
   },
   "include": [
     "next-env.d.ts",

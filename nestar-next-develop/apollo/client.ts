@@ -3,7 +3,7 @@ import { ApolloClient, ApolloLink, InMemoryCache, from, NormalizedCacheObject, O
 import createUploadLink from 'apollo-upload-client/public/createUploadLink.js';
 import { onError } from '@apollo/client/link/error';
 import { getMainDefinition } from '@apollo/client/utilities';
-import { getJwtToken, getRefreshToken, isTokenExpired, logOut, refreshAccessToken } from '../libs/auth';
+import { getJwtToken, hasSession, isTokenExpired, logOut, refreshAccessToken } from '../libs/auth';
 import { sweetErrorAlert } from '../libs/sweetAlert';
 let apolloClient: ApolloClient<NormalizedCacheObject>;
 
@@ -20,10 +20,10 @@ const SESSION_ENDED = ['You have been blocked!', 'You are not authenticated', 'Y
 
 function createIsomorphicLink() {
 	if (typeof window !== 'undefined') {
-		/* renew an expired access token with the refresh token before sending the request */
+		/* renew an expired access token with the refresh cookie before sending the request */
 		const refreshLink = new ApolloLink((operation, forward) => {
 			const token = getJwtToken();
-			if (!token || !isTokenExpired(token) || !getRefreshToken()) return forward(operation);
+			if (!hasSession() || (token && !isTokenExpired(token))) return forward(operation);
 			return new Observable((observer) => {
 				let subscription: any;
 				refreshAccessToken()
@@ -48,6 +48,8 @@ function createIsomorphicLink() {
 		// @ts-ignore
 		const link = new createUploadLink({
 			uri: process.env.REACT_APP_API_GRAPHQL_URL,
+			// login/signup responses set the httpOnly refresh cookie; the browser keeps it only with credentials
+			credentials: 'include',
 		});
 
 		const errorLink = onError(({ graphQLErrors, networkError, operation }) => {

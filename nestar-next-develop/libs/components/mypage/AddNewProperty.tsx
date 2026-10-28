@@ -20,7 +20,7 @@ import {
 import { propertyYears } from '../../config';
 import { formatCountry, formatEnumLabel, imageUrl } from '../../utils';
 import { PropertyInput } from '../../types/property/property.input';
-import { getJwtToken } from '../../auth';
+import { getFreshToken } from '../../auth';
 import { sweetErrorHandling, sweetMixinErrorAlert, sweetMixinSuccessAlert } from '../../sweetAlert';
 import { usdRateVar, userVar } from '../../../apollo/store';
 import { CREATE_PROPERTY, UPDATE_PROPERTY } from '../../../apollo/user/mutation';
@@ -162,7 +162,7 @@ const AddProperty = () => {
 				headers: {
 					'Content-Type': 'multipart/form-data',
 					'apollo-require-preflight': true,
-					Authorization: `Bearer ${getJwtToken()}`,
+					Authorization: `Bearer ${await getFreshToken()}`,
 				},
 			});
 			const uploaded: string[] = response.data?.data?.imagesUploader ?? [];

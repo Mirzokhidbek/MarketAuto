@@ -2,7 +2,7 @@ import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { DeleteObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'crypto';
 import * as fs from 'fs';
 import * as path from 'path';
 import sharp from 'sharp';
@@ -65,7 +65,7 @@ export class StorageService {
 			throw new BadRequestException(Message.PROVIDE_ALLOWED_FORMAT);
 		}
 
-		const key = `${target}/${uuidv4()}.webp`;
+		const key = `${target}/${randomUUID()}.webp`;
 		if (this.s3) {
 			await this.s3.send(
 				new PutObjectCommand({

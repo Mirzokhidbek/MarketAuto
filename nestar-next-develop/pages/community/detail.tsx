@@ -3,7 +3,8 @@ import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
 import Link from 'next/link';
-import { articleCategoryLabels, imageUrl } from '../../libs/utils';
+import { articleCategoryLabels, fetchWithTimeout, imageUrl } from '../../libs/utils';
+import { print } from 'graphql';
 import withLayoutFull from '../../libs/components/layout/LayoutFull';
 import Seo from '../../libs/components/common/Seo';
 import { Pagination } from '@mui/material';
@@ -37,13 +38,43 @@ import { Messages } from '../../libs/config';
 import { CommentUpdate } from '../../libs/types/comment/comment.update';
 const ToastViewerComponent = dynamic(() => import('../../libs/components/community/TViewer'), { ssr: false });
 
-export const getStaticProps = async ({ locale }: any) => ({
+/** the article is fetched on the server too, so search engines and link previews see its title and text */
+const fetchArticle = async (id?: string) => {
+	// API_INTERNAL_GRAPHQL_URL: server-only address (e.g. http://api:3007/graphql inside docker)
+	const url = process.env.API_INTERNAL_GRAPHQL_URL || process.env.REACT_APP_API_GRAPHQL_URL;
+	if (!id || !url) return null;
+	try {
+		const response = await fetchWithTimeout(url, {
+			method: 'POST',
+			headers: { 'content-type': 'application/json' },
+			body: JSON.stringify({ query: print(GET_BOARD_ARTICLE), variables: { input: id } }),
+		});
+		const { data } = await response.json();
+		const article = data?.getBoardArticle ?? null;
+		if (article?.memberData) article.memberData = { ...article.memberData, memberPhone: null };
+		return article;
+	} catch (err) {
+		return null;
+	}
+};
+
+/** plain text of the article HTML for the meta description */
+const articleSummary = (html?: string) =>
+	(html ?? '')
+		.replace(/<[^>]*>/g, ' ')
+		.replace(/&nbsp;/g, ' ')
+		.replace(/\s+/g, ' ')
+		.trim()
+		.slice(0, 160);
+
+export const getServerSideProps = async ({ locale, query }: any) => ({
 	props: {
 		...(await serverSideTranslations(locale, ['common'])),
+		initialArticle: await fetchArticle(query?.id),
 	},
 });
 
-const CommunityDetail: NextPage = ({ initialInput, ...props }: T) => {
+const CommunityDetail: NextPage = ({ initialInput, initialArticle, ...props }: T) => {
 	const { t } = useTranslation('common');
 	const router = useRouter();
 	const { query } = router;
@@ -60,7 +91,9 @@ const CommunityDetail: NextPage = ({ initialInput, ...props }: T) => {
 	const [searchFilter, setSearchFilter] = useState<CommentsInquiry>({
 		...initialInput,
 	});
-	const [memberImage, setMemberImage] = useState<string>('/img/community/articleImg.png');
+	const [memberImage, setMemberImage] = useState<string>(
+		initialArticle?.memberData?.memberImage ? imageUrl(initialArticle.memberData.memberImage) : '/img/community/articleImg.png',
+	);
 	const [anchorEl, setAnchorEl] = useState<any | null>(null);
 	const open = Boolean(anchorEl);
 	const id = open ? 'simple-popover' : undefined;
@@ -68,7 +101,7 @@ const CommunityDetail: NextPage = ({ initialInput, ...props }: T) => {
 	const [updatedComment, setUpdatedComment] = useState<string>('');
 	const [updatedCommentId, setUpdatedCommentId] = useState<string>('');
 	const [likeLoading, setLikeLoading] = useState<boolean>(false);
-	const [boardArticle, setBoardArticle] = useState<BoardArticle>();
+	const [boardArticle, setBoardArticle] = useState<BoardArticle | undefined>(initialArticle ?? undefined);
 
 	/** APOLLO REQUESTS **/
 	const [likeTargetBoardArticle] = useMutation(LIKE_TARGET_BOARD_ARTICLE);
@@ -247,7 +280,13 @@ const CommunityDetail: NextPage = ({ initialInput, ...props }: T) => {
 
 	return (
 		<div id="community-detail-page" className={'ma-page ma-detail'}>
-			{boardArticle?.articleTitle && <Seo title={boardArticle.articleTitle} />}
+			{boardArticle?.articleTitle && (
+				<Seo
+					title={boardArticle.articleTitle}
+					description={articleSummary(boardArticle.articleContent) || undefined}
+					image={boardArticle.articleImage ? imageUrl(boardArticle.articleImage) : undefined}
+				/>
+			)}
 			<div className={'ma-container ma-container--narrow'}>
 				<nav className={'ma-breadcrumb'}>
 					<Link href={'/'}>{t('Home')}</Link>

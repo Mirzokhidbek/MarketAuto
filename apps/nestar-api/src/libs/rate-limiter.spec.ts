@@ -19,6 +19,17 @@ describe('RateLimiter', () => {
 		expect(limiter.isLimited('a')).toBe(false);
 	});
 
+	it('sweep removes keys with only old hits', () => {
+		jest.useFakeTimers();
+		const limiter = new RateLimiter(5, 1000);
+		limiter.hit('old');
+		jest.advanceTimersByTime(1001);
+		limiter.hit('new');
+		limiter.sweep();
+		expect(limiter.size).toBe(1);
+		jest.useRealTimers();
+	});
+
 	it('forgets hits older than the window', () => {
 		jest.useFakeTimers();
 		const limiter = new RateLimiter(1, 1000);

@@ -83,6 +83,32 @@ export const GET_MEMBER = gql(`
  *        PROPERTY        *
  *************************/
 
+/** the logged-in member's own profile (the access token carries only id, nick, role and avatar) */
+export const GET_ME = gql`
+	query GetMe {
+		getMe {
+			_id
+			memberType
+			memberStatus
+			memberAuthType
+			memberPhone
+			memberPhoneVerified
+			memberNick
+			memberFullName
+			memberImage
+			memberAddress
+			memberDesc
+			memberProperties
+			memberRank
+			memberArticles
+			memberLikes
+			memberViews
+			memberTrusted
+			memberAdminRole
+		}
+	}
+`;
+
 export const GET_PROPERTY = gql`
 	query GetProperty($input: String!) {
 		getProperty(propertyId: $input) {

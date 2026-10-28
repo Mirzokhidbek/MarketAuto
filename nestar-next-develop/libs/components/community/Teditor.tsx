@@ -4,7 +4,7 @@ import React, { useMemo, useRef, useState } from 'react';
 import { Box, Button, FormControl, MenuItem, Stack, Typography, Select, TextField } from '@mui/material';
 import { BoardArticleCategory } from '../../enums/board-article.enum';
 import { Editor } from '@toast-ui/react-editor';
-import { getJwtToken } from '../../auth';
+import { getFreshToken } from '../../auth';
 import { REACT_APP_API_URL } from '../../config';
 import { useRouter } from 'next/router';
 import axios from 'axios';
@@ -19,7 +19,6 @@ import { sweetErrorHandling, sweetTopSuccessAlert } from '../../sweetAlert';
 const TuiEditor = () => {
 	const { t } = useTranslation('common');
 	const editorRef = useRef<Editor>(null),
-		token = getJwtToken(),
 		router = useRouter();
 	const [articleCategory, setArticleCategory] = useState<BoardArticleCategory>(BoardArticleCategory.FREE);
 
@@ -62,15 +61,17 @@ const TuiEditor = () => {
 				headers: {
 					'Content-Type': 'multipart/form-data',
 					'apollo-require-preflight': true,
-					Authorization: `Bearer ${token}`,
+					Authorization: `Bearer ${await getFreshToken()}`,
 				},
 			});
 
+			if (response.data?.errors?.length) throw new Error(response.data.errors[0].message);
 			const responseImage = response.data.data.imageUploader;
 			memoizedValues.articleImage = responseImage;
 
 			return imageUrl(responseImage);
-		} catch (err) {
+		} catch (err: any) {
+			sweetErrorHandling(err).then();
 		}
 	};
 
@@ -84,11 +85,12 @@ const TuiEditor = () => {
 
 	const handleRegisterButton = async () => {
 		try {
-			const editor = editorRef.current;
-			const articleContent = editor?.getInstance().getHTML() as string;
-			memoizedValues.articleContent = articleContent;
+			const instance = editorRef.current?.getInstance();
+			memoizedValues.articleContent = (instance?.getHTML() as string) ?? '';
 
-			if (memoizedValues.articleContent === '' && memoizedValues.articleTitle === '') {
+			// an empty editor still returns "<p><br></p>": check the text, and both fields must be filled
+			const hasText = !!instance?.getMarkdown()?.trim();
+			if (!memoizedValues.articleTitle.trim() || !hasText) {
 				throw new Error(Message.INSERT_ALL_INPUTS);
 			}
 
@@ -106,7 +108,8 @@ const TuiEditor = () => {
 				},
 			});
 		} catch (err: any) {
-			sweetErrorHandling(new Error(Message.INSERT_ALL_INPUTS)).then();
+			// show the real reason (empty fields, text too long, not logged in, ...)
+			sweetErrorHandling(new Error(err?.graphQLErrors?.[0]?.message ?? err?.message ?? Message.INSERT_ALL_INPUTS)).then();
 		}
 	};
 

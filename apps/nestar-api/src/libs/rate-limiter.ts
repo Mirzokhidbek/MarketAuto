@@ -45,6 +45,15 @@ export class RateLimiter {
 	public reset(key: string): void {
 		this.hits.delete(key);
 	}
+
+	/** drops keys whose hits are all outside the window (otherwise every IP/nick ever seen stays in memory) */
+	public sweep(): void {
+		for (const key of [...this.hits.keys()]) this.recent(key);
+	}
+
+	public get size(): number {
+		return this.hits.size;
+	}
 }
 
 const MINUTE = 60 * 1000;
@@ -64,6 +73,9 @@ export const limiters = {
 	messages: new RateLimiter(30, MINUTE),
 	reports: new RateLimiter(10, 60 * MINUTE),
 };
+
+// stale keys are removed every 5 minutes; unref: this timer alone does not keep the process (or tests) running
+setInterval(() => Object.values(limiters).forEach((limiter) => limiter.sweep()), 5 * MINUTE).unref();
 
 /** "+998 (90) 123-45-67" -> "998901234567"; 9-digit local numbers get the Uzbek code */
 export const normalizePhone = (phone: string): string => {
