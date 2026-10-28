@@ -24,5 +24,7 @@ const LikeSchema = new Schema(
 );
 
 LikeSchema.index({ memberId: 1, likeRefId: 1 }, { unique: true });
+// everyone who liked a car (price-drop notifications)
+LikeSchema.index({ likeRefId: 1, likeGroup: 1 });
 
 export default LikeSchema;

@@ -9,6 +9,7 @@ import { VerificationModule } from '../verification/verification.module';
 import { ViewModule } from '../view/view.module';
 import { LikeModule } from '../like/like.module';
 import FollowSchema from '../../schemas/Follow.model';
+import { SocketModule } from '../../socket/socket.module';
 
 @Module({
 	imports: [
@@ -19,6 +20,7 @@ import FollowSchema from '../../schemas/Follow.model';
 		VerificationModule,
 		ViewModule,
 		LikeModule,
+		SocketModule,
 	],
 	providers: [MemberResolver, MemberService],
 	exports: [MemberService],

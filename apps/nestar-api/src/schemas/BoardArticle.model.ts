@@ -53,4 +53,8 @@ const BoardArticleSchema = new Schema(
 	{ timestamps: true, collection: 'boardArticles' },
 );
 
+// public article lists by status/category and a member's own articles
+BoardArticleSchema.index({ articleStatus: 1, articleCategory: 1, createdAt: -1 });
+BoardArticleSchema.index({ memberId: 1, createdAt: -1 });
+
 export default BoardArticleSchema;

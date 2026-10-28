@@ -62,12 +62,27 @@ export class MemberUpdate {
 	memberImage?: string;
 
 	@IsOptional()
+	@Length(0, 200)
 	@Field(() => String, { nullable: true })
 	memberAddress?: string;
 
 	@IsOptional()
+	@Length(0, 1000)
 	@Field(() => String, { nullable: true })
-	memberDesc?: string; // Corrected typo 'memberDesx' from screenshot
+	memberDesc?: string;
 
 	deletedAt?: Date;
 }
+
+/**
+ * The only fields a member may change on their own profile. Everything else (role, admin role, status,
+ * trusted/dealer badges, block reason, phone, password) is changed by an admin or through its own checked flow.
+ * A whitelist, so a field added to MemberUpdate later is not editable by members by accident.
+ */
+export const SELF_EDITABLE_FIELDS = ['memberNick', 'memberFullName', 'memberImage', 'memberAddress', 'memberDesc'] as const;
+
+export const pickSelfEditable = (input: MemberUpdate): Partial<Pick<MemberUpdate, (typeof SELF_EDITABLE_FIELDS)[number]>> => {
+	const result: Record<string, unknown> = {};
+	for (const key of SELF_EDITABLE_FIELDS) if (input[key] !== undefined) result[key] = input[key];
+	return result;
+};

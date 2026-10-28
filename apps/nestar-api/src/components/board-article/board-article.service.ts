@@ -1,7 +1,7 @@
 import { NotificationService } from '../notification/notification.service';
 import { NotificationGroup, NotificationType } from '../../libs/enums/notification.enum';
 import { MemberStatus } from '../../libs/enums/member.enum';
-import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { BoardArticle, BoardArticles } from '../../libs/dto/board-article/board-article';
 import { Model, ObjectId } from 'mongoose';
@@ -17,10 +17,14 @@ import { StatisticModifier, T } from '../../libs/types/common';
 import { BoardArticleStatus } from '../../libs/enums/board-article.enum';
 import { ViewGroup } from '../../libs/enums/view.enum';
 import { BoardArticleUpdate } from '../../libs/dto/board-article/board-article.update';
-import { lookupAuthMemberLiked, lookupMember, shapeIntoMongoObjectId, searchRegex } from '../../libs/config';
+import { lookupAuthMemberLiked, lookupMember, shapeIntoMongoObjectId, searchRegex, lookupMemberForAdmin } from '../../libs/config';
 import { LikeService } from '../like/like.service';
 import { LikeInput } from '../../libs/dto/like/like.input';
+import { sanitizeArticleHtml } from '../../libs/html';
+import { Member } from '../../libs/dto/member/member';
 import { LikeGroup } from '../../libs/enums/like.enum';
+
+const logger = new Logger('BoardArticleService');
 
 @Injectable()
 export class BoardArticleService {
@@ -34,6 +38,7 @@ export class BoardArticleService {
 
 	public async createBoardArticle(memberId: ObjectId, input: BoardArticleInput): Promise<BoardArticle> {
 		input.memberId = memberId;
+		input.articleContent = sanitizeArticleHtml(input.articleContent);
 		try {
 			const result = await this.boardArticleModel.create(input);
 			await this.memberService.memberStatsEditor({
@@ -44,7 +49,7 @@ export class BoardArticleService {
 
 			return result;
 		} catch (err: any) {
-			console.log('Error, Service.model:', err.message);
+			logger.warn(`Error, Service.model: ${err.message}`);
 			throw new BadRequestException(Message.CREATE_FAILED);
 		}
 	}
@@ -56,7 +61,7 @@ export class BoardArticleService {
 		};
 
 		const targetBoardArticle: BoardArticle | null = await this.boardArticleModel.findOne(search).lean().exec();
-		if (!targetBoardArticle) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+		if (!targetBoardArticle) throw new NotFoundException(Message.NO_DATA_FOUND);
 
 		if (memberId) {
 			const viewInput = { memberId: memberId, viewRefId: articleId, viewGroup: ViewGroup.ARTICLE };
@@ -70,12 +75,15 @@ export class BoardArticleService {
 			const likeInput = { memberId: memberId, likeRefId: articleId, likeGroup: LikeGroup.ARTICLE };
 			targetBoardArticle.meLiked = await this.likeService.checkLikeExistence(likeInput);
 		}
-		targetBoardArticle.memberData = await this.memberService.getMember(null, targetBoardArticle.memberId);
+		// the author's phone is not part of an article page
+		const { memberPhone, ...author } = await this.memberService.getMember(null, targetBoardArticle.memberId);
+		targetBoardArticle.memberData = author as Member;
 		return targetBoardArticle;
 	}
 
 	public async updateBoardArticle(memberId: ObjectId, input: BoardArticleUpdate): Promise<BoardArticle> {
 		const { _id, articleStatus } = input;
+		if (input.articleContent !== undefined) input.articleContent = sanitizeArticleHtml(input.articleContent);
 
 		const result: BoardArticle | null = await this.boardArticleModel
 			.findOneAndUpdate({ _id: _id, memberId: memberId, articleStatus: BoardArticleStatus.ACTIVE }, input, {
@@ -83,7 +91,7 @@ export class BoardArticleService {
 			})
 			.exec();
 
-		if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED);
+		if (!result) throw new BadRequestException(Message.UPDATE_FAILED);
 
 		if (articleStatus === BoardArticleStatus.DELETE) {
 			await this.memberService.memberStatsEditor({
@@ -106,7 +114,6 @@ export class BoardArticleService {
 		if (input.search?.memberId) {
 			match.memberId = shapeIntoMongoObjectId(input.search.memberId);
 		}
-		console.log('match:', match);
 
 		const result = await this.boardArticleModel
 			.aggregate([
@@ -128,7 +135,7 @@ export class BoardArticleService {
 				},
 			])
 			.exec();
-		if (!result.length) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+		if (!result.length) throw new NotFoundException(Message.NO_DATA_FOUND);
 
 		return result[0] as BoardArticles;
 	}
@@ -137,7 +144,7 @@ export class BoardArticleService {
 		const target: BoardArticle | null = await this.boardArticleModel
 			.findOne({ _id: likeRefId, articleStatus: BoardArticleStatus.ACTIVE })
 			.exec();
-		if (!target) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+		if (!target) throw new NotFoundException(Message.NO_DATA_FOUND);
 
 		const input: LikeInput = {
 			memberId: memberId,
@@ -184,7 +191,7 @@ export class BoardArticleService {
 						list: [
 							{ $skip: (input.page - 1) * input.limit },
 							{ $limit: input.limit },
-							lookupMember,
+							lookupMemberForAdmin,
 							{ $unwind: '$memberData' },
 						],
 						metaCounter: [{ $count: 'total' }],
@@ -192,19 +199,20 @@ export class BoardArticleService {
 				},
 			])
 			.exec();
-		if (!result.length) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+		if (!result.length) throw new NotFoundException(Message.NO_DATA_FOUND);
 
 		return result[0] as BoardArticles;
 	}
 
 	public async updateBoardArticleByAdmin(input: BoardArticleUpdate): Promise<BoardArticle> {
 		const { _id, articleStatus } = input;
+		if (input.articleContent !== undefined) input.articleContent = sanitizeArticleHtml(input.articleContent);
 		// admin may also restore a deleted article, so look it up in any status
 		const current = await this.boardArticleModel.findById(_id).lean().exec();
-		if (!current) throw new InternalServerErrorException(Message.UPDATE_FAILED);
+		if (!current) throw new BadRequestException(Message.UPDATE_FAILED);
 
 		const result = await this.boardArticleModel.findByIdAndUpdate(_id, input, { new: true }).exec();
-		if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED);
+		if (!result) throw new BadRequestException(Message.UPDATE_FAILED);
 
 		const wasActive = current.articleStatus === BoardArticleStatus.ACTIVE;
 		const isActive = (articleStatus ?? current.articleStatus) === BoardArticleStatus.ACTIVE;
@@ -222,7 +230,7 @@ export class BoardArticleService {
 	public async removeBoardArticleByAdmin(articleId: ObjectId): Promise<BoardArticle> {
 		const search: T = { _id: articleId, articleStatus: BoardArticleStatus.DELETE };
 		const result = await this.boardArticleModel.findOneAndDelete(search).exec();
-		if (!result) throw new InternalServerErrorException(Message.REMOVE_FAILED);
+		if (!result) throw new BadRequestException(Message.REMOVE_FAILED);
 
 		return result;
 	}

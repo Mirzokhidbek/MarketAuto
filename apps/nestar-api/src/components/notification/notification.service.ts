@@ -1,10 +1,13 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, ObjectId } from 'mongoose';
 import { Notification, Notifications } from '../../libs/dto/notification/notification';
 import { OrdinaryInquiry } from '../../libs/dto/property/property.input';
 import { NotificationGroup, NotificationStatus, NotificationType } from '../../libs/enums/notification.enum';
 import { T } from '../../libs/types/common';
+import { lookupPublicMember } from '../../libs/config';
+
+const logger = new Logger('NotificationService');
 
 export interface NotifyInput {
 	notificationType: NotificationType;
@@ -29,7 +32,7 @@ export class NotificationService {
 			const { system, ...data } = input;
 			await this.notificationModel.create(data);
 		} catch (err: any) {
-			console.log('Error, notify:', err.message);
+			logger.warn(`Error, notify: ${err.message}`);
 		}
 	}
 
@@ -44,7 +47,7 @@ export class NotificationService {
 						list: [
 							{ $skip: (input.page - 1) * input.limit },
 							{ $limit: input.limit },
-							{ $lookup: { from: 'members', localField: 'authorId', foreignField: '_id', as: 'authorData' } },
+							lookupPublicMember('authorId', 'authorData'),
 							{ $unwind: { path: '$authorData', preserveNullAndEmptyArrays: true } },
 						],
 						metaCounter: [{ $count: 'total' }],

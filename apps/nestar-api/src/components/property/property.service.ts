@@ -3,7 +3,7 @@ import { BulkModerationInput } from '../../libs/dto/property/property.update';
 import { StorageService } from '../storage/storage.service';
 import { NotificationService } from '../notification/notification.service';
 import { NotificationGroup, NotificationType } from '../../libs/enums/notification.enum';
-import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, ObjectId } from 'mongoose';
 import { MemberService } from '../member/member.service';
@@ -20,15 +20,16 @@ import { ViewService } from '../view/view.service';
 import { CarAccidentHistory, CarBrand, CarCountry, PriceCurrency, PropertyStatus } from '../../libs/enums/property.enum';
 import { ExchangeService } from '../exchange/exchange.service';
 import { PriceEstimate } from '../../libs/dto/property/price-estimate';
-import { MemberStatus } from '../../libs/enums/member.enum';
 import { StatisticModifier, T } from '../../libs/types/common';
 import { ViewGroup } from '../../libs/enums/view.enum';
 import { PropertyUpdate } from '../../libs/dto/property/property.update';
 import moment from 'moment';
-import { lookupAuthMemberLiked, lookupMember, shapeIntoMongoObjectId, searchRegex } from '../../libs/config';
+import { lookupAuthMemberLiked, lookupMember, lookupMemberForAdmin, shapeIntoMongoObjectId, searchRegex } from '../../libs/config';
 import { LikeService } from '../like/like.service';
 import { LikeInput } from '../../libs/dto/like/like.input';
 import { LikeGroup } from '../../libs/enums/like.enum';
+
+const logger = new Logger('PropertyService');
 
 @Injectable()
 export class PropertyService {
@@ -50,6 +51,9 @@ export class PropertyService {
 		}
 		if (input.carCountry !== CarCountry.UZBEKISTAN) delete input.propertyLocation;
 		if (input.carVin) input.carVin = input.carVin.toUpperCase();
+		// photos must be files uploaded to our property folder (not paths to other sellers' photos)
+		if (input.propertyImages?.some((image) => !this.storageService.isOwnPath(image, 'property')))
+			throw new BadRequestException(Message.BAD_REQUEST);
 		await this.normalizePrice(input);
 
 		// the same seller cannot publish the same car twice
@@ -70,12 +74,12 @@ export class PropertyService {
 		try {
 			result = await this.propertyModel.create({ ...input, propertyStatus });
 		} catch (err: any) {
-			console.log('Error, Service.model:', err.message);
+			logger.warn(`Error, Service.model: ${err.message}`);
 			throw new BadRequestException(err?.code === 11000 ? Message.DUPLICATE_LISTING : Message.CREATE_FAILED);
 		}
 		if (propertyStatus === PropertyStatus.ACTIVE) {
 			await this.memberService.memberStatsEditor({ _id: result.memberId, targetKey: 'memberProperties', modifier: 1 });
-			await this.notifySavedSearches(result);
+			void this.notifySavedSearches(result);
 		}
 		return result;
 	}
@@ -96,7 +100,7 @@ export class PropertyService {
 		};
 
 		const targetProperty: Property | null = await this.propertyModel.findOne(search).lean().exec();
-		if (!targetProperty) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+		if (!targetProperty) throw new NotFoundException(Message.NO_DATA_FOUND);
 
 		if (memberId) {
 			const viewInput = { memberId: memberId, viewRefId: propertyId, viewGroup: ViewGroup.PROPERTY };
@@ -136,7 +140,14 @@ export class PropertyService {
 		if (input.carCountry && input.carCountry !== CarCountry.UZBEKISTAN) (input as T).propertyLocation = null;
 
 		const current: Property | null = await this.propertyModel.findOne(search).lean().exec();
-		if (!current) throw new InternalServerErrorException(Message.UPDATE_FAILED);
+		if (!current) throw new BadRequestException(Message.UPDATE_FAILED);
+
+		// new photos must be our uploads; photos already on the listing may stay as they are
+		if (input.propertyImages) {
+			const existing = new Set(current.propertyImages);
+			if (input.propertyImages.some((image) => !existing.has(image) && !this.storageService.isOwnPath(image, 'property')))
+				throw new BadRequestException(Message.BAD_REQUEST);
+		}
 
 		const prevStatus = current.propertyStatus;
 		const nextStatus = input.propertyStatus ?? prevStatus;
@@ -151,7 +162,7 @@ export class PropertyService {
 		if (input.carVin) input.carVin = input.carVin.toUpperCase();
 		if (input.propertyPrice !== undefined) await this.normalizePrice(input);
 		const result = await this.propertyModel.findByIdAndUpdate(current._id, input, { new: true }).exec();
-		if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED);
+		if (!result) throw new BadRequestException(Message.UPDATE_FAILED);
 
 		// photos removed from the listing are deleted from storage
 		if (input.propertyImages) {
@@ -192,7 +203,7 @@ export class PropertyService {
 			});
 		}
 		// a car that just went on sale may match someone's saved search
-		if (!wasActive && isActive && prevStatus !== PropertyStatus.SOLD) await this.notifySavedSearches(result);
+		if (!wasActive && isActive && prevStatus !== PropertyStatus.SOLD) void this.notifySavedSearches(result);
 
 		return result;
 	}
@@ -231,7 +242,7 @@ export class PropertyService {
 	 */
 	public async getPriceEstimate(propertyId: ObjectId): Promise<PriceEstimate> {
 		const car = await this.propertyModel.findById(propertyId).lean().exec();
-		if (!car) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+		if (!car) throw new NotFoundException(Message.NO_DATA_FOUND);
 		const [stats] = await this.propertyModel
 			.aggregate([
 				{
@@ -256,14 +267,41 @@ export class PropertyService {
 		return { average, count, verdict };
 	}
 
-	/** tells members whose saved search matches this newly published car */
+	/**
+	 * tells members whose saved search matches this newly published car. Only searches that can match on the
+	 * simple list/range filters are loaded (not every saved search), each member is notified once per car.
+	 * Runs in the background: publishing a car does not wait for it.
+	 */
 	private async notifySavedSearches(property: Property): Promise<void> {
 		try {
-			const searches = await this.savedSearchModel.find({ memberId: { $ne: property.memberId } }).lean().exec();
-			for (const saved of searches) {
+			const anyOf = (field: string, value: unknown) => ({ $or: [{ [field]: null }, { [field]: { $size: 0 } }, { [field]: value }] });
+			const inRange = (field: string, value: number) => ({
+				$or: [{ [field]: null }, { [`${field}.start`]: { $lte: value }, [`${field}.end`]: { $gte: value } }],
+			});
+			const candidates = this.savedSearchModel
+				.find({
+					memberId: { $ne: property.memberId },
+					$and: [
+						anyOf('search.brandList', property.carBrand),
+						anyOf('search.countryList', property.carCountry),
+						anyOf('search.typeList', property.propertyType),
+						anyOf('search.fuelList', property.carFuel),
+						anyOf('search.transmissionList', property.carTransmission),
+						inRange('search.pricesRange', property.propertyPrice),
+						inRange('search.yearsRange', property.carYear),
+					],
+				})
+				.lean()
+				.cursor();
+
+			const notified = new Set<string>();
+			for await (const saved of candidates) {
+				if (notified.has(String(saved.memberId))) continue;
+				// the remaining filters (text, model, mileage, options, ...) are checked exactly
 				const match: T = { _id: property._id };
 				this.shapeMatchQuery(match, { page: 1, limit: 1, search: saved.search ?? {} } as PropertiesInquiry);
 				if (!(await this.propertyModel.exists(match))) continue;
+				notified.add(String(saved.memberId));
 				await this.notificationService.notify({
 					notificationType: NotificationType.NEW_LISTING,
 					notificationGroup: NotificationGroup.PROPERTY,
@@ -275,7 +313,7 @@ export class PropertyService {
 				await this.savedSearchModel.updateOne({ _id: saved._id }, { lastNotifiedAt: new Date() }).exec();
 			}
 		} catch (err: any) {
-			console.log('Error, notifySavedSearches:', err.message);
+			logger.warn(`Error, notifySavedSearches: ${err.message}`);
 		}
 	}
 
@@ -284,20 +322,22 @@ export class PropertyService {
 		const sort: T = { [input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC };
 
 		this.shapeMatchQuery(match, input);
+		// cars of blocked or deleted sellers are hidden from buyers. Such sellers are few, so they are excluded
+		// by id; the seller is joined only to the cars of the requested page, not to every matching car
+		const hiddenSellers = await this.memberService.inactiveMemberIds();
+		if (hiddenSellers.length) match.memberId = match.memberId ? { $eq: match.memberId, $nin: hiddenSellers } : { $nin: hiddenSellers };
 
 		const result = await this.propertyModel
 			.aggregate([
 				{ $match: match },
-				// cars of blocked or deleted sellers are hidden from buyers
-				lookupMember,
-				{ $unwind: '$memberData' },
-				{ $match: { 'memberData.memberStatus': MemberStatus.ACTIVE } },
 				{ $sort: sort },
 				{
 					$facet: {
 						list: [
 							{ $skip: (input.page - 1) * input.limit },
 							{ $limit: input.limit },
+							lookupMember,
+							{ $unwind: '$memberData' },
 							// meLiked
 							lookupAuthMemberLiked(memberId),
 						],
@@ -306,7 +346,7 @@ export class PropertyService {
 				},
 			])
 			.exec();
-		if (!result.length) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+		if (!result.length) throw new NotFoundException(Message.NO_DATA_FOUND);
 
 		return result[0] as Properties;
 	}
@@ -394,7 +434,7 @@ export class PropertyService {
 				},
 			])
 			.exec();
-		if (!result.length) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+		if (!result.length) throw new NotFoundException(Message.NO_DATA_FOUND);
 
 		return result[0] as Properties;
 	}
@@ -403,7 +443,7 @@ export class PropertyService {
 		const target: Property | null = await this.propertyModel
 			.findOne({ _id: likeRefId, propertyStatus: PropertyStatus.ACTIVE })
 			.exec();
-		if (!target) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+		if (!target) throw new NotFoundException(Message.NO_DATA_FOUND);
 
 		const input: LikeInput = {
 			memberId: memberId,
@@ -449,7 +489,7 @@ export class PropertyService {
 						list: [
 							{ $skip: (input.page - 1) * input.limit },
 							{ $limit: input.limit },
-							lookupMember,
+							lookupMemberForAdmin,
 							{ $unwind: '$memberData' },
 						],
 						metaCounter: [{ $count: 'total' }],
@@ -457,7 +497,7 @@ export class PropertyService {
 				},
 			])
 			.exec();
-		if (!result.length) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+		if (!result.length) throw new NotFoundException(Message.NO_DATA_FOUND);
 
 		return result[0] as Properties;
 	}
@@ -486,7 +526,7 @@ export class PropertyService {
 				);
 				done++;
 			} catch (err: any) {
-				console.log('bulk moderation skipped', id, err.message);
+				logger.warn(`bulk moderation skipped ${id}: ${err.message}`);
 			}
 		}
 		return done;
@@ -495,7 +535,7 @@ export class PropertyService {
 	public async removePropertyByAdmin(propertyId: ObjectId, adminId?: ObjectId): Promise<Property> {
 		const search: T = { _id: propertyId, propertyStatus: PropertyStatus.DELETE };
 		const result = await this.propertyModel.findOneAndDelete(search).exec();
-		if (!result) throw new InternalServerErrorException(Message.REMOVE_FAILED);
+		if (!result) throw new BadRequestException(Message.REMOVE_FAILED);
 		await this.storageService.removeImages(result.propertyImages);
 		await this.adminLogService.log(adminId, 'PROPERTY_REMOVE', 'PROPERTY', result._id, result.propertyTitle);
 
@@ -515,7 +555,7 @@ export class PropertyService {
 			.exec();
 
 		if (!updatedProperty) {
-			throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+			throw new NotFoundException(Message.NO_DATA_FOUND);
 		}
 
 		return updatedProperty;

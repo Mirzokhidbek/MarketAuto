@@ -9,9 +9,12 @@ import SessionSchema from '../../schemas/Session.model';
 @Module({
 	imports: [
 		HttpModule,
-		JwtModule.register({
-			secret: `${process.env.SECRET_TOKEN}`,
-			signOptions: { expiresIn: (process.env.ACCESS_TOKEN_TTL ?? '1h') as any },
+		// read when the app starts (after .env is loaded), not when this file is imported
+		JwtModule.registerAsync({
+			useFactory: () => ({
+				secret: process.env.SECRET_TOKEN,
+				signOptions: { expiresIn: (process.env.ACCESS_TOKEN_TTL ?? '1h') as any },
+			}),
 		}),
 		// the token is only proof of identity; status and role are always read from the database
 		MongooseModule.forFeature([

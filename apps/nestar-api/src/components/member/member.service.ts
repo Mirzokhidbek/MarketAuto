@@ -1,7 +1,7 @@
 import { StorageService } from '../storage/storage.service';
 import { NotificationService } from '../notification/notification.service';
 import { NotificationGroup, NotificationType } from '../../libs/enums/notification.enum';
-import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException, ForbiddenException, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, ObjectId } from 'mongoose';
 import { Member, Members } from '../../libs/dto/member/member';
@@ -23,6 +23,12 @@ import { LikeGroup } from '../../libs/enums/like.enum';
 import { LikeService } from '../like/like.service';
 import { Follower, Following, MeFollowed } from '../../libs/dto/follow/follow';
 import { lookupAuthMemberLiked, searchRegex } from '../../libs/config';
+import { SocketGateway } from '../../socket/socket.gateway';
+
+const logger = new Logger('MemberService');
+
+// bcrypt hash of a random string, compared against when the account does not exist
+const DUMMY_HASH = '$2b$10$PLqInvlyOTZ7VwTW1lX31eTJiiPfCfM.ItbSWUPLlGO5hYU6H4l3q';
 
 /** "You have been blocked!" + the admin's reason; the client translates the fixed first part */
 const blockedMessage = (member: { memberBlockReason?: string | null }): string =>
@@ -40,6 +46,7 @@ export class MemberService {
 		private verificationService: VerificationService,
 		private storageService: StorageService,
 		private adminLogService: AdminLogService,
+		private socketGateway: SocketGateway,
 	) {}
 
 	public async signup(input: MemberInput, ip: string, userAgent?: string): Promise<Member> {
@@ -57,7 +64,7 @@ export class MemberService {
 			const result = await this.memberModel.create({ ...data, memberPhone, memberPassword, memberPhoneVerified: true });
 			return await this.authService.issueTokens(result, userAgent);
 		} catch (err) {
-			console.log('Error on Service.model:', err instanceof Error ? err.message : String(err));
+			logger.warn(`Error on Service.model: ${err instanceof Error ? err.message : String(err)}`);
 			throw new BadRequestException(Message.USED_MEMBER_NICK_OR_PHONE);
 		}
 	}
@@ -77,20 +84,24 @@ export class MemberService {
 			.select('+memberPassword')
 			.exec();
 
+		// one answer for "no such account" and "wrong password": the login form must not reveal who is registered
 		if (!response || response.memberStatus === MemberStatus.DELETE) {
+			// compare anyway so both cases take about the same time
+			await this.authService.comparePasswords(input.memberPassword, DUMMY_HASH);
 			limiters.loginIp.hit(ip);
-			throw new InternalServerErrorException(Message.NO_MEMBER_NICK);
+			limiters.loginNick.hit(nickKey);
+			throw new BadRequestException(Message.WRONG_LOGIN);
 		}
 
 		const isMatch = await this.authService.comparePasswords(input.memberPassword, response.memberPassword!);
 		if (!isMatch) {
 			limiters.loginIp.hit(ip);
 			limiters.loginNick.hit(nickKey);
-			throw new InternalServerErrorException(Message.WRONG_PASSWORD);
+			throw new BadRequestException(Message.WRONG_LOGIN);
 		}
 		limiters.loginNick.reset(nickKey);
 		// checked after the password, so the block reason is shown only to the account owner
-		if (response.memberStatus === MemberStatus.BLOCK) throw new InternalServerErrorException(blockedMessage(response));
+		if (response.memberStatus === MemberStatus.BLOCK) throw new ForbiddenException(blockedMessage(response));
 
 		// admins: the password is only the first step, an SMS code to the admin phone is the second
 		if (response.memberType === MemberType.ADMIN && process.env.ADMIN_2FA !== 'off') {
@@ -115,7 +126,7 @@ export class MemberService {
 		const memberPhone = await this.verificationService.consumeCode(input.phone, VerificationPurpose.LOGIN, input.code);
 		const member = await this.memberModel.findOne({ memberPhone }).exec();
 		if (!member || member.memberStatus === MemberStatus.DELETE) throw new BadRequestException(Message.WRONG_CODE);
-		if (member.memberStatus === MemberStatus.BLOCK) throw new InternalServerErrorException(blockedMessage(member));
+		if (member.memberStatus === MemberStatus.BLOCK) throw new ForbiddenException(blockedMessage(member));
 		// an SMS alone is not enough for an admin account
 		if (member.memberType === MemberType.ADMIN) throw new BadRequestException(Message.NOT_ALLOWED_REQUEST);
 		return await this.authService.issueTokens(member, userAgent);
@@ -148,7 +159,7 @@ export class MemberService {
 					{ new: true },
 				)
 				.exec();
-			if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED);
+			if (!result) throw new BadRequestException(Message.UPDATE_FAILED);
 			result.accessToken = await this.authService.createToken(result);
 			return result;
 		} catch (err: any) {
@@ -157,8 +168,11 @@ export class MemberService {
 		}
 	}
 
-	public async updateMember(memberId: ObjectId, input: MemberUpdate): Promise<Member> {
+	public async updateMember(memberId: ObjectId, input: Partial<MemberUpdate>): Promise<Member> {
 		const previous = await this.memberModel.findById(memberId).select('memberImage').lean().exec();
+		// a new avatar must be a file uploaded to our member folder, not a path to someone else's photo
+		if (input.memberImage && input.memberImage !== previous?.memberImage && !this.storageService.isOwnPath(input.memberImage, 'member'))
+			throw new BadRequestException(Message.BAD_REQUEST);
 		const result: Member | null = await this.memberModel
 			.findOneAndUpdate(
 				{
@@ -169,7 +183,7 @@ export class MemberService {
 				{ new: true },
 			)
 			.exec();
-		if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED);
+		if (!result) throw new BadRequestException(Message.UPDATE_FAILED);
 		// the replaced avatar file is no longer needed
 		if (input.memberImage && previous?.memberImage && previous.memberImage !== input.memberImage)
 			await this.storageService.removeImage(previous.memberImage);
@@ -183,14 +197,14 @@ export class MemberService {
 			.findOne({ _id: memberId, memberStatus: MemberStatus.ACTIVE })
 			.select('+memberPassword')
 			.exec();
-		if (!member) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+		if (!member) throw new NotFoundException(Message.NO_DATA_FOUND);
 
 		const isMatch = await this.authService.comparePasswords(input.currentPassword, member.memberPassword!);
 		if (!isMatch) throw new BadRequestException(Message.WRONG_CURRENT_PASSWORD);
 
 		const memberPassword = await this.authService.hashPassword(input.newPassword);
 		const result = await this.memberModel.findByIdAndUpdate(memberId, { memberPassword }, { new: true }).exec();
-		if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED);
+		if (!result) throw new BadRequestException(Message.UPDATE_FAILED);
 
 		// other devices are logged out; this one gets a fresh session
 		await this.authService.revokeAllSessions(memberId);
@@ -205,7 +219,7 @@ export class MemberService {
 			},
 		};
 		const targetMember = await this.memberModel.findOne(search).lean().exec();
-		if (!targetMember) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+		if (!targetMember) throw new NotFoundException(Message.NO_DATA_FOUND);
 
 		if (memberId) {
 			const viewInput = { memberId: memberId, viewRefId: targetId, viewGroup: ViewGroup.MEMBER };
@@ -256,6 +270,8 @@ export class MemberService {
 						list: [
 							{ $skip: (input.page - 1) * input.limit }, //
 							{ $limit: input.limit },
+							// the public seller list carries no phone numbers
+							{ $project: { memberPhone: 0 } },
 							// meLiked
 							lookupAuthMemberLiked(memberId),
 						],
@@ -264,7 +280,7 @@ export class MemberService {
 				},
 			])
 			.exec()) as Members[];
-		if (!result.length) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+		if (!result.length) throw new NotFoundException(Message.NO_DATA_FOUND);
 
 		return result[0];
 	}
@@ -274,7 +290,7 @@ export class MemberService {
 		const target: Member | null = await this.memberModel
 			.findOne({ _id: likeRefId, memberStatus: MemberStatus.ACTIVE })
 			.exec();
-		if (!target) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+		if (!target) throw new NotFoundException(Message.NO_DATA_FOUND);
 
 		const input: LikeInput = {
 			memberId: memberId,
@@ -327,14 +343,14 @@ export class MemberService {
 			])
 			.exec()) as Members[];
 
-		if (!result.length) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+		if (!result.length) throw new NotFoundException(Message.NO_DATA_FOUND);
 
 		return result[0];
 	}
 
 	public async updateMemberByAdmin(input: MemberUpdate, adminId?: ObjectId): Promise<Member> {
 		const before = await this.memberModel.findById(input._id).lean().exec();
-		if (!before) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+		if (!before) throw new NotFoundException(Message.NO_DATA_FOUND);
 		// admin can reset a password; it must be stored hashed like on signup
 		if (input.memberPassword) input.memberPassword = await this.authService.hashPassword(input.memberPassword);
 		// block reason is kept only while the member is blocked
@@ -345,12 +361,14 @@ export class MemberService {
 		else if (input.memberType === MemberType.ADMIN && !input.memberAdminRole && !before.memberAdminRole)
 			input.memberAdminRole = AdminRole.MODERATOR;
 		// a new password, block or delete ends every session of that member
-		if (input.memberPassword || (input.memberStatus && input.memberStatus !== MemberStatus.ACTIVE))
+		if (input.memberPassword || (input.memberStatus && input.memberStatus !== MemberStatus.ACTIVE)) {
 			await this.authService.revokeAllSessions(input._id);
+			this.socketGateway.disconnectMember(String(input._id));
+		}
 		const result: Member | null = await this.memberModel
 			.findOneAndUpdate({ _id: input._id }, input, { new: true })
 			.exec();
-		if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED);
+		if (!result) throw new BadRequestException(Message.UPDATE_FAILED);
 
 		// audit: one entry per kind of change
 		const changes: [string, string | undefined][] = [];
@@ -370,7 +388,7 @@ export class MemberService {
 	/** everything an admin needs about one member on a single screen */
 	public async getMemberAdminDetail(memberId: ObjectId): Promise<MemberAdminDetail> {
 		const member = await this.memberModel.findById(memberId).lean().exec();
-		if (!member) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+		if (!member) throw new NotFoundException(Message.NO_DATA_FOUND);
 		const db = this.memberModel.db;
 		const cars = await db.collection('properties').aggregate([{ $match: { memberId: member._id } }, { $group: { _id: '$propertyStatus', count: { $sum: 1 } } }]).toArray();
 		const carIds = (await db.collection('properties').find({ memberId: member._id }, { projection: { _id: 1 } }).toArray()).map((car: any) => car._id);
@@ -388,6 +406,11 @@ export class MemberService {
 			conversations: await db.collection('conversations').countDocuments({ participants: member._id }),
 			activeSessions: await db.collection('sessions').countDocuments({ memberId: member._id, expiresAt: { $gt: new Date() } }),
 		};
+	}
+
+	/** blocked and deleted members: their cars are hidden from the public lists */
+	public async inactiveMemberIds(): Promise<ObjectId[]> {
+		return await this.memberModel.distinct('_id', { memberStatus: { $ne: MemberStatus.ACTIVE } }).exec();
 	}
 
 	public async isTrusted(memberId: ObjectId): Promise<boolean> {
@@ -409,7 +432,7 @@ export class MemberService {
 				{ new: true },
 			)
 			.exec();
-		if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED);
+		if (!result) throw new BadRequestException(Message.UPDATE_FAILED);
 		return result;
 	}
 }

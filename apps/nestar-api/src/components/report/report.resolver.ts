@@ -20,7 +20,6 @@ export class ReportResolver {
 	@UseGuards(AuthGuard)
 	@Mutation(() => Report)
 	public async reportProperty(@Args('input') input: ReportInput, @AuthMember('_id') memberId: ObjectId): Promise<Report> {
-		console.log('Mutation: reportProperty');
 		return await this.reportService.reportProperty(memberId, input);
 	}
 
@@ -38,7 +37,6 @@ export class ReportResolver {
 		@Args('input') input: ResolveReportInput,
 		@AuthMember('_id') adminId: ObjectId,
 	): Promise<Report> {
-		console.log('Mutation: resolveReport');
 		const result = await this.reportService.resolveReport(input);
 		await this.adminLogService.log(adminId, `REPORT_${input.action}`, 'REPORT', input.reportId, String(result.propertyId));
 		return result;

@@ -1,6 +1,6 @@
 import { NotificationService } from '../notification/notification.service';
 import { NotificationGroup, NotificationType } from '../../libs/enums/notification.enum';
-import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, ObjectId } from 'mongoose';
 import { MemberService } from '../member/member.service';
@@ -13,6 +13,8 @@ import { CommentUpdate } from '../../libs/dto/comment/comment.update';
 import { Comments, Comment } from '../../libs/dto/comment/comment';
 import { lookupMember } from '../../libs/config';
 import { T } from '../../libs/types/common';
+
+const logger = new Logger('CommentService');
 
 @Injectable()
 export class CommentService {
@@ -32,7 +34,7 @@ export class CommentService {
 		try {
 			result = await this.commentModel.create(input);
 		} catch (err: any) {
-			console.log('Error, Service.model:', err.message);
+			logger.warn(`Error, Service.model: ${err.message}`);
 			await this.commentStatsEditor(input.commentGroup, input.commentRefId, -1);
 			throw new BadRequestException(Message.CREATE_FAILED);
 		}
@@ -64,7 +66,7 @@ export class CommentService {
 				},
 			)
 			.exec();
-		if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED);
+		if (!result) throw new BadRequestException(Message.UPDATE_FAILED);
 		if (result.commentStatus === CommentStatus.DELETE) {
 			await this.commentStatsEditor(result.commentGroup, result.commentRefId, -1);
 		}
@@ -84,7 +86,7 @@ export class CommentService {
 			}
 			case CommentGroup.ARTICLE: {
 				const article = await this.boardArticleService.boardArticleStatsEditor({ _id: refId, targetKey: 'articleComments', modifier });
-				if (!article) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+				if (!article) throw new NotFoundException(Message.NO_DATA_FOUND);
 				return { ownerId: article.memberId, title: article.articleTitle, group: NotificationGroup.ARTICLE };
 			}
 			default: {
@@ -117,14 +119,14 @@ export class CommentService {
 				},
 			])
 			.exec();
-		if (!result.length) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+		if (!result.length) throw new NotFoundException(Message.NO_DATA_FOUND);
 
 		return result[0];
 	}
 
 	public async removeCommentByAdmin(input: ObjectId): Promise<Comment> {
 		const result = await this.commentModel.findByIdAndDelete(input).exec();
-		if (!result) throw new InternalServerErrorException(Message.REMOVE_FAILED);
+		if (!result) throw new BadRequestException(Message.REMOVE_FAILED);
 		if (result.commentStatus === CommentStatus.ACTIVE) {
 			await this.commentStatsEditor(result.commentGroup, result.commentRefId, -1).catch(() => undefined);
 		}

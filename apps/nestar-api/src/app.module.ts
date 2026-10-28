@@ -1,6 +1,6 @@
 import * as Sentry from '@sentry/node';
 import { Message } from './libs/enums/common.enum';
-import { Module } from '@nestjs/common';
+import { Logger, Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
@@ -11,6 +11,9 @@ import { ComponentsModule } from './components/components.module';
 import { DatabaseModule } from './database/database.module';
 import { GraphqlErrorShape } from './libs/types/common';
 import { SocketModule } from './socket/socket.module';
+import { depthLimit, MAX_QUERY_DEPTH } from './libs/graphql-depth-limit';
+
+const graphqlLogger = new Logger('GraphQL');
 
 @Module({
 	imports: [
@@ -22,6 +25,9 @@ import { SocketModule } from './socket/socket.module';
 			introspection: process.env.NODE_ENV !== 'production',
 			upload: false,
 			autoSchemaFile: true,
+			validationRules: [depthLimit(MAX_QUERY_DEPTH)],
+			// res is needed to set/clear the refresh-token cookie
+			context: ({ req, res }: { req: unknown; res: unknown }) => ({ req, res }),
 			formatError: (error: GraphqlErrorShape) => {
 				// class-validator puts the real reasons ("Please add at least 3 photos") into originalError.message
 				const original: any = (error?.extensions as any)?.originalError?.message;
@@ -36,9 +42,9 @@ import { SocketModule } from './socket/socket.module';
 						code: error?.extensions?.code,
 					},
 				};
-				console.log('GRAPHQL GLOBAL ERR:', graphqlFormattedError);
-				// expected business errors (validation, wrong password...) carry a known message; report the rest
+				// expected business errors (validation, wrong password...) carry a known message; log and report the rest
 				const known = (Object.values(Message) as string[]).includes(String(graphqlFormattedError.message));
+				if (!known) graphqlLogger.warn(`${graphqlFormattedError.extensions.code}: ${graphqlFormattedError.message}`);
 				if (process.env.SENTRY_DSN && !known && graphqlFormattedError.extensions.code === 'INTERNAL_SERVER_ERROR')
 					Sentry.captureException(error);
 				return graphqlFormattedError;

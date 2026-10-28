@@ -17,14 +17,12 @@ export class NotificationResolver {
 		@Args('input') input: OrdinaryInquiry,
 		@AuthMember('_id') memberId: ObjectId,
 	): Promise<Notifications> {
-		console.log('Query: getNotifications');
 		return await this.notificationService.getNotifications(memberId, input);
 	}
 
 	@UseGuards(AuthGuard)
 	@Mutation(() => Int)
 	public async markNotificationsRead(@AuthMember('_id') memberId: ObjectId): Promise<number> {
-		console.log('Mutation: markNotificationsRead');
 		return await this.notificationService.markNotificationsRead(memberId);
 	}
 }
