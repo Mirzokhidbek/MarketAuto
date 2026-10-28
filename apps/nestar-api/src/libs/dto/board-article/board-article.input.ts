@@ -17,7 +17,8 @@ export class BoardArticleInput {
 	articleTitle!: string;
 
 	@IsNotEmpty()
-	@Length(3, 250)
+	// HTML from the rich-text editor (formatting, image tags), sanitized on the server
+	@Length(3, 20000)
 	@Field(() => String)
 	articleContent!: string;
 

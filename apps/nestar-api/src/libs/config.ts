@@ -110,11 +110,26 @@ export const lookupAuthMemberFollowed = (input: LookupAuthMemberFollowed) => {
 	};
 };
 
+// public lists never carry phone numbers: a seller's phone is shown only on their profile and car pages
+const publicMemberFields = [{ $project: { memberPhone: 0, memberPassword: 0 } }];
+
 export const lookupMember = {
 	$lookup: {
 		from: 'members',
 		localField: 'memberId',
 		foreignField: '_id',
+		pipeline: publicMemberFields,
+		as: 'memberData',
+	},
+};
+
+/** admin lists: the member with the phone number */
+export const lookupMemberForAdmin = {
+	$lookup: {
+		from: 'members',
+		localField: 'memberId',
+		foreignField: '_id',
+		pipeline: [{ $project: { memberPassword: 0 } }],
 		as: 'memberData',
 	},
 };
@@ -124,6 +139,7 @@ export const lookupFollowingData = {
 		from: 'members',
 		localField: 'followingId',
 		foreignField: '_id',
+		pipeline: publicMemberFields,
 		as: 'followingData',
 	},
 };
@@ -133,6 +149,7 @@ export const lookupFollowerData = {
 		from: 'members',
 		localField: 'followerId',
 		foreignField: '_id',
+		pipeline: publicMemberFields,
 		as: 'followerData',
 	},
 };
@@ -142,6 +159,7 @@ export const lookupFavorite = {
 		from: 'members',
 		localField: 'favoriteProperty.memberId',
 		foreignField: '_id',
+		pipeline: publicMemberFields,
 		as: 'favoriteProperty.memberData',
 	},
 };
@@ -151,6 +169,12 @@ export const lookupVisit = {
 		from: 'members',
 		localField: 'visitedProperty.memberId',
 		foreignField: '_id',
+		pipeline: publicMemberFields,
 		as: 'visitedProperty.memberData',
 	},
 };
+
+/** any other member join in a public list (notification author, chat partner) */
+export const lookupPublicMember = (localField: string, as: string) => ({
+	$lookup: { from: 'members', localField, foreignField: '_id', pipeline: publicMemberFields, as },
+});

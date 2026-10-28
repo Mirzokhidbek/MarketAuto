@@ -1,4 +1,4 @@
-import { BadRequestException, ForbiddenException, Injectable, InternalServerErrorException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, ObjectId, Types } from 'mongoose';
 import {
@@ -12,9 +12,10 @@ import {
 import { OrdinaryInquiry } from '../../libs/dto/property/property.input';
 import { Message } from '../../libs/enums/common.enum';
 import { MemberStatus } from '../../libs/enums/member.enum';
-import { shapeIntoMongoObjectId } from '../../libs/config';
+import { shapeIntoMongoObjectId, lookupPublicMember } from '../../libs/config';
 import { limiters } from '../../libs/rate-limiter';
 import { SocketGateway } from '../../socket/socket.gateway';
+import { StorageService } from '../storage/storage.service';
 
 @Injectable()
 export class MessageService {
@@ -23,6 +24,7 @@ export class MessageService {
 		@InjectModel('Message') private readonly messageModel: Model<any>,
 		@InjectModel('Member') private readonly memberModel: Model<any>,
 		private readonly socketGateway: SocketGateway,
+		private readonly storageService: StorageService,
 	) {}
 
 	public async sendMessage(senderId: ObjectId, input: SendMessageInput): Promise<ChatMessage> {
@@ -30,13 +32,13 @@ export class MessageService {
 		const receiverId = shapeIntoMongoObjectId(input.receiverId);
 		if (String(receiverId) === String(senderId)) throw new BadRequestException(Message.NOT_ALLOWED_REQUEST);
 		const receiver = await this.memberModel.exists({ _id: receiverId, memberStatus: MemberStatus.ACTIVE });
-		if (!receiver) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+		if (!receiver) throw new NotFoundException(Message.NO_DATA_FOUND);
 
 		const participants = [senderId, receiverId].map(String).sort().map((id) => new Types.ObjectId(id));
 		const propertyId = input.propertyId ? shapeIntoMongoObjectId(input.propertyId) : null;
 		const text = (input.text ?? '').trim();
-		// a photo may only point to our own upload folder
-		const image = input.image && /^(uploads\/message\/|https?:\/\/)/.test(input.image) ? input.image : undefined;
+		// a photo may only point to our own message uploads (no outside URLs: tracking pixels, foreign content)
+		const image = input.image && this.storageService.isOwnPath(input.image, 'message') ? input.image : undefined;
 		if (!text && !image) throw new BadRequestException(Message.BAD_REQUEST);
 
 		// answering a buyer: remember how long it took (shown as "usually replies within ...")
@@ -45,17 +47,25 @@ export class MessageService {
 			await this.trackResponseTime(senderId, previous.lastMessageAt);
 		}
 
-		const conversation = await this.conversationModel
-			.findOneAndUpdate(
-				{ participants, propertyId },
-				{
-					$setOnInsert: { participants, propertyId },
-					$set: { lastMessage: text ? text.slice(0, 200) : '📷', lastSenderId: senderId, lastMessageAt: new Date() },
-					$inc: { [`unread.${String(receiverId)}`]: 1 },
-				},
-				{ upsert: true, new: true },
-			)
-			.exec();
+		const pairKey = `${participants.map(String).join(':')}:${propertyId ? String(propertyId) : '-'}`;
+		const upsert = () =>
+			this.conversationModel
+				.findOneAndUpdate(
+					{ participants, propertyId },
+					{
+						$setOnInsert: { participants, propertyId },
+						$set: { pairKey, lastMessage: text ? text.slice(0, 200) : '📷', lastSenderId: senderId, lastMessageAt: new Date() },
+						$inc: { [`unread.${String(receiverId)}`]: 1 },
+					},
+					{ upsert: true, new: true },
+				)
+				.exec();
+		// both sides writing the very first message at the same moment: the unique pairKey lets only one dialog
+		// be created, the other request then updates it
+		const conversation = await upsert().catch((err: any) => {
+			if (err?.code === 11000) return upsert();
+			throw err;
+		});
 
 		const message = await this.messageModel.create({ conversationId: conversation._id, senderId, text, image });
 		// live delivery to every open tab of the receiver (and the sender's other tabs)
@@ -91,7 +101,7 @@ export class MessageService {
 									unreadCount: { $ifNull: [{ $getField: { field: String(me), input: '$unread' } }, 0] },
 								},
 							},
-							{ $lookup: { from: 'members', localField: 'otherId', foreignField: '_id', as: 'otherMember' } },
+							lookupPublicMember('otherId', 'otherMember'),
 							{ $unwind: { path: '$otherMember', preserveNullAndEmptyArrays: true } },
 							{ $lookup: { from: 'properties', localField: 'propertyId', foreignField: '_id', as: 'propertyData' } },
 							{ $unwind: { path: '$propertyData', preserveNullAndEmptyArrays: true } },

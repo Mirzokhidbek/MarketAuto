@@ -21,7 +21,6 @@ export class NoticeResolver {
 
 	@Query(() => Notices)
 	public async getNotices(@Args('input') input: NoticesInquiry): Promise<Notices> {
-		console.log('Query: getNotices');
 		return await this.noticeService.getNotices(input);
 	}
 
@@ -31,7 +30,6 @@ export class NoticeResolver {
 		@Args('input') input: InquiryInput,
 		@AuthMember('_id') memberId: ObjectId,
 	): Promise<Notice> {
-		console.log('Mutation: createInquiry');
 		return await this.noticeService.createInquiry(memberId, input);
 	}
 
@@ -41,7 +39,6 @@ export class NoticeResolver {
 		@Args('input') input: NoticesInquiry,
 		@AuthMember('_id') memberId: ObjectId,
 	): Promise<Notices> {
-		console.log('Query: getMyInquiries');
 		return await this.noticeService.getMyInquiries(memberId, input);
 	}
 
@@ -51,7 +48,6 @@ export class NoticeResolver {
 	@UseGuards(RolesGuard)
 	@Query(() => Notices)
 	public async getAllNoticesByAdmin(@Args('input') input: NoticesInquiry): Promise<Notices> {
-		console.log('Query: getAllNoticesByAdmin');
 		return await this.noticeService.getAllNoticesByAdmin(input);
 	}
 
@@ -59,7 +55,6 @@ export class NoticeResolver {
 	@UseGuards(RolesGuard)
 	@Mutation(() => Notice)
 	public async createNotice(@Args('input') input: NoticeInput, @AuthMember('_id') memberId: ObjectId): Promise<Notice> {
-		console.log('Mutation: createNotice');
 		const result = await this.noticeService.createNotice(memberId, input);
 		await this.adminLogService.log(memberId, `NOTICE_CREATE`, 'NOTICE', result._id, `${input.noticeCategory}: ${input.noticeTitle}`);
 		return result;
@@ -69,7 +64,6 @@ export class NoticeResolver {
 	@UseGuards(RolesGuard)
 	@Mutation(() => Notice)
 	public async updateNoticeByAdmin(@Args('input') input: NoticeUpdate, @AuthMember('_id') adminId: ObjectId): Promise<Notice> {
-		console.log('Mutation: updateNoticeByAdmin');
 		await this.adminLogService.log(adminId, input.noticeAnswer ? 'INQUIRY_ANSWER' : 'NOTICE_UPDATE', 'NOTICE', input._id, input.noticeStatus);
 		input._id = shapeIntoMongoObjectId(input._id);
 		return await this.noticeService.updateNoticeByAdmin(input);
@@ -79,7 +73,6 @@ export class NoticeResolver {
 	@UseGuards(RolesGuard)
 	@Mutation(() => Notice)
 	public async removeNoticeByAdmin(@Args('noticeId') input: string, @AuthMember('_id') adminId: ObjectId): Promise<Notice> {
-		console.log('Mutation: removeNoticeByAdmin');
 		await this.adminLogService.log(adminId, 'NOTICE_REMOVE', 'NOTICE', input);
 		return await this.noticeService.removeNoticeByAdmin(shapeIntoMongoObjectId(input));
 	}

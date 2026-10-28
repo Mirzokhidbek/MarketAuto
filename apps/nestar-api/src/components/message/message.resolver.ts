@@ -1,5 +1,6 @@
 import { AdminLogService } from '../admin-log/admin-log.service';
 import { Roles } from '../auth/decorators/roles.decorator';
+import { SuperAdminOnly } from '../auth/decorators/super-admin.decorator';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { MemberType } from '../../libs/enums/member.enum';
 import { shapeIntoMongoObjectId } from '../../libs/config';
@@ -53,8 +54,9 @@ export class MessageResolver {
 		return await this.messageService.getUnreadMessagesCount(memberId);
 	}
 
-	/** ADMIN: a member's dialogs (as seen by that member); every look is written to the admin log */
+	/** SUPER ADMIN: a member's dialogs (as seen by that member); every look is written to the admin log. Moderators cannot read private chats */
 	@Roles(MemberType.ADMIN)
+	@SuperAdminOnly()
 	@UseGuards(RolesGuard)
 	@Query(() => Conversations)
 	public async getConversationsByAdmin(
@@ -67,6 +69,7 @@ export class MessageResolver {
 	}
 
 	@Roles(MemberType.ADMIN)
+	@SuperAdminOnly()
 	@UseGuards(RolesGuard)
 	@Query(() => ChatMessages)
 	public async getMessagesByAdmin(@Args('input') input: MessagesInquiry, @AuthMember('_id') adminId: ObjectId): Promise<ChatMessages> {

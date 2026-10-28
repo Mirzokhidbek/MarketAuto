@@ -33,4 +33,7 @@ const CommentSchema = new Schema(
 	{ timestamps: true, collection: 'comments' },
 );
 
+// comments / reviews of one article, member or car, newest first
+CommentSchema.index({ commentRefId: 1, createdAt: -1 });
+
 export default CommentSchema;

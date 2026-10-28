@@ -55,4 +55,8 @@ const NotificationSchema = new Schema(
 	{ timestamps: true, collection: 'notifications' },
 );
 
+// a member's notification list (newest first) and unread counter
+NotificationSchema.index({ receiverId: 1, createdAt: -1 });
+NotificationSchema.index({ receiverId: 1, notificationStatus: 1 });
+
 export default NotificationSchema;

@@ -1,3 +1,5 @@
+// .env must be loaded before any module reads process.env
+import 'dotenv/config';
 import { NestFactory } from '@nestjs/core';
 import { BatchModule } from './batch.module';
 

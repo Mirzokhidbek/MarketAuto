@@ -496,6 +496,7 @@
 	"Login / Register": "Вход / Регистрация",
 	"You have been blocked!": "Ваш аккаунт заблокирован!",
 	"Wrong password, try again!": "Неверный пароль, попробуйте снова!",
+	"Wrong nickname, phone or password!": "Неверный никнейм, телефон или пароль!",
 	"No member with that member nick!": "Пользователь с таким никнеймом не найден!",
 	"Already used member nick or phone!": "Этот никнейм или телефон уже занят!",
 	"Current password is incorrect!": "Текущий пароль неверный!",

@@ -19,7 +19,8 @@ export class Member {
 	@Field(() => MemberAuthType)
 	memberAuthType!: MemberAuthType;
 
-	@Field(() => String)
+	/** empty in public lists: a phone number is shown only on the member's profile and car pages */
+	@Field(() => String, { nullable: true })
 	memberPhone!: string;
 
 	@Field(() => String)

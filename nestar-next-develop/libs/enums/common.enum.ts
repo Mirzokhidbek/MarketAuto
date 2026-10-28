@@ -10,6 +10,7 @@ export enum Message {
 	NO_MEMBER_NICK = 'No account with this nickname or phone!',
 	BLOCKED_USER = 'You have been blocked!',
 	WRONG_PASSWORD = 'Wrong password, try again!',
+	WRONG_LOGIN = 'Wrong nickname, phone or password!',
 	NOT_AUTHENTICATED = 'Please login first!',
 	TOKEN_NOT_EXIST = 'Bearer Token is not provided!',
 	ONLY_SPECIFIC_ROLES_ALLOWED = 'Allowed only for members with specific roles!',

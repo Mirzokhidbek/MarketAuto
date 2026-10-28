@@ -496,6 +496,7 @@
 	"Login / Register": "Login / Register",
 	"You have been blocked!": "You have been blocked!",
 	"Wrong password, try again!": "Wrong password, try again!",
+	"Wrong nickname, phone or password!": "Wrong nickname, phone or password!",
 	"No member with that member nick!": "No member with that member nick!",
 	"Already used member nick or phone!": "Already used member nick or phone!",
 	"Current password is incorrect!": "Current password is incorrect!",

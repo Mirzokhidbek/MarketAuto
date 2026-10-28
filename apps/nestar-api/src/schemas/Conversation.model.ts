@@ -9,9 +9,13 @@ const ConversationSchema = new Schema(
 		lastSenderId: { type: Schema.Types.ObjectId, ref: 'Member' },
 		lastMessageAt: { type: Date, default: Date.now, index: true },
 		unread: { type: Map, of: Number, default: {} }, // memberId -> unread messages
+		// "<id1>:<id2>:<propertyId|->" with sorted ids: one dialog per pair and car, even when both write at once
+		pairKey: { type: String },
 	},
 	{ timestamps: true, collection: 'conversations' },
 );
 ConversationSchema.index({ participants: 1, propertyId: 1 });
+// dialogs created before pairKey existed have none, so only documents that have it must be unique
+ConversationSchema.index({ pairKey: 1 }, { unique: true, partialFilterExpression: { pairKey: { $type: 'string' } } });
 
 export default ConversationSchema;

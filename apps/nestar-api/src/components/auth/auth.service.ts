@@ -12,6 +12,8 @@ import { createHash, randomBytes } from 'crypto';
 
 const REFRESH_TTL_DAYS = Number(process.env.REFRESH_TOKEN_DAYS ?? 30);
 const hashToken = (token: string) => createHash('sha256').update(token).digest('hex');
+// what the site needs before getMe answers: who is logged in, which role, which avatar
+export const TOKEN_CLAIMS = ['_id', 'memberNick', 'memberType', 'memberStatus', 'memberAuthType', 'memberImage', 'memberAdminRole'];
 
 @Injectable()
 export class AuthService {
@@ -69,16 +71,19 @@ export class AuthService {
 	}
 
 	public async createToken(member: Member): Promise<string> {
+		// the token proves identity only; it is readable by anyone who holds it, so no phone or other personal data.
+		// The site loads the rest of the profile with getMe.
+		const source: T = member['_doc'] ?? member;
 		const payload: T = {};
-		Object.keys(member['_doc'] ? member['_doc'] : member).map((ele) => {
-			payload[`${ele}`] = member[`${ele}`];
-		});
-		delete payload.memberPassword;
-		delete payload.accessToken;
-		delete payload.refreshToken;
-		// console.log('payload:', payload);
-
+		for (const key of TOKEN_CLAIMS) if (source[key] !== undefined && source[key] !== null) payload[key] = source[key];
+		payload._id = String(source._id);
 		return await this.jwtService.signAsync(payload);
+	}
+
+	/** expiry time of an access token in ms (null when it cannot be read) */
+	public tokenExpiresAt(token: string): number | null {
+		const payload = this.jwtService.decode<{ exp?: number } | null>(token);
+		return payload?.exp ? payload.exp * 1000 : null;
 	}
 
 	public async verifyToken(token: string): Promise<Member> {

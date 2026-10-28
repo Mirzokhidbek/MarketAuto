@@ -140,4 +140,7 @@ const MemberSchema = new Schema(
 	{ timestamps: true, collection: 'members' },
 );
 
+// blocked/deleted sellers (hidden from public car lists) and admin filters
+MemberSchema.index({ memberStatus: 1, memberType: 1 });
+
 export default MemberSchema;

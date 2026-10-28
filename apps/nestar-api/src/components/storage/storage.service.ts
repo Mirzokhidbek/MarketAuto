@@ -1,4 +1,6 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import { InjectConnection } from '@nestjs/mongoose';
+import { Connection } from 'mongoose';
 import { DeleteObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { v4 as uuidv4 } from 'uuid';
 import * as fs from 'fs';
@@ -9,6 +11,9 @@ import { uploadTargets } from '../../libs/config';
 
 // longest side after resizing: avatars are small, car photos keep enough detail for the gallery
 const MAX_SIZE: Record<string, number> = { member: 400, property: 1600, article: 1400, message: 1400 };
+// a stored file name: no folders, no "..", e.g. 3f2c...-9a.webp
+const FILE_NAME = /^[A-Za-z0-9_-][A-Za-z0-9._-]*$/;
+const escapeRegex = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 /**
  * Saves uploaded images as compressed WebP.
@@ -18,6 +23,8 @@ const MAX_SIZE: Record<string, number> = { member: 400, property: 1600, article:
 @Injectable()
 export class StorageService {
 	private readonly logger = new Logger('StorageService');
+	constructor(@InjectConnection() private readonly connection: Connection) {}
+
 	private readonly s3: S3Client | null = process.env.S3_BUCKET
 		? new S3Client({
 				region: process.env.S3_REGION ?? 'us-east-1',
@@ -78,10 +85,44 @@ export class StorageService {
 		return filePath.split(path.sep).join('/');
 	}
 
-	/** deletes an image that is no longer used; unknown or foreign paths are ignored */
+	/**
+	 * true when the value points to a file in our storage folder for this target
+	 * ("uploads/property/<file>" or "<S3 base>/property/<file>"); member input must pass this check
+	 */
+	public isOwnPath(image: unknown, target: string): boolean {
+		if (typeof image !== 'string' || !uploadTargets.includes(target)) return false;
+		const local = `uploads/${target}/`;
+		if (image.startsWith(local)) return FILE_NAME.test(image.slice(local.length));
+		const remote = this.s3 ? `${this.publicBase()}/${target}/` : null;
+		return !!remote && image.startsWith(remote) && FILE_NAME.test(image.slice(remote.length));
+	}
+
+	/** some member, listing, message or article still shows this image */
+	private async isReferenced(image: string): Promise<boolean> {
+		const db = this.connection.db;
+		if (!db) return true;
+		const found = await Promise.all([
+			db.collection('members').findOne({ memberImage: image }, { projection: { _id: 1 } }),
+			db.collection('properties').findOne({ propertyImages: image }, { projection: { _id: 1 } }),
+			db.collection('messages').findOne({ image }, { projection: { _id: 1 } }),
+			db
+				.collection('boardArticles')
+				.findOne(
+					{ $or: [{ articleImage: image }, { articleContent: { $regex: escapeRegex(image) } }] },
+					{ projection: { _id: 1 } },
+				),
+		]);
+		return found.some(Boolean);
+	}
+
+	/**
+	 * deletes an image that is no longer used; unknown or foreign paths are ignored, and so are files
+	 * that another document still points to (a member could put someone else's photo path into their own data)
+	 */
 	public async removeImage(image?: string | null): Promise<void> {
 		if (!image) return;
 		try {
+			if (await this.isReferenced(image)) return;
 			if (this.s3 && image.startsWith(this.publicBase() + '/')) {
 				const key = image.slice(this.publicBase().length + 1);
 				await this.s3.send(new DeleteObjectCommand({ Bucket: process.env.S3_BUCKET, Key: key }));
