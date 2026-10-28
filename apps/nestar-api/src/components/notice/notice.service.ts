@@ -85,7 +85,8 @@ export class NoticeService {
 
 	private async findNotices(match: T, input: NoticesInquiry, withMember: boolean): Promise<Notices> {
 		const list: any[] = [{ $skip: (input.page - 1) * input.limit }, { $limit: input.limit }];
-		if (withMember) list.push(lookupMemberForAdmin, { $unwind: { path: '$memberData', preserveNullAndEmptyArrays: true } });
+		if (withMember)
+			list.push(lookupMemberForAdmin, { $unwind: { path: '$memberData', preserveNullAndEmptyArrays: true } });
 
 		const [result] = await this.noticeModel
 			.aggregate([

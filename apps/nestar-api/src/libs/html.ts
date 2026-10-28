@@ -9,11 +9,10 @@ export const allowedIframeHosts = ['www.youtube.com', 'youtube.com', 'www.youtub
  */
 export const sanitizeArticleHtml = (html: string): string =>
 	sanitizeHtml(html ?? '', {
-		allowedTags: [
-			'p', 'br', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'strong', 'b', 'em', 'i', 'del', 's', 'u', 'span', 'div',
-			'blockquote', 'ul', 'ol', 'li', 'pre', 'code', 'hr', 'a', 'img', 'table', 'thead', 'tbody', 'tr', 'th', 'td',
-			'iframe',
-		],
+		allowedTags: (
+			'p br h1 h2 h3 h4 h5 h6 strong b em i del s u span div blockquote ul ol li pre code hr a img ' +
+			'table thead tbody tr th td iframe'
+		).split(' '),
 		allowedAttributes: {
 			a: ['href', 'target', 'rel'],
 			img: ['src', 'alt', 'width', 'height'],

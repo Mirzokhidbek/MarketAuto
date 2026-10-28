@@ -36,7 +36,8 @@ export const depthLimit =
 		return {
 			OperationDefinition(node) {
 				const depth = depthOf(node.selectionSet, new Set());
-				if (depth > max) context.reportError(new GraphQLError(`Query is too deep (${depth} levels, max ${max})`, { nodes: [node] }));
+				if (depth > max)
+					context.reportError(new GraphQLError(`Query is too deep (${depth} levels, max ${max})`, { nodes: [node] }));
 			},
 		};
 	};
