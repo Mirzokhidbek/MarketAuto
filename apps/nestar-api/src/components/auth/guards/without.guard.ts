@@ -6,7 +6,6 @@ export class WithoutGuard implements CanActivate {
 	constructor(private authService: AuthService) {}
 
 	async canActivate(context: ExecutionContext | any): Promise<boolean> {
-
 		if (context.contextType === 'graphql') {
 			const request = context.getArgByIndex(2).req,
 				bearerToken = request.headers.authorization;

@@ -1,6 +1,7 @@
 import { CLOSE_TOKEN_EXPIRED, CLOSE_UNAUTHORIZED, SocketGateway } from './socket.gateway';
 
-const fakeClient = () => ({ readyState: 1, close: jest.fn(), on: jest.fn(), send: jest.fn(), ping: jest.fn(), terminate: jest.fn() }) as any;
+const fakeClient = () =>
+	({ readyState: 1, close: jest.fn(), on: jest.fn(), send: jest.fn(), ping: jest.fn(), terminate: jest.fn() }) as any;
 
 describe('SocketGateway', () => {
 	afterEach(() => jest.useRealTimers());
@@ -43,7 +44,10 @@ describe('SocketGateway', () => {
 	});
 
 	it('disconnects a blocked member', async () => {
-		const gateway = new SocketGateway({ verifyToken: jest.fn().mockResolvedValue({ _id: 'm1' }), tokenExpiresAt: () => Date.now() + 60_000 } as any);
+		const gateway = new SocketGateway({
+			verifyToken: jest.fn().mockResolvedValue({ _id: 'm1' }),
+			tokenExpiresAt: () => Date.now() + 60_000,
+		} as any);
 		const client = fakeClient();
 		gateway.handleConnection(client);
 		await gateway.handleAuth(client, { token: 't' });

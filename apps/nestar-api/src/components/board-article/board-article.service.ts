@@ -1,7 +1,13 @@
 import { NotificationService } from '../notification/notification.service';
 import { NotificationGroup, NotificationType } from '../../libs/enums/notification.enum';
 import { MemberStatus } from '../../libs/enums/member.enum';
-import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException, Logger } from '@nestjs/common';
+import {
+	BadRequestException,
+	Injectable,
+	InternalServerErrorException,
+	NotFoundException,
+	Logger,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { BoardArticle, BoardArticles } from '../../libs/dto/board-article/board-article';
 import { Model, ObjectId } from 'mongoose';
@@ -17,7 +23,13 @@ import { StatisticModifier, T } from '../../libs/types/common';
 import { BoardArticleStatus } from '../../libs/enums/board-article.enum';
 import { ViewGroup } from '../../libs/enums/view.enum';
 import { BoardArticleUpdate } from '../../libs/dto/board-article/board-article.update';
-import { lookupAuthMemberLiked, lookupMember, shapeIntoMongoObjectId, searchRegex, lookupMemberForAdmin } from '../../libs/config';
+import {
+	lookupAuthMemberLiked,
+	lookupMember,
+	shapeIntoMongoObjectId,
+	searchRegex,
+	lookupMemberForAdmin,
+} from '../../libs/config';
 import { LikeService } from '../like/like.service';
 import { LikeInput } from '../../libs/dto/like/like.input';
 import { sanitizeArticleHtml } from '../../libs/html';

@@ -22,11 +22,15 @@ describe('sanitizeArticleHtml', () => {
 	});
 
 	it('drops iframes from other sites and srcdoc', () => {
-		const html = sanitizeArticleHtml('<iframe src="https://evil.example/x"></iframe><iframe srcdoc="<script>x</script>"></iframe>');
+		const html = sanitizeArticleHtml(
+			'<iframe src="https://evil.example/x"></iframe><iframe srcdoc="<script>x</script>"></iframe>',
+		);
 		expect(html).not.toMatch(/evil|srcdoc|script/);
 	});
 
 	it('marks links as nofollow', () => {
-		expect(sanitizeArticleHtml('<a href="https://x.uz" target="_blank">x</a>')).toContain('rel="noopener noreferrer nofollow"');
+		expect(sanitizeArticleHtml('<a href="https://x.uz" target="_blank">x</a>')).toContain(
+			'rel="noopener noreferrer nofollow"',
+		);
 	});
 });

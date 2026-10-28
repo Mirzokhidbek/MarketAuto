@@ -13,7 +13,7 @@ async function gql(query) {
 }
 
 (async () => {
-	const session = (await gql('mutation{login(input:{memberNick:"autosalon1",memberPassword:"12345"}){accessToken refreshToken}}')).data.login;
+	const session = (await gql('mutation{login(input:{memberNick:"autosalon1",memberPassword:"12345"}){accessToken}}')).data.login;
 	const carId = (await gql('{getProperties(input:{page:1,limit:1,search:{countryList:[SOUTH_KOREA]}}){list{_id}}}')).data.getProperties.list[0]._id;
 	const agentId = (await gql('{getAgents(input:{page:1,limit:1,search:{}}){list{_id}}}')).data.getAgents.list[0]._id;
 	const articleId = (await gql('{getBoardArticles(input:{page:1,limit:1,search:{articleCategory:NEWS}}){list{_id}}}')).data.getBoardArticles.list[0]._id;
@@ -33,10 +33,8 @@ async function gql(query) {
 		if (/did not match|Hydration|Warning: Each child|Cannot read/i.test(x)) problems.push(`[${page.url()}] console: ${x.slice(0, 140)}`);
 	});
 	await page.goto(`${WEB}/`, { waitUntil: 'load', timeout: 120000 });
-	await page.evaluate((t) => {
-		localStorage.setItem('accessToken', t.accessToken);
-		localStorage.setItem('refreshToken', t.refreshToken);
-	}, session);
+	// the refresh token is an httpOnly cookie of the API; the access token alone is enough for this run
+	await page.evaluate((t) => localStorage.setItem('accessToken', t.accessToken), session);
 
 	for (const locale of ['', '/uz', '/ru']) {
 		for (const path of pages) {

@@ -8,14 +8,24 @@ const API = process.env.API_URL ?? 'http://localhost:3007/graphql';
 let failed = 0;
 const created = { members: [] };
 
-const gql = async (query, token, variables) => {
+const gql = async (query, token, variables) => (await gqlWithCookie(query, token, variables)).json;
+
+/** the refresh token travels only as the httpOnly `ma_refresh` cookie */
+const gqlWithCookie = async (query, token, variables, cookie) => {
 	const response = await fetch(API, {
 		method: 'POST',
-		headers: { 'content-type': 'application/json', ...(token ? { authorization: `Bearer ${token}` } : {}) },
+		headers: {
+			'content-type': 'application/json',
+			...(token ? { authorization: `Bearer ${token}` } : {}),
+			...(cookie ? { cookie } : {}),
+		},
 		body: JSON.stringify({ query, variables }),
 	});
-	return response.json();
+	const setCookie = response.headers.getSetCookie?.() ?? [];
+	const refresh = setCookie.find((item) => item.startsWith('ma_refresh='));
+	return { json: await response.json(), cookie: refresh ? refresh.split(';')[0] : undefined, setCookie };
 };
+const claims = (jwt) => JSON.parse(Buffer.from(String(jwt).split('.')[1] ?? '', 'base64url').toString() || '{}');
 const check = (name, ok, extra = '') => {
 	if (!ok) failed++;
 	console.log(`${ok ? 'PASS' : 'FAIL'}  ${name}${extra ? `  (${extra})` : ''}`);
@@ -26,14 +36,14 @@ const signup = async (prefix, type = 'USER') => {
 	const phone = `99899${String(Date.now()).slice(-7)}`;
 	const nick = `${prefix}${String(Date.now()).slice(-6)}`;
 	const code = (await gql(`mutation{requestPhoneCode(input:{phone:"${phone}",purpose:SIGNUP}){devCode}}`)).data?.requestPhoneCode?.devCode;
-	const result = await gql(
+	const { json: result, cookie, setCookie } = await gqlWithCookie(
 		`mutation($i:MemberInput!){signup(input:$i){_id accessToken refreshToken}}`,
 		null,
 		{ i: { memberNick: nick, memberPassword: '12345', memberPhone: phone, verificationCode: code, memberType: type } },
 	);
 	const member = result.data?.signup;
 	if (member) created.members.push(member._id);
-	return { ...member, nick, phone };
+	return { ...member, nick, phone, cookie, setCookie };
 };
 
 const run = async () => {
@@ -46,18 +56,39 @@ const run = async () => {
 	check('signup rejects a wrong code', /wrong or expired/.test(error(wrongCode)));
 	const seller = await signup('e2es');
 	const buyer = await signup('e2eb');
-	check('signup with SMS code', !!seller.accessToken && !!seller.refreshToken);
+	check('signup with SMS code', !!seller.accessToken && !!seller.cookie);
+	check('refresh token only in an httpOnly cookie', !seller.refreshToken && /HttpOnly/i.test(seller.setCookie.join(';')));
+	check('access token carries no phone', !!claims(seller.accessToken)._id && !claims(seller.accessToken).memberPhone);
+	check('getMe returns the profile', (await gql(`{getMe{memberPhone}}`, seller.accessToken)).data?.getMe?.memberPhone === seller.phone);
+
+	// a member cannot give themselves admin rights or badges
+	await gql(`mutation{updateMember(input:{_id:"${buyer._id}",memberAdminRole:SUPER,memberDealerVerified:true,memberDesc:"hi"}){_id}}`, buyer.accessToken);
+	const buyerMe = (await gql(`{getMe{memberAdminRole memberDealerVerified memberDesc}}`, buyer.accessToken)).data?.getMe;
+	check('updateMember ignores admin role and badges', buyerMe?.memberDesc === 'hi' && !buyerMe?.memberAdminRole && !buyerMe?.memberDealerVerified);
+	const foreignAvatar = await gql(`mutation{updateMember(input:{_id:"${buyer._id}",memberImage:"uploads/property/someone-else.webp"}){_id}}`, buyer.accessToken);
+	check('avatar must be an own upload', !!error(foreignAvatar));
+
+	// login does not reveal whether an account exists
+	const noUser = error(await gql(`mutation{login(input:{memberNick:"nobody${Date.now() % 1e6}",memberPassword:"wrong1"}){_id}}`));
+	const badPass = error(await gql(`mutation{login(input:{memberNick:"${seller.nick}",memberPassword:"wrong1"}){_id}}`));
+	check('same login error for unknown user and wrong password', noUser === badPass && /Wrong nickname/.test(noUser), noUser);
+
+	// very deep queries are rejected
+	const normal = await gql(`{getProperties(input:{page:1,limit:1,search:{}}){list{memberData{_id} meLiked{memberId}}}}`);
+	check('normal nesting works', !error(normal), error(normal));
+	const tooDeep = await gql(`{${'a{'.repeat(12)}b${'}'.repeat(12)}}`);
+	check('too deep query is rejected', (tooDeep.errors ?? []).some((item) => /too deep/.test(item.message)));
 
 	// login brute-force limit
 	let last;
 	for (let i = 0; i < 6; i++) last = await gql(`mutation{login(input:{memberNick:"${buyer.nick}",memberPassword:"wrong1"}){_id}}`);
 	check('login is rate limited', /Too many attempts/.test(error(last)));
 
-	// refresh token rotation
-	const refreshed = await gql(`mutation($t:String!){refreshSession(refreshToken:$t){accessToken refreshToken}}`, null, { t: seller.refreshToken });
-	check('refresh session', !!refreshed.data?.refreshSession?.accessToken);
-	check('old refresh token is revoked', /expired/.test(error(await gql(`mutation($t:String!){refreshSession(refreshToken:$t){accessToken}}`, null, { t: seller.refreshToken }))));
-	const token = refreshed.data.refreshSession.accessToken;
+	// refresh token rotation (cookie)
+	const refreshed = await gqlWithCookie(`mutation{refreshSession{accessToken refreshToken}}`, null, undefined, seller.cookie);
+	check('refresh session', !!refreshed.json.data?.refreshSession?.accessToken && !!refreshed.cookie && refreshed.cookie !== seller.cookie);
+	check('old refresh token is revoked', /expired/.test(error((await gqlWithCookie(`mutation{refreshSession{accessToken}}`, null, undefined, seller.cookie)).json)));
+	const token = refreshed.json.data.refreshSession.accessToken;
 
 	// moderation: first listing of a new seller waits for approval
 	const car = await gql(
@@ -77,8 +108,9 @@ const run = async () => {
 	check('page size is capped', !!error(huge));
 
 	// private messages
-	const sent = await gql(`mutation{sendMessage(input:{receiverId:"${seller._id}",propertyId:"${carId}",text:"Salom!"}){conversationId}}`, buyer.accessToken);
+	const sent = await gql(`mutation{sendMessage(input:{receiverId:"${seller._id}",propertyId:"${carId}",text:"Salom!",image:"https://evil.example/pixel.gif"}){conversationId image}}`, buyer.accessToken);
 	check('buyer can message seller', !!sent.data?.sendMessage?.conversationId, error(sent));
+	check('outside image URLs are dropped from messages', !sent.data?.sendMessage?.image);
 	check('seller sees unread message', (await gql(`{getUnreadMessagesCount}`, token)).data?.getUnreadMessagesCount === 1);
 
 	// report

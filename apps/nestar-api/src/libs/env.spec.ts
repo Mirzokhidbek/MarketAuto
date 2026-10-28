@@ -9,12 +9,22 @@ describe('assertEnv', () => {
 	});
 
 	it('rejects a weak secret, missing database and open CORS in production', () => {
-		const env = { NODE_ENV: 'production', SECRET_TOKEN: 'change-me-to-a-long-random-string', MONGO_PROD: '', CORS_ORIGINS: ' , ' };
+		const env = {
+			NODE_ENV: 'production',
+			SECRET_TOKEN: 'change-me-to-a-long-random-string',
+			MONGO_PROD: '',
+			CORS_ORIGINS: ' , ',
+		};
 		expect(() => assertEnv(env)).toThrow(/32 characters[\s\S]*MONGO_PROD[\s\S]*CORS_ORIGINS/);
 	});
 
 	it('accepts a complete production setup', () => {
-		const env = { NODE_ENV: 'production', SECRET_TOKEN: strongSecret, MONGO_PROD: 'mongodb://db/x', CORS_ORIGINS: 'https://marketauto.uz' };
+		const env = {
+			NODE_ENV: 'production',
+			SECRET_TOKEN: strongSecret,
+			MONGO_PROD: 'mongodb://db/x',
+			CORS_ORIGINS: 'https://marketauto.uz',
+		};
 		expect(() => assertEnv(env)).not.toThrow();
 	});
 });

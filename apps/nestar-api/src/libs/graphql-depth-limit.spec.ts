@@ -6,7 +6,8 @@ const schema = buildSchema(`
 	type Query { member: Member }
 `);
 
-const errorsFor = (query: string, max = 3) => validate(schema, parse(query), [depthLimit(max)]).map((error) => error.message);
+const errorsFor = (query: string, max = 3) =>
+	validate(schema, parse(query), [depthLimit(max)]).map((error) => error.message);
 
 describe('depthLimit', () => {
 	it('allows queries within the limit', () => {
@@ -15,7 +16,9 @@ describe('depthLimit', () => {
 
 	it('rejects deeper queries, also through fragments', () => {
 		expect(errorsFor('{ member { followers { followers { nick } } } }')[0]).toMatch('too deep');
-		expect(errorsFor('{ member { ...F } } fragment F on Member { followers { followers { nick } } }')[0]).toMatch('too deep');
+		expect(errorsFor('{ member { ...F } } fragment F on Member { followers { followers { nick } } }')[0]).toMatch(
+			'too deep',
+		);
 	});
 
 	it('does not count introspection fields', () => {

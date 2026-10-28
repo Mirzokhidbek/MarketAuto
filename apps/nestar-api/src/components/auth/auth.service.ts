@@ -13,7 +13,15 @@ import { createHash, randomBytes } from 'crypto';
 const REFRESH_TTL_DAYS = Number(process.env.REFRESH_TOKEN_DAYS ?? 30);
 const hashToken = (token: string) => createHash('sha256').update(token).digest('hex');
 // what the site needs before getMe answers: who is logged in, which role, which avatar
-export const TOKEN_CLAIMS = ['_id', 'memberNick', 'memberType', 'memberStatus', 'memberAuthType', 'memberImage', 'memberAdminRole'];
+export const TOKEN_CLAIMS = [
+	'_id',
+	'memberNick',
+	'memberType',
+	'memberStatus',
+	'memberAuthType',
+	'memberImage',
+	'memberAdminRole',
+];
 
 @Injectable()
 export class AuthService {
