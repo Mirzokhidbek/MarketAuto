@@ -988,5 +988,8 @@
 	"When you reject a car, write the reason: the seller can fix it and send it again.": "When you reject a car, write the reason: the seller can fix it and send it again.",
 	"Open a member to see all their cars, reports and chats in one place.": "Open a member to see all their cars, reports and chats in one place.",
 	"Select several cars with the checkboxes to approve or reject them at once.": "Select several cars with the checkboxes to approve or reject them at once.",
-	"Every admin action is written to the action log.": "Every admin action is written to the action log."
+	"Every admin action is written to the action log.": "Every admin action is written to the action log.",
+	"No photo": "No photo",
+	"More filters": "More filters",
+	"Cars from": "Cars from"
 }

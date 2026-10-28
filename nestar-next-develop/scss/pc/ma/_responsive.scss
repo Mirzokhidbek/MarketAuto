@@ -26,10 +26,22 @@
 	.ma-grid--4 {
 		grid-template-columns: repeat(2, minmax(0, 1fr));
 	}
+	// two rows: make + model, then price + year + search
 	.ma-search {
-		grid-template-columns: repeat(3, minmax(0, 1fr));
-		&__btn {
-			grid-column: span 3;
+		grid-template-columns: repeat(2, minmax(0, 1fr)) auto;
+		.ma-field:nth-child(2) {
+			grid-column: span 2;
+			border-right: none;
+		}
+		.ma-field:nth-child(-n + 2) {
+			border-bottom: 1px solid $ma-border;
+		}
+	}
+	.ma-how {
+		grid-template-columns: 1fr;
+		gap: 28px;
+		&__trust {
+			grid-column: auto;
 		}
 	}
 	.ma-list-layout {
@@ -117,10 +129,25 @@
 
 	/* hero */
 	.ma-hero {
-		padding: 130px 0 72px;
+		padding: 96px 0 32px;
 		h1 {
-			font-size: 38px;
+			font-size: 36px;
 		}
+	}
+	.ma-origins {
+		grid-template-columns: 1fr;
+	}
+	.ma-spotlight {
+		padding: 22px 0;
+		a:not(:first-child) > & {
+			padding-left: 0;
+			border-left: none;
+			border-top: 1px solid $ma-border;
+		}
+	}
+	.ma-how__steps {
+		grid-template-columns: 1fr;
+		gap: 20px;
 	}
 	.ma-hub__head {
 		flex-direction: column;
@@ -139,11 +166,13 @@
 		}
 	}
 	.ma-cta {
-		flex-direction: column;
-		align-items: flex-start;
-		padding: 36px 28px;
+		grid-template-columns: 1fr;
+		padding: 32px 24px;
 		&__card {
-			width: 100%;
+			min-width: 0;
+			padding: 20px 0 0;
+			border-left: none;
+			border-top: 1px solid rgba(255, 255, 255, 0.16);
 		}
 	}
 
@@ -238,14 +267,13 @@
 		display: none;
 	}
 	#pc-wrap .header-basic {
-		height: 190px !important;
+		padding: 84px 0 20px;
 		.container {
-			margin-top: 96px;
 			strong {
-				font-size: 28px !important;
+				font-size: 24px !important;
 			}
 			span {
-				font-size: 16px !important;
+				font-size: 14px !important;
 			}
 		}
 	}
@@ -264,21 +292,50 @@
 		max-width: calc(100% - 32px);
 	}
 	.ma-hero {
-		padding: 112px 0 56px;
+		padding: 88px 0 28px;
 		h1 {
-			font-size: 30px;
+			font-size: 28px;
+			letter-spacing: -0.03em;
 		}
 		&__lead {
 			font-size: 15px;
-			margin-bottom: 28px;
+			margin-bottom: 20px;
+		}
+		&__origins {
+			flex-wrap: nowrap;
+			overflow-x: auto;
+			margin-right: -16px;
+			padding-right: 16px;
+			scrollbar-width: none;
+			&::-webkit-scrollbar {
+				display: none;
+			}
+			> * {
+				flex-shrink: 0;
+			}
 		}
 	}
+	// phone: make + model on one line, price + year on the next, full-width search button
 	.ma-search {
-		grid-template-columns: 1fr;
-		padding: 16px;
-		&__btn {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		.ma-field:nth-child(2) {
 			grid-column: auto;
 		}
+		.ma-field:nth-child(even) {
+			border-right: none;
+		}
+		.ma-field:nth-child(-n + 2) {
+			border-bottom: 1px solid $ma-border;
+		}
+		&__btn {
+			grid-column: 1 / -1;
+			min-height: 48px;
+			margin: 0;
+			border-radius: 0;
+		}
+	}
+	.ma-cta__text h2 {
+		font-size: 23px;
 	}
 	#pc-wrap #top .navbar .navbar-main .container .user-box {
 		.ma-nav-sell {

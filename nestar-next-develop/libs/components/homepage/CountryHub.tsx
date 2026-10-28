@@ -9,7 +9,7 @@ import { CarCountry } from '../../enums/property.enum';
 import { Direction, Message } from '../../enums/common.enum';
 import { Property } from '../../types/property/property';
 import { PropertiesInquiry } from '../../types/property/property.input';
-import { formatCountry } from '../../utils';
+import { countryName } from '../../utils';
 import { sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../sweetAlert';
 import CarCard from '../common/CarCard';
 
@@ -75,7 +75,7 @@ const CountryHub = () => {
 								className={`ma-tab ${country === item ? 'is-active' : ''}`}
 								onClick={() => setCountry(item)}
 							>
-								{formatCountry(item, t)}
+								{countryName(item, t)}
 							</button>
 						))}
 					</div>

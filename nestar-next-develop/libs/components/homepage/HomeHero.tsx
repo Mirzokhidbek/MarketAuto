@@ -4,8 +4,10 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
 import SearchIcon from '@mui/icons-material/Search';
-import { CarBrand, CarCountry, PropertyType } from '../../enums/property.enum';
-import { formatCountry, formatEnumLabel } from '../../utils';
+import { CarBrand, CarCountry } from '../../enums/property.enum';
+import { formatEnumLabel } from '../../utils';
+import Link from 'next/link';
+import Origin from '../common/Origin';
 import { PropertiesInquiry } from '../../types/property/property.input';
 
 const priceOptions = [
@@ -25,35 +27,42 @@ const yearOptions = [
 	{ label: 'Before 2010', range: { start: 1950, end: 2009 } },
 ];
 
+// origins shown under the search: one click to every car from that country
+const origins = [
+	CarCountry.UZBEKISTAN,
+	CarCountry.SOUTH_KOREA,
+	CarCountry.CHINA,
+	CarCountry.JAPAN,
+	CarCountry.USA,
+	CarCountry.GERMANY,
+	CarCountry.UAE,
+];
+
+const searchHref = (search: PropertiesInquiry['search']) =>
+	`/property?input=${JSON.stringify({ page: 1, limit: 9, sort: 'createdAt', search })}`;
+
 const HomeHero = () => {
 	const router = useRouter();
 	const { t } = useTranslation('common');
-	const [country, setCountry] = useState('');
 	const [brand, setBrand] = useState('');
 	const [price, setPrice] = useState(0);
 	const [year, setYear] = useState(0);
-	const [bodyType, setBodyType] = useState('');
 	const [model, setModel] = useState('');
 	// model hints for the chosen brand
 	const { data: modelsData } = useQuery(GET_CAR_MODELS, { skip: !brand, variables: { brand } });
 
 	const searchHandler = async () => {
-		const input: PropertiesInquiry = { page: 1, limit: 9, sort: 'createdAt', search: {} };
-		if (country) input.search.countryList = [country as CarCountry];
-		if (brand) input.search.brandList = [brand as CarBrand];
-		if (bodyType) input.search.typeList = [bodyType as PropertyType];
-		if (model.trim()) input.search.model = model.trim();
-		if (priceOptions[price].range) input.search.pricesRange = priceOptions[price].range!;
-		if (yearOptions[year].range) input.search.yearsRange = yearOptions[year].range!;
-		await router.push(`/property?input=${JSON.stringify(input)}`, `/property?input=${JSON.stringify(input)}`);
+		const search: PropertiesInquiry['search'] = {};
+		if (brand) search.brandList = [brand as CarBrand];
+		if (model.trim()) search.model = model.trim();
+		if (priceOptions[price].range) search.pricesRange = priceOptions[price].range!;
+		if (yearOptions[year].range) search.yearsRange = yearOptions[year].range!;
+		await router.push(searchHref(search));
 	};
 
 	return (
 		<section className={'ma-hero'}>
 			<div className={'ma-hero__inner'}>
-				<span className={'ma-pill'}>
-					<i className={'ma-dot'} /> {t('Local & International Car Marketplace')}
-				</span>
 				<h1>{t('Cars from around the world — for Uzbekistan.')}</h1>
 				<p className={'ma-hero__lead'}>
 					{t(
@@ -61,18 +70,14 @@ const HomeHero = () => {
 					)}
 				</p>
 
-				<div className={'ma-search'}>
-					<label className={'ma-field'}>
-						<span>{t('Country')}</span>
-						<select value={country} onChange={(e) => setCountry(e.target.value)}>
-							<option value={''}>{t('All Countries')}</option>
-							{Object.values(CarCountry).map((item) => (
-								<option value={item} key={item}>
-									{formatCountry(item, t)}
-								</option>
-							))}
-						</select>
-					</label>
+				<form
+					className={'ma-search'}
+					role={'search'}
+					onSubmit={(e) => {
+						e.preventDefault();
+						searchHandler();
+					}}
+				>
 					<label className={'ma-field'}>
 						<span>{t('Make')}</span>
 						<select value={brand} onChange={(e) => setBrand(e.target.value)}>
@@ -92,7 +97,6 @@ const HomeHero = () => {
 							value={model}
 							placeholder={(brand ? t('e.g. K5, Cobalt') : t('Any model')) as string}
 							onChange={(e) => setModel(e.target.value)}
-							onKeyDown={(e) => e.key === 'Enter' && searchHandler()}
 						/>
 						<datalist id={'ma-hero-models'}>
 							{(modelsData?.getCarModels ?? []).map((item: string) => (
@@ -120,21 +124,22 @@ const HomeHero = () => {
 							))}
 						</select>
 					</label>
-					<label className={'ma-field'}>
-						<span>{t('Vehicle Type')}</span>
-						<select value={bodyType} onChange={(e) => setBodyType(e.target.value)}>
-							<option value={''}>{t('All Types')}</option>
-							{Object.values(PropertyType).map((item) => (
-								<option value={item} key={item}>
-									{formatEnumLabel(item, t)}
-								</option>
-							))}
-						</select>
-					</label>
-					<button className={'ma-btn ma-btn--primary ma-search__btn'} onClick={searchHandler}>
+					<button type={'submit'} className={'ma-btn ma-btn--primary ma-search__btn'}>
 						<SearchIcon /> {t('Search')}
 					</button>
-				</div>
+				</form>
+
+				<nav className={'ma-hero__origins'} aria-label={t('Cars from') as string}>
+					<span>{t('Cars from')}:</span>
+					{origins.map((country) => (
+						<Link href={searchHref({ countryList: [country] })} key={country}>
+							<Origin country={country} />
+						</Link>
+					))}
+					<Link href={'/property'} className={'ma-search__more'}>
+						{t('More filters')} →
+					</Link>
+				</nav>
 			</div>
 		</section>
 	);

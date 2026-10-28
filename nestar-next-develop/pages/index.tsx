@@ -10,7 +10,6 @@ import {
 	SellCta,
 	LatestArticles,
 	TopDealers,
-	WhyUs,
 } from '../libs/components/homepage/HomeSections';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 
@@ -26,7 +25,6 @@ const Home: NextPage = () => {
 			<HomeHero />
 			<CountryHub />
 			<CountrySpotlight />
-			<WhyUs />
 			<HowItWorks />
 			<TopDealers />
 			<SellCta />

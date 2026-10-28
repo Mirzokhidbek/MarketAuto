@@ -1,0 +1,515 @@
+/**
+ * Refinement layer (loaded last). Same direction everywhere: content sits on the page, hairline
+ * rules group things, a box is used only where it carries meaning (the price/contact panel,
+ * form fields, floating bars).
+ */
+
+/* ---------- lists of things without boxes ---------- */
+.ma-how__steps {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+// "How it works" heading column stays short; steps carry the section
+.ma-how > div:first-child .ma-title {
+	font-size: 24px;
+}
+
+/* ---------- dealer card: a compact row-style profile, not a centered badge ---------- */
+.ma-dealer-card {
+	display: grid;
+	grid-template-columns: 56px minmax(0, 1fr);
+	grid-template-areas:
+		'avatar name'
+		'avatar meta'
+		'stats stats'
+		'action action';
+	align-items: center;
+	column-gap: 14px;
+	padding: 20px;
+	border-radius: $ma-radius;
+	border: 1px solid $ma-border;
+	box-shadow: none;
+	text-align: left;
+	transition: border-color 0.15s ease;
+	&:hover {
+		transform: none;
+		box-shadow: none;
+		border-color: $ma-border-strong;
+	}
+	> a:first-of-type,
+	> button + a {
+		grid-area: avatar;
+		width: auto;
+	}
+	img {
+		width: 56px;
+		height: 56px;
+		margin: 0;
+	}
+	h3 {
+		margin: 0;
+		font-size: 15.5px;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+	> a:nth-of-type(2) {
+		grid-area: name;
+		min-width: 0;
+	}
+	> .ma-badge {
+		grid-area: meta;
+		justify-self: start;
+	}
+	// trust lines and address are secondary: smaller, under the name
+	.ma-trust,
+	&__address {
+		grid-column: 1 / -1;
+		margin-top: 10px;
+	}
+	&__stats {
+		grid-area: stats;
+		margin: 14px 0 12px;
+		padding: 12px 0 0;
+		border-bottom: none;
+		text-align: left;
+		strong {
+			font-size: 16px;
+			font-variant-numeric: tabular-nums;
+		}
+	}
+	> a:last-child {
+		grid-area: action;
+	}
+	.ma-btn--block {
+		margin-top: 0;
+		height: 38px;
+	}
+	.ma-car-card__like {
+		position: absolute;
+		top: 14px;
+		right: 14px;
+		box-shadow: none;
+		background: transparent;
+	}
+}
+
+/* ---------- article card: photo + text, same rhythm as the car card ---------- */
+.ma-article-card {
+	border: none;
+	border-radius: 0;
+	box-shadow: none;
+	background: transparent;
+	overflow: visible;
+	&:hover {
+		transform: none;
+		box-shadow: none;
+		h3 {
+			color: $ma-primary;
+		}
+	}
+	&__media {
+		height: auto;
+		aspect-ratio: 16 / 10;
+		border-radius: $ma-radius;
+		overflow: hidden;
+		.ma-badge {
+			top: auto;
+			bottom: 10px;
+			left: 10px;
+		}
+	}
+	&.is-small &__media {
+		height: auto;
+	}
+	&__body {
+		padding: 12px 2px 0;
+		h3 {
+			margin-bottom: 6px;
+			font-size: 15.5px;
+		}
+	}
+	&__stats {
+		padding-top: 10px;
+		margin-top: 10px;
+		font-variant-numeric: tabular-nums;
+	}
+}
+
+/* ---------- search page ---------- */
+.ma-list-page {
+	padding: 32px 0 80px;
+}
+
+.ma-list-layout {
+	grid-template-columns: 264px minmax(0, 1fr);
+	gap: 40px;
+}
+
+// the filter column is part of the page, separated by a rule
+.ma-filter {
+	top: 88px;
+	padding: 0 24px 24px 0;
+	border: none;
+	border-right: 1px solid $ma-border;
+	border-radius: 0;
+	background: transparent;
+	box-shadow: none;
+	&__head strong {
+		font-size: 15px;
+	}
+	&__search input {
+		border-radius: $ma-radius-sm;
+		border-color: $ma-border-strong;
+		background: $ma-white;
+	}
+}
+
+.ma-results__bar {
+	margin-bottom: 20px;
+	padding-bottom: 16px;
+	border-bottom: 1px solid $ma-border;
+	h2 {
+		font-size: 20px;
+		letter-spacing: -0.01em;
+	}
+}
+
+.ma-sort select {
+	height: 38px;
+	border-radius: $ma-radius-sm;
+	border-color: $ma-border-strong;
+}
+
+.ma-results .ma-grid--3 {
+	gap: 32px 24px;
+}
+
+.ma-pagination .MuiPaginationItem-root {
+	border-radius: $ma-radius-sm;
+	font-variant-numeric: tabular-nums;
+	&.Mui-selected {
+		background: $ma-dark;
+		&:hover {
+			background: $ma-dark;
+		}
+	}
+}
+
+// floating compare bar: a tool, so it may float — squared to match the rest
+.ma-compare-bar {
+	border-radius: $ma-radius;
+	box-shadow: $ma-shadow-float;
+}
+
+/* ---------- car page ---------- */
+.ma-detail {
+	padding-top: 92px;
+	&__head {
+		margin-bottom: 20px;
+		h1 {
+			margin-bottom: 8px;
+			font-size: 30px;
+			line-height: 1.15;
+			letter-spacing: -0.025em;
+		}
+	}
+	&__meta {
+		gap: 6px 16px;
+		align-items: center;
+	}
+	&__layout {
+		grid-template-columns: minmax(0, 1fr) 340px;
+		gap: 40px;
+	}
+	&__main {
+		gap: 0;
+	}
+}
+
+.ma-icon-btn {
+	height: 38px;
+	padding: 0 12px;
+	border-radius: $ma-radius-sm;
+	border-color: $ma-border-strong;
+	&:hover {
+		border-color: $ma-dark;
+		color: $ma-dark;
+	}
+	&.is-liked svg {
+		color: $ma-danger;
+	}
+}
+
+.ma-gallery {
+	&__main {
+		height: auto;
+		aspect-ratio: 16 / 10;
+		border-radius: $ma-radius;
+		background: $ma-bg;
+		.ma-car-card__placeholder svg {
+			font-size: 56px;
+		}
+	}
+	&__thumbs button {
+		width: 96px;
+		height: 64px;
+		border-radius: $ma-radius-sm;
+		&.is-active {
+			border-color: $ma-dark;
+		}
+	}
+}
+
+// five key facts in one ruled row, read left to right
+.ma-keyspecs {
+	display: grid;
+	grid-template-columns: repeat(5, minmax(0, 1fr));
+	margin: 24px 0 0;
+	border-top: 1px solid $ma-border;
+	border-bottom: 1px solid $ma-border;
+	font-family: $ma-font;
+	div {
+		padding: 14px 16px;
+		& + div {
+			border-left: 1px solid $ma-border;
+		}
+		&:first-child {
+			padding-left: 0;
+		}
+	}
+	dt {
+		font-size: 12.5px;
+		color: $ma-muted;
+	}
+	dd {
+		margin: 2px 0 0;
+		font-size: 15.5px;
+		font-weight: 600;
+		color: $ma-dark;
+		font-variant-numeric: tabular-nums;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+}
+
+// content sections of the car page: titled blocks on the page, not boxes
+.ma-detail__main .ma-panel {
+	padding: 32px 0 0;
+	border: none;
+	border-radius: 0;
+	box-shadow: none;
+	background: transparent;
+	h2 {
+		font-size: 18px;
+		letter-spacing: -0.01em;
+	}
+	& + .ma-panel {
+		margin-top: 32px;
+		border-top: 1px solid $ma-border;
+	}
+}
+
+.ma-details {
+	gap: 0 40px;
+	div {
+		padding: 11px 0;
+	}
+	dd {
+		font-variant-numeric: tabular-nums;
+	}
+}
+
+.ma-map {
+	border-radius: $ma-radius;
+}
+
+// where an imported car is and how it gets here: same ruled row as the key specs
+.ma-abroad {
+	gap: 0;
+	border-top: 1px solid $ma-border;
+	border-bottom: 1px solid $ma-border;
+	div {
+		padding: 14px 16px;
+		border-radius: 0;
+		background: transparent;
+		& + div {
+			border-left: 1px solid $ma-border;
+		}
+		&:first-child {
+			padding-left: 0;
+		}
+	}
+	span {
+		font-size: 12.5px;
+	}
+}
+
+@media (max-width: 600px) {
+	.ma-abroad div {
+		padding: 12px 0;
+		& + div {
+			border-left: none;
+			border-top: 1px solid $ma-border;
+		}
+	}
+}
+
+// the one boxed element on the page: price and the ways to reach the seller
+.ma-detail__side .ma-panel {
+	border-radius: $ma-radius;
+	border-color: $ma-border;
+	box-shadow: none;
+}
+
+.ma-price-card {
+	&__price {
+		font-size: 32px;
+		font-weight: 800;
+		letter-spacing: -0.025em;
+		font-variant-numeric: tabular-nums;
+	}
+	&__other {
+		display: block;
+		margin: -8px 0 12px;
+		font-size: 14px;
+		color: $ma-muted;
+		font-variant-numeric: tabular-nums;
+	}
+}
+
+.ma-status {
+	height: 22px;
+	padding: 0 8px;
+	border-radius: 4px;
+}
+
+.ma-tips {
+	background: transparent !important;
+	border: none !important;
+	padding: 0 4px !important;
+	h3 {
+		font-size: 14px;
+	}
+}
+
+.ma-detail__mprice strong {
+	font-variant-numeric: tabular-nums;
+	letter-spacing: -0.02em;
+}
+
+.ma-similar {
+	margin-top: 64px;
+	padding-top: 40px;
+	border-top: 1px solid $ma-border;
+	.ma-title {
+		font-size: 22px;
+	}
+}
+
+/* ---------- tablet & phone ---------- */
+@media (max-width: 1100px) {
+	.ma-keyspecs {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		div:nth-child(4) {
+			padding-left: 0;
+			border-left: none;
+		}
+		div:nth-child(n + 4) {
+			border-top: 1px solid $ma-border;
+		}
+	}
+}
+
+@media (max-width: 900px) {
+	.ma-filter {
+		padding: 0 0 16px;
+		border-right: none;
+		border-bottom: 1px solid $ma-border;
+	}
+
+	// phones: photo first, then title and price, then everything else
+	.ma-detail {
+		padding-top: 72px;
+		> .ma-container {
+			display: flex;
+			flex-direction: column;
+		}
+		&__layout,
+		&__main {
+			display: contents;
+		}
+		.ma-breadcrumb {
+			order: 0;
+		}
+		.ma-note {
+			order: 1;
+		}
+		.ma-gallery {
+			order: 2;
+			margin: 0 -16px 16px;
+		}
+		&__head {
+			order: 3;
+		}
+		.ma-keyspecs {
+			order: 4;
+		}
+		&__side {
+			order: 5;
+			margin-top: 24px;
+		}
+		.ma-detail__main .ma-panel,
+		> .ma-container > .ma-panel {
+			order: 6;
+		}
+		.ma-similar {
+			order: 7;
+		}
+	}
+	.ma-detail__main .ma-panel {
+		order: 6;
+	}
+	.ma-gallery__main {
+		border-radius: 0;
+	}
+	.ma-gallery__thumbs {
+		padding: 0 16px;
+	}
+	.ma-detail__head h1 {
+		font-size: 24px;
+	}
+}
+
+@media (max-width: 600px) {
+	.ma-keyspecs {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		div {
+			padding: 12px 0;
+			&:nth-child(n) {
+				padding-left: 0;
+				border-left: none;
+			}
+			&:nth-child(even) {
+				padding-left: 16px;
+				border-left: 1px solid $ma-border;
+			}
+			&:nth-child(n + 3) {
+				border-top: 1px solid $ma-border;
+			}
+		}
+	}
+	.ma-detail__actions {
+		width: 100%;
+		.ma-icon-btn {
+			flex: 1;
+			justify-content: center;
+		}
+	}
+	.ma-results .ma-grid--3 {
+		gap: 28px;
+	}
+}

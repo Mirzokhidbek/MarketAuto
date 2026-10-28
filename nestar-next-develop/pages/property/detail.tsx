@@ -6,7 +6,8 @@ import ReportButton from '../../libs/components/common/ReportButton';
 import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import { toggleCompare } from '../../libs/compare';
-import React, { ChangeEvent, useEffect, useState } from 'react';
+import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
+import Origin from '../../libs/components/common/Origin';
 import { CircularProgress } from '@mui/material';
 import { usePrice } from '../../libs/hooks/usePrice';
 import Seo from '../../libs/components/common/Seo';
@@ -18,12 +19,6 @@ import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import ShareOutlinedIcon from '@mui/icons-material/ShareOutlined';
 import PhoneOutlinedIcon from '@mui/icons-material/PhoneOutlined';
-import ShieldOutlinedIcon from '@mui/icons-material/ShieldOutlined';
-import CalendarMonthOutlinedIcon from '@mui/icons-material/CalendarMonthOutlined';
-import SpeedOutlinedIcon from '@mui/icons-material/SpeedOutlined';
-import LocalGasStationOutlinedIcon from '@mui/icons-material/LocalGasStationOutlined';
-import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
-import DirectionsCarOutlinedIcon from '@mui/icons-material/DirectionsCarOutlined';
 import DirectionsCarFilledOutlinedIcon from '@mui/icons-material/DirectionsCarFilledOutlined';
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
 import { useRouter } from 'next/router';
@@ -95,6 +90,12 @@ const PropertyDetail: NextPage = ({ carSeo }: any) => {
 	const [lightbox, setLightbox] = useState<number | null>(null);
 	const compareIds = useReactiveVar(compareVar);
 	const [failedImages, setFailedImages] = useState<string[]>([]);
+	const mainImageRef = useRef<HTMLImageElement>(null);
+	// a server-rendered photo can fail before React attaches onError: check after mount
+	useEffect(() => {
+		const img = mainImageRef.current;
+		if (img && img.complete && img.naturalWidth === 0 && slideImage) setFailedImages((prev) => [...prev, slideImage]);
+	}, [slideImage]);
 	const [showPhone, setShowPhone] = useState<boolean>(false);
 	const [destinationProperties, setDestinationProperties] = useState<Property[]>([]);
 
@@ -231,12 +232,13 @@ const PropertyDetail: NextPage = ({ carSeo }: any) => {
 	const liked = !!property.meLiked?.[0]?.myFavorite;
 	const seller = property.memberData;
 	const similarCars = destinationProperties.filter((item) => item._id !== property._id).slice(0, 3);
-	const specTiles = [
-		{ icon: <CalendarMonthOutlinedIcon />, label: 'Year', value: property.carYear },
-		{ icon: <SpeedOutlinedIcon />, label: 'Mileage', value: formatMileage(property.carMileage) },
-		{ icon: <LocalGasStationOutlinedIcon />, label: 'Fuel', value: formatEnumLabel(property.carFuel, t) },
-		{ icon: <SettingsOutlinedIcon />, label: 'Transmission', value: formatEnumLabel(property.carTransmission, t) },
-		{ icon: <DirectionsCarOutlinedIcon />, label: 'Body type', value: formatEnumLabel(property.propertyType, t) },
+	// the five facts a buyer scans first; the full table follows below
+	const keySpecs = [
+		{ label: 'Year', value: property.carYear },
+		{ label: 'Mileage', value: formatMileage(property.carMileage) },
+		{ label: 'Engine', value: formatEngine(property.carEngine) || formatEnumLabel(property.carFuel, t) },
+		{ label: 'Transmission', value: formatEnumLabel(property.carTransmission, t) },
+		{ label: 'Body type', value: formatEnumLabel(property.propertyType, t) },
 	];
 	const details = [
 		{ label: 'Country', value: formatCountry(property.carCountry, t) },
@@ -301,8 +303,7 @@ const PropertyDetail: NextPage = ({ carSeo }: any) => {
 					<div>
 						<h1>{property.propertyTitle}</h1>
 						<div className={'ma-detail__meta'}>
-							<span>{formatCountry(property.carCountry, t)}</span>
-							<span>{formatCarPlace(property, t)}</span>
+							<Origin country={property.carCountry} label={formatCarPlace(property, t)} />
 							<span>
 								{t('Posted')} {moment(property.createdAt).fromNow()}
 							</span>
@@ -346,6 +347,7 @@ const PropertyDetail: NextPage = ({ carSeo }: any) => {
 							<div className={'ma-gallery__main'}>
 								{slideImage && !failedImages.includes(slideImage) ? (
 									<img
+										ref={mainImageRef}
 										className={'ma-gallery__zoom'}
 										onClick={() => setLightbox(Math.max(0, property.propertyImages.indexOf(slideImage)))}
 										src={imageUrl(slideImage)}
@@ -355,6 +357,7 @@ const PropertyDetail: NextPage = ({ carSeo }: any) => {
 								) : (
 									<div className={'ma-car-card__placeholder'}>
 										<DirectionsCarFilledOutlinedIcon />
+										<span>{t('No photo')}</span>
 									</div>
 								)}
 							</div>
@@ -382,15 +385,14 @@ const PropertyDetail: NextPage = ({ carSeo }: any) => {
 							)}
 						</div>
 
-						<div className={'ma-spec-tiles'}>
-							{specTiles.map((item) => (
-								<div className={'ma-spec-tile'} key={item.label}>
-									{item.icon}
-									<span>{t(item.label)}</span>
-									<strong>{item.value}</strong>
+						<dl className={'ma-keyspecs'}>
+							{keySpecs.map((item) => (
+								<div key={item.label}>
+									<dt>{t(item.label)}</dt>
+									<dd>{item.value}</dd>
 								</div>
 							))}
-						</div>
+						</dl>
 
 						<section className={'ma-panel'}>
 							<h2>{t('Description')}</h2>
@@ -513,9 +515,7 @@ const PropertyDetail: NextPage = ({ carSeo }: any) => {
 						</div>
 
 						<div className={'ma-panel ma-tips'}>
-							<h3>
-								<ShieldOutlinedIcon /> {t('Safety tips')}
-							</h3>
+							<h3>{t('Safety tips')}</h3>
 							<ul>
 								<li>{t('Inspect the car and its documents in person.')}</li>
 								<li>{t('Check the VIN and service history.')}</li>

@@ -6,16 +6,44 @@
 $font: 'Inter', 'Poppins', sans-serif;
 
 /** MarketAuto design tokens **/
+// Direction: a calm "showroom ledger" — white paper, ink text, hairline rules instead of boxes,
+// photos and prices carry the page. Blue is reserved for actions, links and the selected state.
 $ma-font: 'Inter', 'Poppins', sans-serif;
+$ma-mono: ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, monospace;
+
 $ma-primary: #0b57d0;
 $ma-primary-dark: #0842a0;
-$ma-dark: #0f172a;
+$ma-primary-soft: #e8f0fe;
+$ma-dark: #0f172a; // ink
 $ma-text: #1e293b;
-$ma-muted: #64748b;
-$ma-border: #e2e8f0;
-$ma-bg: #f8fafc;
-$ma-bg-alt: #f1f5f9;
+$ma-muted: #5b6475; // AA on white and on $ma-bg
+$ma-faint: #8a93a3; // meta text only, never body copy
+$ma-border: #e3e7ee;
+$ma-border-strong: #cfd5df;
+$ma-bg: #f6f7f9; // photo wells, filter panel, inputs
+$ma-bg-alt: #f1f3f6;
 $ma-white: #ffffff;
-$ma-radius: 14px;
-$ma-shadow: 0 4px 20px rgba(15, 23, 42, 0.06);
-$ma-shadow-hover: 0 12px 32px rgba(15, 23, 42, 0.12);
+
+$ma-success: #127a46;
+$ma-warning: #a15c07;
+$ma-danger: #c62828;
+
+// one radius family: small controls, larger photo containers
+$ma-radius-sm: 6px;
+$ma-radius: 10px;
+$ma-radius-lg: 14px;
+
+// depth is used for things that float (menus, sticky bars), not for cards
+$ma-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+$ma-shadow-hover: 0 1px 2px rgba(15, 23, 42, 0.06);
+$ma-shadow-float: 0 12px 32px rgba(15, 23, 42, 0.14);
+
+// 4px spacing grid
+$ma-space-1: 4px;
+$ma-space-2: 8px;
+$ma-space-3: 12px;
+$ma-space-4: 16px;
+$ma-space-5: 24px;
+$ma-space-6: 32px;
+$ma-space-7: 48px;
+$ma-space-8: 64px;
