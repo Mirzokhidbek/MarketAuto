@@ -37,9 +37,6 @@ moment.updateLocale('uz-latn', {
 });
 import '../scss/app.scss';
 import '../scss/pc/main.scss';
-import 'swiper/css';
-import 'swiper/css/pagination';
-import 'swiper/css/navigation';
 
 const App = ({ Component, pageProps }: AppProps) => {
 	// @ts-ignore

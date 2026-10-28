@@ -56,7 +56,6 @@
     "rxjs": "^7.8.2",
     "sanitize-html": "^2.18.1",
     "sharp": "^0.35.5",
-    "uuid": "^14.0.2",
     "ws": "^8.21.3"
   },
   "devDependencies": {
@@ -95,7 +94,19 @@
     "rootDir": ".",
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
-      "^.+\\.(t|j)s$": "ts-jest"
+      "^.+\\.ts$": "ts-jest",
+      "^.+\\.js$": [
+        "ts-jest",
+        {
+          "tsconfig": {
+            "allowJs": true,
+            "module": "commonjs",
+            "target": "es2022",
+            "esModuleInterop": true
+          },
+          "diagnostics": false
+        }
+      ]
     },
     "collectCoverageFrom": [
       "**/*.(t|j)s"
@@ -104,6 +115,9 @@
     "testEnvironment": "node",
     "roots": [
       "<rootDir>/apps/"
+    ],
+    "transformIgnorePatterns": [
+      "/node_modules/(?!(htmlparser2|domhandler|domutils|dom-serializer|entities|domelementtype)/)"
     ]
   }
 }

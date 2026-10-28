@@ -1,10 +1,13 @@
-import { getJwtToken, getRefreshToken, isTokenExpired, refreshAccessToken } from './auth';
+import { getJwtToken, hasSession, isTokenExpired, refreshAccessToken } from './auth';
 import { incomingMessageVar, socketVar, unreadMessagesVar, userVar } from '../apollo/store';
 
 /**
  * One WebSocket per tab for live private messages. Connects only for logged-in members,
  * reconnects with a growing delay, and reconnects with the new token after login/refresh.
+ * The token is sent as the first frame (not in the URL, where proxies would log it).
  */
+// the server closes with 4401 for a rejected token and 4001 when the token expired
+const CLOSE_UNAUTHORIZED = 4401;
 let socket: WebSocket | null = null;
 let socketToken = '';
 let retry = 0;
@@ -22,19 +25,21 @@ const scheduleReconnect = () => {
 export const connectSocket = async (): Promise<void> => {
 	if (typeof window === 'undefined' || !process.env.REACT_APP_API_WS) return;
 	let token = getJwtToken();
-	if (token && isTokenExpired(token) && getRefreshToken()) token = (await refreshAccessToken()) ?? '';
+	if (hasSession() && (!token || isTokenExpired(token))) token = (await refreshAccessToken()) ?? '';
 	if (!token) return disconnectSocket();
 	if (socket && socketToken === token && socket.readyState <= WebSocket.OPEN) return;
 
 	disconnectSocket();
 	socketToken = token;
-	socket = new WebSocket(`${process.env.REACT_APP_API_WS}?token=${encodeURIComponent(token)}`);
-	socketVar(socket);
+	const current = new WebSocket(process.env.REACT_APP_API_WS);
+	socket = current;
+	socketVar(current);
 
-	socket.onopen = () => {
+	current.onopen = () => {
 		retry = 0;
+		current.send(JSON.stringify({ event: 'auth', data: { token } }));
 	};
-	socket.onmessage = (event) => {
+	current.onmessage = (event) => {
 		try {
 			const data = JSON.parse(event.data);
 			if (data?.event !== 'privateMessage') return;
@@ -44,8 +49,11 @@ export const connectSocket = async (): Promise<void> => {
 			// ignore malformed frames
 		}
 	};
-	socket.onclose = () => {
-		socket = null;
+	current.onclose = (event) => {
+		if (socket === current) socket = null;
+		socketToken = '';
+		// a rejected token is not retried in a loop: the next login/refresh reconnects
+		if (event.code === CLOSE_UNAUTHORIZED) return;
 		if (getJwtToken()) scheduleReconnect();
 	};
 };

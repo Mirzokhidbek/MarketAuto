@@ -42,14 +42,19 @@ import { REACT_APP_API_URL } from '../../libs/config';
 import { compareVar, userVar } from '../../apollo/store';
 import Link from 'next/link';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { print } from 'graphql';
 import { GET_PROPERTIES, GET_PROPERTY } from '../../apollo/user/query';
 import { T } from '../../libs/types/common';
 import { Direction, Message } from '../../libs/enums/common.enum';
 import { sweetErrorHandling, sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../libs/sweetAlert';
 import { LIKE_TARGET_PROPERTY } from '../../apollo/user/mutation';
 
-/** car basics fetched on the server so search engines and link previews (Telegram etc.) see real title, price and photo */
-const fetchCarSeo = async (id?: string) => {
+/**
+ * The car is fetched on the server too, so search engines and link previews (Telegram etc.) get the real page
+ * (title, price, photos, specs) instead of a spinner. The browser then reloads it with the visitor's login
+ * (likes, view counter, seller phone).
+ */
+const fetchCar = async (id?: string) => {
 	// API_INTERNAL_GRAPHQL_URL: server-only address (e.g. http://api:3007/graphql inside docker)
 	const url = process.env.API_INTERNAL_GRAPHQL_URL || process.env.REACT_APP_API_GRAPHQL_URL;
 	if (!id || !url) return null;
@@ -58,13 +63,15 @@ const fetchCarSeo = async (id?: string) => {
 			method: 'POST',
 			headers: { 'content-type': 'application/json' },
 			body: JSON.stringify({
-				query:
-					'query($id:String!){getProperty(propertyId:$id){propertyTitle propertyPrice carYear carMileage carBrand carModel propertyImages propertyDesc}}',
-				variables: { id },
+				query: print(GET_PROPERTY),
+				variables: { input: id },
 			}),
 		});
 		const { data } = await response.json();
-		return data?.getProperty ?? null;
+		const car = data?.getProperty ?? null;
+		// the phone is not put into the page HTML; the browser loads it
+		if (car?.memberData) car.memberData = { ...car.memberData, memberPhone: null };
+		return car;
 	} catch (err) {
 		return null;
 	}
@@ -73,7 +80,7 @@ const fetchCarSeo = async (id?: string) => {
 export const getServerSideProps = async ({ locale, query }: any) => ({
 	props: {
 		...(await serverSideTranslations(locale, ['common'])),
-		carSeo: await fetchCarSeo(query?.id),
+		carSeo: await fetchCar(query?.id),
 	},
 });
 
@@ -83,8 +90,8 @@ const PropertyDetail: NextPage = ({ carSeo }: any) => {
 	const { price, other: otherPrice } = usePrice();
 	const user = useReactiveVar(userVar);
 	const [propertyId, setPropertyId] = useState<string | null>(null);
-	const [property, setProperty] = useState<Property | null>(null);
-	const [slideImage, setSlideImage] = useState<string>('');
+	const [property, setProperty] = useState<Property | null>(carSeo ?? null);
+	const [slideImage, setSlideImage] = useState<string>(carSeo?.propertyImages?.[0] ?? '');
 	const [lightbox, setLightbox] = useState<number | null>(null);
 	const compareIds = useReactiveVar(compareVar);
 	const [failedImages, setFailedImages] = useState<string[]>([]);
@@ -136,6 +143,13 @@ const PropertyDetail: NextPage = ({ carSeo }: any) => {
 	});
 
 	/** LIFECYCLES **/
+	// moving from one car to another: show the new server-rendered car right away
+	useEffect(() => {
+		if (!carSeo) return;
+		setProperty(carSeo);
+		setSlideImage(carSeo.propertyImages?.[0] ?? '');
+	}, [carSeo]);
+
 	useEffect(() => {
 		if (router.query.id) {
 			setPropertyId(router.query.id as string);
