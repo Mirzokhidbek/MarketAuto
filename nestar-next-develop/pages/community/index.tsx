@@ -91,7 +91,7 @@ const Community: NextPage = () => {
 				/>
 
 				{articles.length === 0 ? (
-					<EmptyState loading={loading} text={t('No articles in this category yet.')} />
+					<EmptyState loading={loading || !result} text={t('No articles in this category yet.')} />
 				) : (
 					<div className={'grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2 lg:grid-cols-3'}>
 						{articles.map((article) => (

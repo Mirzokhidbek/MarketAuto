@@ -9,13 +9,6 @@
 		width: 820px;
 	}
 }
-
-// prices, mileage, years, counters: digits line up in lists and tables
-.ma-num {
-	font-variant-numeric: tabular-nums;
-	letter-spacing: -0.01em;
-}
-
 .ma-btn {
 	display: inline-flex;
 	align-items: center;
@@ -805,27 +798,6 @@
 		font-size: 13px;
 		font-weight: 600;
 		color: $ma-primary;
-	}
-}
-
-.ma-dealer {
-	padding: 20px;
-	border: 1px solid $ma-border;
-	border-radius: $ma-radius;
-	background: $ma-white;
-	text-align: left;
-	cursor: pointer;
-	transition: border-color 0.15s ease;
-	&:hover {
-		border-color: $ma-border-strong;
-	}
-	img {
-		width: 56px;
-		height: 56px;
-		margin-bottom: 12px;
-		border-radius: 50%;
-		object-fit: cover;
-		background: $ma-bg-alt;
 	}
 }
 

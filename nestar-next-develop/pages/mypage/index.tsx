@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import { NextPage } from 'next';
 import { getJwtToken } from '../../libs/auth';
 import withLayoutFull from '../../libs/components/layout/LayoutFull';
+import SidebarLayout from '../../libs/components/ui/SidebarLayout';
 import MyCars from '../../libs/components/mypage/MyCars';
 import MyFavorites from '../../libs/components/mypage/MyFavorites';
 import RecentlyVisited from '../../libs/components/mypage/RecentlyVisited';
@@ -31,7 +32,7 @@ export const getStaticProps = async ({ locale }: any) => ({
 const MyPage: NextPage = () => {
 	const user = useReactiveVar(userVar);
 	const router = useRouter();
-	const category: any = router.query?.category ?? 'myProfile';
+	const category = (router.query?.category as string) ?? 'myProfile';
 
 	/** APOLLO REQUESTS **/
 	const [subscribe] = useMutation(SUBSCRIBE);
@@ -104,40 +105,29 @@ const MyPage: NextPage = () => {
 		}
 	};
 
-	return (
-		<div id="my-page" className={'ma-page ma-account'}>
-			<div className={'ma-container ma-account__layout'}>
-				<MyPageMenu />
-				<section className={'ma-account__content'}>
-					{category === 'addProperty' && <AddCarForm />}
-					{category === 'myProperties' && <MyCars />}
-					{category === 'myFavorites' && <MyFavorites />}
-					{category === 'recentlyVisited' && <RecentlyVisited />}
-					{category === 'myArticles' && <MyArticles />}
-					{category === 'writeArticle' && <WriteArticle />}
-					{category === 'myProfile' && <MyProfile />}
-					{category === 'messages' && <MessagesPanel />}
-					{category === 'savedSearches' && <SavedSearches />}
-					{category === 'followers' && (
-						<MemberFollowers
-							subscribeHandler={subscribeHandler}
-							unsubscribeHandler={unsubscribeHandler}
-							likeMemberHandler={likeMemberHandler}
-							redirectToMemberPageHandler={redirectToMemberPageHandler}
-						/>
-					)}
-					{category === 'followings' && (
-						<MemberFollowings
-							subscribeHandler={subscribeHandler}
-							unsubscribeHandler={unsubscribeHandler}
-							likeMemberHandler={likeMemberHandler}
-							redirectToMemberPageHandler={redirectToMemberPageHandler}
-						/>
-					)}
-				</section>
-			</div>
-		</div>
-	);
+	const followProps = {
+		subscribeHandler,
+		unsubscribeHandler,
+		likeMemberHandler,
+		redirectToMemberPageHandler,
+	};
+
+	// ?category=... -> panel; an unknown or missing category opens the profile
+	const panels: Record<string, React.ReactNode> = {
+		addProperty: <AddCarForm />,
+		myProperties: <MyCars />,
+		myFavorites: <MyFavorites />,
+		recentlyVisited: <RecentlyVisited />,
+		myArticles: <MyArticles />,
+		writeArticle: <WriteArticle />,
+		myProfile: <MyProfile />,
+		messages: <MessagesPanel />,
+		savedSearches: <SavedSearches />,
+		followers: <MemberFollowers {...followProps} />,
+		followings: <MemberFollowings {...followProps} />,
+	};
+
+	return <SidebarLayout sidebar={<MyPageMenu />}>{panels[category] ?? panels.myProfile}</SidebarLayout>;
 };
 
 export default withLayoutFull(MyPage);

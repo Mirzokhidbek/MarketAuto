@@ -107,7 +107,7 @@ const SellerList: NextPage = () => {
 				/>
 
 				{sellers.length === 0 ? (
-					<EmptyState loading={loading} text={t('No sellers found')} />
+					<EmptyState loading={loading || !result} text={t('No sellers found')} />
 				) : (
 					<div className={'grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4'}>
 						{sellers.map((seller) => (

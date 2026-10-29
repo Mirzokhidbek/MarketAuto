@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { NextPage } from 'next';
 import withLayoutFull from '../../libs/components/layout/LayoutFull';
+import SidebarLayout from '../../libs/components/ui/SidebarLayout';
 import { Stack } from '@mui/material';
 import MemberMenu from '../../libs/components/member/MemberMenu';
 import MemberCars from '../../libs/components/member/MemberCars';
@@ -24,7 +25,7 @@ export const getStaticProps = async ({ locale }: any) => ({
 
 const MemberPage: NextPage = () => {
 	const router = useRouter();
-	const category: any = router.query?.category;
+	const category = router.query?.category as string | undefined;
 	const user = useReactiveVar(userVar);
 
 	/** APOLLO REQUESTS **/
@@ -108,33 +109,25 @@ const MemberPage: NextPage = () => {
 		}
 	};
 
+	const followProps = {
+		subscribeHandler,
+		unsubscribeHandler,
+		likeMemberHandler,
+		redirectToMemberPageHandler,
+	};
+
+	const panels: Record<string, React.ReactNode> = {
+		properties: <MemberCars />,
+		followers: <MemberFollowers {...followProps} />,
+		followings: <MemberFollowings {...followProps} />,
+		articles: <MemberArticles />,
+		reviews: <MemberReviews />,
+	};
+
 	return (
-		<div id="member-page" className={'ma-page ma-account'}>
-			<div className={'ma-container ma-account__layout'}>
-				<MemberMenu subscribeHandler={subscribeHandler} unsubscribeHandler={unsubscribeHandler} />
-				<section className={'ma-account__content'}>
-					{category === 'properties' && <MemberCars />}
-					{category === 'followers' && (
-						<MemberFollowers
-							subscribeHandler={subscribeHandler}
-							unsubscribeHandler={unsubscribeHandler}
-							likeMemberHandler={likeMemberHandler}
-							redirectToMemberPageHandler={redirectToMemberPageHandler}
-						/>
-					)}
-					{category === 'followings' && (
-						<MemberFollowings
-							subscribeHandler={subscribeHandler}
-							unsubscribeHandler={unsubscribeHandler}
-							likeMemberHandler={likeMemberHandler}
-							redirectToMemberPageHandler={redirectToMemberPageHandler}
-						/>
-					)}
-					{category === 'articles' && <MemberArticles />}
-					{category === 'reviews' && <MemberReviews />}
-				</section>
-			</div>
-		</div>
+		<SidebarLayout sidebar={<MemberMenu subscribeHandler={subscribeHandler} unsubscribeHandler={unsubscribeHandler} />}>
+			{panels[category ?? 'properties'] ?? panels.properties}
+		</SidebarLayout>
 	);
 };
 
