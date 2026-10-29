@@ -9,7 +9,7 @@ import { GET_SAVED_SEARCHES } from '../../../apollo/user/query';
 import { REMOVE_SAVED_SEARCH } from '../../../apollo/user/mutation';
 import { sweetConfirmAlert, sweetErrorHandling } from '../../sweetAlert';
 import { countryName, formatEnumLabel } from '../../utils';
-import EmptyState from '../common/EmptyState';
+import EmptyState from '../ui/EmptyState';
 import { T } from '../../types/common';
 
 /** short human summary of the saved filters: "Kia, Hyundai · South Korea · 2020–2026" */

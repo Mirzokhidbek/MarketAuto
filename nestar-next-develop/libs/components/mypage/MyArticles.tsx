@@ -1,4 +1,4 @@
-import EmptyState from '../common/EmptyState';
+import EmptyState from '../ui/EmptyState';
 import React, { useState } from 'react';
 import { NextPage } from 'next';
 import { useTranslation } from 'next-i18next';
