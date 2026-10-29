@@ -1,4 +1,4 @@
-import EmptyState from '../common/EmptyState';
+import EmptyState from '../ui/EmptyState';
 import React, { useEffect, useState } from 'react';
 import { NextPage } from 'next';
 import { Pagination } from '@mui/material';

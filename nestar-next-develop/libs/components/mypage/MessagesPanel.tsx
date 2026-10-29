@@ -14,7 +14,7 @@ import { incomingMessageVar, unreadMessagesVar, userVar } from '../../../apollo/
 import { sweetErrorHandling } from '../../sweetAlert';
 import { imageUrl } from '../../utils';
 import { usePrice } from '../../hooks/usePrice';
-import EmptyState from '../common/EmptyState';
+import EmptyState from '../ui/EmptyState';
 import { T } from '../../types/common';
 
 const avatar = (image?: string) => (image ? imageUrl(image) : '/img/profile/defaultUser.svg');
