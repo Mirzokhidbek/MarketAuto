@@ -1,60 +1,86 @@
-import SellerTrust from './SellerTrust';
-import { imageUrl } from '../../utils';
 import React from 'react';
 import Link from 'next/link';
 import { useTranslation } from 'next-i18next';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import SellerTrust from './SellerTrust';
+import Badge from '../ui/Badge';
+import { ButtonLink } from '../ui/Button';
+import { cx } from '../ui/classNames';
+import { imageUrl } from '../../utils';
 import { Member } from '../../types/member/member';
-import { REACT_APP_API_URL } from '../../config';
 
 interface SellerCardProps {
-	dealer: Member;
+	seller: Member;
 	onLike?: (id: string) => void;
 }
 
-const SellerCard = ({ dealer, onLike }: SellerCardProps) => {
+/** a compact seller profile: avatar and name, trust checks, counters, link to the profile */
+const SellerCard = ({ seller, onLike }: SellerCardProps) => {
 	const { t } = useTranslation('common');
-	const liked = !!dealer.meLiked?.[0]?.myFavorite;
-	const href = { pathname: '/member', query: { memberId: dealer._id } };
+	const liked = !!seller.meLiked?.[0]?.myFavorite;
+	const profileHref = { pathname: '/member', query: { memberId: seller._id } };
+	const stats = [
+		{ value: seller.memberProperties, label: t('cars') },
+		{ value: seller.memberLikes, label: t('likes') },
+		{ value: seller.memberViews, label: t('views') },
+	];
 
 	return (
-		<div className={'ma-dealer-card'}>
+		<article
+			className={
+				'relative flex flex-col rounded-md border border-line bg-white p-5 font-sans transition-colors hover:border-line-strong'
+			}
+		>
 			{onLike && (
-				<button className={`ma-car-card__like ${liked ? 'is-liked' : ''}`} onClick={() => onLike(dealer._id)} aria-label={t('Like') as string}>
+				<button
+					type={'button'}
+					onClick={() => onLike(seller._id)}
+					aria-label={t('Like') as string}
+					aria-pressed={liked}
+					className={cx(
+						'absolute top-3.5 right-3.5 flex size-[34px] cursor-pointer items-center justify-center rounded-full [&_svg]:text-[18px]!',
+						liked ? 'text-danger' : 'text-text hover:text-ink',
+					)}
+				>
 					{liked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
 				</button>
 			)}
-			<Link href={href}>
-				<img
-					src={dealer.memberImage ? imageUrl(dealer.memberImage) : '/img/profile/defaultUser.svg'}
-					alt={dealer.memberNick}
-				/>
-			</Link>
-			<Link href={href}>
-				<h3>{dealer.memberFullName || dealer.memberNick}</h3>
-			</Link>
-			<span className={'ma-badge ma-badge--primary'}>{t(dealer.memberType === 'AGENT' ? 'Dealer' : 'Private seller')}</span>
-			<SellerTrust member={dealer} compact />
-			{dealer.memberAddress && <p className={'ma-dealer-card__address'}>{dealer.memberAddress}</p>}
-			<div className={'ma-dealer-card__stats'}>
-				<div>
-					<strong>{dealer.memberProperties}</strong>
-					<span>{t('cars')}</span>
-				</div>
-				<div>
-					<strong>{dealer.memberLikes}</strong>
-					<span>{t('likes')}</span>
-				</div>
-				<div>
-					<strong>{dealer.memberViews}</strong>
-					<span>{t('views')}</span>
+
+			<div className={'flex items-center gap-3.5 pr-8'}>
+				<Link href={profileHref} className={'shrink-0'}>
+					<img
+						src={seller.memberImage ? imageUrl(seller.memberImage) : '/img/profile/defaultUser.svg'}
+						alt={seller.memberNick}
+						className={'size-14 rounded-full bg-surface-alt object-cover'}
+					/>
+				</Link>
+				<div className={'min-w-0'}>
+					<Link href={profileHref} className={'block'}>
+						<h3 className={'truncate text-[15.5px] font-semibold text-ink hover:text-primary'}>
+							{seller.memberFullName || seller.memberNick}
+						</h3>
+					</Link>
+					<Badge className={'mt-1'}>{t(seller.memberType === 'AGENT' ? 'Dealer' : 'Private seller')}</Badge>
 				</div>
 			</div>
-			<Link href={href}>
-				<span className={'ma-btn ma-btn--outline ma-btn--block'}>{t('View profile')}</span>
-			</Link>
-		</div>
+
+			<SellerTrust member={seller} compact className={'mt-3'} />
+			{seller.memberAddress && <p className={'mt-1.5 text-[13px] text-muted'}>{seller.memberAddress}</p>}
+
+			<dl className={'mt-3.5 mb-3 grid grid-cols-3 border-t border-line pt-3'}>
+				{stats.map((stat) => (
+					<div key={stat.label} className={'flex flex-col-reverse'}>
+						<dt className={'text-xs text-muted'}>{stat.label}</dt>
+						<dd className={'text-base font-semibold text-ink tabular-nums'}>{stat.value ?? 0}</dd>
+					</div>
+				))}
+			</dl>
+
+			<ButtonLink href={profileHref} variant={'outline'} size={'sm'} block className={'mt-auto'}>
+				{t('View profile')}
+			</ButtonLink>
+		</article>
 	);
 };
 
