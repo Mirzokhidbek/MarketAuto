@@ -1,88 +1,83 @@
 import React from 'react';
-import { useRouter } from 'next/router';
-import { useTranslation } from 'next-i18next';
-import { articleCategoryLabels, formatEnumLabel, imageUrl } from '../../utils';
-import { BoardArticle } from '../../types/board-article/board-article';
+import Link from 'next/link';
 import Moment from 'react-moment';
-import { REACT_APP_API_URL } from '../../config';
-import { useReactiveVar } from '@apollo/client';
-import { userVar } from '../../../apollo/store';
+import { useTranslation } from 'next-i18next';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import Badge from '../ui/Badge';
+import { cx } from '../ui/classNames';
+import { articleCategoryLabels, formatEnumLabel, imageUrl } from '../../utils';
+import { BoardArticle } from '../../types/board-article/board-article';
 
 interface ArticleCardProps {
-	boardArticle: BoardArticle;
-	size?: string;
-	likeArticleHandler?: any;
+	article: BoardArticle;
+	/** without it the like counter is read-only */
+	onLike?: (id: string) => void;
 }
 
-const ArticleCard = (props: ArticleCardProps) => {
-	const { boardArticle, size = 'normal', likeArticleHandler } = props;
+/** article in a list: photo, title, author and date, views and likes */
+const ArticleCard = ({ article, onLike }: ArticleCardProps) => {
 	const { t } = useTranslation('common');
-	const router = useRouter();
-	const user = useReactiveVar(userVar);
-	const imagePath: string = boardArticle?.articleImage
-		? imageUrl(boardArticle?.articleImage)
-		: '/img/community/communityImg.png';
-
-	/** HANDLERS **/
-	const chooseArticleHandler = (e: React.SyntheticEvent, boardArticle: BoardArticle) => {
-		router.push(
-			{
-				pathname: '/community/detail',
-				query: { articleCategory: boardArticle?.articleCategory, id: boardArticle?._id },
-			},
-			undefined,
-			{ shallow: true },
-		);
+	const liked = !!article.meLiked?.[0]?.myFavorite;
+	const articleHref = {
+		pathname: '/community/detail',
+		query: { articleCategory: article.articleCategory, id: article._id },
 	};
-
-	const goMemberPage = (id: string) => {
-		router.push(`/member?memberId=${id}`);
-	};
-
-	const liked = !!(boardArticle?.meLiked && boardArticle?.meLiked[0]?.myFavorite);
+	const categoryLabel = articleCategoryLabels[article.articleCategory] ?? formatEnumLabel(article.articleCategory, t);
 
 	return (
-		<article
-			className={`ma-article-card ${size === 'small' ? 'is-small' : ''}`}
-			onClick={(e: any) => chooseArticleHandler(e, boardArticle)}
-		>
-			<div className={'ma-article-card__media'}>
-				<img src={imagePath} alt={boardArticle?.articleTitle} />
-				<span className={'ma-badge ma-badge--light'}>
-					{t(articleCategoryLabels[boardArticle?.articleCategory] ?? formatEnumLabel(boardArticle?.articleCategory, t))}
-				</span>
-			</div>
-			<div className={'ma-article-card__body'}>
-				<h3>{boardArticle?.articleTitle}</h3>
-				<div className={'ma-article-card__meta'}>
-					<span
-						className={'ma-article-card__author'}
-						onClick={(e: any) => {
-							e.stopPropagation();
-							goMemberPage(boardArticle?.memberData?._id as string);
-						}}
+		<article className={'group flex flex-col font-sans'}>
+			<Link href={articleHref} className={'relative block aspect-[16/10] overflow-hidden rounded-md bg-surface-alt'}>
+				<img
+					src={article.articleImage ? imageUrl(article.articleImage) : '/img/community/communityImg.png'}
+					alt={article.articleTitle}
+					className={'size-full object-cover'}
+				/>
+				<Badge tone={'light'} className={'absolute bottom-2.5 left-2.5'}>
+					{t(categoryLabel)}
+				</Badge>
+			</Link>
+
+			<div className={'flex flex-1 flex-col px-0.5 pt-3'}>
+				<Link href={articleHref} className={'mb-1.5 block whitespace-normal'}>
+					<h3 className={'text-[15.5px] leading-snug font-semibold text-ink group-hover:text-primary'}>
+						{article.articleTitle}
+					</h3>
+				</Link>
+
+				<div className={'flex justify-between gap-3 text-[13px] text-muted'}>
+					<Link
+						href={{ pathname: '/member', query: { memberId: article.memberData?._id } }}
+						className={'truncate text-muted hover:text-primary'}
 					>
-						{boardArticle?.memberData?.memberNick}
-					</span>
-					<span>
-						<Moment format={'DD MMM YYYY'}>{boardArticle?.createdAt}</Moment>
-					</span>
+						{article.memberData?.memberNick}
+					</Link>
+					<Moment format={'DD MMM YYYY'} className={'shrink-0'}>
+						{article.createdAt}
+					</Moment>
 				</div>
-				<div className={'ma-article-card__stats'}>
-					<span>
-						<RemoveRedEyeIcon /> {boardArticle?.articleViews}
+
+				<div
+					className={
+						'mt-2.5 flex items-center justify-between border-t border-line pt-2.5 text-[13px] text-muted tabular-nums [&_svg]:text-[17px]!'
+					}
+				>
+					<span className={'inline-flex items-center gap-1'} title={t('views') as string}>
+						<RemoveRedEyeIcon /> {article.articleViews}
 					</span>
 					<button
-						className={liked ? 'is-liked' : ''}
-						onClick={(e: any) => {
-							e.stopPropagation();
-							likeArticleHandler?.(e, user, boardArticle?._id as string);
-						}}
+						type={'button'}
+						disabled={!onLike}
+						onClick={() => onLike?.(article._id)}
+						aria-label={`${t('Like')}: ${article.articleLikes ?? 0}`}
+						aria-pressed={liked}
+						className={cx(
+							'inline-flex items-center gap-1 text-[13px] text-muted enabled:cursor-pointer',
+							liked && '[&_svg]:text-danger',
+						)}
 					>
-						{liked ? <FavoriteIcon /> : <FavoriteBorderIcon />} {boardArticle?.articleLikes}
+						{liked ? <FavoriteIcon /> : <FavoriteBorderIcon />} {article.articleLikes}
 					</button>
 				</div>
 			</div>
