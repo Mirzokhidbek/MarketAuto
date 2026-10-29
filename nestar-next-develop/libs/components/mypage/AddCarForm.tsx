@@ -6,7 +6,7 @@ import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
 import CloudUploadOutlinedIcon from '@mui/icons-material/CloudUploadOutlined';
 import CloseIcon from '@mui/icons-material/Close';
 import { Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
-import CarCard from '../common/CarCard';
+import CarCard from '../car/CarCard';
 import StarOutlineIcon from '@mui/icons-material/StarOutline';
 import {
 	CarAccidentHistory,
@@ -20,7 +20,7 @@ import {
 import { propertyYears } from '../../config';
 import { formatCountry, formatEnumLabel, imageUrl } from '../../utils';
 import { PropertyInput } from '../../types/property/property.input';
-import { getFreshToken } from '../../auth';
+import { getFreshToken } from '../../auth/index';
 import { sweetErrorHandling, sweetMixinErrorAlert, sweetMixinSuccessAlert } from '../../sweetAlert';
 import { usdRateVar, userVar } from '../../../apollo/store';
 import { CREATE_PROPERTY, UPDATE_PROPERTY } from '../../../apollo/user/mutation';
@@ -63,7 +63,7 @@ const emptyCar: any = {
 // fields the form edits; everything else returned by getProperty is ignored
 const formKeys = Object.keys(emptyCar);
 
-const AddProperty = () => {
+const AddCarForm = () => {
 	const { t } = useTranslation('common');
 	const router = useRouter();
 	const inputRef = useRef<HTMLInputElement>(null);
@@ -721,4 +721,4 @@ const AddProperty = () => {
 	);
 };
 
-export default AddProperty;
+export default AddCarForm;

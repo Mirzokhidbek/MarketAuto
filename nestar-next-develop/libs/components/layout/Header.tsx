@@ -1,9 +1,9 @@
-import { imageUrl } from '../utils';
+import { imageUrl } from '../../utils';
 import React, { useCallback, useEffect, useRef } from 'react';
 import { useState } from 'react';
 import { useRouter, withRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
-import { getJwtToken, logOut, updateUserInfo } from '../auth';
+import { getJwtToken, logOut, updateUserInfo } from '../../auth/index';
 import { Stack, Box } from '@mui/material';
 import MenuItem from '@mui/material/MenuItem';
 import Button from '@mui/material/Button';
@@ -12,16 +12,16 @@ import Menu, { MenuProps } from '@mui/material/Menu';
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
 import { CaretDown } from 'phosphor-react';
 import Link from 'next/link';
-import NotificationBell from './common/NotificationBell';
-import { CurrencySwitch, MessagesLink, useGlobalSync } from './common/HeaderExtras';
+import NotificationBell from '../common/NotificationBell';
+import { CurrencySwitch, MessagesLink, useGlobalSync } from '../common/HeaderExtras';
 import { useReactiveVar } from '@apollo/client';
-import { userVar } from '../../apollo/store';
+import { userVar } from '../../../apollo/store';
 import { Logout } from '@mui/icons-material';
-import { REACT_APP_API_URL } from '../config';
+import { REACT_APP_API_URL } from '../../config';
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 
-const Top = () => {
+const Header = () => {
 	const user = useReactiveVar(userVar);
 	const { t, i18n } = useTranslation('common');
 	const router = useRouter();
@@ -286,4 +286,4 @@ const Top = () => {
 	);
 };
 
-export default withRouter(Top);
+export default withRouter(Header);

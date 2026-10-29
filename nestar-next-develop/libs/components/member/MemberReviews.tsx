@@ -9,7 +9,7 @@ import { userVar } from '../../../apollo/store';
 import { CommentGroup } from '../../enums/comment.enum';
 import { Comment } from '../../types/comment/comment';
 import { sweetErrorHandling } from '../../sweetAlert';
-import Review from '../property/Review';
+import ReviewItem from './ReviewItem';
 
 const LIMIT = 5;
 
@@ -78,7 +78,7 @@ const MemberReviews = () => {
 				</div>
 			)}
 			{reviews.length ? (
-				reviews.map((comment) => <Review comment={comment} key={comment._id} />)
+				reviews.map((comment) => <ReviewItem comment={comment} key={comment._id} />)
 			) : (
 				<div className={'ma-empty'}>{t('No reviews yet.')}</div>
 			)}

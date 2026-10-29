@@ -8,12 +8,12 @@ import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import { Member } from '../../types/member/member';
 import { REACT_APP_API_URL } from '../../config';
 
-interface DealerCardProps {
+interface SellerCardProps {
 	dealer: Member;
 	onLike?: (id: string) => void;
 }
 
-const DealerCard = ({ dealer, onLike }: DealerCardProps) => {
+const SellerCard = ({ dealer, onLike }: SellerCardProps) => {
 	const { t } = useTranslation('common');
 	const liked = !!dealer.meLiked?.[0]?.myFavorite;
 	const href = { pathname: '/member', query: { memberId: dealer._id } };
@@ -58,4 +58,4 @@ const DealerCard = ({ dealer, onLike }: DealerCardProps) => {
 	);
 };
 
-export default DealerCard;
+export default SellerCard;

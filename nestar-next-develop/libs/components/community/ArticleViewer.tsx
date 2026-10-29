@@ -20,7 +20,7 @@ const safeIframeAttrs = (attrs: Record<string, string> | undefined) => {
 	}
 };
 
-const TViewer = (props: any) => {
+const ArticleViewer = (props: any) => {
 	const [editorLoaded, setEditorLoaded] = useState(false);
 
 	/** LIFECYCLES **/
@@ -74,4 +74,4 @@ const TViewer = (props: any) => {
 	);
 };
 
-export default TViewer;
+export default ArticleViewer;

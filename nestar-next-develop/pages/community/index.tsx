@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { Pagination } from '@mui/material';
-import CommunityCard from '../../libs/components/common/CommunityCard';
+import ArticleCard from '../../libs/components/community/ArticleCard';
 import { useTranslation } from 'next-i18next';
 import { articleCategoryLabels } from '../../libs/utils';
 import withLayoutBasic from '../../libs/components/layout/LayoutBasic';
@@ -158,7 +158,7 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 				{boardArticles?.length ? (
 					<div className={'ma-grid ma-grid--3'}>
 						{boardArticles.map((boardArticle: BoardArticle) => (
-							<CommunityCard
+							<ArticleCard
 								boardArticle={boardArticle}
 								key={boardArticle?._id}
 								likeArticleHandler={likeArticleHandler}

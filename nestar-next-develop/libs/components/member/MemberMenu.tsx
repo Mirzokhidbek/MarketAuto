@@ -1,4 +1,4 @@
-import SellerTrust from '../common/SellerTrust';
+import SellerTrust from '../seller/SellerTrust';
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';

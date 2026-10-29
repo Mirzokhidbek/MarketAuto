@@ -7,7 +7,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import { CarBrand, CarCountry } from '../../enums/property.enum';
 import { formatEnumLabel } from '../../utils';
 import Link from 'next/link';
-import Origin from '../common/Origin';
+import CarOrigin from '../car/CarOrigin';
 import { PropertiesInquiry } from '../../types/property/property.input';
 
 const priceOptions = [
@@ -133,7 +133,7 @@ const HomeHero = () => {
 					<span>{t('Cars from')}:</span>
 					{origins.map((country) => (
 						<Link href={searchHref({ countryList: [country] })} key={country}>
-							<Origin country={country} />
+							<CarOrigin country={country} />
 						</Link>
 					))}
 					<Link href={'/property'} className={'ma-search__more'}>

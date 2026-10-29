@@ -3,7 +3,7 @@ import { NextPage } from 'next';
 import withLayoutBasic from '../../libs/components/layout/LayoutBasic';
 import { Pagination } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
-import DealerCard from '../../libs/components/common/DealerCard';
+import SellerCard from '../../libs/components/seller/SellerCard';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
@@ -147,7 +147,7 @@ const AgentList: NextPage = ({ initialInput, ...props }: any) => {
 				) : (
 					<div className={'ma-grid ma-grid--4'}>
 						{agents.map((agent: Member) => (
-							<DealerCard dealer={agent} key={agent._id} onLike={(id) => likeMemberHandler(user, id)} />
+							<SellerCard dealer={agent} key={agent._id} onLike={(id) => likeMemberHandler(user, id)} />
 						))}
 					</div>
 				)}

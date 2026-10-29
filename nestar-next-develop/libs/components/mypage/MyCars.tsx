@@ -15,7 +15,7 @@ import { GET_AGENT_PROPERTIES } from '../../../apollo/user/query';
 import { UPDATE_PROPERTY } from '../../../apollo/user/mutation';
 import { sweetConfirmAlert, sweetErrorHandling } from '../../sweetAlert';
 
-const MyProperties: NextPage = ({ initialInput, ...props }: any) => {
+const MyCars: NextPage = ({ initialInput, ...props }: any) => {
 	const { t } = useTranslation('common');
 	const [searchFilter, setSearchFilter] = useState<AgentPropertiesInquiry>(initialInput);
 	const [agentProperties, setAgentProperties] = useState<Property[]>([]);
@@ -175,7 +175,7 @@ const MyProperties: NextPage = ({ initialInput, ...props }: any) => {
 	);
 };
 
-MyProperties.defaultProps = {
+MyCars.defaultProps = {
 	initialInput: {
 		page: 1,
 		limit: 5,
@@ -186,4 +186,4 @@ MyProperties.defaultProps = {
 	},
 };
 
-export default MyProperties;
+export default MyCars;

@@ -39,6 +39,7 @@
 		"sweetalert2": "^11.7.27"
 	},
 	"devDependencies": {
+		"@tailwindcss/postcss": "^4.3.3",
 		"@types/apollo-upload-client": "^17.0.0",
 		"@types/node": "20.10.0",
 		"@types/numeral": "^2.0.2",
@@ -46,8 +47,10 @@
 		"@types/react-dom": "18.2.7",
 		"eslint": "8.57.1",
 		"eslint-config-next": "^15.5.28",
+		"postcss": "^8.5.32",
 		"prettier": "2.7.1",
 		"standard-version": "^9.5.0",
+		"tailwindcss": "^4.3.3",
 		"typescript": "5.9.3"
 	},
 	"overrides": {

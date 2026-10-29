@@ -17,11 +17,11 @@ import { unreadMessagesVar, userVar } from '../../../apollo/store';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import NotificationsActiveOutlinedIcon from '@mui/icons-material/NotificationsActiveOutlined';
 import { REACT_APP_API_URL } from '../../config';
-import { logOut } from '../../auth';
+import { logOut } from '../../auth/index';
 import { sweetConfirmAlert } from '../../sweetAlert';
 import { formatPhone, imageUrl } from '../../utils';
 
-const MyMenu = () => {
+const MyPageMenu = () => {
 	const router = useRouter();
 	const { t } = useTranslation('common');
 	const user = useReactiveVar(userVar);
@@ -114,4 +114,4 @@ const MyMenu = () => {
 	);
 };
 
-export default MyMenu;
+export default MyPageMenu;

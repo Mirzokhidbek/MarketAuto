@@ -11,7 +11,7 @@ import { Property } from '../../types/property/property';
 import { PropertiesInquiry } from '../../types/property/property.input';
 import { countryName } from '../../utils';
 import { sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../sweetAlert';
-import CarCard from '../common/CarCard';
+import CarCard from '../car/CarCard';
 
 const hubCountries = [
 	CarCountry.UZBEKISTAN,

@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { NextPage } from 'next';
 import { Pagination } from '@mui/material';
 import { useTranslation } from 'next-i18next';
-import CarCard from '../common/CarCard';
+import CarCard from '../car/CarCard';
 import { Property } from '../../types/property/property';
 import { PropertiesInquiry } from '../../types/property/property.input';
 import { T } from '../../types/common';
@@ -11,7 +11,7 @@ import { useRouter } from 'next/router';
 import { useQuery } from '@apollo/client';
 import { GET_PROPERTIES } from '../../../apollo/user/query';
 
-const MyProperties: NextPage = ({ initialInput, ...props }: any) => {
+const MyCars: NextPage = ({ initialInput, ...props }: any) => {
 	const { t } = useTranslation('common');
 	const router = useRouter();
 	const { memberId } = router.query;
@@ -84,7 +84,7 @@ const MyProperties: NextPage = ({ initialInput, ...props }: any) => {
 	);
 };
 
-MyProperties.defaultProps = {
+MyCars.defaultProps = {
 	initialInput: {
 		page: 1,
 		limit: 5,
@@ -95,4 +95,4 @@ MyProperties.defaultProps = {
 	},
 };
 
-export default MyProperties;
+export default MyCars;

@@ -3,7 +3,7 @@ import { NextPage } from 'next';
 import withLayoutFull from '../../libs/components/layout/LayoutFull';
 import { Stack } from '@mui/material';
 import MemberMenu from '../../libs/components/member/MemberMenu';
-import MemberProperties from '../../libs/components/member/MemberProperties';
+import MemberCars from '../../libs/components/member/MemberCars';
 import { useRouter } from 'next/router';
 import MemberFollowers from '../../libs/components/member/MemberFollowers';
 import MemberArticles from '../../libs/components/member/MemberArticles';
@@ -113,7 +113,7 @@ const MemberPage: NextPage = () => {
 			<div className={'ma-container ma-account__layout'}>
 				<MemberMenu subscribeHandler={subscribeHandler} unsubscribeHandler={unsubscribeHandler} />
 				<section className={'ma-account__content'}>
-					{category === 'properties' && <MemberProperties />}
+					{category === 'properties' && <MemberCars />}
 					{category === 'followers' && (
 						<MemberFollowers
 							subscribeHandler={subscribeHandler}

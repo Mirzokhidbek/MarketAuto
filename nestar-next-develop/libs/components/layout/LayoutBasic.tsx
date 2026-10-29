@@ -2,9 +2,9 @@ import Link from 'next/link';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 import Seo from '../common/Seo';
-import Top from '../Top';
-import Footer from '../Footer';
-import CompareBar from '../common/CompareBar';
+import Header from './Header';
+import Footer from './Footer';
+import CompareBar from '../car/CompareBar';
 import { Stack } from '@mui/material';
 import { getJwtToken, updateUserInfo } from '../../auth';
 import { useReactiveVar } from '@apollo/client';
@@ -109,7 +109,7 @@ const withLayoutBasic = (Component: any) => {
 				<Seo />
 				<Stack id="pc-wrap">
 					<Stack id={'top'}>
-						<Top />
+						<Header />
 					</Stack>
 
 					{/* page title on white; "Home / X" descriptions are shown as a real breadcrumb above it */}

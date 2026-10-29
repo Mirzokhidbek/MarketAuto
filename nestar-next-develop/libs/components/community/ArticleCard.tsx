@@ -11,13 +11,13 @@ import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 
-interface CommunityCardProps {
+interface ArticleCardProps {
 	boardArticle: BoardArticle;
 	size?: string;
 	likeArticleHandler?: any;
 }
 
-const CommunityCard = (props: CommunityCardProps) => {
+const ArticleCard = (props: ArticleCardProps) => {
 	const { boardArticle, size = 'normal', likeArticleHandler } = props;
 	const { t } = useTranslation('common');
 	const router = useRouter();
@@ -90,4 +90,4 @@ const CommunityCard = (props: CommunityCardProps) => {
 	);
 };
 
-export default CommunityCard;
+export default ArticleCard;
