@@ -35,8 +35,8 @@ moment.updateLocale('uz-latn', {
 		yy: '%d yil',
 	},
 });
-import '../scss/app.scss';
-import '../scss/pc/main.scss';
+import '../styles/index.scss';
+import '../styles/tailwind.css';
 
 const App = ({ Component, pageProps }: AppProps) => {
 	// @ts-ignore

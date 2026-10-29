@@ -1,0 +1,14 @@
+/**
+ * Global styles, in cascade order. New UI is written with Tailwind (styles/tailwind.css);
+ * the files below hold the existing SCSS and shrink as pages move over.
+ */
+@import 'tokens';
+@import 'reset';
+@import 'global';
+
+// old navbar / footer / admin theme the redesign builds on
+@import 'legacy/legacy-admin';
+@import 'legacy/legacy-layout';
+
+// MarketAuto design system: shared primitives first, page partials after
+@import 'design-system/index';
