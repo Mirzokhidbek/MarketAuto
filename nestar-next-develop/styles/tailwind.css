@@ -1,0 +1,45 @@
+/**
+ * Tailwind for the MarketAuto UI.
+ *
+ * - No preflight: MUI's CssBaseline and styles/reset.scss already normalize the page.
+ * - Utilities are imported WITHOUT a cascade layer on purpose. The SCSS in styles/ is unlayered,
+ *   and unlayered CSS always beats layered CSS, so layered utilities would lose even to `a { color }`.
+ *   Unlayered, they win by normal specificity + order (this file is imported after the SCSS).
+ * - The design tokens mirror styles/tokens.scss; change both together until the SCSS is gone.
+ */
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/utilities.css';
+
+@theme {
+	--font-sans: 'Inter', 'Poppins', sans-serif;
+	--font-mono: ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, monospace;
+
+	--color-primary: #0b57d0;
+	--color-primary-dark: #0842a0;
+	--color-primary-soft: #e8f0fe;
+	--color-ink: #0f172a;
+	--color-text: #1e293b;
+	--color-muted: #5b6475;
+	--color-faint: #8a93a3;
+	--color-line: #e3e7ee;
+	--color-line-strong: #cfd5df;
+	--color-surface: #f6f7f9;
+	--color-surface-alt: #f1f3f6;
+	--color-success: #127a46;
+	--color-warning: #a15c07;
+	--color-danger: #c62828;
+
+	--radius-sm: 6px;
+	--radius-md: 10px;
+	--radius-lg: 14px;
+
+	--shadow-float: 0 12px 32px rgba(15, 23, 42, 0.14);
+
+	/* same width as .ma-container */
+	--container-page: 1240px;
+
+	/* the breakpoints the SCSS layout already uses: phone / tablet / small laptop */
+	--breakpoint-sm: 600px;
+	--breakpoint-md: 900px;
+	--breakpoint-lg: 1100px;
+}

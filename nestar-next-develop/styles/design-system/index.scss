@@ -1007,11 +1007,11 @@
 }
 
 /* page partials */
-@import '/scss/pc/ma/list';
-@import '/scss/pc/ma/detail';
-@import '/scss/pc/ma/auth';
-@import '/scss/pc/ma/profile';
-@import '/scss/pc/ma/account';
-@import '/scss/pc/ma/admin';
-@import '/scss/pc/ma/responsive';
-@import '/scss/pc/ma/refine';
+@import 'car-search';
+@import 'car-detail';
+@import 'auth';
+@import 'seller-profile';
+@import 'my-page';
+@import 'admin';
+@import 'responsive';
+@import 'refinements';
