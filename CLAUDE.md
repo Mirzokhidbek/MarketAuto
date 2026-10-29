@@ -3,11 +3,12 @@
 
 
 
+
 <!-- cloude-code-toolbox:mcp-skills-awareness-begin -->
 
 ### MCP & Skills awareness (Claude Code ToolBox)
 
-_Last synced: 2026-10-28T10:56:43.707Z._
+_Last synced: 2026-10-29T08:20:33.443Z._
 
 - **Full report:** `.claude/cloude-code-toolbox-mcp-skills-awareness.md` in this workspace (auto-overwritten on each scan). Use it as ground truth for configured servers and skill folders.
 - **MCP:** For **live tools** in Claude Code, enable the matching server via `/mcp`. Servers are configured in `~/.claude.json` (user) and `.mcp.json` (project).
@@ -28,7 +29,7 @@ _No active user-scoped servers in mcp.json._
 
 #### Project skills
 
-_None found (or no workspace open)._
+- **commit-with-approval** — `/Users/macbook/Desktop/nestar-develop/.claude/skills/commit-with-approval` — Use after finishing any code change in this repo. Ask the user for permission to commit, then commit with a short, simple English message and no Claude attribution.
 
 #### User skills
 
