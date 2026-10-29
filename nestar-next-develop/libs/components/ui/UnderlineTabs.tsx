@@ -32,7 +32,7 @@ const UnderlineTabs = <T extends string>({ items, value, onChange, className }: 
 					aria-selected={active}
 					onClick={() => onChange(item.value)}
 					className={cx(
-						'-mb-px h-[42px] shrink-0 cursor-pointer border-b-2 bg-transparent font-sans text-sm font-semibold transition-colors',
+						'-mb-px h-[42px] shrink-0 cursor-pointer border-0 border-b-2 bg-transparent font-sans text-sm font-semibold transition-colors',
 						'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary',
 						active ? 'border-ink text-ink' : 'border-transparent text-muted hover:text-ink',
 					)}

@@ -147,7 +147,7 @@ const MyPageMenu = () => {
 				onClick={logoutHandler}
 				className={cx(
 					itemClasses,
-					'text-danger hover:bg-surface [&_svg]:text-danger md:mt-1.5 md:rounded-t-none md:border-t md:border-line md:pt-3.5',
+					'bg-transparent text-danger hover:bg-surface [&_svg]:text-danger md:mt-1.5 md:rounded-t-none md:border-t md:border-line md:pt-3.5',
 				)}
 			>
 				<LogoutIcon />
