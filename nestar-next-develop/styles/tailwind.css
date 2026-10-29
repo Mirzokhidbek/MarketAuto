@@ -10,6 +10,9 @@
 @import 'tailwindcss/theme.css' layer(theme);
 @import 'tailwindcss/utilities.css';
 
+/* old SCSS class names that are also Tailwind utilities; generating them would restyle the old markup */
+@source not inline('container');
+
 @theme {
 	--font-sans: 'Inter', 'Poppins', sans-serif;
 	--font-mono: ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, monospace;

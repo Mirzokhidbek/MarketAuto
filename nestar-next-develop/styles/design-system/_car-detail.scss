@@ -165,36 +165,6 @@
 	}
 }
 
-/* spec tiles */
-.ma-spec-tiles {
-	display: grid;
-	grid-template-columns: repeat(5, minmax(0, 1fr));
-	gap: 12px;
-}
-
-.ma-spec-tile {
-	display: flex;
-	flex-direction: column;
-	gap: 6px;
-	padding: 16px;
-	border-radius: 12px;
-	background: $ma-white;
-	border: 1px solid $ma-border;
-	font-family: $ma-font;
-	svg {
-		color: $ma-primary;
-	}
-	span {
-		font-size: 12px;
-		color: $ma-muted;
-	}
-	strong {
-		font-size: 15px;
-		font-weight: 600;
-		color: $ma-dark;
-	}
-}
-
 /* panels */
 .ma-panel {
 	padding: 24px;
@@ -612,37 +582,6 @@
 .ma-status--pending {
 	background: #fef7e0;
 	color: #7a5200;
-}
-
-/* seller trust signals */
-.ma-trust {
-	display: flex;
-	flex-direction: column;
-	gap: 6px;
-	margin: 0 0 14px;
-	padding: 0;
-	list-style: none;
-	li {
-		display: flex;
-		align-items: center;
-		gap: 8px;
-		font-size: 13px;
-		color: $ma-muted;
-		svg {
-			font-size: 17px;
-		}
-		&.is-strong {
-			color: #188038;
-			font-weight: 600;
-		}
-	}
-	&--compact {
-		flex-direction: row;
-		flex-wrap: wrap;
-		justify-content: center;
-		gap: 4px 10px;
-		margin: 2px 0 6px;
-	}
 }
 
 /* price estimate */
