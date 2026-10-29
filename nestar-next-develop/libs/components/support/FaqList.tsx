@@ -33,7 +33,7 @@ const AccordionSummary = styled((props: AccordionSummaryProps) => (
 	},
 }));
 
-const Faq = () => {
+const FaqList = () => {
 	const { t } = useTranslation('common');
 	const router = useRouter();
 	const [category, setCategory] = useState<string>('property');
@@ -279,4 +279,4 @@ const Faq = () => {
 	);
 };
 
-export default Faq;
+export default FaqList;

@@ -36,7 +36,7 @@ import {
 } from '../../libs/sweetAlert';
 import { Messages } from '../../libs/config';
 import { CommentUpdate } from '../../libs/types/comment/comment.update';
-const ToastViewerComponent = dynamic(() => import('../../libs/components/community/TViewer'), { ssr: false });
+const ArticleViewer = dynamic(() => import('../../libs/components/community/ArticleViewer'), { ssr: false });
 
 /** the article is fetched on the server too, so search engines and link previews see its title and text */
 const fetchArticle = async (id?: string) => {
@@ -328,7 +328,7 @@ const CommunityDetail: NextPage = ({ initialInput, initialArticle, ...props }: T
 						</div>
 					</div>
 					<div className={'ma-article__content'}>
-						<ToastViewerComponent markdown={boardArticle?.articleContent} className={'ytb_play'} />
+						<ArticleViewer markdown={boardArticle?.articleContent} className={'ytb_play'} />
 					</div>
 				</article>
 

@@ -13,7 +13,7 @@ import DirectionsCarFilledOutlinedIcon from '@mui/icons-material/DirectionsCarFi
 import { Property } from '../../types/property/property';
 import { formatEnumLabel, formatMileage, imageUrl } from '../../utils';
 import Link from 'next/link';
-import Origin from './Origin';
+import CarOrigin from './CarOrigin';
 
 interface CarCardProps {
 	property: Property;
@@ -121,7 +121,7 @@ const CarCard = ({ property, onLike }: CarCardProps) => {
 				<p className={'ma-car-card__specs'}>{specs.join(' · ')}</p>
 				<div className={'ma-car-card__footer'}>
 					<strong className={'ma-car-card__price'}>{price(property)}</strong>
-					<Origin country={property.carCountry} label={place || undefined} />
+					<CarOrigin country={property.carCountry} label={place || undefined} />
 				</div>
 			</div>
 		</article>

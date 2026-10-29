@@ -1,5 +1,5 @@
-import SellerTrust from '../../libs/components/common/SellerTrust';
-import PriceEstimate from '../../libs/components/property/PriceEstimate';
+import SellerTrust from '../../libs/components/seller/SellerTrust';
+import PriceEstimate from '../../libs/components/car/PriceEstimate';
 import { fetchWithTimeout } from '../../libs/utils';
 import Lightbox from '../../libs/components/common/Lightbox';
 import ReportButton from '../../libs/components/common/ReportButton';
@@ -7,13 +7,13 @@ import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import { toggleCompare } from '../../libs/compare';
 import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
-import Origin from '../../libs/components/common/Origin';
+import CarOrigin from '../../libs/components/car/CarOrigin';
 import { CircularProgress } from '@mui/material';
 import { usePrice } from '../../libs/hooks/usePrice';
 import Seo from '../../libs/components/common/Seo';
 import withLayoutFull from '../../libs/components/layout/LayoutFull';
 import { NextPage } from 'next';
-import CarCard from '../../libs/components/common/CarCard';
+import CarCard from '../../libs/components/car/CarCard';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
@@ -307,7 +307,7 @@ const PropertyDetail: NextPage = ({ carSeo }: any) => {
 					<div>
 						<h1>{property.propertyTitle}</h1>
 						<div className={'ma-detail__meta'}>
-							<Origin country={property.carCountry} label={formatCarPlace(property, t)} />
+							<CarOrigin country={property.carCountry} label={formatCarPlace(property, t)} />
 							<span>
 								{t('Posted')} {moment(property.createdAt).fromNow()}
 							</span>

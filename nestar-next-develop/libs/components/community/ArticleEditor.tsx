@@ -4,7 +4,7 @@ import React, { useMemo, useRef, useState } from 'react';
 import { Box, Button, FormControl, MenuItem, Stack, Typography, Select, TextField } from '@mui/material';
 import { BoardArticleCategory } from '../../enums/board-article.enum';
 import { Editor } from '@toast-ui/react-editor';
-import { getFreshToken } from '../../auth';
+import { getFreshToken } from '../../auth/index';
 import { REACT_APP_API_URL } from '../../config';
 import { useRouter } from 'next/router';
 import axios from 'axios';
@@ -16,7 +16,7 @@ import { useMutation } from '@apollo/client';
 import { Message } from '../../enums/common.enum';
 import { sweetErrorHandling, sweetTopSuccessAlert } from '../../sweetAlert';
 
-const TuiEditor = () => {
+const ArticleEditor = () => {
 	const { t } = useTranslation('common');
 	const editorRef = useRef<Editor>(null),
 		router = useRouter();
@@ -172,4 +172,4 @@ const TuiEditor = () => {
 	);
 };
 
-export default TuiEditor;
+export default ArticleEditor;

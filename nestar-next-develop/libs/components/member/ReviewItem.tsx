@@ -8,11 +8,11 @@ import { useRouter } from 'next/router';
 import { useReactiveVar } from '@apollo/client';
 import { userVar } from '../../../apollo/store';
 
-interface ReviewProps {
+interface ReviewItemProps {
 	comment: Comment;
 }
 
-const Review = (props: ReviewProps) => {
+const ReviewItem = (props: ReviewItemProps) => {
 	const { comment } = props;
 	const router = useRouter();
 	const user = useReactiveVar(userVar);
@@ -40,4 +40,4 @@ const Review = (props: ReviewProps) => {
 	);
 };
 
-export default Review;
+export default ReviewItem;

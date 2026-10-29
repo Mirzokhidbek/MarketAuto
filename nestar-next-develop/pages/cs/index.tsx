@@ -5,9 +5,9 @@ import { useTranslation } from 'next-i18next';
 import PhoneOutlinedIcon from '@mui/icons-material/PhoneOutlined';
 import MailOutlineIcon from '@mui/icons-material/MailOutline';
 import withLayoutBasic from '../../libs/components/layout/LayoutBasic';
-import Notice from '../../libs/components/cs/Notice';
-import Faq from '../../libs/components/cs/Faq';
-import Inquiry from '../../libs/components/cs/Inquiry';
+import NoticeList from '../../libs/components/support/NoticeList';
+import FaqList from '../../libs/components/support/FaqList';
+import InquiryForm from '../../libs/components/support/InquiryForm';
 import { useSiteSettings } from '../../libs/hooks/useSiteSettings';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 
@@ -56,9 +56,9 @@ const CS: NextPage = () => {
 							{t('Ask a question')}
 						</button>
 					</div>
-					{tab === 'notice' && <Notice />}
-					{tab === 'faq' && <Faq />}
-					{tab === 'inquiry' && <Inquiry />}
+					{tab === 'notice' && <NoticeList />}
+					{tab === 'faq' && <FaqList />}
+					{tab === 'inquiry' && <InquiryForm />}
 				</section>
 				<aside className={'ma-panel ma-cs__contact'}>
 					<h3>{t('Still need help?')}</h3>

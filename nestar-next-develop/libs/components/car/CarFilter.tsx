@@ -32,7 +32,7 @@ import { useRouter } from 'next/router';
 import CancelRoundedIcon from '@mui/icons-material/CancelRounded';
 import { propertyMileage, propertyYears } from '../../config';
 import { formatEnumLabel, formatMileage } from '../../utils';
-import Origin from '../common/Origin';
+import CarOrigin from './CarOrigin';
 import SearchIcon from '@mui/icons-material/Search';
 import { useTranslation } from 'next-i18next';
 
@@ -62,7 +62,7 @@ const optionLabels: Record<string, string> = {
 	propertyBarter: 'Barter',
 };
 
-const Filter = (props: FilterType) => {
+const CarFilter = (props: FilterType) => {
 	const { searchFilter, setSearchFilter, initialInput, total = 0 } = props;
 	const router = useRouter();
 	const { t } = useTranslation('common');
@@ -537,7 +537,7 @@ const Filter = (props: FilterType) => {
 				Object.values(CarCountry),
 				searchFilter?.search?.countryList,
 				(e) => carListSelectHandler(e, 'countryList'),
-				(item: string) => <Origin country={item} />,
+				(item: string) => <CarOrigin country={item} />,
 			)}
 			{checkList('Brand', Object.values(CarBrand), searchFilter?.search?.brandList, (e) =>
 				carListSelectHandler(e, 'brandList'),
@@ -635,4 +635,4 @@ const Filter = (props: FilterType) => {
 	);
 };
 
-export default Filter;
+export default CarFilter;

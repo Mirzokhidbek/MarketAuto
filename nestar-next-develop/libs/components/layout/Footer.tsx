@@ -5,7 +5,7 @@ import { Stack, Box } from '@mui/material';
 import moment from 'moment';
 import Link from 'next/link';
 import { useTranslation } from 'next-i18next';
-import { useSiteSettings } from '../hooks/useSiteSettings';
+import { useSiteSettings } from '../../hooks/useSiteSettings';
 
 const Footer = () => {
 	const { t } = useTranslation('common');

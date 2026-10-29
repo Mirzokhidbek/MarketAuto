@@ -6,14 +6,14 @@ import SupportAgentOutlinedIcon from '@mui/icons-material/SupportAgentOutlined';
 import ExpandMoreRoundedIcon from '@mui/icons-material/ExpandMoreRounded';
 import { GET_AGENTS, GET_BOARD_ARTICLES } from '../../../apollo/user/query';
 import { BoardArticle } from '../../types/board-article/board-article';
-import CommunityCard from '../common/CommunityCard';
+import ArticleCard from '../community/ArticleCard';
 import { userVar } from '../../../apollo/store';
 import { Member } from '../../types/member/member';
 import { CarCountry } from '../../enums/property.enum';
 import { Direction } from '../../enums/common.enum';
-import DealerCard from '../common/DealerCard';
+import SellerCard from '../seller/SellerCard';
 import { useSiteSettings } from '../../hooks/useSiteSettings';
-import Origin from '../common/Origin';
+import CarOrigin from '../car/CarOrigin';
 
 const searchLink = (country: CarCountry) =>
 	`/property?input=${JSON.stringify({ page: 1, limit: 9, sort: 'createdAt', search: { countryList: [country] } })}`;
@@ -49,7 +49,7 @@ export const CountrySpotlight = () => {
 					<Link href={searchLink(item.country)} key={item.country}>
 						<div className={'ma-spotlight'}>
 							<span className={'ma-spotlight__label'}>
-								<Origin country={item.country} />
+								<CarOrigin country={item.country} />
 							</span>
 							<h3>{t(item.title)}</h3>
 							<p>{t(item.text)}</p>
@@ -131,7 +131,7 @@ export const TopDealers = () => {
 				</div>
 				<div className={'ma-grid ma-grid--4'}>
 					{dealers.map((dealer) => (
-						<DealerCard dealer={dealer} key={dealer._id} />
+						<SellerCard dealer={dealer} key={dealer._id} />
 					))}
 				</div>
 			</div>
@@ -207,7 +207,7 @@ export const LatestArticles = () => {
 				</div>
 				<div className={'ma-grid ma-grid--3'}>
 					{articles.map((article) => (
-						<CommunityCard boardArticle={article} key={article._id} />
+						<ArticleCard boardArticle={article} key={article._id} />
 					))}
 				</div>
 			</div>

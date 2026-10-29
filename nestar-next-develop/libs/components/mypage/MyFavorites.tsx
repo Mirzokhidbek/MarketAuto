@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { NextPage } from 'next';
 import { useTranslation } from 'next-i18next';
 import { Pagination } from '@mui/material';
-import CarCard from '../common/CarCard';
+import CarCard from '../car/CarCard';
 import { Property } from '../../types/property/property';
 import { T } from '../../types/common';
 import { GET_FAVORITES } from '../../../apollo/user/query';

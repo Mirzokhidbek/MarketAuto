@@ -3,16 +3,16 @@ import { useRouter } from 'next/router';
 import { NextPage } from 'next';
 import { getJwtToken } from '../../libs/auth';
 import withLayoutFull from '../../libs/components/layout/LayoutFull';
-import MyProperties from '../../libs/components/mypage/MyProperties';
+import MyCars from '../../libs/components/mypage/MyCars';
 import MyFavorites from '../../libs/components/mypage/MyFavorites';
 import RecentlyVisited from '../../libs/components/mypage/RecentlyVisited';
-import AddProperty from '../../libs/components/mypage/AddNewProperty';
+import AddCarForm from '../../libs/components/mypage/AddCarForm';
 import MyProfile from '../../libs/components/mypage/MyProfile';
 import MyArticles from '../../libs/components/mypage/MyArticles';
 import { useMutation, useReactiveVar } from '@apollo/client';
 import { userVar } from '../../apollo/store';
-import MyMenu from '../../libs/components/mypage/MyMenu';
-import MessagesPanel from '../../libs/components/mypage/Messages';
+import MyPageMenu from '../../libs/components/mypage/MyPageMenu';
+import MessagesPanel from '../../libs/components/mypage/MessagesPanel';
 import SavedSearches from '../../libs/components/mypage/SavedSearches';
 import WriteArticle from '../../libs/components/mypage/WriteArticle';
 import MemberFollowers from '../../libs/components/member/MemberFollowers';
@@ -107,10 +107,10 @@ const MyPage: NextPage = () => {
 	return (
 		<div id="my-page" className={'ma-page ma-account'}>
 			<div className={'ma-container ma-account__layout'}>
-				<MyMenu />
+				<MyPageMenu />
 				<section className={'ma-account__content'}>
-					{category === 'addProperty' && <AddProperty />}
-					{category === 'myProperties' && <MyProperties />}
+					{category === 'addProperty' && <AddCarForm />}
+					{category === 'myProperties' && <MyCars />}
 					{category === 'myFavorites' && <MyFavorites />}
 					{category === 'recentlyVisited' && <RecentlyVisited />}
 					{category === 'myArticles' && <MyArticles />}

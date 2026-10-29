@@ -7,7 +7,7 @@ import { GET_NOTICES } from '../../../apollo/user/query';
 import { T } from '../../types/common';
 
 /** announcements published by admins (Admin > CS > Notice) */
-const Notice = () => {
+const NoticeList = () => {
 	const { t } = useTranslation('common');
 	const { data, loading } = useQuery(GET_NOTICES, {
 		fetchPolicy: 'network-only',
@@ -35,4 +35,4 @@ const Notice = () => {
 	);
 };
 
-export default Notice;
+export default NoticeList;

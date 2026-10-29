@@ -4,7 +4,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import { countryName, formatEnumLabel, formatMileage } from '../../utils';
 import { usePrice } from '../../hooks/usePrice';
 
-interface FilterChipsProps {
+interface CarFilterChipsProps {
 	search: Record<string, any>;
 	defaults: Record<string, any>;
 	onChange: (search: Record<string, any>) => void;
@@ -17,7 +17,7 @@ const optionLabels: Record<string, string> = {
 };
 
 /** the active filters as removable chips above the results ("Kia ×", "2020–2026 ×", ...) */
-const FilterChips = ({ search, defaults, onChange }: FilterChipsProps) => {
+const CarFilterChips = ({ search, defaults, onChange }: CarFilterChipsProps) => {
 	const { t } = useTranslation('common');
 	const { price } = usePrice();
 	const chips: { key: string; label: string; remove: () => void }[] = [];
@@ -78,4 +78,4 @@ const FilterChips = ({ search, defaults, onChange }: FilterChipsProps) => {
 	);
 };
 
-export default FilterChips;
+export default CarFilterChips;

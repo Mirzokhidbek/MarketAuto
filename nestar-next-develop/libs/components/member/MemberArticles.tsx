@@ -3,7 +3,7 @@ import { NextPage } from 'next';
 import { Pagination } from '@mui/material';
 import { useTranslation } from 'next-i18next';
 import { useRouter } from 'next/router';
-import CommunityCard from '../common/CommunityCard';
+import ArticleCard from '../community/ArticleCard';
 import { T } from '../../types/common';
 import { BoardArticle } from '../../types/board-article/board-article';
 import { BoardArticlesInquiry } from '../../types/board-article/board-article.input';
@@ -83,7 +83,7 @@ const MemberArticles: NextPage = ({ initialInput, ...props }: any) => {
 			{memberBoArticles?.length ? (
 				<div className={'ma-grid ma-grid--3'}>
 					{memberBoArticles.map((item: any) => (
-						<CommunityCard boardArticle={item} key={item._id} size={'small'} likeArticleHandler={likeArticleHandler} />
+						<ArticleCard boardArticle={item} key={item._id} size={'small'} likeArticleHandler={likeArticleHandler} />
 					))}
 				</div>
 			) : (

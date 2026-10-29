@@ -2,7 +2,7 @@ import React from 'react';
 import { NextPage } from 'next';
 import dynamic from 'next/dynamic';
 import { useTranslation } from 'next-i18next';
-const TuiEditor = dynamic(() => import('../community/Teditor'), { ssr: false });
+const ArticleEditor = dynamic(() => import('../community/ArticleEditor'), { ssr: false });
 
 const WriteArticle: NextPage = () => {
 	const { t } = useTranslation('common');
@@ -15,7 +15,7 @@ const WriteArticle: NextPage = () => {
 					<p>{t('Share news, reviews or tips with other car owners.')}</p>
 				</div>
 			</div>
-			<TuiEditor />
+			<ArticleEditor />
 		</div>
 	);
 };

@@ -4,7 +4,7 @@ import { NextPage } from 'next';
 import { useTranslation } from 'next-i18next';
 import { useRouter } from 'next/router';
 import { Pagination, Stack, Typography } from '@mui/material';
-import CommunityCard from '../common/CommunityCard';
+import ArticleCard from '../community/ArticleCard';
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
 import { userVar } from '../../../apollo/store';
 import { T } from '../../types/common';
@@ -83,7 +83,7 @@ const MyArticles: NextPage = ({ initialInput, ...props }: T) => {
 			{boardArticles?.length > 0 ? (
 				<div className={'ma-grid ma-grid--3'}>
 					{boardArticles.map((boardArticle: BoardArticle) => (
-						<CommunityCard
+						<ArticleCard
 							boardArticle={boardArticle}
 							key={boardArticle?._id}
 							size={'small'}

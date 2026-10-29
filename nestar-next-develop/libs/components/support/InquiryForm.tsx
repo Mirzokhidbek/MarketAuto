@@ -11,7 +11,7 @@ import { sweetErrorHandling, sweetMixinSuccessAlert } from '../../sweetAlert';
 import { T } from '../../types/common';
 
 /** 1:1 inquiry to the support team; admins answer in Admin > CS > Inquiry */
-const Inquiry = () => {
+const InquiryForm = () => {
 	const { t } = useTranslation('common');
 	const user = useReactiveVar(userVar);
 	const [form, setForm] = useState({ noticeTitle: '', noticeContent: '' });
@@ -105,4 +105,4 @@ const Inquiry = () => {
 	);
 };
 
-export default Inquiry;
+export default InquiryForm;

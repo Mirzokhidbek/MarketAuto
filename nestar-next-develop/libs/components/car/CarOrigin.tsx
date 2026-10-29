@@ -2,7 +2,7 @@ import React from 'react';
 import { useTranslation } from 'next-i18next';
 import { countryCodes, countryName } from '../../utils';
 
-interface OriginProps {
+interface CarOriginProps {
 	country?: string;
 	/** text after the code; defaults to the country name */
 	label?: string;
@@ -11,7 +11,7 @@ interface OriginProps {
 }
 
 /** where the car is: a plate-style country code + name, e.g. [KR] South Korea · Incheon */
-const Origin = ({ country, label, compact }: OriginProps) => {
+const CarOrigin = ({ country, label, compact }: CarOriginProps) => {
 	const { t } = useTranslation('common');
 	if (!country) return null;
 	const name = countryName(country, t);
@@ -23,4 +23,4 @@ const Origin = ({ country, label, compact }: OriginProps) => {
 	);
 };
 
-export default Origin;
+export default CarOrigin;
