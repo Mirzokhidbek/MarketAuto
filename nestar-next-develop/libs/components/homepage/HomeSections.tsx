@@ -131,7 +131,7 @@ export const TopDealers = () => {
 				</div>
 				<div className={'ma-grid ma-grid--4'}>
 					{dealers.map((dealer) => (
-						<SellerCard dealer={dealer} key={dealer._id} />
+						<SellerCard seller={dealer} key={dealer._id} />
 					))}
 				</div>
 			</div>
@@ -207,7 +207,7 @@ export const LatestArticles = () => {
 				</div>
 				<div className={'ma-grid ma-grid--3'}>
 					{articles.map((article) => (
-						<ArticleCard boardArticle={article} key={article._id} />
+						<ArticleCard article={article} key={article._id} />
 					))}
 				</div>
 			</div>

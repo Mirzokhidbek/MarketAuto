@@ -1,21 +1,24 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { Pagination } from '@mui/material';
-import ArticleCard from '../../libs/components/community/ArticleCard';
+import { useQuery } from '@apollo/client';
 import { useTranslation } from 'next-i18next';
-import { articleCategoryLabels } from '../../libs/utils';
-import withLayoutBasic from '../../libs/components/layout/LayoutBasic';
-import { BoardArticle } from '../../libs/types/board-article/board-article';
-import { T } from '../../libs/types/common';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import withLayoutBasic from '../../libs/components/layout/LayoutBasic';
+import ArticleCard from '../../libs/components/community/ArticleCard';
+import PageContainer from '../../libs/components/ui/PageContainer';
+import ListHeader from '../../libs/components/ui/ListHeader';
+import UnderlineTabs from '../../libs/components/ui/UnderlineTabs';
+import EmptyState from '../../libs/components/ui/EmptyState';
+import Pagination from '../../libs/components/ui/Pagination';
+import { ButtonLink } from '../../libs/components/ui/Button';
+import { GET_BOARD_ARTICLES } from '../../apollo/user/query';
+import { useLikeArticle } from '../../libs/hooks/useLike';
+import { articleCategoryLabels } from '../../libs/utils';
+import { BoardArticle } from '../../libs/types/board-article/board-article';
 import { BoardArticlesInquiry } from '../../libs/types/board-article/board-article.input';
 import { BoardArticleCategory } from '../../libs/enums/board-article.enum';
-import { LIKE_TARGET_BOARD_ARTICLE } from '../../apollo/user/mutation';
-import { useMutation, useQuery } from '@apollo/client';
-import { GET_BOARD_ARTICLES } from '../../apollo/user/query';
-import { sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../libs/sweetAlert';
-import { Messages } from '../../libs/config';
+import { Direction } from '../../libs/enums/common.enum';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {
@@ -23,177 +26,89 @@ export const getStaticProps = async ({ locale }: any) => ({
 	},
 });
 
-const Community: NextPage = ({ initialInput, ...props }: T) => {
+const PAGE_SIZE = 6;
+
+const CATEGORIES = [
+	BoardArticleCategory.NEWS,
+	BoardArticleCategory.RECOMMEND,
+	BoardArticleCategory.FREE,
+	BoardArticleCategory.SERVICE,
+];
+
+const isCategory = (value: unknown): value is BoardArticleCategory =>
+	CATEGORIES.includes(value as BoardArticleCategory);
+
+/** /community?articleCategory=NEWS&page=2 — articles by category, newest first */
+const Community: NextPage = () => {
 	const { t } = useTranslation('common');
 	const router = useRouter();
-	const { query } = router;
-	const articleCategory = query?.articleCategory as string;
-	const [searchCommunity, setSearchCommunity] = useState<BoardArticlesInquiry>({
-		...initialInput,
-		search: { ...initialInput.search },
-	});
-	const [boardArticles, setBoardArticles] = useState<BoardArticle[]>([]);
-	const [totalCount, setTotalCount] = useState<number>(0);
+	const category = isCategory(router.query.articleCategory) ? router.query.articleCategory : BoardArticleCategory.FREE;
+	const page = Math.max(1, Number(router.query.page) || 1);
 
-	/** APOLLO REQUESTS **/
-	const [likeTargetBoardArticle] = useMutation(LIKE_TARGET_BOARD_ARTICLE);
+	const input: BoardArticlesInquiry = {
+		page,
+		limit: PAGE_SIZE,
+		sort: 'createdAt',
+		direction: Direction.DESC,
+		search: { articleCategory: category },
+	};
 
-	const {
-		loading: boardArticlesLoading,
-		data: boardArticlesData,
-		error: getBoardArticlesError,
-		refetch: boardArticlesRefetch,
-	} = useQuery(GET_BOARD_ARTICLES, {
+	const { data, previousData, loading, refetch } = useQuery(GET_BOARD_ARTICLES, {
 		fetchPolicy: 'network-only',
-		variables: {
-			input: searchCommunity,
-		},
+		variables: { input },
+		skip: !router.isReady,
 		notifyOnNetworkStatusChange: true,
-		onCompleted: (data: T) => {
-			setBoardArticles(data?.getBoardArticles?.list);
-			setTotalCount(data?.getBoardArticles?.metaCounter[0]?.total);
-		},
 	});
+	const result = (data ?? previousData)?.getBoardArticles;
+	const articles: BoardArticle[] = result?.list ?? [];
+	const total: number = result?.metaCounter?.[0]?.total ?? 0;
 
-	/** LIFECYCLES **/
-	useEffect(() => {
-		if (!router.isReady) return;
-		if (!query?.articleCategory)
-			router.push(
-				{
-					pathname: router.pathname,
-					query: { articleCategory: 'FREE' },
-				},
-				router.pathname,
-				{ shallow: true },
-			);
-	}, [router.isReady]);
-
-	// the category arrives in router.query after the first render of this static page
-	useEffect(() => {
-		const category = query?.articleCategory as BoardArticleCategory | undefined;
-		if (category && category !== searchCommunity.search.articleCategory) {
-			setSearchCommunity({ ...searchCommunity, page: 1, search: { articleCategory: category } });
-		}
-	}, [query?.articleCategory]);
+	const likeArticle = useLikeArticle(() => refetch());
 
 	/** HANDLERS **/
-	const tabChangeHandler = async (e: T, value: string) => {
-
-		setSearchCommunity({ ...searchCommunity, page: 1, search: { articleCategory: value as BoardArticleCategory } });
-		await router.push(
-			{
-				pathname: '/community',
-				query: { articleCategory: value },
-			},
-			router.pathname,
-			{ shallow: true },
-		);
-	};
-
-	const paginationHandler = (e: T, value: number) => {
-		setSearchCommunity({ ...searchCommunity, page: value });
-	};
-
-	const likeArticleHandler = async (e: any, user: any, id: string) => {
-		try {
-			e.stopPropagation();
-			if (!id) return;
-			if (!user._id) throw new Error(Messages.error2);
-
-			await likeTargetBoardArticle({
-				variables: {
-					input: id,
-				},
-			});
-			await boardArticlesRefetch({ input: searchCommunity });
-			await sweetTopSmallSuccessAlert('success', 800);
-		} catch (err: any) {
-			sweetMixinErrorAlert(err.message).then();
-		}
-	};
-
-	const categories = [
-		BoardArticleCategory.NEWS,
-		BoardArticleCategory.RECOMMEND,
-		BoardArticleCategory.FREE,
-		BoardArticleCategory.SERVICE,
-	];
+	const openPage = (nextCategory: BoardArticleCategory, nextPage: number, scrollToTop = false) =>
+		router.push({ pathname: '/community', query: { articleCategory: nextCategory, page: nextPage } }, undefined, {
+			shallow: true,
+			scroll: scrollToTop,
+		});
 
 	return (
-		<div id="community-list-page" className={'ma-page ma-list-page'}>
-			<div className={'ma-container'}>
-				<div className={'ma-results__bar'}>
-					<div>
-						<span>{t('News, reviews and stories from car owners')}</span>
-					</div>
-					<button
-						className={'ma-btn ma-btn--primary'}
-						onClick={() =>
-							router.push(
-								{ pathname: '/mypage', query: { category: 'writeArticle' } },
-								'/mypage?category=writeArticle',
-								{
-									scroll: false,
-								},
-							)
-						}
-					>
-						+ {t('Write Article')}
-					</button>
-				</div>
+		<div className={'bg-white pt-8 pb-20 font-sans text-text'}>
+			<PageContainer>
+				<ListHeader
+					summary={t('News, reviews and stories from car owners')}
+					actions={
+						<ButtonLink href={{ pathname: '/mypage', query: { category: 'writeArticle' } }}>
+							+ {t('Write Article')}
+						</ButtonLink>
+					}
+				/>
 
-				<div className={'ma-tabs ma-tabs--underline'}>
-					{categories.map((category) => (
-						<button
-							key={category}
-							className={`ma-tab ${searchCommunity.search.articleCategory === category ? 'is-active' : ''}`}
-							onClick={(e) => tabChangeHandler(e, category)}
-						>
-							{t(articleCategoryLabels[category])}
-						</button>
-					))}
-				</div>
+				<UnderlineTabs
+					items={CATEGORIES.map((item) => ({ value: item, label: t(articleCategoryLabels[item]) }))}
+					value={category}
+					onChange={(nextCategory) => openPage(nextCategory, 1)}
+				/>
 
-				{boardArticles?.length ? (
-					<div className={'ma-grid ma-grid--3'}>
-						{boardArticles.map((boardArticle: BoardArticle) => (
-							<ArticleCard
-								boardArticle={boardArticle}
-								key={boardArticle?._id}
-								likeArticleHandler={likeArticleHandler}
-							/>
+				{articles.length === 0 ? (
+					<EmptyState loading={loading} text={t('No articles in this category yet.')} />
+				) : (
+					<div className={'grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2 lg:grid-cols-3'}>
+						{articles.map((article) => (
+							<ArticleCard article={article} key={article._id} onLike={likeArticle} />
 						))}
 					</div>
-				) : (
-					<div className={'ma-empty'}>{t('No articles in this category yet.')}</div>
 				)}
 
-				{totalCount > searchCommunity.limit && (
-					<div className={'ma-pagination'}>
-						<Pagination
-							count={Math.ceil(totalCount / searchCommunity.limit)}
-							page={searchCommunity.page}
-							shape="rounded"
-							onChange={paginationHandler}
-						/>
-					</div>
-				)}
-			</div>
+				<Pagination
+					page={page}
+					total={total}
+					pageSize={PAGE_SIZE}
+					onChange={(nextPage) => openPage(category, nextPage, true)}
+				/>
+			</PageContainer>
 		</div>
 	);
-};
-
-Community.defaultProps = {
-	initialInput: {
-		page: 1,
-		limit: 6,
-		sort: 'createdAt',
-		direction: 'ASC',
-		search: {
-			articleCategory: 'FREE',
-		},
-	},
 };
 
 export default withLayoutBasic(Community);
