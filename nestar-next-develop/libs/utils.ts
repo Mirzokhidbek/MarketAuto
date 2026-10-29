@@ -1,5 +1,4 @@
 import numeral from 'numeral';
-import { sweetMixinErrorAlert } from './sweetAlert';
 
 const enumLabelExceptions: Record<string, string> = {
 	BMW: 'BMW',
@@ -92,39 +91,14 @@ export const formatterStr = (value: number | undefined): string => {
 	return numeral(value).format('0,0') != '0' ? numeral(value).format('0,0') : '';
 };
 
-export const likeTargetPropertyHandler = async (likeTargetProperty: any, id: string) => {
+/** JSON from a URL query param (?input=...); a broken or hand-edited link falls back instead of crashing the page */
+export const parseQueryJson = <T>(value: string | string[] | undefined, fallback: T): T => {
+	if (typeof value !== 'string') return fallback;
 	try {
-		await likeTargetProperty({
-			variables: {
-				input: id,
-			},
-		});
-	} catch (err: any) {
-		sweetMixinErrorAlert(err.message).then();
-	}
-};
-
-export const likeTargetBoardArticleHandler = async (likeTargetBoardArticle: any, id: string) => {
-	try {
-		await likeTargetBoardArticle({
-			variables: {
-				input: id,
-			},
-		});
-	} catch (err: any) {
-		sweetMixinErrorAlert(err.message).then();
-	}
-};
-
-export const likeTargetMemberHandler = async (likeTargetMember: any, id: string) => {
-	try {
-		await likeTargetMember({
-			variables: {
-				input: id,
-			},
-		});
-	} catch (err: any) {
-		sweetMixinErrorAlert(err.message).then();
+		const parsed = JSON.parse(value);
+		return parsed && typeof parsed === 'object' ? { ...fallback, ...parsed } : fallback;
+	} catch {
+		return fallback;
 	}
 };
 

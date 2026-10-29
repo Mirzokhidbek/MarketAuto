@@ -1,20 +1,23 @@
-import React, { ChangeEvent, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { NextPage } from 'next';
-import withLayoutBasic from '../../libs/components/layout/LayoutBasic';
-import { Pagination } from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
-import SellerCard from '../../libs/components/seller/SellerCard';
 import { useRouter } from 'next/router';
+import { useQuery } from '@apollo/client';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import { Member } from '../../libs/types/member/member';
+import withLayoutBasic from '../../libs/components/layout/LayoutBasic';
+import SellerCard from '../../libs/components/seller/SellerCard';
+import PageContainer from '../../libs/components/ui/PageContainer';
+import ListHeader from '../../libs/components/ui/ListHeader';
+import SearchInput from '../../libs/components/ui/SearchInput';
+import SortSelect from '../../libs/components/ui/SortSelect';
+import EmptyState from '../../libs/components/ui/EmptyState';
+import Pagination from '../../libs/components/ui/Pagination';
 import { GET_AGENTS } from '../../apollo/user/query';
-import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
-import { userVar } from '../../apollo/store';
-import { LIKE_TARGET_MEMBER } from '../../apollo/user/mutation';
-import { T } from '../../libs/types/common';
-import { Messages } from '../../libs/config';
-import { sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../libs/sweetAlert';
+import { useLikeMember } from '../../libs/hooks/useLike';
+import { parseQueryJson } from '../../libs/utils';
+import { Member } from '../../libs/types/member/member';
+import { AgentsInquiry } from '../../libs/types/member/member.input';
+import { Direction } from '../../libs/enums/common.enum';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {
@@ -22,159 +25,106 @@ export const getStaticProps = async ({ locale }: any) => ({
 	},
 });
 
-const AgentList: NextPage = ({ initialInput, ...props }: any) => {
+const DEFAULT_FILTER: AgentsInquiry = {
+	page: 1,
+	limit: 12,
+	sort: 'createdAt',
+	direction: Direction.DESC,
+	search: {},
+};
+
+const SORT_OPTIONS = [
+	{ value: 'recent', label: 'Newest first', sort: 'createdAt', direction: Direction.DESC },
+	{ value: 'rank', label: 'Top ranked', sort: 'memberRank', direction: Direction.DESC },
+	{ value: 'likes', label: 'Most liked', sort: 'memberLikes', direction: Direction.DESC },
+	{ value: 'views', label: 'Most viewed', sort: 'memberViews', direction: Direction.DESC },
+];
+
+/** /agent — every seller (dealers and private sellers), searchable and sortable; the filter lives in ?input= */
+const SellerList: NextPage = () => {
 	const router = useRouter();
 	const { t } = useTranslation('common');
-	const user = useReactiveVar(userVar);
-	const [searchFilter, setSearchFilter] = useState<any>(
-		router?.query?.input ? JSON.parse(router?.query?.input as string) : initialInput,
-	);
-	const [agents, setAgents] = useState<Member[]>([]);
-	const [total, setTotal] = useState<number>(0);
-	const [currentPage, setCurrentPage] = useState<number>(1);
-	const [searchText, setSearchText] = useState<string>('');
+	const filter = parseQueryJson<AgentsInquiry>(router.query.input, DEFAULT_FILTER);
+	const [searchText, setSearchText] = useState<string>(filter.search?.text ?? '');
 
-	/** APOLLO REQUESTS **/
-	const [likeTargetMember] = useMutation(LIKE_TARGET_MEMBER);
-
-	const {
-		loading: getAgentsLoading,
-		data: getAgentsData,
-		error: getAgentsError,
-		refetch: getAgentsRefetch,
-	} = useQuery(GET_AGENTS, {
+	const { data, previousData, loading, refetch } = useQuery(GET_AGENTS, {
 		fetchPolicy: 'network-only',
-		variables: { input: searchFilter },
+		variables: { input: filter },
+		skip: !router.isReady,
 		notifyOnNetworkStatusChange: true,
-		onCompleted: (data: T) => {
-			setAgents(data?.getAgents?.list);
-			setTotal(data?.getAgents?.metaCounter[0]?.total);
-		},
 	});
+	const result = (data ?? previousData)?.getAgents;
+	const sellers: Member[] = result?.list ?? [];
+	const total: number = result?.metaCounter?.[0]?.total ?? 0;
 
-	/** LIFECYCLES **/
+	const likeSeller = useLikeMember(() => refetch());
+
+	// back / forward and shared links bring their own search text
 	useEffect(() => {
-		if (router.query.input) {
-			const input_obj = JSON.parse(router?.query?.input as string);
-			setSearchFilter(input_obj);
-		} else
-			router.replace(`/agent?input=${JSON.stringify(searchFilter)}`, `/agent?input=${JSON.stringify(searchFilter)}`);
-
-		setCurrentPage(searchFilter.page === undefined ? 1 : searchFilter.page);
-	}, [router]);
+		setSearchText(filter.search?.text ?? '');
+	}, [filter.search?.text]);
 
 	/** HANDLERS **/
-	const sortOptions = [
-		{ id: 'recent', label: 'Newest first', sort: 'createdAt', direction: 'DESC' },
-		{ id: 'rank', label: 'Top ranked', sort: 'memberRank', direction: 'DESC' },
-		{ id: 'likes', label: 'Most liked', sort: 'memberLikes', direction: 'DESC' },
-		{ id: 'views', label: 'Most viewed', sort: 'memberViews', direction: 'DESC' },
-	];
+	const applyFilter = (next: AgentsInquiry, scrollToTop = false) => {
+		const href = `/agent?input=${JSON.stringify(next)}`;
+		router.push(href, href, { scroll: scrollToTop });
+	};
+
+	const searchHandler = (text: string) =>
+		applyFilter({ ...filter, page: 1, search: { ...filter.search, text: text || undefined } });
+
+	const sortHandler = (value: string) => {
+		const option = SORT_OPTIONS.find((item) => item.value === value) ?? SORT_OPTIONS[0];
+		applyFilter({ ...filter, page: 1, sort: option.sort, direction: option.direction });
+	};
+
 	const currentSort =
-		sortOptions.find((item) => item.sort === searchFilter.sort && item.direction === searchFilter.direction)?.id ??
-		'recent';
-
-	const sortingHandler = (id: string) => {
-		const option = sortOptions.find((item) => item.id === id)!;
-		setSearchFilter({ ...searchFilter, page: 1, sort: option.sort, direction: option.direction });
-	};
-
-	const paginationChangeHandler = async (event: ChangeEvent<unknown>, value: number) => {
-		searchFilter.page = value;
-		await router.push(`/agent?input=${JSON.stringify(searchFilter)}`, `/agent?input=${JSON.stringify(searchFilter)}`, {
-			scroll: false,
-		});
-		setCurrentPage(value);
-	};
-
-	const likeMemberHandler = async (user: any, id: string) => {
-		try {
-			if (!id) return;
-			if (!user._id) throw new Error(Messages.error2);
-
-			await likeTargetMember({
-				variables: {
-					input: id,
-				},
-			});
-
-			await getAgentsRefetch({ input: searchFilter });
-			await sweetTopSmallSuccessAlert('success', 800);
-		} catch (err: any) {
-			sweetMixinErrorAlert(err.message).then();
-		}
-	};
+		SORT_OPTIONS.find((item) => item.sort === filter.sort && item.direction === filter.direction)?.value ?? 'recent';
 
 	return (
-		<div className={'ma-page ma-list-page'}>
-			<div className={'ma-container'}>
-				<div className={'ma-results__bar'}>
-					<div>
-						<span>
-							{total || 0} {t('sellers found')}
-						</span>
-					</div>
-					<div className={'ma-toolbar'}>
-						<div className={'ma-filter__search'}>
-							<SearchIcon />
-							<input
-								type="text"
+		<div className={'bg-white pt-8 pb-20 font-sans text-text'}>
+			<PageContainer>
+				<ListHeader
+					summary={`${total} ${t('sellers found')}`}
+					actions={
+						<>
+							<SearchInput
 								value={searchText}
 								placeholder={t('Search sellers') as string}
-								onChange={(e: any) => setSearchText(e.target.value)}
-								onKeyDown={(event: any) => {
-									if (event.key == 'Enter') {
-										setSearchFilter({ ...searchFilter, search: { ...searchFilter.search, text: searchText } });
-									}
-								}}
+								onChange={setSearchText}
+								onSubmit={searchHandler}
+								className={'w-full md:w-[260px]'}
 							/>
-						</div>
-						<label className={'ma-sort'}>
-							<span>{t('Sort by')}</span>
-							<select value={currentSort} onChange={(e) => sortingHandler(e.target.value)}>
-								{sortOptions.map((item) => (
-									<option value={item.id} key={item.id}>
-										{t(item.label)}
-									</option>
-								))}
-							</select>
-						</label>
-					</div>
-				</div>
+							<SortSelect
+								label={t('Sort by')}
+								value={currentSort}
+								options={SORT_OPTIONS.map((option) => ({ value: option.value, label: t(option.label) }))}
+								onChange={sortHandler}
+								className={'w-full sm:w-auto'}
+							/>
+						</>
+					}
+				/>
 
-				{agents?.length === 0 ? (
-					<div className={'ma-empty'}>{getAgentsLoading ? t('Loading...') : t('No sellers found')}</div>
+				{sellers.length === 0 ? (
+					<EmptyState loading={loading} text={t('No sellers found')} />
 				) : (
-					<div className={'ma-grid ma-grid--4'}>
-						{agents.map((agent: Member) => (
-							<SellerCard dealer={agent} key={agent._id} onLike={(id) => likeMemberHandler(user, id)} />
+					<div className={'grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4'}>
+						{sellers.map((seller) => (
+							<SellerCard seller={seller} key={seller._id} onLike={likeSeller} />
 						))}
 					</div>
 				)}
 
-				{total > searchFilter.limit && (
-					<div className={'ma-pagination'}>
-						<Pagination
-							page={currentPage}
-							count={Math.ceil(total / searchFilter.limit)}
-							onChange={paginationChangeHandler}
-							shape="rounded"
-						/>
-					</div>
-				)}
-			</div>
+				<Pagination
+					page={filter.page}
+					total={total}
+					pageSize={filter.limit}
+					onChange={(page) => applyFilter({ ...filter, page }, true)}
+				/>
+			</PageContainer>
 		</div>
 	);
 };
 
-AgentList.defaultProps = {
-	initialInput: {
-		page: 1,
-		limit: 12,
-		sort: 'createdAt',
-		direction: 'DESC',
-		search: {},
-	},
-};
-
-export default withLayoutBasic(AgentList);
+export default withLayoutBasic(SellerList);
