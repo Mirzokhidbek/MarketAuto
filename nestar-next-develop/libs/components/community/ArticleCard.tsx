@@ -73,7 +73,7 @@ const ArticleCard = ({ article, onLike }: ArticleCardProps) => {
 						aria-label={`${t('Like')}: ${article.articleLikes ?? 0}`}
 						aria-pressed={liked}
 						className={cx(
-							'inline-flex items-center gap-1 text-[13px] text-muted enabled:cursor-pointer',
+							'inline-flex items-center gap-1 border-0 bg-transparent text-[13px] text-muted enabled:cursor-pointer',
 							liked && '[&_svg]:text-danger',
 						)}
 					>

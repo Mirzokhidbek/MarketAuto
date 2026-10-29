@@ -39,7 +39,7 @@ const SellerCard = ({ seller, onLike }: SellerCardProps) => {
 					aria-label={t('Like') as string}
 					aria-pressed={liked}
 					className={cx(
-						'absolute top-3.5 right-3.5 flex size-[34px] cursor-pointer items-center justify-center rounded-full [&_svg]:text-[18px]!',
+						'absolute top-3.5 right-3.5 flex size-[34px] cursor-pointer border-0 bg-transparent items-center justify-center rounded-full [&_svg]:text-[18px]!',
 						liked ? 'text-danger' : 'text-text hover:text-ink',
 					)}
 				>
