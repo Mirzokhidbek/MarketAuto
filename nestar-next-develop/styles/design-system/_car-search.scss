@@ -326,22 +326,6 @@
 	}
 }
 
-.ma-empty--cta {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	gap: 14px;
-	p {
-		margin: 0;
-	}
-}
-
-.ma-skeleton-list {
-	display: flex;
-	flex-direction: column;
-	gap: 12px;
-}
-
 .ma-car-card--skeleton {
 	pointer-events: none;
 }
