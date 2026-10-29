@@ -160,6 +160,7 @@ const Messages = () => {
 				<aside className={'ma-messages__list'}>
 					{!conversations.length ? (
 						<EmptyState
+							className={'m-4'}
 							loading={conversationsLoading}
 							text={t('No messages yet. Open a car and press "Write to seller".')}
 							actionLabel={t('Browse cars')}
