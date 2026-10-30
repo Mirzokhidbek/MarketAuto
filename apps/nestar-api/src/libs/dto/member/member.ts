@@ -78,7 +78,6 @@ export class Member {
 	@Field(() => Int)
 	memberFollowings!: number;
 
-
 	@Field(() => Int)
 	memberLikes!: number;
 
@@ -90,8 +89,6 @@ export class Member {
 
 	@Field(() => Int)
 	memberRank!: number;
-
-
 
 	@Field(() => Date, { nullable: true })
 	deletedAt?: Date;

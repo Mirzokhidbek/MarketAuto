@@ -1,8 +1,11 @@
-import { BadRequestException, CanActivate, ExecutionContext, Injectable, ForbiddenException, UnauthorizedException } from '@nestjs/common';
+import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { AuthService } from '../auth.service';
 import { Message } from '../../../libs/enums/common.enum';
+import { AdminRole } from '../../../libs/enums/member.enum';
+import { AUTH_MEMBER_KEY, authenticate, requestOf } from '../request-member';
 
+/** the caller must be logged in and have one of the @Roles(...); @SuperAdminOnly() also excludes moderators */
 @Injectable()
 export class RolesGuard implements CanActivate {
 	constructor(
@@ -10,34 +13,19 @@ export class RolesGuard implements CanActivate {
 		private authService: AuthService,
 	) {}
 
-	async canActivate(context: ExecutionContext | any): Promise<boolean> {
+	async canActivate(context: ExecutionContext): Promise<boolean> {
 		const roles = this.reflector.get<string[]>('roles', context.getHandler());
-		if (!roles) return true;
+		const request = requestOf(context);
+		const member = await authenticate(request, this.authService);
 
+		// a RolesGuard without @Roles(...) still requires a login; it never lets anonymous callers through
+		if (roles?.length && !roles.includes(member.memberType))
+			throw new ForbiddenException(Message.ONLY_SPECIFIC_ROLES_ALLOWED);
+		const superOnly = this.reflector.get<boolean>('superAdmin', context.getHandler());
+		if (superOnly && member.memberAdminRole === AdminRole.MODERATOR)
+			throw new ForbiddenException(Message.ONLY_SPECIFIC_ROLES_ALLOWED);
 
-		if (context.contextType === 'graphql') {
-			const request = context.getArgByIndex(2).req;
-			const bearerToken = request.headers.authorization;
-			if (!bearerToken) throw new BadRequestException(Message.TOKEN_NOT_EXIST);
-
-			const token = bearerToken.split(' ')[1],
-				authMember = await this.authService.verifyToken(token).catch((err) => {
-					throw err instanceof UnauthorizedException ? err : new UnauthorizedException(Message.NOT_AUTHENTICATED);
-				}),
-				hasRole = () => roles.indexOf(authMember.memberType) > -1,
-				hasPermission: boolean = hasRole();
-
-			if (!authMember || !hasPermission) throw new ForbiddenException(Message.ONLY_SPECIFIC_ROLES_ALLOWED);
-			// moderators cannot touch members, settings or the admin log
-			const superOnly = this.reflector.get<boolean>('superAdmin', context.getHandler());
-			if (superOnly && (authMember as any).memberAdminRole === 'MODERATOR')
-				throw new ForbiddenException(Message.ONLY_SPECIFIC_ROLES_ALLOWED);
-
-			request.body.authMember = authMember;
-			return true;
-		}
-
-		// description => http, rpc, gprs and etc are ignored
+		request[AUTH_MEMBER_KEY] = member;
 		return true;
 	}
 }

@@ -24,8 +24,11 @@ export class SettingResolver {
 
 	@Query(() => SiteSettings)
 	public async getSiteSettings(): Promise<SiteSettings> {
-		const rows = await this.settingModel.find({ key: { $in: KEYS } }).lean().exec();
-		return Object.fromEntries(rows.map((row: any) => [row.key, row.value]));
+		const rows = await this.settingModel
+			.find({ key: { $in: KEYS } })
+			.lean()
+			.exec();
+		return Object.fromEntries(rows.map((row: { key: string; value: unknown }) => [row.key, row.value]));
 	}
 
 	@Roles(MemberType.ADMIN)
@@ -40,7 +43,8 @@ export class SettingResolver {
 			const value = input[key];
 			if (value === undefined) continue;
 			// links must be real web addresses (no javascript: etc.)
-			if (key.endsWith('Url') && value && !/^https:\/\/[^\s]+$/i.test(value)) throw new BadRequestException(Message.BAD_REQUEST);
+			if (key.endsWith('Url') && value && !/^https:\/\/[^\s]+$/i.test(value))
+				throw new BadRequestException(Message.BAD_REQUEST);
 			await this.settingModel.updateOne({ key }, { key, value: value.trim() }, { upsert: true }).exec();
 		}
 		await this.adminLogService.log(adminId, 'SETTINGS_UPDATE', 'SETTINGS', undefined, JSON.stringify(input));

@@ -12,11 +12,23 @@ import { shapeIntoMongoObjectId } from '../../libs/config';
 const MAX_SAVED_SEARCHES = 10;
 // keys a saved search may contain (same as the car search filters)
 const allowedKeys = [
-	'countryList', 'locationList', 'typeList', 'brandList', 'fuelList', 'transmissionList', 'options',
-	'pricesRange', 'yearsRange', 'mileageRange', 'text', 'model', 'noAccident',
+	'countryList',
+	'locationList',
+	'typeList',
+	'brandList',
+	'fuelList',
+	'transmissionList',
+	'options',
+	'pricesRange',
+	'yearsRange',
+	'mileageRange',
+	'text',
+	'model',
+	'noAccident',
 ];
 
-const toDto = (doc: any): SavedSearch => ({ ...doc, search: JSON.stringify(doc.search ?? {}) });
+const toDto = (doc: Record<string, unknown>): SavedSearch =>
+	({ ...doc, search: JSON.stringify(doc.search ?? {}) }) as unknown as SavedSearch;
 
 /** "notify me about new cars like this" — matching happens in PropertyService when a car goes on sale */
 @Resolver()
@@ -32,7 +44,10 @@ export class SavedSearchResolver {
 
 	@UseGuards(AuthGuard)
 	@Mutation(() => SavedSearch)
-	public async saveSearch(@Args('input') input: SavedSearchInput, @AuthMember('_id') memberId: ObjectId): Promise<SavedSearch> {
+	public async saveSearch(
+		@Args('input') input: SavedSearchInput,
+		@AuthMember('_id') memberId: ObjectId,
+	): Promise<SavedSearch> {
 		let parsed: Record<string, any>;
 		try {
 			parsed = JSON.parse(input.search);

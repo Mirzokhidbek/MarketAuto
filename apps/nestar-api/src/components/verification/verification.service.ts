@@ -1,3 +1,4 @@
+import { settings } from '../../libs/env';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -20,7 +21,7 @@ export class VerificationService {
 	) {}
 
 	private hash(phone: string, purpose: string, code: string): string {
-		return createHash('sha256').update(`${phone}:${purpose}:${code}:${process.env.SECRET_TOKEN}`).digest('hex');
+		return createHash('sha256').update(`${phone}:${purpose}:${code}:${settings.secretToken}`).digest('hex');
 	}
 
 	/** validated, normalized phone ("998901234567") or an error */
@@ -36,9 +37,11 @@ export class VerificationService {
 		limiters.smsPhone.consume(phone);
 
 		const exists = await this.memberModel.exists({ memberPhone: phone });
-		const forExisting = [VerificationPurpose.RESET_PASSWORD, VerificationPurpose.LOGIN, VerificationPurpose.ADMIN_2FA].includes(
-			purpose,
-		);
+		const forExisting = [
+			VerificationPurpose.RESET_PASSWORD,
+			VerificationPurpose.LOGIN,
+			VerificationPurpose.ADMIN_2FA,
+		].includes(purpose);
 		if (!forExisting && exists) throw new BadRequestException(Message.USED_MEMBER_NICK_OR_PHONE);
 		// unknown number on login / password reset: answer the same way, but send nothing (no account enumeration)
 		if (forExisting && !exists) return { sent: true, expiresIn: CODE_TTL_SECONDS };
@@ -55,8 +58,7 @@ export class VerificationService {
 		const sent = await this.smsService.send(phone, `MarketAuto: tasdiqlash kodi ${code}. Kodni hech kimga bermang.`);
 		if (!sent) throw new BadRequestException(Message.CODE_NOT_SENT);
 
-		const devCode =
-			process.env.NODE_ENV !== 'production' && !this.smsService.hasProvider(phone) ? code : undefined;
+		const devCode = !settings.production && !this.smsService.hasProvider(phone) ? code : undefined;
 		return { sent: true, expiresIn: CODE_TTL_SECONDS, devCode };
 	}
 

@@ -28,12 +28,27 @@ export const validMimeTypes = ['image/png', 'image/jpg', 'image/jpeg', 'image/we
 export const uploadTargets = ['member', 'property', 'article', 'message'];
 
 /** caller IP from the GraphQL context (set TRUST_PROXY=1 behind nginx so X-Forwarded-For is used) */
-export const clientIp = (context: any): string =>
-	context?.req?.ip ?? context?.req?.socket?.remoteAddress ?? 'unknown';
+export const clientIp = (context: any): string => context?.req?.ip ?? context?.req?.socket?.remoteAddress ?? 'unknown';
 
 // user text is matched literally: '(' or '.*' must not break or slow down the query
 export const searchRegex = (text: string): RegExp =>
-	new RegExp(text.trim().slice(0, 100).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+	new RegExp(
+		text
+			.trim()
+			.slice(0, 100)
+			.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'),
+		'i',
+	);
+
+/** an ObjectId (or any id) as its hex string; '' for null/undefined. Use it to compare or key ids. */
+export const idString = (id: unknown): string => {
+	if (id === null || id === undefined) return '';
+	if (typeof id === 'string') return id;
+	// ObjectId (bson / mongoose) and anything else that knows its own string form
+	if (typeof id === 'object' && 'toHexString' in id && typeof id.toHexString === 'function')
+		return (id as { toHexString(): string }).toHexString();
+	return (id as { toString(): string }).toString();
+};
 
 export const shapeIntoMongoObjectId = (target: any) => {
 	if (typeof target !== 'string') return target;

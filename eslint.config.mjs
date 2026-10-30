@@ -40,4 +40,9 @@ export default tseslint.config(
 			'prettier/prettier': 'error',
 		},
 	},
+	{
+		// tests build loose mocks on purpose
+		files: ['**/*.spec.ts', '**/*.e2e-spec.ts'],
+		rules: { '@typescript-eslint/no-unsafe-return': 'off' },
+	},
 );

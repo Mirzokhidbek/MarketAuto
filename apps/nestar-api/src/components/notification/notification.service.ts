@@ -5,7 +5,7 @@ import { Notification, Notifications } from '../../libs/dto/notification/notific
 import { OrdinaryInquiry } from '../../libs/dto/property/property.input';
 import { NotificationGroup, NotificationStatus, NotificationType } from '../../libs/enums/notification.enum';
 import { T } from '../../libs/types/common';
-import { lookupPublicMember } from '../../libs/config';
+import { lookupPublicMember, idString } from '../../libs/config';
 
 const logger = new Logger('NotificationService');
 
@@ -27,7 +27,7 @@ export class NotificationService {
 
 	/** never throws: a failed notification must not break the action that triggered it */
 	public async notify(input: NotifyInput): Promise<void> {
-		if (!input.receiverId || (!input.system && String(input.authorId) === String(input.receiverId))) return;
+		if (!input.receiverId || (!input.system && idString(input.authorId) === idString(input.receiverId))) return;
 		try {
 			const { system, ...data } = input;
 			await this.notificationModel.create(data);

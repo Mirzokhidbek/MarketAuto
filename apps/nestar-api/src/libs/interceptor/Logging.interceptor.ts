@@ -17,16 +17,15 @@ export class LoggingInterceptor implements NestInterceptor {
 		} else if (requestType === 'graphql') {
 			/* (1) Print Request */
 			const gqlContext = GqlExecutionContext.create(context);
-			const req = gqlContext.getContext<{ req: { body: unknown } }>().req;
-			this.logger.log(`${this.stringify(req.body)}`, 'REQUEST');
+			const body = gqlContext.getContext<{ req: { body?: { operationName?: string; query?: string } } }>().req.body;
+			// the operation only: variables carry passwords, SMS codes and phone numbers and never reach the log
+			this.logger.log(this.stringify(body?.operationName ?? body?.query ?? ''), 'REQUEST');
 
 			/* (2) Errors handling via GraphQL */
 			/* (3) No Errors, giving Response below */
 			return next.handle().pipe(
-				tap((context) => {
-					const responseTime = Date.now() - recordTime;
-					this.logger.log(`${this.stringify(context)} - ${responseTime}ms \n\n`, 'RESPONSE');
-				}),
+				// timing only: results can hold tokens and personal data
+				tap(() => this.logger.log(`${Date.now() - recordTime}ms`, 'RESPONSE')),
 			);
 		}
 		return next.handle();

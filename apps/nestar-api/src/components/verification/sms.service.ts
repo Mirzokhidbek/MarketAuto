@@ -1,3 +1,4 @@
+import { settings } from '../../libs/env';
 import { Injectable, Logger } from '@nestjs/common';
 
 /**
@@ -12,7 +13,7 @@ export class SmsService {
 	private eskizToken: string | null = null;
 
 	public hasProvider(phone: string): boolean {
-		return phone.startsWith('998') ? !!process.env.ESKIZ_EMAIL : !!process.env.TWILIO_SID;
+		return phone.startsWith('998') ? !!settings.eskiz.email : !!settings.twilio.sid;
 	}
 
 	public async send(phone: string, text: string): Promise<boolean> {
@@ -30,12 +31,13 @@ export class SmsService {
 
 	private async eskizLogin(): Promise<string> {
 		const body = new FormData();
-		body.append('email', process.env.ESKIZ_EMAIL ?? '');
-		body.append('password', process.env.ESKIZ_PASSWORD ?? '');
+		body.append('email', settings.eskiz.email ?? '');
+		body.append('password', settings.eskiz.password ?? '');
 		const response = await fetch('https://notify.eskiz.uz/api/auth/login', { method: 'POST', body });
-		const json: any = await response.json();
-		if (!json?.data?.token) throw new Error('Eskiz login failed');
-		return json.data.token;
+		const json = (await response.json()) as { data?: { token?: string } } | null;
+		const token = json?.data?.token;
+		if (!token) throw new Error('Eskiz login failed');
+		return token;
 	}
 
 	private async sendEskiz(phone: string, text: string, retry = true): Promise<boolean> {
@@ -43,7 +45,7 @@ export class SmsService {
 		const body = new FormData();
 		body.append('mobile_phone', phone);
 		body.append('message', text);
-		body.append('from', process.env.ESKIZ_FROM ?? '4546');
+		body.append('from', settings.eskiz.from);
 		const response = await fetch('https://notify.eskiz.uz/api/message/sms/send', {
 			method: 'POST',
 			headers: { Authorization: `Bearer ${this.eskizToken}` },
@@ -58,12 +60,12 @@ export class SmsService {
 	}
 
 	private async sendTwilio(phone: string, text: string): Promise<boolean> {
-		const sid = process.env.TWILIO_SID ?? '';
-		const auth = Buffer.from(`${sid}:${process.env.TWILIO_TOKEN ?? ''}`).toString('base64');
+		const { sid = '', token = '', from = '' } = settings.twilio;
+		const auth = Buffer.from(`${sid}:${token}`).toString('base64');
 		const response = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${sid}/Messages.json`, {
 			method: 'POST',
 			headers: { Authorization: `Basic ${auth}`, 'Content-Type': 'application/x-www-form-urlencoded' },
-			body: new URLSearchParams({ To: `+${phone}`, From: process.env.TWILIO_FROM ?? '', Body: text }),
+			body: new URLSearchParams({ To: `+${phone}`, From: from, Body: text }),
 		});
 		return response.ok;
 	}

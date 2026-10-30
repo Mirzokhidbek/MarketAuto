@@ -1,13 +1,12 @@
 import { imageUrl } from '../../utils';
+import { uploadImage } from '../../upload';
 import { useTranslation } from 'next-i18next';
 import React, { useMemo, useRef, useState } from 'react';
 import { Box, Button, FormControl, MenuItem, Stack, Typography, Select, TextField } from '@mui/material';
 import { BoardArticleCategory } from '../../enums/board-article.enum';
 import { Editor } from '@toast-ui/react-editor';
-import { getFreshToken } from '../../auth/index';
 import { REACT_APP_API_URL } from '../../config';
 import { useRouter } from 'next/router';
-import axios from 'axios';
 import { T } from '../../types/common';
 import '@toast-ui/editor/dist/toastui-editor.css';
 import { editorLanguage } from './editorLanguages';
@@ -34,41 +33,10 @@ const ArticleEditor = () => {
 	}, []);
 
 	/** HANDLERS **/
-	const uploadImage = async (image: any) => {
+	const uploadEditorImage = async (image: File) => {
 		try {
-			const formData = new FormData();
-			formData.append(
-				'operations',
-				JSON.stringify({
-					query: `mutation ImageUploader($file: Upload!, $target: String!) {
-						imageUploader(file: $file, target: $target) 
-				  }`,
-					variables: {
-						file: null,
-						target: 'article',
-					},
-				}),
-			);
-			formData.append(
-				'map',
-				JSON.stringify({
-					'0': ['variables.file'],
-				}),
-			);
-			formData.append('0', image);
-
-			const response = await axios.post(`${process.env.REACT_APP_API_GRAPHQL_URL}`, formData, {
-				headers: {
-					'Content-Type': 'multipart/form-data',
-					'apollo-require-preflight': true,
-					Authorization: `Bearer ${await getFreshToken()}`,
-				},
-			});
-
-			if (response.data?.errors?.length) throw new Error(response.data.errors[0].message);
-			const responseImage = response.data.data.imageUploader;
+			const responseImage = await uploadImage(image, 'article');
 			memoizedValues.articleImage = responseImage;
-
 			return imageUrl(responseImage);
 		} catch (err: any) {
 			sweetErrorHandling(err).then();
@@ -153,7 +121,7 @@ const ArticleEditor = () => {
 				ref={editorRef}
 				hooks={{
 					addImageBlobHook: async (image: any, callback: any) => {
-						const uploadedImageURL = await uploadImage(image);
+						const uploadedImageURL = await uploadEditorImage(image);
 						callback(uploadedImageURL);
 						return false;
 					},

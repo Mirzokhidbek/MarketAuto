@@ -12,7 +12,7 @@ import {
 import { OrdinaryInquiry } from '../../libs/dto/property/property.input';
 import { Message } from '../../libs/enums/common.enum';
 import { MemberStatus } from '../../libs/enums/member.enum';
-import { shapeIntoMongoObjectId, lookupPublicMember } from '../../libs/config';
+import { shapeIntoMongoObjectId, lookupPublicMember, idString } from '../../libs/config';
 import { limiters } from '../../libs/rate-limiter';
 import { SocketGateway } from '../../socket/socket.gateway';
 import { StorageService } from '../storage/storage.service';
@@ -28,17 +28,21 @@ export class MessageService {
 	) {}
 
 	public async sendMessage(senderId: ObjectId, input: SendMessageInput): Promise<ChatMessage> {
-		limiters.messages.consume(String(senderId));
+		limiters.messages.consume(idString(senderId));
 		const receiverId = shapeIntoMongoObjectId(input.receiverId);
-		if (String(receiverId) === String(senderId)) throw new BadRequestException(Message.NOT_ALLOWED_REQUEST);
+		if (idString(receiverId) === idString(senderId)) throw new BadRequestException(Message.NOT_ALLOWED_REQUEST);
 		const receiver = await this.memberModel.exists({ _id: receiverId, memberStatus: MemberStatus.ACTIVE });
 		if (!receiver) throw new NotFoundException(Message.NO_DATA_FOUND);
 
-		const participants = [senderId, receiverId].map(String).sort().map((id) => new Types.ObjectId(id));
+		const participants = [senderId, receiverId]
+			.map(String)
+			.sort()
+			.map((id) => new Types.ObjectId(id));
 		const propertyId = input.propertyId ? shapeIntoMongoObjectId(input.propertyId) : null;
 		const text = (input.text ?? '').trim();
-		// a photo may only point to our own message uploads (no outside URLs: tracking pixels, foreign content)
-		const image = input.image && this.storageService.isOwnPath(input.image, 'message') ? input.image : undefined;
+		// a photo may only point to the sender's own message uploads (no outside URLs or other members' photos)
+		const image =
+			input.image && this.storageService.isOwnPath(input.image, 'message', senderId) ? input.image : undefined;
 		if (!text && !image) throw new BadRequestException(Message.BAD_REQUEST);
 
 		// answering a buyer: remember how long it took (shown as "usually replies within ...")
@@ -54,7 +58,12 @@ export class MessageService {
 					{ participants, propertyId },
 					{
 						$setOnInsert: { participants, propertyId },
-						$set: { pairKey, lastMessage: text ? text.slice(0, 200) : '📷', lastSenderId: senderId, lastMessageAt: new Date() },
+						$set: {
+							pairKey,
+							lastMessage: text ? text.slice(0, 200) : '📷',
+							lastSenderId: senderId,
+							lastMessageAt: new Date(),
+						},
 						$inc: { [`unread.${String(receiverId)}`]: 1 },
 					},
 					{ upsert: true, new: true },
@@ -71,8 +80,8 @@ export class MessageService {
 		// live delivery to every open tab of the receiver (and the sender's other tabs)
 		const payload = { event: 'privateMessage', conversationId: String(conversation._id), message: message.toObject() };
 		this.socketGateway.emitToMember(String(receiverId), payload);
-		this.socketGateway.emitToMember(String(senderId), payload);
-		return message;
+		this.socketGateway.emitToMember(idString(senderId), payload);
+		return message as ChatMessage;
 	}
 
 	/** rolling average of reply minutes, capped at 3 days so one forgotten chat does not dominate */
@@ -85,7 +94,7 @@ export class MessageService {
 	}
 
 	public async getConversations(memberId: ObjectId, input: OrdinaryInquiry): Promise<Conversations> {
-		const me = new Types.ObjectId(String(memberId));
+		const me = new Types.ObjectId(idString(memberId));
 		const [result] = await this.conversationModel
 			.aggregate([
 				{ $match: { participants: me } },
@@ -118,7 +127,7 @@ export class MessageService {
 	public async getMessages(memberId: ObjectId, input: MessagesInquiry): Promise<ChatMessages> {
 		const conversationId = shapeIntoMongoObjectId(input.conversationId);
 		const conversation = await this.conversationModel.findById(conversationId).exec();
-		if (!conversation || !conversation.participants.some((id: any) => String(id) === String(memberId)))
+		if (!conversation || !conversation.participants.some((id: any) => idString(id) === idString(memberId)))
 			throw new ForbiddenException(Message.NOT_PARTICIPANT);
 
 		const [result] = await this.messageModel
@@ -134,7 +143,9 @@ export class MessageService {
 			])
 			.exec();
 
-		await this.conversationModel.updateOne({ _id: conversationId }, { $set: { [`unread.${String(memberId)}`]: 0 } }).exec();
+		await this.conversationModel
+			.updateOne({ _id: conversationId }, { $set: { [`unread.${idString(memberId)}`]: 0 } })
+			.exec();
 		await this.messageModel
 			.updateMany({ conversationId, senderId: { $ne: memberId }, readAt: null }, { readAt: new Date() })
 			.exec();
@@ -148,20 +159,25 @@ export class MessageService {
 			.aggregate([
 				{ $match: { conversationId } },
 				{ $sort: { createdAt: -1 } },
-				{ $facet: { list: [{ $skip: (input.page - 1) * input.limit }, { $limit: input.limit }], metaCounter: [{ $count: 'total' }] } },
+				{
+					$facet: {
+						list: [{ $skip: (input.page - 1) * input.limit }, { $limit: input.limit }],
+						metaCounter: [{ $count: 'total' }],
+					},
+				},
 			])
 			.exec();
 		return result as ChatMessages;
 	}
 
 	public async getUnreadMessagesCount(memberId: ObjectId): Promise<number> {
-		const key = String(memberId);
+		const key = idString(memberId);
 		const [result] = await this.conversationModel
 			.aggregate([
 				{ $match: { participants: new Types.ObjectId(key), [`unread.${key}`]: { $gt: 0 } } },
 				{ $group: { _id: null, total: { $sum: `$unread.${key}` } } },
 			])
 			.exec();
-		return result?.total ?? 0;
+		return (result as { total?: number } | undefined)?.total ?? 0;
 	}
 }

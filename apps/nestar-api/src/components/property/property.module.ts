@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { PropertyResolver } from './property.resolver';
 import { PropertyService } from './property.service';
+import { PropertyPricingService } from './property-pricing.service';
+import { PropertyAlertsService } from './property-alerts.service';
 import PropertySchema from '../../schemas/Property.model';
 import SavedSearchSchema from '../../schemas/SavedSearch.model';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -25,7 +27,7 @@ import { LikeModule } from '../like/like.module';
 		MemberModule,
 		LikeModule,
 	],
-	providers: [PropertyResolver, PropertyService],
+	providers: [PropertyResolver, PropertyService, PropertyPricingService, PropertyAlertsService],
 	exports: [PropertyService],
 })
 export class PropertyModule {}
