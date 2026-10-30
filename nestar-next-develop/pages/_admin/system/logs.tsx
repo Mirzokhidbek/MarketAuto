@@ -40,6 +40,45 @@ const targetHref = (log: T): string | null => {
 };
 
 /** who did what and when: every admin action, kept for one year */
+const SETTING_LABELS: Record<string, string> = {
+	supportPhone: 'Support phone',
+	supportEmail: 'Support email',
+	telegramUrl: 'Telegram',
+	instagramUrl: 'Instagram',
+	facebookUrl: 'Facebook',
+};
+
+/**
+ * Human-readable details: saved settings as "Support phone: …" lines instead of raw JSON,
+ * a bare database id as a short "#a1b2c3" tag (the full id stays in the tooltip).
+ */
+const formatDetails = (details: string | undefined, t: (key: string) => string): React.ReactNode => {
+	if (!details) return '—';
+	if (/^[a-f0-9]{24}$/.test(details))
+		return (
+			<code className={'ma-admin-id'} title={details}>
+				#{details.slice(-6)}
+			</code>
+		);
+	if (details.startsWith('{')) {
+		try {
+			const entries = Object.entries(JSON.parse(details) as Record<string, unknown>);
+			return (
+				<span className={'ma-admin-kv'}>
+					{entries.map(([key, value]) => (
+						<span key={key}>
+							<b>{t(SETTING_LABELS[key] ?? key)}:</b> {String(value ?? '') || '—'}
+						</span>
+					))}
+				</span>
+			);
+		} catch {
+			return details;
+		}
+	}
+	return details;
+};
+
 const AdminLogs: NextPage = () => {
 	const { t } = useTranslation('common');
 	const [type, setType] = useState<string>('ALL');
@@ -70,7 +109,7 @@ const AdminLogs: NextPage = () => {
 				</List>
 				<Divider />
 				<TableContainer>
-					<Table sx={{ minWidth: 760 }}>
+					<Table sx={{ minWidth: 760 }} className={'ma-adm-cards'}>
 						<TableHead>
 							<TableRow>
 								<TableCell>{t('DATE')}</TableCell>
@@ -91,9 +130,11 @@ const AdminLogs: NextPage = () => {
 								const href = targetHref(log);
 								return (
 									<TableRow hover key={log._id}>
-										<TableCell sx={{ whiteSpace: 'nowrap' }}>{moment(log.createdAt).format('DD.MM.YYYY HH:mm')}</TableCell>
-										<TableCell>{log.adminData?.memberNick ?? '—'}</TableCell>
-										<TableCell>
+										<TableCell sx={{ whiteSpace: 'nowrap' }} data-label={t('DATE')}>
+											{moment(log.createdAt).format('DD.MM.YYYY HH:mm')}
+										</TableCell>
+										<TableCell data-label={t('ADMIN')}>{log.adminData?.memberNick ?? '—'}</TableCell>
+										<TableCell className={'ma-adm-cards__title'}>
 											{href ? (
 												<Link href={href} target={'_blank'}>
 													{t(`log_${log.action}`, { defaultValue: log.action })}
@@ -102,7 +143,9 @@ const AdminLogs: NextPage = () => {
 												t(`log_${log.action}`, { defaultValue: log.action })
 											)}
 										</TableCell>
-										<TableCell sx={{ maxWidth: 360, color: 'text.secondary' }}>{log.details ?? ''}</TableCell>
+										<TableCell sx={{ maxWidth: 360, color: 'text.secondary' }} data-label={t('DETAILS')}>
+											{formatDetails(log.details, t)}
+										</TableCell>
 									</TableRow>
 								);
 							})}

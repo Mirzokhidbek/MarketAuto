@@ -1,67 +1,55 @@
-import { imageUrl } from '../../utils';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
-import moment from 'moment';
-import { useMutation, useQuery } from '@apollo/client';
-import { Badge, Popover } from '@mui/material';
+import { useReactiveVar } from '@apollo/client';
+import { Badge, CircularProgress, Popover } from '@mui/material';
 import NotificationsOutlinedIcon from '@mui/icons-material/NotificationsOutlined';
-import { GET_NOTIFICATIONS } from '../../../apollo/user/query';
-import { MARK_NOTIFICATIONS_READ } from '../../../apollo/user/mutation';
-import { REACT_APP_API_URL } from '../../config';
+import NotificationsNoneRoundedIcon from '@mui/icons-material/NotificationsNoneRounded';
+import DoneAllRoundedIcon from '@mui/icons-material/DoneAllRounded';
+import { notificationPingVar } from '../../../apollo/store';
 import { T } from '../../types/common';
+import { sweetErrorHandling } from '../../sweetAlert';
+import NotificationItem from '../notifications/NotificationItem';
+import { groupByDate, notificationHref } from '../notifications/notificationMeta';
+import { useNotifications } from '../notifications/useNotifications';
 
-// translation key per notification type + group; {{name}} is the member who triggered it
-const messages: Record<string, string> = {
-	LIKE_PROPERTY: '{{name}} liked your car',
-	LIKE_ARTICLE: '{{name}} liked your article',
-	LIKE_MEMBER: '{{name}} liked your profile',
-	COMMENT_PROPERTY: '{{name}} commented on your car',
-	COMMENT_ARTICLE: '{{name}} commented on your article',
-	COMMENT_MEMBER: '{{name}} left a review on your profile',
-	FOLLOW_MEMBER: '{{name}} started following you',
-	LISTING_APPROVED_PROPERTY: 'Your listing was approved and is now visible',
-	LISTING_REJECTED_PROPERTY: 'Your listing was rejected by moderation',
-	NEW_LISTING_PROPERTY: 'New car for your saved search',
-	PRICE_DROP_PROPERTY: 'Price dropped on a car you saved',
-};
-
+/** header bell: the latest notifications, newest first, split by day; the full list lives on My Page */
 const NotificationBell = () => {
 	const router = useRouter();
 	const { t } = useTranslation('common');
 	const [anchor, setAnchor] = useState<HTMLElement | null>(null);
+	const [unreadOnly, setUnreadOnly] = useState(false);
+	const [ring, setRing] = useState(false);
+	const ping = useReactiveVar(notificationPingVar);
+	const firstPing = useRef(ping);
+	const { list, loading, unreadCount, markRead, remove } = useNotifications({ limit: 8, unreadOnly });
 
-	const { data, refetch } = useQuery(GET_NOTIFICATIONS, {
-		fetchPolicy: 'network-only',
-		variables: { input: { page: 1, limit: 10 } },
-		pollInterval: 30000,
-	});
-	const [markNotificationsRead] = useMutation(MARK_NOTIFICATIONS_READ);
+	// a new notification arrived over the socket: ring the bell once
+	useEffect(() => {
+		if (ping === firstPing.current) return;
+		setRing(true);
+		const timer = setTimeout(() => setRing(false), 1200);
+		return () => clearTimeout(timer);
+	}, [ping]);
 
-	const list: T[] = data?.getNotifications?.list ?? [];
-	const unread: number = data?.getNotifications?.unreadCount ?? 0;
+	const run = (action: () => Promise<unknown>) => action().catch((err) => sweetErrorHandling(err));
 
-	const openHandler = async (e: React.MouseEvent<HTMLElement>) => {
-		setAnchor(e.currentTarget);
-		if (unread > 0) {
-			await markNotificationsRead();
-			await refetch();
-		}
-	};
-
-	const goHandler = async (item: T) => {
+	const openItem = async (item: T) => {
 		setAnchor(null);
-		// a rejected listing is not public: send the seller to the list where it can be fixed
-		if (item.notificationType === 'LISTING_REJECTED') await router.push('/mypage?category=myProperties&status=REJECTED');
-		else if (item.propertyId) await router.push(`/property/detail?id=${item.propertyId}`);
-		else if (item.articleId) await router.push(`/community/detail?id=${item.articleId}`);
-		else await router.push(`/member?memberId=${item.authorId}`);
+		if (item.notificationStatus === 'WAIT') run(() => markRead([item._id]));
+		await router.push(notificationHref(item));
 	};
 
 	return (
 		<>
-			<button className={'ma-bell'} onClick={openHandler} aria-label={t('Notifications') as string} title={t('Notifications') as string}>
-				<Badge badgeContent={unread} color="error" max={99}>
+			<button
+				className={`ma-bell ${ring ? 'is-ringing' : ''}`}
+				onClick={(e) => setAnchor(e.currentTarget)}
+				aria-label={t('Notifications') as string}
+				title={t('Notifications') as string}
+			>
+				<Badge badgeContent={unreadCount} color="error" max={99}>
 					<NotificationsOutlinedIcon className={'notification-icon'} />
 				</Badge>
 			</button>
@@ -73,40 +61,72 @@ const NotificationBell = () => {
 				transformOrigin={{ vertical: 'top', horizontal: 'right' }}
 				PaperProps={{ className: 'ma-bell__panel' }}
 			>
-				<div className={'ma-bell__head'}>{t('Notifications')}</div>
-				{list.length ? (
-					list.map((item) => {
-						const author = item.authorData;
-						const name = author?.memberFullName || author?.memberNick || t('Someone');
-						const key = `${item.notificationType}_${item.notificationGroup}`;
-						return (
-							<button
-								key={item._id}
-								className={`ma-bell__item ${item.notificationStatus === 'WAIT' ? 'is-new' : ''}`}
-								onClick={() => goHandler(item)}
-							>
-								<img
-									src={author?.memberImage ? imageUrl(author.memberImage) : '/img/profile/defaultUser.svg'}
-									alt={''}
-								/>
-								<div>
-									<p>
-										{t(messages[key] ?? '{{name}}', { name })}
-										{item.notificationGroup !== 'MEMBER' && <strong> “{item.notificationTitle}”</strong>}
-									</p>
-									{item.notificationType === 'LISTING_REJECTED' && item.notificationDesc && (
-										<em className={'ma-bell__reason'}>
-											{t('Reason')}: {item.notificationDesc}
-										</em>
-									)}
-									<span>{moment(item.createdAt).fromNow()}</span>
-								</div>
-							</button>
-						);
-					})
-				) : (
-					<div className={'ma-bell__empty'}>{t('No notifications yet.')}</div>
-				)}
+				<div className={'ma-bell__head'}>
+					<div>
+						<strong>{t('Notifications')}</strong>
+						{unreadCount > 0 && <span className={'ma-bell__count'}>{t('{{count}} new', { count: unreadCount })}</span>}
+					</div>
+					<button
+						className={'ma-bell__link'}
+						disabled={!unreadCount}
+						onClick={() => run(() => markRead())}
+						title={t('Mark all as read') as string}
+						aria-label={t('Mark all as read') as string}
+					>
+						<DoneAllRoundedIcon /> <span>{t('Mark all as read')}</span>
+					</button>
+				</div>
+				<div className={'ma-bell__tabs'} role={'tablist'}>
+					{[false, true].map((value) => (
+						<button
+							key={String(value)}
+							role={'tab'}
+							aria-selected={unreadOnly === value}
+							className={unreadOnly === value ? 'is-active' : ''}
+							onClick={() => setUnreadOnly(value)}
+						>
+							{value ? t('Unread') : t('All')}
+							{value && unreadCount > 0 && <span>{unreadCount}</span>}
+						</button>
+					))}
+				</div>
+
+				<div className={'ma-bell__list'}>
+					{loading && !list.length ? (
+						<div className={'ma-bell__state'}>
+							<CircularProgress size={22} />
+						</div>
+					) : list.length ? (
+						groupByDate(list).map((group) => (
+							<section key={group.title}>
+								<h4 className={'ma-bell__group'}>{t(group.title)}</h4>
+								{group.items.map((item) => (
+									<NotificationItem
+										key={item._id}
+										item={item}
+										onOpen={openItem}
+										onMarkRead={(target) => run(() => markRead([target._id]))}
+										onRemove={(target) => run(() => remove([target._id]))}
+									/>
+								))}
+							</section>
+						))
+					) : (
+						<div className={'ma-bell__state'}>
+							<NotificationsNoneRoundedIcon />
+							<strong>{unreadOnly ? t('You are all caught up') : t('No notifications yet.')}</strong>
+							<span>
+								{unreadOnly
+									? t('New likes, comments and listing updates will appear here.')
+									: t('We will let you know about likes, comments, followers and your listings.')}
+							</span>
+						</div>
+					)}
+				</div>
+
+				<Link href={'/mypage?category=notifications'} className={'ma-bell__footer'} onClick={() => setAnchor(null)}>
+					{t('See all notifications')} →
+				</Link>
 			</Popover>
 		</>
 	);

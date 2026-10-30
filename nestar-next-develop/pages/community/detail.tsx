@@ -28,6 +28,7 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { BoardArticle } from '../../libs/types/board-article/board-article';
 import { CREATE_COMMENT, LIKE_TARGET_BOARD_ARTICLE, UPDATE_COMMENT } from '../../apollo/user/mutation';
 import { GET_BOARD_ARTICLE, GET_COMMENTS } from '../../apollo/user/query';
+import AdminRemoveComment from '../../libs/components/admin/AdminRemoveComment';
 import {
 	sweetConfirmAlert,
 	sweetMixinErrorAlert,
@@ -395,6 +396,14 @@ const CommunityDetail: NextPage = ({ initialInput, initialArticle, ...props }: T
 												>
 													{t('Delete')}
 												</button>
+											</span>
+										)}
+										{!isMine && (
+											<span className={'ma-comment__actions'}>
+												<AdminRemoveComment
+													commentId={commentData?._id}
+													onRemoved={() => getCommentsRefetch({ input: searchFilter })}
+												/>
 											</span>
 										)}
 									</div>

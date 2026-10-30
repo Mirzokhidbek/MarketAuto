@@ -1,8 +1,8 @@
 import { getJwtToken, hasSession, isTokenExpired, refreshAccessToken } from './auth';
-import { incomingMessageVar, socketVar, unreadMessagesVar, userVar } from '../apollo/store';
+import { incomingMessageVar, notificationPingVar, socketVar, unreadMessagesVar, userVar } from '../apollo/store';
 
 /**
- * One WebSocket per tab for live private messages. Connects only for logged-in members,
+ * One WebSocket per tab for live private messages and notifications. Connects only for logged-in members,
  * reconnects with a growing delay, and reconnects with the new token after login/refresh.
  * The token is sent as the first frame (not in the URL, where proxies would log it).
  */
@@ -42,6 +42,8 @@ export const connectSocket = async (): Promise<void> => {
 	current.onmessage = (event) => {
 		try {
 			const data = JSON.parse(event.data);
+			// a new notification: the bell and the notification page reload their list
+			if (data?.event === 'notification') return void notificationPingVar(notificationPingVar() + 1);
 			if (data?.event !== 'privateMessage') return;
 			incomingMessageVar(data);
 			if (String(data.message?.senderId) !== String(userVar()._id)) unreadMessagesVar(unreadMessagesVar() + 1);

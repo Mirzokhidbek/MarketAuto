@@ -405,3 +405,46 @@ export const GET_MESSAGES_BY_ADMIN = gql`
 		}
 	}
 `;
+
+/** the bell panel: the oldest waiting work of each kind (they have waited longest) */
+export const GET_ADMIN_WAITING = gql`
+	query GetAdminWaiting($cars: AllPropertiesInquiry!, $reports: ReportsInquiry!, $inquiries: NoticesInquiry!) {
+		getAllPropertiesByAdmin(input: $cars) {
+			list {
+				_id
+				propertyTitle
+				propertyImages
+				createdAt
+				memberData {
+					memberNick
+				}
+			}
+		}
+		getReportsByAdmin(input: $reports) {
+			list {
+				_id
+				reportReason
+				createdAt
+				memberData {
+					memberNick
+				}
+				propertyData {
+					_id
+					propertyTitle
+					propertyImages
+				}
+			}
+		}
+		getAllNoticesByAdmin(input: $inquiries) {
+			list {
+				_id
+				noticeTitle
+				createdAt
+				memberData {
+					memberNick
+					memberImage
+				}
+			}
+		}
+	}
+`;
