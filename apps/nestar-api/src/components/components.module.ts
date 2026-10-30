@@ -18,6 +18,7 @@ import { MessageModule } from './message/message.module';
 import { AdminLogModule } from './admin-log/admin-log.module';
 import { SettingModule } from './setting/setting.module';
 import { VerificationModule } from './verification/verification.module';
+import { ImportCostModule } from './import-cost/import-cost.module';
 
 @Module({
 	imports: [
@@ -40,6 +41,7 @@ import { VerificationModule } from './verification/verification.module';
 		MessageModule,
 		AdminLogModule,
 		SettingModule,
+		ImportCostModule,
 	],
 })
 export class ComponentsModule {}
