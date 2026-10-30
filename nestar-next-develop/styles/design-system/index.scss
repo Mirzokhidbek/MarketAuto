@@ -1,4 +1,4 @@
-/** MarketAuto redesign — loaded last, overrides the legacy theme **/
+/** CarPort redesign — loaded last, overrides the legacy theme **/
 
 /* ---------- shared primitives ---------- */
 .ma-container {
@@ -271,7 +271,7 @@
 		max-width: calc(100% - 48px);
 	}
 	.container .logo-box img {
-		width: 150px;
+		width: 190px;
 	}
 	.container .router-box {
 		width: auto;
@@ -946,7 +946,7 @@
 	}
 	&__brand {
 		img {
-			width: 170px;
+			width: 220px;
 			margin-bottom: 14px;
 		}
 		p {

@@ -110,7 +110,7 @@ const Join: NextPage = () => {
 		<div className={'ma-page ma-auth'}>
 			<div className={'ma-auth__card'}>
 				<div className={'ma-auth__brand'}>
-					<img src="/img/logo/logoWhite.svg" alt="MarketAuto" />
+					<img src="/img/logo/logo-white.png" alt="CarPort" />
 					<h2>{t('Buy and sell cars with confidence')}</h2>
 					<ul>
 						<li>{t('Cars from Uzbekistan and abroad in one place')}</li>
