@@ -78,7 +78,7 @@ const MemberReviews = () => {
 				</div>
 			)}
 			{reviews.length ? (
-				reviews.map((comment) => <ReviewItem comment={comment} key={comment._id} />)
+				reviews.map((comment) => <ReviewItem comment={comment} key={comment._id} onRemoved={refetch} />)
 			) : (
 				<div className={'ma-empty'}>{t('No reviews yet.')}</div>
 			)}

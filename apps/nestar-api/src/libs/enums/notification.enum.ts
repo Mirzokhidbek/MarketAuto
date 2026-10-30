@@ -29,3 +29,19 @@ export enum NotificationGroup {
 registerEnumType(NotificationGroup, {
 	name: 'NotificationGroup',
 });
+
+/** inbox tabs: which notification types each one shows */
+export enum NotificationCategory {
+	ACTIVITY = 'ACTIVITY', // likes, comments, reviews, new followers
+	LISTINGS = 'LISTINGS', // moderation of the member's own cars
+	ALERTS = 'ALERTS', // saved-search matches and price drops
+}
+registerEnumType(NotificationCategory, {
+	name: 'NotificationCategory',
+});
+
+export const NOTIFICATION_CATEGORY_TYPES: Record<NotificationCategory, NotificationType[]> = {
+	[NotificationCategory.ACTIVITY]: [NotificationType.LIKE, NotificationType.COMMENT, NotificationType.FOLLOW],
+	[NotificationCategory.LISTINGS]: [NotificationType.LISTING_APPROVED, NotificationType.LISTING_REJECTED],
+	[NotificationCategory.ALERTS]: [NotificationType.NEW_LISTING, NotificationType.PRICE_DROP],
+};

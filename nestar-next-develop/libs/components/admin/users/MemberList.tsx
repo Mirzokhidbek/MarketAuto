@@ -17,6 +17,7 @@ import {
 import Avatar from '@mui/material/Avatar';
 import Tooltip from '@mui/material/Tooltip';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import LockResetRoundedIcon from '@mui/icons-material/LockResetRounded';
 import Typography from '@mui/material/Typography';
 import { Stack, Switch } from '@mui/material';
 import { Member } from '../../../types/member/member';
@@ -137,6 +138,8 @@ function EnhancedTableHead(props: EnhancedTableProps) {
 						key={headCell.id}
 						align={headCell.numeric ? 'left' : 'center'}
 						padding={headCell.disablePadding ? 'none' : 'normal'}
+						// short headers stay on one line; the long switch headers may wrap so the table still fits
+						sx={{ whiteSpace: ['nickname', 'fullname', 'phone', 'state', 'actions'].includes(headCell.id) ? 'nowrap' : 'normal' }}
 					>
 						{headCell.hint ? (
 							<Tooltip title={t(headCell.hint) as string} arrow>
@@ -171,7 +174,7 @@ export const MemberPanelList = (props: MemberPanelListType) => {
 	return (
 		<Stack>
 			<TableContainer>
-				<Table sx={{ minWidth: 750 }} aria-labelledby="tableTitle" size={'medium'}>
+				<Table sx={{ minWidth: 750 }} aria-labelledby="tableTitle" size={'medium'} className={'ma-adm-cards'}>
 					{/*@ts-ignore*/}
 					<EnhancedTableHead />
 					<TableBody>
@@ -191,7 +194,7 @@ export const MemberPanelList = (props: MemberPanelListType) => {
 								return (
 									<TableRow hover key={member?._id} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
 
-										<TableCell align="left" className={'name'}>
+										<TableCell align="left" className={'name ma-adm-cards__title'}>
 											<Stack direction={'row'}>
 												<Link href={`/_admin/users/detail?id=${member._id}`}>
 													<div>
@@ -211,11 +214,19 @@ export const MemberPanelList = (props: MemberPanelListType) => {
 											</Stack>
 										</TableCell>
 
-										<TableCell align="center">{member.memberFullName || '—'}</TableCell>
-										<TableCell align="left" sx={{ whiteSpace: 'nowrap' }}>{member.memberPhone ? `+${member.memberPhone}` : '—'}</TableCell>
+										<TableCell align="center" data-label={t('FULL NAME')}>
+											{member.memberFullName || '—'}
+										</TableCell>
+										<TableCell align="left" sx={{ whiteSpace: 'nowrap' }} data-label={t('PHONE')}>
+											{member.memberPhone ? `+${member.memberPhone}` : '—'}
+										</TableCell>
 
-										<TableCell align="center">
-											<Button onClick={(e: any) => menuIconClickHandler(e, index)} className={'badge success'}>
+										<TableCell align="center" data-label={t('MEMBER TYPE')}>
+											<Button
+												onClick={(e: any) => menuIconClickHandler(e, index)}
+												className={'badge success'}
+												sx={{ whiteSpace: 'nowrap' }}
+											>
 												{t(`member_${member.memberType}`)}
 											</Button>
 
@@ -245,26 +256,34 @@ export const MemberPanelList = (props: MemberPanelListType) => {
 											</Menu>
 										</TableCell>
 
-										<TableCell align="center">{member.memberPhoneVerified ? '✓' : '—'}</TableCell>
-										<TableCell align="center">
-											{/* trusted sellers publish without moderation */}
-											<Switch
-												size="small"
-												checked={!!member.memberTrusted}
-												disabled={member.memberType === 'ADMIN'}
-												onChange={(e) => updateMemberHandler({ _id: member._id, memberTrusted: e.target.checked })}
-											/>
+										<TableCell align="center" data-label={t('PHONE CONFIRMED')}>
+											{member.memberPhoneVerified ? '✓' : '—'}
 										</TableCell>
-										<TableCell align="center">
-											{/* documents of the dealership were checked by the admin */}
-											<Switch
-												size="small"
-												checked={!!member.memberDealerVerified}
-												disabled={member.memberType !== 'AGENT'}
-												onChange={(e) => updateMemberHandler({ _id: member._id, memberDealerVerified: e.target.checked })}
-											/>
+										{/* trusted sellers publish without moderation; admins do not sell, so no switch for them */}
+										<TableCell align="center" data-label={t('TRUSTED')}>
+											{member.memberType === 'ADMIN' ? (
+												'—'
+											) : (
+												<Switch
+													size="small"
+													checked={!!member.memberTrusted}
+													onChange={(e) => updateMemberHandler({ _id: member._id, memberTrusted: e.target.checked })}
+												/>
+											)}
 										</TableCell>
-										<TableCell align="center">
+										{/* documents of the dealership were checked by the admin: dealers only */}
+										<TableCell align="center" data-label={t('VERIFIED DEALER')}>
+											{member.memberType === 'AGENT' ? (
+												<Switch
+													size="small"
+													checked={!!member.memberDealerVerified}
+													onChange={(e) => updateMemberHandler({ _id: member._id, memberDealerVerified: e.target.checked })}
+												/>
+											) : (
+												'—'
+											)}
+										</TableCell>
+										<TableCell align="center" data-label={t('STATUS')}>
 											<Button
 												onClick={(e: any) => menuIconClickHandler(e, member._id)}
 												className={`badge ${member.memberStatus === 'ACTIVE' ? 'success' : member.memberStatus === 'BLOCK' ? 'warning' : 'error'}`}
@@ -302,10 +321,20 @@ export const MemberPanelList = (props: MemberPanelListType) => {
 													))}
 											</Menu>
 										</TableCell>
-										<TableCell align="center">
-											<Button size="small" variant="outlined" onClick={() => resetPasswordHandler(member._id, member.memberNick)}>
-												{t('Reset password')}
-											</Button>
+										<TableCell align="center" className={'ma-adm-cards__actions'}>
+											{/* an icon on wide screens keeps the table within the page; the phone card shows the words too */}
+											<Tooltip title={t('Reset password') as string} arrow>
+												<Button
+													size="small"
+													variant="outlined"
+													aria-label={t('Reset password') as string}
+													className={'ma-adm-icon-btn'}
+													onClick={() => resetPasswordHandler(member._id, member.memberNick)}
+												>
+													<LockResetRoundedIcon fontSize="small" />
+													<span className={'ma-adm-icon-btn__text'}>{t('Reset password')}</span>
+												</Button>
+											</Tooltip>
 										</TableCell>
 									</TableRow>
 								);

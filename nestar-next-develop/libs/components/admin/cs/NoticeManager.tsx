@@ -37,6 +37,9 @@ import { REACT_APP_API_URL } from '../../../config';
 import AdminPageHeader from '../AdminPageHeader';
 import { T } from '../../../types/common';
 
+/** pill colours, shared with the other admin lists */
+const statusClass: Record<string, string> = { ACTIVE: 'success', HOLD: 'warning', DELETE: 'error' };
+
 type Category = 'FAQ' | 'NOTICE' | 'INQUIRY';
 
 interface NoticeManagerProps {
@@ -207,7 +210,7 @@ const NoticeManager = ({ category }: NoticeManagerProps) => {
 				</Stack>
 				<Divider />
 				<TableContainer>
-					<Table sx={{ minWidth: 750 }} size={'medium'}>
+					<Table sx={{ minWidth: 750 }} size={'medium'} className={'ma-adm-cards'}>
 						<TableHead>
 							<TableRow>
 								<TableCell>{t('TITLE')}</TableCell>
@@ -227,14 +230,14 @@ const NoticeManager = ({ category }: NoticeManagerProps) => {
 							)}
 							{list.map((item) => (
 								<TableRow hover key={item._id}>
-									<TableCell sx={{ maxWidth: 420 }}>
+									<TableCell sx={{ maxWidth: 420 }} className={'ma-adm-cards__title'}>
 										<strong>{item.noticeTitle}</strong>
 										<Typography variant="body2" color="text.secondary" noWrap>
 											{item.noticeContent}
 										</Typography>
 									</TableCell>
 									{isInquiry && (
-										<TableCell>
+										<TableCell data-label={t('WRITER')}>
 											<Stack direction="row" alignItems="center" gap={1}>
 												<img
 													className={'ma-admin-avatar'}
@@ -248,15 +251,19 @@ const NoticeManager = ({ category }: NoticeManagerProps) => {
 												<span>
 													{item.memberData?.memberNick ?? '-'}
 													<br />
-													<small>{item.memberData?.memberPhone}</small>
+													{/* the same "+998..." format as the Members page */}
+													{item.memberData?.memberPhone && <small>+{item.memberData.memberPhone}</small>}
 												</span>
 											</Stack>
 										</TableCell>
 									)}
-									<TableCell>{moment(item.createdAt).format('DD.MM.YYYY HH:mm')}</TableCell>
-									<TableCell align="center">
+									<TableCell data-label={t('DATE')}>{moment(item.createdAt).format('DD.MM.YYYY HH:mm')}</TableCell>
+									<TableCell align="center" data-label={t('STATUS')}>
+										{/* the same coloured status pill as on the Cars and Members pages */}
 										<Select
 											size="small"
+											sx={{ height: 32, minWidth: 140, maxWidth: 200 }}
+											className={`badge ${statusClass[item.noticeStatus] ?? ''}`}
 											value={item.noticeStatus}
 											onChange={(e) => statusHandler(item._id, e.target.value as string)}
 										>
@@ -267,11 +274,12 @@ const NoticeManager = ({ category }: NoticeManagerProps) => {
 											))}
 										</Select>
 									</TableCell>
-									<TableCell align="right">
+									<TableCell align="right" className={'ma-adm-cards__actions'}>
 										<Stack direction="row" gap={1} justifyContent="flex-end">
 											<Button
 												size="small"
 												variant="outlined"
+												sx={{ whiteSpace: 'nowrap' }}
 												onClick={() =>
 													setForm({
 														_id: item._id,

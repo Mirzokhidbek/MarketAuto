@@ -697,9 +697,14 @@ export const GET_MEMBER_FOLLOWINGS = gql`
  *************************/
 
 export const GET_NOTIFICATIONS = gql`
-	query GetNotifications($input: OrdinaryInquiry!) {
+	query GetNotifications($input: NotificationsInquiry!) {
 		getNotifications(input: $input) {
 			unreadCount
+			unreadByCategory {
+				activity
+				listings
+				alerts
+			}
 			list {
 				_id
 				notificationType

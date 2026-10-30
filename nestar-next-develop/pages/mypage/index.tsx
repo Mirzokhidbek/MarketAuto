@@ -15,6 +15,7 @@ import { userVar } from '../../apollo/store';
 import MyPageMenu from '../../libs/components/mypage/MyPageMenu';
 import MessagesPanel from '../../libs/components/mypage/MessagesPanel';
 import SavedSearches from '../../libs/components/mypage/SavedSearches';
+import NotificationsCenter from '../../libs/components/mypage/NotificationsCenter';
 import WriteArticle from '../../libs/components/mypage/WriteArticle';
 import MemberFollowers from '../../libs/components/member/MemberFollowers';
 import { sweetErrorHandling, sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../libs/sweetAlert';
@@ -123,6 +124,7 @@ const MyPage: NextPage = () => {
 		myProfile: <MyProfile />,
 		messages: <MessagesPanel />,
 		savedSearches: <SavedSearches />,
+		notifications: <NotificationsCenter />,
 		followers: <MemberFollowers {...followProps} />,
 		followings: <MemberFollowings {...followProps} />,
 	};
