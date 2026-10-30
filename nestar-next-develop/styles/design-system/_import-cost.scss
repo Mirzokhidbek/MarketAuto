@@ -1,0 +1,320 @@
+/** Import cost to Uzbekistan: car page section + one line in the price card **/
+
+// one colour per cost part, shared by the bar and the table markers
+$ma-import-parts: (
+	car: $ma-dark,
+	shipping: #64748b,
+	duty: $ma-primary,
+	excise: #7c3aed,
+	vat: #0891b2,
+	utilization: #f59e0b,
+	clearance: #94a3b8,
+);
+
+.ma-import {
+	font-family: $ma-font;
+
+	&__head {
+		display: flex;
+		align-items: flex-start;
+		justify-content: space-between;
+		gap: 16px;
+		h2 {
+			margin-bottom: 4px !important;
+		}
+		p {
+			margin: 0;
+			font-size: 13px;
+			color: $ma-muted;
+		}
+	}
+
+	&__live {
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+		flex-shrink: 0;
+		padding: 4px 10px;
+		border-radius: 999px;
+		background: #e6f4ea;
+		color: $ma-success;
+		font-size: 12px;
+		font-weight: 600;
+		white-space: nowrap;
+		i {
+			width: 7px;
+			height: 7px;
+			border-radius: 50%;
+			background: $ma-success;
+			animation: ma-import-pulse 2s ease-in-out infinite;
+		}
+	}
+
+	&__summary {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+		gap: 24px;
+		align-items: center;
+		margin: 20px 0 16px;
+		dl {
+			display: grid;
+			grid-template-columns: repeat(3, minmax(0, 1fr));
+			gap: 12px;
+			margin: 0;
+		}
+		dt {
+			font-size: 12px;
+			color: $ma-muted;
+		}
+		dd {
+			margin: 2px 0 0;
+			font-size: 15px;
+			font-weight: 600;
+			color: $ma-dark;
+			font-variant-numeric: tabular-nums;
+			&.is-extra {
+				color: #a05a00;
+			}
+			small {
+				font-weight: 500;
+				color: $ma-muted;
+			}
+		}
+	}
+
+	&__total {
+		display: flex;
+		flex-direction: column;
+		gap: 2px;
+		span {
+			font-size: 12px;
+			color: $ma-muted;
+		}
+		strong {
+			font-size: 28px;
+			line-height: 1.15;
+			letter-spacing: -0.02em;
+			color: $ma-dark;
+			font-variant-numeric: tabular-nums;
+		}
+		em {
+			font-style: normal;
+			font-size: 13px;
+			color: $ma-muted;
+		}
+	}
+
+	&__bar {
+		display: flex;
+		height: 10px;
+		overflow: hidden;
+		border-radius: 999px;
+		background: $ma-bg;
+		span {
+			min-width: 3px;
+			& + span {
+				border-left: 2px solid $ma-white;
+			}
+		}
+	}
+
+	@each $part, $color in $ma-import-parts {
+		&__bar .is-#{$part},
+		&__table i.is-#{$part} {
+			background: $color;
+		}
+	}
+
+	&__table {
+		width: 100%;
+		margin-top: 12px;
+		border-collapse: collapse;
+		font-size: 14px;
+		th,
+		td {
+			padding: 9px 0;
+			border-bottom: 1px solid $ma-border;
+			text-align: left;
+			font-weight: 400;
+			color: $ma-text;
+		}
+		th i {
+			display: inline-block;
+			width: 8px;
+			height: 8px;
+			margin-right: 10px;
+			border-radius: 2px;
+			vertical-align: 1px;
+		}
+		td:nth-child(2) {
+			padding: 9px 12px;
+			font-size: 12px;
+			color: $ma-muted;
+		}
+		td:last-child {
+			text-align: right;
+			white-space: nowrap;
+			font-weight: 600;
+			font-variant-numeric: tabular-nums;
+			color: $ma-dark;
+		}
+		tfoot th,
+		tfoot td {
+			border-bottom: none;
+			font-size: 15px;
+			font-weight: 700;
+			color: $ma-dark;
+		}
+	}
+
+	&__facts {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 6px 20px;
+		margin: 4px 0 16px;
+		padding: 0;
+		list-style: none;
+		font-size: 13px;
+		color: $ma-muted;
+		b {
+			color: $ma-dark;
+			font-weight: 600;
+		}
+	}
+
+	&__compare {
+		display: flex;
+		flex-direction: column;
+		gap: 2px;
+		padding: 12px 14px;
+		border-radius: $ma-radius;
+		background: $ma-bg;
+		font-size: 13px;
+		color: $ma-muted;
+		strong {
+			font-size: 15px;
+			color: $ma-dark;
+		}
+		&.is-cheaper {
+			background: #e6f4ea;
+			strong {
+				color: $ma-success;
+			}
+		}
+		&.is-more_expensive {
+			background: #fef7e0;
+			strong {
+				color: #a05a00;
+			}
+		}
+		&.is-similar {
+			background: $ma-primary-soft;
+			strong {
+				color: $ma-primary-dark;
+			}
+		}
+	}
+
+	&__warnings {
+		display: flex;
+		flex-direction: column;
+		gap: 6px;
+		margin: 14px 0 0;
+		padding: 0;
+		list-style: none;
+		li {
+			display: flex;
+			gap: 8px;
+			font-size: 13px;
+			line-height: 1.5;
+			color: $ma-text;
+		}
+		svg {
+			flex-shrink: 0;
+			margin-top: 1px;
+			color: #a05a00;
+		}
+	}
+
+	&__foot {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 4px 16px;
+		margin-top: 16px;
+		padding-top: 12px;
+		border-top: 1px dashed $ma-border-strong;
+		font-size: 12px;
+		color: $ma-muted;
+		p {
+			flex-basis: 100%;
+			margin: 0;
+		}
+	}
+}
+
+@keyframes ma-import-pulse {
+	50% {
+		opacity: 0.35;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.ma-import__live i {
+		animation: none;
+	}
+}
+
+// price card: "With customs in Uzbekistan ≈ $…", jumps to the section
+.ma-import-line {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 2px 8px;
+	margin: 8px 0 12px;
+	padding: 10px 12px;
+	border-radius: 10px;
+	border: 1px solid $ma-border;
+	font-size: 13px;
+	color: $ma-muted;
+	text-decoration: none;
+	strong {
+		margin-left: auto;
+		font-size: 15px;
+		color: $ma-dark;
+		white-space: nowrap;
+	}
+	&:hover {
+		border-color: $ma-primary;
+		strong {
+			color: $ma-primary;
+		}
+	}
+}
+
+@media (max-width: 900px) {
+	.ma-import {
+		&__head {
+			flex-direction: column;
+			gap: 8px;
+		}
+		&__summary {
+			grid-template-columns: 1fr;
+			gap: 14px;
+		}
+	}
+}
+
+@media (max-width: 480px) {
+	.ma-import {
+		&__summary dl {
+			grid-template-columns: 1fr 1fr;
+		}
+		&__total strong {
+			font-size: 24px;
+		}
+		&__table td:nth-child(2) {
+			display: none;
+		}
+	}
+}

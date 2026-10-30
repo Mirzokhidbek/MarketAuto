@@ -1,5 +1,6 @@
 import SellerTrust from '../../libs/components/seller/SellerTrust';
 import PriceEstimate from '../../libs/components/car/PriceEstimate';
+import ImportCostCard, { ImportCostLine } from '../../libs/components/car/ImportCost';
 import { fetchWithTimeout } from '../../libs/utils';
 import Lightbox from '../../libs/components/common/Lightbox';
 import ReportButton from '../../libs/components/common/ReportButton';
@@ -452,6 +453,7 @@ const PropertyDetail: NextPage = ({ carSeo }: any) => {
 							)}
 						</section>
 
+						<ImportCostCard propertyId={property._id} propertyPrice={property.propertyPrice} />
 					</div>
 
 					<aside className={'ma-detail__side'}>
@@ -460,6 +462,7 @@ const PropertyDetail: NextPage = ({ carSeo }: any) => {
 							<strong className={'ma-price-card__price'}>{price(property)}</strong>
 							<span className={'ma-price-card__other'}>≈ {otherPrice(property)}</span>
 							<PriceEstimate propertyId={property._id} />
+							<ImportCostLine propertyId={property._id} propertyPrice={property.propertyPrice} />
 							<div className={'ma-price-card__badges'}>
 								<span className={`ma-status ma-status--${property.propertyStatus.toLowerCase()}`}>
 									{t(property.propertyStatus === 'SOLD' ? 'Sold' : property.propertyStatus === 'PENDING' ? 'Under review' : 'For sale')}
