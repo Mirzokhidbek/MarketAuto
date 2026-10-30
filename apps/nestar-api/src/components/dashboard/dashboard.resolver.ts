@@ -26,7 +26,14 @@ export class DashboardResolver {
 		const rows = await this.propertyModel
 			.aggregate([
 				{ $match: { propertyStatus: PropertyStatus.ACTIVE } },
-				{ $group: { _id: '$memberId', cars: { $sum: 1 }, views: { $sum: '$propertyViews' }, likes: { $sum: '$propertyLikes' } } },
+				{
+					$group: {
+						_id: '$memberId',
+						cars: { $sum: 1 },
+						views: { $sum: '$propertyViews' },
+						likes: { $sum: '$propertyLikes' },
+					},
+				},
 				{ $sort: { cars: -1, views: -1 } },
 				{ $limit: limit },
 				{ $lookup: { from: 'members', localField: '_id', foreignField: '_id', as: 'member' } },
@@ -56,14 +63,23 @@ export class DashboardResolver {
 			const rows = await model
 				.aggregate([
 					{ $match: { ...match, createdAt: { $gte: since } } },
-					{ $group: { _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt', timezone: 'Asia/Tashkent' } }, count: { $sum: 1 } } },
+					{
+						$group: {
+							_id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt', timezone: 'Asia/Tashkent' } },
+							count: { $sum: 1 },
+						},
+					},
 				])
 				.exec();
 			return new Map(rows.map((row: any) => [row._id, row.count]));
 		};
 		const members = await perDay(this.memberModel, { memberType: { $ne: MemberType.ADMIN } });
 		const cars = await perDay(this.propertyModel, {});
-		return dates.map((date) => ({ date, members: (members.get(date) as number) ?? 0, cars: (cars.get(date) as number) ?? 0 }));
+		return dates.map((date) => ({
+			date,
+			members: (members.get(date) as number) ?? 0,
+			cars: (cars.get(date) as number) ?? 0,
+		}));
 	}
 
 	@Roles(MemberType.ADMIN)

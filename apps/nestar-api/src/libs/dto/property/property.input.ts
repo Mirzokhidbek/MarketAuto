@@ -1,5 +1,16 @@
 import { Field, InputType, Int } from '@nestjs/graphql';
-import { IsIn, IsInt, IsNotEmpty, IsOptional, Length, Max, Min, Matches, ArrayMaxSize, ArrayMinSize } from 'class-validator';
+import {
+	IsIn,
+	IsInt,
+	IsNotEmpty,
+	IsOptional,
+	Length,
+	Max,
+	Min,
+	Matches,
+	ArrayMaxSize,
+	ArrayMinSize,
+} from 'class-validator';
 import {
 	CarBrand,
 	CarCountry,

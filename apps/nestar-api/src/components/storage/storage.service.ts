@@ -1,3 +1,4 @@
+import { settings } from '../../libs/env';
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
@@ -7,12 +8,14 @@ import * as fs from 'fs';
 import * as path from 'path';
 import sharp from 'sharp';
 import { Message } from '../../libs/enums/common.enum';
-import { uploadTargets } from '../../libs/config';
+import { uploadTargets, idString } from '../../libs/config';
 
 // longest side after resizing: avatars are small, car photos keep enough detail for the gallery
 const MAX_SIZE: Record<string, number> = { member: 400, property: 1600, article: 1400, message: 1400 };
 // a stored file name: no folders, no "..", e.g. 3f2c...-9a.webp
 const FILE_NAME = /^[A-Za-z0-9_-][A-Za-z0-9._-]*$/;
+// uploader id in the file name: a Mongo ObjectId
+const OWNER_ID = /^[a-f0-9]{24}$/;
 const escapeRegex = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 /**
@@ -25,23 +28,17 @@ export class StorageService {
 	private readonly logger = new Logger('StorageService');
 	constructor(@InjectConnection() private readonly connection: Connection) {}
 
-	private readonly s3: S3Client | null = process.env.S3_BUCKET
+	private readonly s3: S3Client | null = settings.s3.bucket
 		? new S3Client({
-				region: process.env.S3_REGION ?? 'us-east-1',
-				endpoint: process.env.S3_ENDPOINT || undefined,
-				forcePathStyle: !!process.env.S3_ENDPOINT,
-				credentials: {
-					accessKeyId: process.env.S3_ACCESS_KEY ?? '',
-					secretAccessKey: process.env.S3_SECRET_KEY ?? '',
-				},
-		  })
+				region: settings.s3.region,
+				endpoint: settings.s3.endpoint,
+				forcePathStyle: !!settings.s3.endpoint,
+				credentials: { accessKeyId: settings.s3.accessKey, secretAccessKey: settings.s3.secretKey },
+			})
 		: null;
 
 	private publicBase(): string {
-		return (
-			process.env.S3_PUBLIC_URL ??
-			`https://${process.env.S3_BUCKET}.s3.${process.env.S3_REGION ?? 'us-east-1'}.amazonaws.com`
-		).replace(/\/$/, '');
+		return settings.s3.publicUrl.replace(/\/$/, '');
 	}
 
 	public async readStream(stream: NodeJS.ReadableStream): Promise<Buffer> {
@@ -50,8 +47,12 @@ export class StorageService {
 		return Buffer.concat(chunks);
 	}
 
-	/** resizes + converts to WebP; returns a relative path (local) or an absolute URL (S3) */
-	public async saveImage(input: Buffer, target: string): Promise<string> {
+	/**
+	 * resizes + converts to WebP; returns a relative path (local) or an absolute URL (S3).
+	 * The file name starts with the uploader's id ("<ownerId>_<uuid>.webp") so a listing, avatar, article or
+	 * message can only use photos its author uploaded (see isOwnPath).
+	 */
+	public async saveImage(input: Buffer, target: string, ownerId: unknown): Promise<string> {
 		if (!uploadTargets.includes(target)) throw new BadRequestException(Message.INVALID_UPLOAD_TARGET);
 		let output: Buffer;
 		try {
@@ -65,11 +66,13 @@ export class StorageService {
 			throw new BadRequestException(Message.PROVIDE_ALLOWED_FORMAT);
 		}
 
-		const key = `${target}/${randomUUID()}.webp`;
+		const owner = idString(ownerId);
+		if (!OWNER_ID.test(owner)) throw new BadRequestException(Message.UPLOAD_FAILED);
+		const key = `${target}/${owner}_${randomUUID()}.webp`;
 		if (this.s3) {
 			await this.s3.send(
 				new PutObjectCommand({
-					Bucket: process.env.S3_BUCKET,
+					Bucket: settings.s3.bucket,
 					Key: key,
 					Body: output,
 					ContentType: 'image/webp',
@@ -86,15 +89,20 @@ export class StorageService {
 	}
 
 	/**
-	 * true when the value points to a file in our storage folder for this target
-	 * ("uploads/property/<file>" or "<S3 base>/property/<file>"); member input must pass this check
+	 * true when the value points to a file that `ownerId` uploaded to our storage folder for this target
+	 * ("uploads/property/<ownerId>_<uuid>.webp" or "<S3 base>/property/<ownerId>_<uuid>.webp").
+	 * Member input must pass this check, so nobody can attach another member's photo (or an outside URL).
 	 */
-	public isOwnPath(image: unknown, target: string): boolean {
+	public isOwnPath(image: unknown, target: string, ownerId: unknown): boolean {
 		if (typeof image !== 'string' || !uploadTargets.includes(target)) return false;
+		const owner = idString(ownerId);
+		if (!OWNER_ID.test(owner)) return false;
 		const local = `uploads/${target}/`;
-		if (image.startsWith(local)) return FILE_NAME.test(image.slice(local.length));
 		const remote = this.s3 ? `${this.publicBase()}/${target}/` : null;
-		return !!remote && image.startsWith(remote) && FILE_NAME.test(image.slice(remote.length));
+		const base = image.startsWith(local) ? local : remote && image.startsWith(remote) ? remote : null;
+		if (!base) return false;
+		const name = image.slice(base.length);
+		return FILE_NAME.test(name) && name.startsWith(`${owner}_`);
 	}
 
 	/** some member, listing, message or article still shows this image */
@@ -125,7 +133,7 @@ export class StorageService {
 			if (await this.isReferenced(image)) return;
 			if (this.s3 && image.startsWith(this.publicBase() + '/')) {
 				const key = image.slice(this.publicBase().length + 1);
-				await this.s3.send(new DeleteObjectCommand({ Bucket: process.env.S3_BUCKET, Key: key }));
+				await this.s3.send(new DeleteObjectCommand({ Bucket: settings.s3.bucket, Key: key }));
 				return;
 			}
 			const normalized = path.normalize(image);

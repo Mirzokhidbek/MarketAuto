@@ -2,6 +2,7 @@ import { PriceEstimate } from '../../libs/dto/property/price-estimate';
 import { CarBrand } from '../../libs/enums/property.enum';
 import { Args, Int, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { PropertyService } from './property.service';
+import { PropertyPricingService } from './property-pricing.service';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { MemberType } from '../../libs/enums/member.enum';
 import { UseGuards } from '@nestjs/common';
@@ -23,7 +24,10 @@ import { AuthGuard } from '../auth/guards/auth.guard';
 
 @Resolver()
 export class PropertyResolver {
-	constructor(private readonly propertyService: PropertyService) {}
+	constructor(
+		private readonly propertyService: PropertyService,
+		private readonly pricingService: PropertyPricingService,
+	) {}
 
 	@Roles(MemberType.USER, MemberType.AGENT)
 	@UseGuards(RolesGuard)
@@ -156,6 +160,6 @@ export class PropertyResolver {
 
 	@Query(() => PriceEstimate)
 	public async getPriceEstimate(@Args('propertyId') input: string): Promise<PriceEstimate> {
-		return await this.propertyService.getPriceEstimate(shapeIntoMongoObjectId(input));
+		return await this.pricingService.getPriceEstimate(shapeIntoMongoObjectId(input));
 	}
 }

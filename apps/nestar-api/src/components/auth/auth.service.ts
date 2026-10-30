@@ -1,3 +1,4 @@
+import { settings } from '../../libs/env';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -10,7 +11,6 @@ import { JwtService } from '@nestjs/jwt';
 import { shapeIntoMongoObjectId } from '../../libs/config';
 import { createHash, randomBytes } from 'crypto';
 
-const REFRESH_TTL_DAYS = Number(process.env.REFRESH_TOKEN_DAYS ?? 30);
 const hashToken = (token: string) => createHash('sha256').update(token).digest('hex');
 // what the site needs before getMe answers: who is logged in, which role, which avatar
 export const TOKEN_CLAIMS = [
@@ -41,7 +41,7 @@ export class AuthService {
 			memberId: member._id,
 			tokenHash: hashToken(refreshToken),
 			userAgent: userAgent?.slice(0, 200),
-			expiresAt: new Date(Date.now() + REFRESH_TTL_DAYS * 24 * 60 * 60 * 1000),
+			expiresAt: new Date(Date.now() + settings.refreshTokenDays * 24 * 60 * 60 * 1000),
 		});
 		member.accessToken = await this.createToken(member);
 		member.refreshToken = refreshToken;
@@ -101,6 +101,6 @@ export class AuthService {
 		if (!member) throw new UnauthorizedException(Message.NOT_AUTHENTICATED);
 		if (member.memberStatus === MemberStatus.BLOCK) throw new UnauthorizedException(Message.BLOCKED_USER);
 		if (member.memberStatus !== MemberStatus.ACTIVE) throw new UnauthorizedException(Message.NOT_AUTHENTICATED);
-		return member as Member;
+		return member;
 	}
 }

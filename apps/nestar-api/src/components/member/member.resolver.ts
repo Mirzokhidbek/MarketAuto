@@ -2,7 +2,14 @@
 /* eslint-disable @typescript-eslint/no-base-to-string */
 import { Args, Context, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { MemberService } from './member.service';
-import { AdminCodeInput, AgentsInquiry, LoginInput, MemberInput, MembersInquiry, PasswordInput } from '../../libs/dto/member/member.input';
+import {
+	AdminCodeInput,
+	AgentsInquiry,
+	LoginInput,
+	MemberInput,
+	MembersInquiry,
+	PasswordInput,
+} from '../../libs/dto/member/member.input';
 import { MemberAdminDetail } from '../../libs/dto/member/member-admin';
 import { SuperAdminOnly } from '../auth/decorators/super-admin.decorator';
 import { Member, Members } from '../../libs/dto/member/member';
@@ -14,7 +21,8 @@ import { Roles } from '../auth/decorators/roles.decorator';
 import { MemberType } from '../../libs/enums/member.enum';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { MemberUpdate, pickSelfEditable } from '../../libs/dto/member/member.update';
-import { clientIp, shapeIntoMongoObjectId, uploadTargets, validMimeTypes } from '../../libs/config';
+import { clientIp, idString, shapeIntoMongoObjectId, uploadTargets, validMimeTypes } from '../../libs/config';
+import { limiters } from '../../libs/rate-limiter';
 import { StorageService } from '../storage/storage.service';
 import { ChangePhoneInput, CodeLoginInput, ResetPasswordInput } from '../../libs/dto/verification/verification';
 import { AuthService } from '../auth/auth.service';
@@ -80,8 +88,7 @@ export class MemberResolver {
 	@UseGuards(AuthGuard)
 	@Query(() => Member)
 	public async getMe(@AuthMember() authMember: Member): Promise<Member> {
-		const { authorization, ...member } = authMember as Member & { authorization?: string };
-		return member as Member;
+		return authMember;
 	}
 
 	@Mutation(() => Member)
@@ -96,7 +103,10 @@ export class MemberResolver {
 
 	@UseGuards(AuthGuard)
 	@Mutation(() => Member)
-	public async changePhone(@Args('input') input: ChangePhoneInput, @AuthMember('_id') memberId: ObjectId): Promise<Member> {
+	public async changePhone(
+		@Args('input') input: ChangePhoneInput,
+		@AuthMember('_id') memberId: ObjectId,
+	): Promise<Member> {
 		return await this.memberService.changePhone(memberId, input);
 	}
 
@@ -207,14 +217,16 @@ export class MemberResolver {
 		@Args({ name: 'file', type: () => GraphQLUpload })
 		{ createReadStream, filename, mimetype }: FileUpload,
 		@Args('target') target: string,
+		@AuthMember('_id') memberId: ObjectId,
 	): Promise<string> {
 		if (!filename) throw new BadRequestException(Message.UPLOAD_FAILED);
 		if (!validMimeTypes.includes(mimetype)) throw new BadRequestException(Message.PROVIDE_ALLOWED_FORMAT);
 		if (!uploadTargets.includes(target)) throw new BadRequestException(Message.INVALID_UPLOAD_TARGET);
+		limiters.uploads.consume(idString(memberId));
 
 		// compressed to WebP and stored locally or on S3 (see StorageService)
 		const buffer = await this.storageService.readStream(createReadStream());
-		return await this.storageService.saveImage(buffer, target);
+		return await this.storageService.saveImage(buffer, target, memberId);
 	}
 
 	@UseGuards(AuthGuard)
@@ -223,8 +235,11 @@ export class MemberResolver {
 		@Args('files', { type: () => [GraphQLUpload] })
 		files: Promise<FileUpload>[],
 		@Args('target') target: string,
+		@AuthMember('_id') memberId: ObjectId,
 	): Promise<string[]> {
 		if (!uploadTargets.includes(target)) throw new BadRequestException(Message.INVALID_UPLOAD_TARGET);
+		// every file counts: one call with 10 photos uses 10 of the hourly allowance
+		for (let i = 0; i < files.length; i++) limiters.uploads.consume(idString(memberId));
 
 		const uploadedImages: string[] = [];
 		await Promise.all(
@@ -233,7 +248,7 @@ export class MemberResolver {
 					const { mimetype, createReadStream } = await img;
 					if (!validMimeTypes.includes(mimetype)) throw new BadRequestException(Message.PROVIDE_ALLOWED_FORMAT);
 					const buffer = await this.storageService.readStream(createReadStream());
-					uploadedImages[index] = await this.storageService.saveImage(buffer, target);
+					uploadedImages[index] = await this.storageService.saveImage(buffer, target, memberId);
 				} catch (err) {
 					logger.warn(`Error, image skipped: ${err instanceof Error ? err.message : err}`);
 				}

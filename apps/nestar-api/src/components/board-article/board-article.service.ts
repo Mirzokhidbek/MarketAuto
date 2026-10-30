@@ -1,3 +1,4 @@
+import { StorageService } from '../storage/storage.service';
 import { NotificationService } from '../notification/notification.service';
 import { NotificationGroup, NotificationType } from '../../libs/enums/notification.enum';
 import { MemberStatus } from '../../libs/enums/member.enum';
@@ -46,10 +47,18 @@ export class BoardArticleService {
 		private readonly viewService: ViewService,
 		private readonly likeService: LikeService,
 		private readonly notificationService: NotificationService,
+		private readonly storageService: StorageService,
 	) {}
+
+	/** a new cover image must be the author's own upload (no outside URLs or other members' photos) */
+	private assertOwnCover(image: string | undefined, authorId: unknown, current?: string): void {
+		if (image && image !== current && !this.storageService.isOwnPath(image, 'article', authorId))
+			throw new BadRequestException(Message.BAD_REQUEST);
+	}
 
 	public async createBoardArticle(memberId: ObjectId, input: BoardArticleInput): Promise<BoardArticle> {
 		input.memberId = memberId;
+		this.assertOwnCover(input.articleImage, memberId);
 		input.articleContent = sanitizeArticleHtml(input.articleContent);
 		try {
 			const result = await this.boardArticleModel.create(input);
@@ -96,6 +105,10 @@ export class BoardArticleService {
 	public async updateBoardArticle(memberId: ObjectId, input: BoardArticleUpdate): Promise<BoardArticle> {
 		const { _id, articleStatus } = input;
 		if (input.articleContent !== undefined) input.articleContent = sanitizeArticleHtml(input.articleContent);
+		if (input.articleImage) {
+			const current = await this.boardArticleModel.findOne({ _id, memberId }).select('articleImage').lean().exec();
+			this.assertOwnCover(input.articleImage, memberId, current?.articleImage);
+		}
 
 		const result: BoardArticle | null = await this.boardArticleModel
 			.findOneAndUpdate({ _id: _id, memberId: memberId, articleStatus: BoardArticleStatus.ACTIVE }, input, {
@@ -222,6 +235,7 @@ export class BoardArticleService {
 		// admin may also restore a deleted article, so look it up in any status
 		const current = await this.boardArticleModel.findById(_id).lean().exec();
 		if (!current) throw new BadRequestException(Message.UPDATE_FAILED);
+		this.assertOwnCover(input.articleImage, current.memberId, current.articleImage);
 
 		const result = await this.boardArticleModel.findByIdAndUpdate(_id, input, { new: true }).exec();
 		if (!result) throw new BadRequestException(Message.UPDATE_FAILED);

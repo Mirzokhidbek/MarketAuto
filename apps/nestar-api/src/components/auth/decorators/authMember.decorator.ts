@@ -1,17 +1,12 @@
-/* eslint-disable @typescript-eslint/no-unsafe-return */
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
+import { AUTH_MEMBER_KEY, requestOf } from '../request-member';
 
-export const AuthMember = createParamDecorator((data: string, context: ExecutionContext | any) => {
-	let request: any;
-	if (context.contextType === 'graphql') {
-		request = context.getArgByIndex(2).req;
-		if (request.body.authMember) {
-			request.body.authMember.authorization = request.headers?.authorization;
-		}
-	} else request = context.switchToHttp().getRequest();
-
-	const member = request.body.authMember;
-
-	if (member) return data ? member?.[data] : member;
-	else return null;
+/**
+ * The member set by AuthGuard / RolesGuard / WithoutGuard (null for guests and unguarded resolvers).
+ * @AuthMember('_id') returns one field.
+ */
+export const AuthMember = createParamDecorator((field: string | undefined, context: ExecutionContext) => {
+	const member = requestOf(context)[AUTH_MEMBER_KEY] as Record<string, unknown> | null | undefined;
+	if (!member) return null;
+	return field ? member[field] : member;
 });

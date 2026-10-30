@@ -4,7 +4,7 @@ import { Model, ObjectId } from 'mongoose';
 import { Report, ReportInput, Reports, ReportsInquiry, ResolveReportInput } from '../../libs/dto/report/report';
 import { PropertyStatus, ReportStatus } from '../../libs/enums/property.enum';
 import { Message } from '../../libs/enums/common.enum';
-import { shapeIntoMongoObjectId, lookupMemberForAdmin } from '../../libs/config';
+import { shapeIntoMongoObjectId, lookupMemberForAdmin, idString } from '../../libs/config';
 import { limiters } from '../../libs/rate-limiter';
 import { PropertyService } from '../property/property.service';
 import { T } from '../../libs/types/common';
@@ -18,11 +18,11 @@ export class ReportService {
 	) {}
 
 	public async reportProperty(memberId: ObjectId, input: ReportInput): Promise<Report> {
-		limiters.reports.consume(String(memberId));
+		limiters.reports.consume(idString(memberId));
 		const propertyId = shapeIntoMongoObjectId(input.propertyId);
 		const property = await this.propertyModel.findById(propertyId).select('memberId').lean().exec();
 		if (!property) throw new NotFoundException(Message.NO_DATA_FOUND);
-		if (String(property.memberId) === String(memberId)) throw new BadRequestException(Message.NOT_ALLOWED_REQUEST);
+		if (idString(property.memberId) === idString(memberId)) throw new BadRequestException(Message.NOT_ALLOWED_REQUEST);
 		try {
 			return await this.reportModel.create({ ...input, propertyId, memberId });
 		} catch (err) {
@@ -62,7 +62,9 @@ export class ReportService {
 			await this.propertyService
 				.updatePropertyByAdmin({ _id: report.propertyId, propertyStatus: PropertyStatus.DELETE } as any)
 				.catch(() => undefined); // already deleted
-			await this.reportModel.updateMany({ propertyId: report.propertyId }, { reportStatus: ReportStatus.RESOLVED }).exec();
+			await this.reportModel
+				.updateMany({ propertyId: report.propertyId }, { reportStatus: ReportStatus.RESOLVED })
+				.exec();
 		} else {
 			report.reportStatus = ReportStatus.RESOLVED;
 			await report.save();

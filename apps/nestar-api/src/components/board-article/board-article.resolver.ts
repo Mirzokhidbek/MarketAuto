@@ -94,7 +94,14 @@ export class BoardArticleResolver {
 	): Promise<BoardArticle> {
 		input._id = shapeIntoMongoObjectId(input._id);
 		const result = await this.boardArticleService.updateBoardArticleByAdmin(input);
-		if (input.articleStatus) await this.adminLogService.log(memberId, `ARTICLE_${input.articleStatus}`, 'ARTICLE', result._id, result.articleTitle);
+		if (input.articleStatus)
+			await this.adminLogService.log(
+				memberId,
+				`ARTICLE_${input.articleStatus}`,
+				'ARTICLE',
+				result._id,
+				result.articleTitle,
+			);
 		return result;
 	}
 
