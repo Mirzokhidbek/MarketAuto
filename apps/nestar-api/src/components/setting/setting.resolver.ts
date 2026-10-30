@@ -39,12 +39,21 @@ export class SettingResolver {
 		@Args('input') input: SiteSettingsInput,
 		@AuthMember('_id') adminId: ObjectId,
 	): Promise<SiteSettings> {
+		// check every field first: a bad value must not leave the fields before it half saved
+		for (const key of KEYS) {
+			const value = input[key]?.trim();
+			if (!value) continue;
+			// links must be real web addresses (no javascript: etc.)
+			if (key.endsWith('Url') && !/^https:\/\/[^\s]+$/i.test(value)) throw new BadRequestException(Message.BAD_REQUEST);
+			// the same checks as the admin form, so a direct API call cannot store a broken contact
+			if (key === 'supportEmail' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value))
+				throw new BadRequestException(Message.BAD_REQUEST);
+			if (key === 'supportPhone' && !/^\+?[\d\s()-]{7,20}$/.test(value))
+				throw new BadRequestException(Message.BAD_REQUEST);
+		}
 		for (const key of KEYS) {
 			const value = input[key];
 			if (value === undefined) continue;
-			// links must be real web addresses (no javascript: etc.)
-			if (key.endsWith('Url') && value && !/^https:\/\/[^\s]+$/i.test(value))
-				throw new BadRequestException(Message.BAD_REQUEST);
 			await this.settingModel.updateOne({ key }, { key, value: value.trim() }, { upsert: true }).exec();
 		}
 		await this.adminLogService.log(adminId, 'SETTINGS_UPDATE', 'SETTINGS', undefined, JSON.stringify(input));

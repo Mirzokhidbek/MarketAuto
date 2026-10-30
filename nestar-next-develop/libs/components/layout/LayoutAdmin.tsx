@@ -11,7 +11,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import SearchIcon from '@mui/icons-material/Search';
 import NotificationsNoneRoundedIcon from '@mui/icons-material/NotificationsNoneRounded';
 import LightbulbOutlinedIcon from '@mui/icons-material/LightbulbOutlined';
-import MenuList from '../admin/AdminMenuList';
+import MenuList, { isSuperOnlyPath } from '../admin/AdminMenuList';
 import { getJwtToken, logOut, updateUserInfo } from '../../auth';
 import { userVar } from '../../../apollo/store';
 import { GET_ADMIN_BADGES } from '../../../apollo/admin/query';
@@ -25,13 +25,30 @@ const QUICK = [
 	{ label: 'Questions', href: '/_admin/cs/inquiry' },
 ];
 
-/** short reminders in the side card, one per day */
-const TIPS = [
-	'When you reject a car, write the reason: the seller can fix it and send it again.',
-	'Open a member to see all their cars, reports and chats in one place.',
-	'Select several cars with the checkboxes to approve or reject them at once.',
-	'Every admin action is written to the action log.',
+/** a reminder in the side card that fits the open page; pages without one show no card */
+const TIPS: { path: string; tips: string[] }[] = [
+	{
+		path: '/_admin/properties',
+		tips: [
+			'Select several cars with the checkboxes to approve or reject them at once.',
+			'When you reject a car, write the reason: the seller can fix it and send it again.',
+		],
+	},
+	{ path: '/_admin/users', tips: ['Open a member to see all their cars, reports and chats in one place.'] },
+	{ path: '/_admin/system/logs', tips: ['Every admin action is written to the action log.'] },
+	{
+		path: '/_admin',
+		tips: [
+			'When you reject a car, write the reason: the seller can fix it and send it again.',
+			'Every admin action is written to the action log.',
+		],
+	},
 ];
+
+const tipFor = (pathname: string): string | null => {
+	const page = TIPS.find((item) => (item.path === '/_admin' ? pathname === '/_admin' : pathname.startsWith(item.path)));
+	return page ? page.tips[new Date().getDate() % page.tips.length] : null;
+};
 
 const withAdminLayout = (Component: ComponentType) => {
 	return (props: object) => {
@@ -55,7 +72,9 @@ const withAdminLayout = (Component: ComponentType) => {
 			{ label: 'Questions from members', count: counts.inquiriesWaiting ?? 0, href: '/_admin/cs/inquiry' },
 		];
 		const waitingTotal = waiting.reduce((sum, item) => sum + item.count, 0);
-		const tip = TIPS[new Date().getDate() % TIPS.length];
+		const tip = tipFor(router.pathname);
+		// a moderator who opens a members / settings / log address directly is sent back to the dashboard
+		const forbidden = isAdmin && !isSuper && isSuperOnlyPath(router.pathname);
 
 		/** LIFECYCLES **/
 		useEffect(() => {
@@ -70,6 +89,10 @@ const withAdminLayout = (Component: ComponentType) => {
 			if (!getJwtToken()) router.replace(`/account/join?referrer=${encodeURIComponent(router.asPath)}`).then();
 			else router.replace('/').then();
 		}, [loading, user, router]);
+
+		useEffect(() => {
+			if (forbidden) router.replace('/_admin').then();
+		}, [forbidden, router]);
 
 		useEffect(() => {
 			setSideOpen(false);
@@ -87,7 +110,7 @@ const withAdminLayout = (Component: ComponentType) => {
 
 		const isQuickActive = (href: string) => (href === '/_admin' ? router.pathname === '/_admin' : router.pathname.startsWith(href));
 
-		if (!user || !isAdmin) return null;
+		if (!user || !isAdmin || forbidden) return null;
 
 		return (
 			<main id="pc-wrap" className={'admin ma-adm'}>
@@ -101,10 +124,12 @@ const withAdminLayout = (Component: ComponentType) => {
 						<img src={'/img/logo/logoDark.svg'} alt={'MarketAuto'} />
 					</Link>
 					<MenuList />
-					<div className={'ma-adm__tip'}>
-						<LightbulbOutlinedIcon />
-						<p>{t(tip)}</p>
-					</div>
+					{tip && (
+						<div className={'ma-adm__tip'}>
+							<LightbulbOutlinedIcon />
+							<p>{t(tip)}</p>
+						</div>
+					)}
 				</aside>
 				{sideOpen && <div className={'ma-adm__overlay'} onClick={() => setSideOpen(false)} />}
 
@@ -159,7 +184,8 @@ const withAdminLayout = (Component: ComponentType) => {
 							aria-label={t('Waiting work') as string}
 							title={t('Waiting work') as string}
 						>
-							<Badge color="error" variant={waitingTotal > 0 ? 'dot' : 'standard'} invisible={!waitingTotal}>
+							{/* how many things wait, not just a dot */}
+							<Badge color="error" badgeContent={waitingTotal} max={99} invisible={!waitingTotal}>
 								<NotificationsNoneRoundedIcon />
 							</Badge>
 						</button>
