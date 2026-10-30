@@ -1,3 +1,4 @@
+import { settings } from './env';
 import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { map, Observable } from 'rxjs';
@@ -9,18 +10,18 @@ import { map, Observable } from 'rxjs';
 export const REFRESH_COOKIE = 'ma_refresh';
 
 const cookieOptions = () => {
-	const sameSite = (process.env.COOKIE_SAMESITE ?? 'lax').toLowerCase() as 'lax' | 'strict' | 'none';
+	const sameSite = settings.cookieSameSite;
 	return {
 		httpOnly: true,
 		// SameSite=None is only accepted by browsers together with Secure
-		secure: process.env.NODE_ENV === 'production' || sameSite === 'none',
+		secure: settings.production || sameSite === 'none',
 		sameSite,
 		path: '/graphql',
 	};
 };
 
 export const setRefreshCookie = (res: any, token: string): void => {
-	const days = Number(process.env.REFRESH_TOKEN_DAYS ?? 30);
+	const days = settings.refreshTokenDays;
 	res?.cookie?.(REFRESH_COOKIE, token, { ...cookieOptions(), maxAge: days * 24 * 60 * 60 * 1000 });
 };
 
@@ -49,7 +50,7 @@ export class SessionCookieInterceptor implements NestInterceptor {
 	intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
 		const res = GqlExecutionContext.create(context).getContext()?.res;
 		return next.handle().pipe(
-			map((result: any) => {
+			map((result: { refreshToken?: unknown } | null | undefined): unknown => {
 				if (result && typeof result.refreshToken === 'string') {
 					setRefreshCookie(res, result.refreshToken);
 					result.refreshToken = null;

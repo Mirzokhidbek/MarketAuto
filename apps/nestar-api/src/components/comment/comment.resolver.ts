@@ -55,10 +55,19 @@ export class CommentResolver {
 	@Roles(MemberType.ADMIN)
 	@UseGuards(RolesGuard)
 	@Mutation((returns) => Comment)
-	public async removeCommentByAdmin(@Args('commentId') input: string, @AuthMember('_id') adminId: ObjectId): Promise<Comment> {
+	public async removeCommentByAdmin(
+		@Args('commentId') input: string,
+		@AuthMember('_id') adminId: ObjectId,
+	): Promise<Comment> {
 		const commentId = shapeIntoMongoObjectId(input);
 		const result = await this.commentService.removeCommentByAdmin(commentId);
-		await this.adminLogService.log(adminId, 'COMMENT_REMOVE', 'COMMENT', commentId, result.commentContent?.slice(0, 100));
+		await this.adminLogService.log(
+			adminId,
+			'COMMENT_REMOVE',
+			'COMMENT',
+			commentId,
+			result.commentContent?.slice(0, 100),
+		);
 		return result;
 	}
 }

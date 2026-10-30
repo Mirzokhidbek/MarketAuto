@@ -46,6 +46,9 @@ const signup = async (prefix, type = 'USER') => {
 	return { ...member, nick, phone, cookie, setCookie };
 };
 
+/** photo paths as the uploader would store them ("uploads/property/<memberId>_<uuid>.webp") */
+const ownPhotos = (memberId) => [1, 2, 3].map((n) => `"uploads/property/${memberId}_e2e-${n}.webp"`).join(',');
+
 const run = async () => {
 	// sign-up needs a valid SMS code
 	const wrongCode = await gql(
@@ -60,6 +63,14 @@ const run = async () => {
 	check('refresh token only in an httpOnly cookie', !seller.refreshToken && /HttpOnly/i.test(seller.setCookie.join(';')));
 	check('access token carries no phone', !!claims(seller.accessToken)._id && !claims(seller.accessToken).memberPhone);
 	check('getMe returns the profile', (await gql(`{getMe{memberPhone}}`, seller.accessToken)).data?.getMe?.memberPhone === seller.phone);
+
+	// the logged-in member comes only from the verified token, never from the request body
+	const forged = await fetch(API, {
+		method: 'POST',
+		headers: { 'content-type': 'application/json' },
+		body: JSON.stringify({ query: `{getMe{_id}}`, authMember: { _id: seller._id, memberType: 'ADMIN', memberStatus: 'ACTIVE' } }),
+	}).then((response) => response.json());
+	check('a member forged in the request body is ignored', !forged.data?.getMe && !!error(forged), error(forged));
 
 	// a member cannot give themselves admin rights or badges
 	await gql(`mutation{updateMember(input:{_id:"${buyer._id}",memberAdminRole:SUPER,memberDealerVerified:true,memberDesc:"hi"}){_id}}`, buyer.accessToken);
@@ -92,12 +103,19 @@ const run = async () => {
 
 	// moderation: first listing of a new seller waits for approval
 	const car = await gql(
-		`mutation{createProperty(input:{propertyType:SEDAN,carCountry:SOUTH_KOREA,propertyAddress:"Seoul",propertyTitle:"E2E Sonata",propertyPrice:15000,carBrand:HYUNDAI,carModel:"Sonata",carYear:2021,carMileage:40000,carFuel:PETROL,carTransmission:AUTOMATIC,carAccidentHistory:NONE,propertyImages:["uploads/property/x1.webp","uploads/property/x2.webp","uploads/property/x3.webp"]}){_id propertyStatus}}`,
+		`mutation{createProperty(input:{propertyType:SEDAN,carCountry:SOUTH_KOREA,propertyAddress:"Seoul",propertyTitle:"E2E Sonata",propertyPrice:15000,carBrand:HYUNDAI,carModel:"Sonata",carYear:2021,carMileage:40000,carFuel:PETROL,carTransmission:AUTOMATIC,carAccidentHistory:NONE,propertyImages:[${ownPhotos(seller._id)}]}){_id propertyStatus}}`,
 		token,
 	);
 	const carId = car.data?.createProperty?._id;
 	check('new seller listing is PENDING', car.data?.createProperty?.propertyStatus === 'PENDING', error(car));
 	check('pending listing is hidden from public', /No data/.test(error(await gql(`{getProperty(propertyId:"${carId}"){_id}}`))));
+
+	// another seller cannot reuse these photos for their own listing
+	const stolen = await gql(
+		`mutation{createProperty(input:{propertyType:SEDAN,carCountry:SOUTH_KOREA,propertyAddress:"Seoul",propertyTitle:"Copy",propertyPrice:9000,carBrand:HYUNDAI,carModel:"Sonata",carYear:2021,carMileage:41000,carFuel:PETROL,carTransmission:AUTOMATIC,carAccidentHistory:NONE,propertyImages:[${ownPhotos(seller._id)}]}){_id}}`,
+		buyer.accessToken,
+	);
+	check("another member's photos are rejected", !stolen.data?.createProperty && !!error(stolen), error(stolen));
 
 	// search text with regex characters must not crash
 	const special = await gql(`query($i:PropertiesInquiry!){getProperties(input:$i){metaCounter{total}}}`, null, {

@@ -1,3 +1,4 @@
+import { settings } from './libs/env';
 import * as Sentry from '@sentry/node';
 import { Message } from './libs/enums/common.enum';
 import { Logger, Module } from '@nestjs/common';
@@ -21,8 +22,8 @@ const graphqlLogger = new Logger('GraphQL');
 		GraphQLModule.forRoot<ApolloDriverConfig>({
 			driver: ApolloDriver,
 			// the GraphQL IDE and schema introspection are for development only
-			graphiql: process.env.NODE_ENV !== 'production',
-			introspection: process.env.NODE_ENV !== 'production',
+			graphiql: !settings.production,
+			introspection: !settings.production,
 			autoSchemaFile: true,
 			validationRules: [depthLimit(MAX_QUERY_DEPTH)],
 			// res is needed to set/clear the refresh-token cookie
@@ -44,7 +45,7 @@ const graphqlLogger = new Logger('GraphQL');
 				// expected business errors (validation, wrong password...) carry a known message; log and report the rest
 				const known = (Object.values(Message) as string[]).includes(String(graphqlFormattedError.message));
 				if (!known) graphqlLogger.warn(`${graphqlFormattedError.extensions.code}: ${graphqlFormattedError.message}`);
-				if (process.env.SENTRY_DSN && !known && graphqlFormattedError.extensions.code === 'INTERNAL_SERVER_ERROR')
+				if (settings.sentryDsn && !known && graphqlFormattedError.extensions.code === 'INTERNAL_SERVER_ERROR')
 					Sentry.captureException(error);
 				return graphqlFormattedError;
 			},

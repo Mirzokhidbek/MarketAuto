@@ -29,7 +29,10 @@ export class MessageResolver {
 
 	@UseGuards(AuthGuard)
 	@Mutation(() => ChatMessage)
-	public async sendMessage(@Args('input') input: SendMessageInput, @AuthMember('_id') memberId: ObjectId): Promise<ChatMessage> {
+	public async sendMessage(
+		@Args('input') input: SendMessageInput,
+		@AuthMember('_id') memberId: ObjectId,
+	): Promise<ChatMessage> {
 		return await this.messageService.sendMessage(memberId, input);
 	}
 
@@ -44,7 +47,10 @@ export class MessageResolver {
 
 	@UseGuards(AuthGuard)
 	@Query(() => ChatMessages)
-	public async getMessages(@Args('input') input: MessagesInquiry, @AuthMember('_id') memberId: ObjectId): Promise<ChatMessages> {
+	public async getMessages(
+		@Args('input') input: MessagesInquiry,
+		@AuthMember('_id') memberId: ObjectId,
+	): Promise<ChatMessages> {
 		return await this.messageService.getMessages(memberId, input);
 	}
 
@@ -72,7 +78,10 @@ export class MessageResolver {
 	@SuperAdminOnly()
 	@UseGuards(RolesGuard)
 	@Query(() => ChatMessages)
-	public async getMessagesByAdmin(@Args('input') input: MessagesInquiry, @AuthMember('_id') adminId: ObjectId): Promise<ChatMessages> {
+	public async getMessagesByAdmin(
+		@Args('input') input: MessagesInquiry,
+		@AuthMember('_id') adminId: ObjectId,
+	): Promise<ChatMessages> {
 		await this.adminLogService.log(adminId, 'CHAT_VIEW', 'CHAT', input.conversationId);
 		return await this.messageService.getMessagesByAdmin(input);
 	}

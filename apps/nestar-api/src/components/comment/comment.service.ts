@@ -81,16 +81,28 @@ export class CommentService {
 	): Promise<{ ownerId: ObjectId; title: string; group: NotificationGroup }> {
 		switch (group) {
 			case CommentGroup.PROPERTY: {
-				const property = await this.propertyService.propertyStatsEditor({ _id: refId, targetKey: 'propertyComments', modifier });
+				const property = await this.propertyService.propertyStatsEditor({
+					_id: refId,
+					targetKey: 'propertyComments',
+					modifier,
+				});
 				return { ownerId: property.memberId, title: property.propertyTitle, group: NotificationGroup.PROPERTY };
 			}
 			case CommentGroup.ARTICLE: {
-				const article = await this.boardArticleService.boardArticleStatsEditor({ _id: refId, targetKey: 'articleComments', modifier });
+				const article = await this.boardArticleService.boardArticleStatsEditor({
+					_id: refId,
+					targetKey: 'articleComments',
+					modifier,
+				});
 				if (!article) throw new NotFoundException(Message.NO_DATA_FOUND);
 				return { ownerId: article.memberId, title: article.articleTitle, group: NotificationGroup.ARTICLE };
 			}
 			default: {
-				const member = await this.memberService.memberStatsEditor({ _id: refId, targetKey: 'memberComments', modifier });
+				const member = await this.memberService.memberStatsEditor({
+					_id: refId,
+					targetKey: 'memberComments',
+					modifier,
+				});
 				return { ownerId: member._id, title: member.memberNick, group: NotificationGroup.MEMBER };
 			}
 		}

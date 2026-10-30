@@ -1,3 +1,4 @@
+import { idString } from '../../libs/config';
 import { AdminLogService } from '../admin-log/admin-log.service';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
@@ -19,7 +20,10 @@ export class ReportResolver {
 
 	@UseGuards(AuthGuard)
 	@Mutation(() => Report)
-	public async reportProperty(@Args('input') input: ReportInput, @AuthMember('_id') memberId: ObjectId): Promise<Report> {
+	public async reportProperty(
+		@Args('input') input: ReportInput,
+		@AuthMember('_id') memberId: ObjectId,
+	): Promise<Report> {
 		return await this.reportService.reportProperty(memberId, input);
 	}
 
@@ -38,7 +42,13 @@ export class ReportResolver {
 		@AuthMember('_id') adminId: ObjectId,
 	): Promise<Report> {
 		const result = await this.reportService.resolveReport(input);
-		await this.adminLogService.log(adminId, `REPORT_${input.action}`, 'REPORT', input.reportId, String(result.propertyId));
+		await this.adminLogService.log(
+			adminId,
+			`REPORT_${input.action}`,
+			'REPORT',
+			input.reportId,
+			idString(result.propertyId),
+		);
 		return result;
 	}
 }

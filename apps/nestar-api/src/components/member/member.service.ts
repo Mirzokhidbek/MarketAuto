@@ -1,11 +1,26 @@
+import { settings } from '../../libs/env';
 import { StorageService } from '../storage/storage.service';
 import { NotificationService } from '../notification/notification.service';
 import { NotificationGroup, NotificationType } from '../../libs/enums/notification.enum';
-import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException, ForbiddenException, Logger } from '@nestjs/common';
+import {
+	BadRequestException,
+	Injectable,
+	InternalServerErrorException,
+	NotFoundException,
+	ForbiddenException,
+	Logger,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, ObjectId } from 'mongoose';
 import { Member, Members } from '../../libs/dto/member/member';
-import { AdminCodeInput, AgentsInquiry, LoginInput, MemberInput, MembersInquiry, PasswordInput } from '../../libs/dto/member/member.input';
+import {
+	AdminCodeInput,
+	AgentsInquiry,
+	LoginInput,
+	MemberInput,
+	MembersInquiry,
+	PasswordInput,
+} from '../../libs/dto/member/member.input';
 import { ChangePhoneInput, CodeLoginInput, ResetPasswordInput } from '../../libs/dto/verification/verification';
 import { VerificationService } from '../verification/verification.service';
 import { isValidPhone, limiters, normalizePhone } from '../../libs/rate-limiter';
@@ -22,7 +37,7 @@ import { LikeInput } from '../../libs/dto/like/like.input';
 import { LikeGroup } from '../../libs/enums/like.enum';
 import { LikeService } from '../like/like.service';
 import { Follower, Following, MeFollowed } from '../../libs/dto/follow/follow';
-import { lookupAuthMemberLiked, searchRegex } from '../../libs/config';
+import { lookupAuthMemberLiked, searchRegex, idString } from '../../libs/config';
 import { SocketGateway } from '../../socket/socket.gateway';
 
 const logger = new Logger('MemberService');
@@ -104,7 +119,7 @@ export class MemberService {
 		if (response.memberStatus === MemberStatus.BLOCK) throw new ForbiddenException(blockedMessage(response));
 
 		// admins: the password is only the first step, an SMS code to the admin phone is the second
-		if (response.memberType === MemberType.ADMIN && process.env.ADMIN_2FA !== 'off') {
+		if (response.memberType === MemberType.ADMIN && settings.adminTwoFactor) {
 			const sent = await this.verificationService.requestCode(response.memberPhone, VerificationPurpose.ADMIN_2FA, ip);
 			// the password was right: member fields are returned (the schema needs them), tokens are not
 			const { memberPassword, ...member } = (response as T).toObject();
@@ -115,7 +130,9 @@ export class MemberService {
 
 	/** second step of an admin login */
 	public async verifyAdminLogin(input: AdminCodeInput, userAgent?: string): Promise<Member> {
-		const member = await this.memberModel.findOne({ memberNick: input.memberNick, memberType: MemberType.ADMIN }).exec();
+		const member = await this.memberModel
+			.findOne({ memberNick: input.memberNick, memberType: MemberType.ADMIN })
+			.exec();
 		if (!member || member.memberStatus !== MemberStatus.ACTIVE) throw new BadRequestException(Message.WRONG_CODE);
 		await this.verificationService.consumeCode(member.memberPhone, VerificationPurpose.ADMIN_2FA, input.code);
 		return await this.authService.issueTokens(member, userAgent);
@@ -150,7 +167,11 @@ export class MemberService {
 
 	/** a new phone number is accepted only with the SMS code sent to that number */
 	public async changePhone(memberId: ObjectId, input: ChangePhoneInput): Promise<Member> {
-		const memberPhone = await this.verificationService.consumeCode(input.phone, VerificationPurpose.CHANGE_PHONE, input.code);
+		const memberPhone = await this.verificationService.consumeCode(
+			input.phone,
+			VerificationPurpose.CHANGE_PHONE,
+			input.code,
+		);
 		try {
 			const result = await this.memberModel
 				.findOneAndUpdate(
@@ -171,7 +192,11 @@ export class MemberService {
 	public async updateMember(memberId: ObjectId, input: Partial<MemberUpdate>): Promise<Member> {
 		const previous = await this.memberModel.findById(memberId).select('memberImage').lean().exec();
 		// a new avatar must be a file uploaded to our member folder, not a path to someone else's photo
-		if (input.memberImage && input.memberImage !== previous?.memberImage && !this.storageService.isOwnPath(input.memberImage, 'member'))
+		if (
+			input.memberImage &&
+			input.memberImage !== previous?.memberImage &&
+			!this.storageService.isOwnPath(input.memberImage, 'member', memberId)
+		)
 			throw new BadRequestException(Message.BAD_REQUEST);
 		const result: Member | null = await this.memberModel
 			.findOneAndUpdate(
@@ -286,7 +311,7 @@ export class MemberService {
 	}
 
 	public async likeTargetMember(memberId: ObjectId, likeRefId: ObjectId): Promise<Member> {
-		if (String(memberId) === String(likeRefId)) throw new BadRequestException(Message.SELF_LIKE_DENIED);
+		if (idString(memberId) === idString(likeRefId)) throw new BadRequestException(Message.SELF_LIKE_DENIED);
 		const target: Member | null = await this.memberModel
 			.findOne({ _id: likeRefId, memberStatus: MemberStatus.ACTIVE })
 			.exec();
@@ -324,7 +349,10 @@ export class MemberService {
 		if (memberType) match.memberType = memberType;
 		if (text) {
 			// nick, name or (4+ digits) part of the phone number
-			const or: T[] = [{ memberNick: { $regex: searchRegex(text) } }, { memberFullName: { $regex: searchRegex(text) } }];
+			const or: T[] = [
+				{ memberNick: { $regex: searchRegex(text) } },
+				{ memberFullName: { $regex: searchRegex(text) } },
+			];
 			const digits = text.replace(/\D/g, '');
 			if (digits.length >= 4) or.push({ memberPhone: { $regex: digits } });
 			match.$or = or;
@@ -363,7 +391,7 @@ export class MemberService {
 		// a new password, block or delete ends every session of that member
 		if (input.memberPassword || (input.memberStatus && input.memberStatus !== MemberStatus.ACTIVE)) {
 			await this.authService.revokeAllSessions(input._id);
-			this.socketGateway.disconnectMember(String(input._id));
+			this.socketGateway.disconnectMember(idString(input._id));
 		}
 		const result: Member | null = await this.memberModel
 			.findOneAndUpdate({ _id: input._id }, input, { new: true })
@@ -374,14 +402,23 @@ export class MemberService {
 		const changes: [string, string | undefined][] = [];
 		if (input.memberStatus && input.memberStatus !== before.memberStatus)
 			changes.push([`MEMBER_${input.memberStatus}`, input.memberBlockReason]);
-		if (input.memberType && input.memberType !== before.memberType) changes.push(['MEMBER_TYPE', `${before.memberType} -> ${input.memberType}`]);
-		if (input.memberAdminRole && input.memberAdminRole !== before.memberAdminRole) changes.push(['MEMBER_ADMIN_ROLE', input.memberAdminRole]);
+		if (input.memberType && input.memberType !== before.memberType)
+			changes.push(['MEMBER_TYPE', `${before.memberType} -> ${input.memberType}`]);
+		if (input.memberAdminRole && input.memberAdminRole !== before.memberAdminRole)
+			changes.push(['MEMBER_ADMIN_ROLE', input.memberAdminRole]);
 		if (input.memberPassword) changes.push(['MEMBER_PASSWORD_RESET', undefined]);
-		if (input.memberTrusted !== undefined && input.memberTrusted !== before.memberTrusted) changes.push(['MEMBER_TRUSTED', String(input.memberTrusted)]);
+		if (input.memberTrusted !== undefined && input.memberTrusted !== before.memberTrusted)
+			changes.push(['MEMBER_TRUSTED', String(input.memberTrusted)]);
 		if (input.memberDealerVerified !== undefined && input.memberDealerVerified !== before.memberDealerVerified)
 			changes.push(['MEMBER_DEALER_VERIFIED', String(input.memberDealerVerified)]);
 		for (const [action, details] of changes)
-			await this.adminLogService.log(adminId, action, 'MEMBER', result._id, `${result.memberNick}${details ? ': ' + details : ''}`);
+			await this.adminLogService.log(
+				adminId,
+				action,
+				'MEMBER',
+				result._id,
+				`${result.memberNick}${details ? ': ' + details : ''}`,
+			);
 		return result;
 	}
 
@@ -390,11 +427,20 @@ export class MemberService {
 		const member = await this.memberModel.findById(memberId).lean().exec();
 		if (!member) throw new NotFoundException(Message.NO_DATA_FOUND);
 		const db = this.memberModel.db;
-		const cars = await db.collection('properties').aggregate([{ $match: { memberId: member._id } }, { $group: { _id: '$propertyStatus', count: { $sum: 1 } } }]).toArray();
-		const carIds = (await db.collection('properties').find({ memberId: member._id }, { projection: { _id: 1 } }).toArray()).map((car: any) => car._id);
-		const count = (status: string) => cars.find((row: any) => row._id === status)?.count ?? 0;
+		const cars = await db
+			.collection('properties')
+			.aggregate([{ $match: { memberId: member._id } }, { $group: { _id: '$propertyStatus', count: { $sum: 1 } } }])
+			.toArray();
+		const carIds = (
+			await db
+				.collection('properties')
+				.find({ memberId: member._id }, { projection: { _id: 1 } })
+				.toArray()
+		).map((car) => car._id);
+		const count = (status: string): number =>
+			(cars.find((row) => row._id === status)?.count as number | undefined) ?? 0;
 		return {
-			member: member as Member,
+			member: member,
 			carsActive: count('ACTIVE'),
 			carsPending: count('PENDING'),
 			carsRejected: count('REJECTED'),
@@ -402,9 +448,13 @@ export class MemberService {
 			carsDeleted: count('DELETE'),
 			reportsAgainst: await db.collection('reports').countDocuments({ propertyId: { $in: carIds } }),
 			reportsMade: await db.collection('reports').countDocuments({ memberId: member._id }),
-			reviewsReceived: await db.collection('comments').countDocuments({ commentRefId: member._id, commentStatus: 'ACTIVE' }),
+			reviewsReceived: await db
+				.collection('comments')
+				.countDocuments({ commentRefId: member._id, commentStatus: 'ACTIVE' }),
 			conversations: await db.collection('conversations').countDocuments({ participants: member._id }),
-			activeSessions: await db.collection('sessions').countDocuments({ memberId: member._id, expiresAt: { $gt: new Date() } }),
+			activeSessions: await db
+				.collection('sessions')
+				.countDocuments({ memberId: member._id, expiresAt: { $gt: new Date() } }),
 		};
 	}
 

@@ -3,7 +3,13 @@ import { BulkModerationInput } from '../../libs/dto/property/property.update';
 import { StorageService } from '../storage/storage.service';
 import { NotificationService } from '../notification/notification.service';
 import { NotificationGroup, NotificationType } from '../../libs/enums/notification.enum';
-import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException, Logger } from '@nestjs/common';
+import {
+	BadRequestException,
+	Injectable,
+	InternalServerErrorException,
+	NotFoundException,
+	Logger,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, ObjectId } from 'mongoose';
 import { MemberService } from '../member/member.service';
@@ -17,14 +23,21 @@ import {
 import { Properties, Property } from '../../libs/dto/property/property';
 import { Direction, Message } from '../../libs/enums/common.enum';
 import { ViewService } from '../view/view.service';
-import { CarAccidentHistory, CarBrand, CarCountry, PriceCurrency, PropertyStatus } from '../../libs/enums/property.enum';
-import { ExchangeService } from '../exchange/exchange.service';
-import { PriceEstimate } from '../../libs/dto/property/price-estimate';
+import { CarBrand, CarCountry, PropertyStatus } from '../../libs/enums/property.enum';
+import { PropertyPricingService } from './property-pricing.service';
+import { PropertyAlertsService } from './property-alerts.service';
+import { shapePropertyMatch } from './property.query';
 import { StatisticModifier, T } from '../../libs/types/common';
 import { ViewGroup } from '../../libs/enums/view.enum';
 import { PropertyUpdate } from '../../libs/dto/property/property.update';
 import moment from 'moment';
-import { lookupAuthMemberLiked, lookupMember, lookupMemberForAdmin, shapeIntoMongoObjectId, searchRegex } from '../../libs/config';
+import {
+	lookupAuthMemberLiked,
+	lookupMember,
+	lookupMemberForAdmin,
+	shapeIntoMongoObjectId,
+	searchRegex,
+} from '../../libs/config';
 import { LikeService } from '../like/like.service';
 import { LikeInput } from '../../libs/dto/like/like.input';
 import { LikeGroup } from '../../libs/enums/like.enum';
@@ -40,9 +53,9 @@ export class PropertyService {
 		private likeService: LikeService,
 		private notificationService: NotificationService,
 		private storageService: StorageService,
-		private exchangeService: ExchangeService,
+		private pricing: PropertyPricingService,
+		private alerts: PropertyAlertsService,
 		private adminLogService: AdminLogService,
-		@InjectModel('SavedSearch') private readonly savedSearchModel: Model<any>,
 	) {}
 
 	public async createProperty(input: PropertyInput): Promise<Property> {
@@ -52,9 +65,9 @@ export class PropertyService {
 		if (input.carCountry !== CarCountry.UZBEKISTAN) delete input.propertyLocation;
 		if (input.carVin) input.carVin = input.carVin.toUpperCase();
 		// photos must be files uploaded to our property folder (not paths to other sellers' photos)
-		if (input.propertyImages?.some((image) => !this.storageService.isOwnPath(image, 'property')))
+		if (input.propertyImages?.some((image) => !this.storageService.isOwnPath(image, 'property', input.memberId)))
 			throw new BadRequestException(Message.BAD_REQUEST);
-		await this.normalizePrice(input);
+		await this.pricing.normalizePrice(input);
 
 		// the same seller cannot publish the same car twice
 		const duplicate = await this.propertyModel.exists({
@@ -79,7 +92,7 @@ export class PropertyService {
 		}
 		if (propertyStatus === PropertyStatus.ACTIVE) {
 			await this.memberService.memberStatsEditor({ _id: result.memberId, targetKey: 'memberProperties', modifier: 1 });
-			void this.notifySavedSearches(result);
+			void this.alerts.notifySavedSearches(result);
 		}
 		return result;
 	}
@@ -94,8 +107,8 @@ export class PropertyService {
 				...(isAdmin
 					? [{ propertyStatus: { $in: [PropertyStatus.PENDING, PropertyStatus.REJECTED] } }]
 					: memberId
-					? [{ propertyStatus: { $in: [PropertyStatus.PENDING, PropertyStatus.REJECTED] }, memberId }]
-					: []),
+						? [{ propertyStatus: { $in: [PropertyStatus.PENDING, PropertyStatus.REJECTED] }, memberId }]
+						: []),
 			],
 		};
 
@@ -124,8 +137,10 @@ export class PropertyService {
 		const search: T = { _id: input._id, memberId: memberId, propertyStatus: { $ne: PropertyStatus.DELETE } };
 		const current = await this.propertyModel.findOne(search).select('propertyStatus').lean().exec();
 		// only an admin can publish a listing that waits for moderation or set REJECTED
-		if (input.propertyStatus === PropertyStatus.PENDING || input.propertyStatus === PropertyStatus.REJECTED) delete input.propertyStatus;
-		if (input.propertyStatus === PropertyStatus.ACTIVE && current?.propertyStatus === PropertyStatus.PENDING) delete input.propertyStatus;
+		if (input.propertyStatus === PropertyStatus.PENDING || input.propertyStatus === PropertyStatus.REJECTED)
+			delete input.propertyStatus;
+		if (input.propertyStatus === PropertyStatus.ACTIVE && current?.propertyStatus === PropertyStatus.PENDING)
+			delete input.propertyStatus;
 		// a rejected listing that the owner fixed goes back to the moderation queue
 		if (current?.propertyStatus === PropertyStatus.REJECTED && input.propertyStatus !== PropertyStatus.DELETE) {
 			input.propertyStatus = PropertyStatus.PENDING;
@@ -142,17 +157,19 @@ export class PropertyService {
 		const current: Property | null = await this.propertyModel.findOne(search).lean().exec();
 		if (!current) throw new BadRequestException(Message.UPDATE_FAILED);
 
-		// new photos must be our uploads; photos already on the listing may stay as they are
+		// new photos must be the seller's own uploads (also when an admin edits); photos already on the listing may stay
 		if (input.propertyImages) {
 			const existing = new Set(current.propertyImages);
-			if (input.propertyImages.some((image) => !existing.has(image) && !this.storageService.isOwnPath(image, 'property')))
-				throw new BadRequestException(Message.BAD_REQUEST);
+			const isNewForeign = (image: string) =>
+				!existing.has(image) && !this.storageService.isOwnPath(image, 'property', current.memberId);
+			if (input.propertyImages.some(isNewForeign)) throw new BadRequestException(Message.BAD_REQUEST);
 		}
 
 		const prevStatus = current.propertyStatus;
 		const nextStatus = input.propertyStatus ?? prevStatus;
 		// leaving REJECTED (fixed and resubmitted, or approved): the old reason no longer applies
-		if (prevStatus === PropertyStatus.REJECTED && nextStatus !== PropertyStatus.REJECTED) (input as T).propertyRejectReason = null;
+		if (prevStatus === PropertyStatus.REJECTED && nextStatus !== PropertyStatus.REJECTED)
+			(input as T).propertyRejectReason = null;
 		if (nextStatus !== prevStatus) {
 			if (nextStatus === PropertyStatus.SOLD) input.soldAt = moment().toDate();
 			if (nextStatus === PropertyStatus.DELETE) input.deletedAt = moment().toDate();
@@ -160,7 +177,7 @@ export class PropertyService {
 		}
 
 		if (input.carVin) input.carVin = input.carVin.toUpperCase();
-		if (input.propertyPrice !== undefined) await this.normalizePrice(input);
+		if (input.propertyPrice !== undefined) await this.pricing.normalizePrice(input);
 		const result = await this.propertyModel.findByIdAndUpdate(current._id, input, { new: true }).exec();
 		if (!result) throw new BadRequestException(Message.UPDATE_FAILED);
 
@@ -183,7 +200,7 @@ export class PropertyService {
 
 		// everyone who saved this car hears about a lower price
 		if (nextStatus === PropertyStatus.ACTIVE && result.propertyPrice < current.propertyPrice) {
-			await this.notifyPriceDrop(result);
+			await this.alerts.notifyPriceDrop(result);
 		}
 
 		// moderation result for the seller (approved, or rejected with the reason)
@@ -203,129 +220,21 @@ export class PropertyService {
 			});
 		}
 		// a car that just went on sale may match someone's saved search
-		if (!wasActive && isActive && prevStatus !== PropertyStatus.SOLD) void this.notifySavedSearches(result);
+		if (!wasActive && isActive && prevStatus !== PropertyStatus.SOLD) void this.alerts.notifySavedSearches(result);
 
 		return result;
-	}
-
-	/**
-	 * propertyPrice is always stored in USD. A price typed in so'm keeps its original amount for display
-	 * and gets a USD value (today's Central Bank rate) for filters and sorting.
-	 */
-	private async normalizePrice(input: PropertyInput | PropertyUpdate): Promise<void> {
-		if (input.propertyPriceCurrency === PriceCurrency.UZS) {
-			input.propertyPriceOriginal = input.propertyPrice;
-			input.propertyPrice = await this.exchangeService.uzsToUsd(input.propertyPrice as number);
-		} else if (input.propertyPrice !== undefined) {
-			input.propertyPriceCurrency = PriceCurrency.USD;
-			(input as T).propertyPriceOriginal = null;
-		}
-	}
-
-	private async notifyPriceDrop(property: Property): Promise<void> {
-		const likes = await this.likeService.findLikers(property._id, LikeGroup.PROPERTY);
-		for (const memberId of likes) {
-			await this.notificationService.notify({
-				notificationType: NotificationType.PRICE_DROP,
-				notificationGroup: NotificationGroup.PROPERTY,
-				notificationTitle: property.propertyTitle,
-				authorId: property.memberId,
-				receiverId: memberId,
-				propertyId: property._id,
-			});
-		}
-	}
-
-	/**
-	 * "Is this a good price?": compares with the same brand + model, year ±1, in USD.
-	 * Needs at least 3 other cars, otherwise there is no verdict.
-	 */
-	public async getPriceEstimate(propertyId: ObjectId): Promise<PriceEstimate> {
-		const car = await this.propertyModel.findById(propertyId).lean().exec();
-		if (!car) throw new NotFoundException(Message.NO_DATA_FOUND);
-		const [stats] = await this.propertyModel
-			.aggregate([
-				{
-					$match: {
-						_id: { $ne: car._id },
-						carBrand: car.carBrand,
-						carModel: { $regex: searchRegex(car.carModel) },
-						carYear: { $gte: car.carYear - 1, $lte: car.carYear + 1 },
-						propertyStatus: { $in: [PropertyStatus.ACTIVE, PropertyStatus.SOLD] },
-					},
-				},
-				{ $group: { _id: null, average: { $avg: '$propertyPrice' }, count: { $sum: 1 } } },
-			])
-			.exec();
-		const count: number = stats?.count ?? 0;
-		const average = count ? Math.round(stats.average) : 0;
-		let verdict = 'UNKNOWN';
-		if (count >= 3) {
-			const ratio = car.propertyPrice / average;
-			verdict = ratio <= 0.92 ? 'LOW' : ratio >= 1.08 ? 'HIGH' : 'FAIR';
-		}
-		return { average, count, verdict };
-	}
-
-	/**
-	 * tells members whose saved search matches this newly published car. Only searches that can match on the
-	 * simple list/range filters are loaded (not every saved search), each member is notified once per car.
-	 * Runs in the background: publishing a car does not wait for it.
-	 */
-	private async notifySavedSearches(property: Property): Promise<void> {
-		try {
-			const anyOf = (field: string, value: unknown) => ({ $or: [{ [field]: null }, { [field]: { $size: 0 } }, { [field]: value }] });
-			const inRange = (field: string, value: number) => ({
-				$or: [{ [field]: null }, { [`${field}.start`]: { $lte: value }, [`${field}.end`]: { $gte: value } }],
-			});
-			const candidates = this.savedSearchModel
-				.find({
-					memberId: { $ne: property.memberId },
-					$and: [
-						anyOf('search.brandList', property.carBrand),
-						anyOf('search.countryList', property.carCountry),
-						anyOf('search.typeList', property.propertyType),
-						anyOf('search.fuelList', property.carFuel),
-						anyOf('search.transmissionList', property.carTransmission),
-						inRange('search.pricesRange', property.propertyPrice),
-						inRange('search.yearsRange', property.carYear),
-					],
-				})
-				.lean()
-				.cursor();
-
-			const notified = new Set<string>();
-			for await (const saved of candidates) {
-				if (notified.has(String(saved.memberId))) continue;
-				// the remaining filters (text, model, mileage, options, ...) are checked exactly
-				const match: T = { _id: property._id };
-				this.shapeMatchQuery(match, { page: 1, limit: 1, search: saved.search ?? {} } as PropertiesInquiry);
-				if (!(await this.propertyModel.exists(match))) continue;
-				notified.add(String(saved.memberId));
-				await this.notificationService.notify({
-					notificationType: NotificationType.NEW_LISTING,
-					notificationGroup: NotificationGroup.PROPERTY,
-					notificationTitle: property.propertyTitle,
-					authorId: property.memberId,
-					receiverId: saved.memberId,
-					propertyId: property._id,
-				});
-				await this.savedSearchModel.updateOne({ _id: saved._id }, { lastNotifiedAt: new Date() }).exec();
-			}
-		} catch (err: any) {
-			logger.warn(`Error, notifySavedSearches: ${err.message}`);
-		}
 	}
 
 	public async getProperties(memberId: ObjectId, input: PropertiesInquiry): Promise<Properties> {
 		const match: T = { propertyStatus: PropertyStatus.ACTIVE };
 		const sort: T = { [input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC };
 
-		this.shapeMatchQuery(match, input);
+		shapePropertyMatch(match, input);
 		// cars of blocked or deleted sellers are hidden from buyers. Such sellers are few, so they are excluded
 		// by id; the seller is joined only to the cars of the requested page, not to every matching car
 		const hiddenSellers = await this.memberService.inactiveMemberIds();
-		if (hiddenSellers.length) match.memberId = match.memberId ? { $eq: match.memberId, $nin: hiddenSellers } : { $nin: hiddenSellers };
+		if (hiddenSellers.length)
+			match.memberId = match.memberId ? { $eq: match.memberId, $nin: hiddenSellers } : { $nin: hiddenSellers };
 
 		const result = await this.propertyModel
 			.aggregate([
@@ -349,45 +258,6 @@ export class PropertyService {
 		if (!result.length) throw new NotFoundException(Message.NO_DATA_FOUND);
 
 		return result[0] as Properties;
-	}
-
-	/** also used to test new cars against members' saved searches */
-	public shapeMatchQuery(match: T, input: PropertiesInquiry): void {
-		const {
-			memberId,
-			countryList,
-			locationList,
-			typeList,
-			brandList,
-			fuelList,
-			transmissionList,
-			periodsRange,
-			pricesRange,
-			yearsRange,
-			mileageRange,
-			options,
-			text,
-			model,
-			noAccident,
-		} = input.search;
-		if (memberId) match.memberId = shapeIntoMongoObjectId(memberId);
-		if (countryList && countryList.length) match.carCountry = { $in: countryList };
-		if (locationList && locationList.length) match.propertyLocation = { $in: locationList };
-		if (typeList && typeList.length) match.propertyType = { $in: typeList };
-		if (brandList && brandList.length) match.carBrand = { $in: brandList };
-		if (fuelList && fuelList.length) match.carFuel = { $in: fuelList };
-		if (transmissionList && transmissionList.length) match.carTransmission = { $in: transmissionList };
-
-		if (pricesRange) match.propertyPrice = { $gte: pricesRange.start, $lte: pricesRange.end };
-		if (periodsRange) match.createdAt = { $gte: periodsRange.start, $lte: periodsRange.end };
-		if (yearsRange) match.carYear = { $gte: yearsRange.start, $lte: yearsRange.end };
-		if (mileageRange) match.carMileage = { $gte: mileageRange.start, $lte: mileageRange.end };
-
-		if (text) match.propertyTitle = { $regex: searchRegex(text) };
-		if (model) match.carModel = { $regex: searchRegex(model) };
-		if (noAccident) match.carAccidentHistory = CarAccidentHistory.NONE;
-		// every ticked option must hold (barter AND customs cleared, ...)
-		options?.forEach((ele) => (match[ele] = true));
 	}
 
 	public async getCarModels(brand: CarBrand): Promise<string[]> {
@@ -509,8 +379,17 @@ export class PropertyService {
 		const before = await this.propertyModel.findById(input._id).select('propertyStatus').lean().exec();
 		const result = await this.changeProperty({ _id: input._id }, input);
 		if (input.propertyStatus && input.propertyStatus !== before?.propertyStatus) {
-			const action = input.propertyStatus === PropertyStatus.ACTIVE && before?.propertyStatus === PropertyStatus.PENDING ? 'PROPERTY_APPROVE' : `PROPERTY_${input.propertyStatus}`;
-			await this.adminLogService.log(adminId, action, 'PROPERTY', result._id, `${result.propertyTitle}${input.propertyRejectReason ? ': ' + input.propertyRejectReason : ''}`);
+			const action =
+				input.propertyStatus === PropertyStatus.ACTIVE && before?.propertyStatus === PropertyStatus.PENDING
+					? 'PROPERTY_APPROVE'
+					: `PROPERTY_${input.propertyStatus}`;
+			await this.adminLogService.log(
+				adminId,
+				action,
+				'PROPERTY',
+				result._id,
+				`${result.propertyTitle}${input.propertyRejectReason ? ': ' + input.propertyRejectReason : ''}`,
+			);
 		}
 		return result;
 	}
@@ -521,7 +400,11 @@ export class PropertyService {
 		for (const id of input.ids) {
 			try {
 				await this.updatePropertyByAdmin(
-					{ _id: shapeIntoMongoObjectId(id), propertyStatus: input.propertyStatus, propertyRejectReason: input.propertyRejectReason } as PropertyUpdate,
+					{
+						_id: shapeIntoMongoObjectId(id),
+						propertyStatus: input.propertyStatus,
+						propertyRejectReason: input.propertyRejectReason,
+					},
 					adminId,
 				);
 				done++;

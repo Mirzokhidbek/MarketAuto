@@ -19,9 +19,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with: { node-version: 22, cache: npm }
+        with: { node-version: 24, cache: npm }
       - run: npm ci
       - run: npm run typecheck
+      - run: npm run lint:check
       - run: npm run test:unit
       - run: npx nest build nestar-api && npx nest build nestar-batch
       # start the API and run the end-to-end API checks against it
@@ -38,7 +39,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with: { node-version: 22 }
+        with: { node-version: 24 }
       - run: npm ci --legacy-peer-deps
       - run: npm run typecheck
       - run: npm run build

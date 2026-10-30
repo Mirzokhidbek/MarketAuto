@@ -11,7 +11,10 @@ export class VerificationResolver {
 	constructor(private readonly verificationService: VerificationService) {}
 
 	@Mutation(() => PhoneCodeResult)
-	public async requestPhoneCode(@Args('input') input: PhoneCodeInput, @Context() context: any): Promise<PhoneCodeResult> {
+	public async requestPhoneCode(
+		@Args('input') input: PhoneCodeInput,
+		@Context() context: any,
+	): Promise<PhoneCodeResult> {
 		// admin login codes are sent only after a correct password (MemberService.login)
 		if (input.purpose === VerificationPurpose.ADMIN_2FA) throw new BadRequestException(Message.NOT_ALLOWED_REQUEST);
 		return await this.verificationService.requestCode(input.phone, input.purpose, clientIp(context));
