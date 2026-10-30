@@ -27,6 +27,7 @@ const FIELDS: { key: keyof Settings; label: string; placeholder: string }[] = [
 
 const isUrl = (value: string) => !value || /^https:\/\/[^\s]+$/.test(value);
 const isEmail = (value: string) => !value || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+const isPhone = (value: string) => !value || /^\+?[\d\s()-]{7,20}$/.test(value);
 
 /** contacts shown in the footer and the help center; empty fields fall back to the defaults */
 const AdminSettings: NextPage = () => {
@@ -44,6 +45,7 @@ const AdminSettings: NextPage = () => {
 		const value = form[key].trim();
 		if (key.endsWith('Url') && !isUrl(value)) return t('Link must start with https://') as string;
 		if (key === 'supportEmail' && !isEmail(value)) return t('Enter a valid email') as string;
+		if (key === 'supportPhone' && !isPhone(value)) return t('Enter a valid phone number') as string;
 		return '';
 	};
 	const valid = FIELDS.every((field) => !errorOf(field.key));
@@ -63,21 +65,30 @@ const AdminSettings: NextPage = () => {
 		<Box component={'div'} className={'content'}>
 			<AdminPageHeader title={t('Site settings')} description={t('Shown in the footer and the help center. Leave a field empty to hide it.') as string} />
 			<Box component={'form'} className={'ma-admin-card'} sx={{ maxWidth: 640 }} onSubmit={saveHandler}>
-				<Stack gap={2.5}>
+				{/* the name sits above each field (not inside it), so it stays readable while typing and spacing is even */}
+				<Stack gap={2}>
 					{FIELDS.map((field) => (
-						<TextField
-							key={field.key}
-							label={t(field.label)}
-							placeholder={field.placeholder}
-							value={form[field.key]}
-							error={!!errorOf(field.key)}
-							helperText={errorOf(field.key) || ' '}
-							inputProps={{ maxLength: field.key === 'supportPhone' ? 30 : field.key === 'supportEmail' ? 100 : 200 }}
-							onChange={(e) => setForm({ ...form, [field.key]: e.target.value })}
-						/>
+						<Box key={field.key} component={'label'} className={'ma-admin-field'}>
+							<Typography component={'span'} variant={'subtitle2'} className={'ma-admin-field__label'}>
+								{t(field.label)}
+							</Typography>
+							<TextField
+								fullWidth
+								size="small"
+								placeholder={field.placeholder}
+								value={form[field.key]}
+								error={!!errorOf(field.key)}
+								helperText={errorOf(field.key) || undefined}
+								inputProps={{
+									maxLength: field.key === 'supportPhone' ? 30 : field.key === 'supportEmail' ? 100 : 200,
+									'aria-label': t(field.label) as string,
+								}}
+								onChange={(e) => setForm({ ...form, [field.key]: e.target.value })}
+							/>
+						</Box>
 					))}
 				</Stack>
-				<Button type="submit" variant="contained" size="large" disabled={!valid || loading} sx={{ mt: 1 }}>
+				<Button type="submit" variant="contained" size="large" disabled={!valid || loading} sx={{ mt: 3 }}>
 					{t('Save')}
 				</Button>
 			</Box>

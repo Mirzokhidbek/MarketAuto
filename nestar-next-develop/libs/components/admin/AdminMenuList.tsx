@@ -50,6 +50,15 @@ const SECTIONS: { title: string; items: MenuItem[] }[] = [
 	},
 ];
 
+/** pages only full (SUPER) admins may open; moderators are sent back to the dashboard */
+export const SUPER_ONLY_PATHS = SECTIONS.flatMap((section) => section.items)
+	.filter((item) => item.superOnly)
+	.map((item) => item.href);
+
+/** true for a super-only page and its sub-pages (e.g. /_admin/users/detail) */
+export const isSuperOnlyPath = (pathname: string) =>
+	SUPER_ONLY_PATHS.some((href) => pathname === href || pathname.startsWith(`${href}/`));
+
 const AdminMenuList = () => {
 	const { t } = useTranslation('common');
 	const router = useRouter();

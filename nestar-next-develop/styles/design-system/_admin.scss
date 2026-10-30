@@ -1278,3 +1278,125 @@ $adm-side: 248px;
 		font-size: 15px;
 	}
 }
+
+/* ---------------------------------------------------------------- settings form: name above the field */
+.ma-admin-field {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+.ma-admin-field__label {
+	font-weight: 600;
+	color: $adm-ink-2;
+}
+
+/* ---------------------------------------------------------------- quick tabs
+   On wide screens the sidebar already lists every page, so the quick tabs would only repeat it.
+   They stay on small screens, where the sidebar hides behind the menu button. */
+@media (min-width: 901px) {
+	.ma-adm__quick {
+		display: none;
+	}
+	.ma-adm__search {
+		margin-left: auto;
+	}
+}
+@media (max-width: 900px) {
+	/* the row scrolls sideways: fade the right edge so it is clear there is more */
+	.ma-adm__quick {
+		-webkit-mask-image: linear-gradient(to right, #000 85%, transparent);
+		mask-image: linear-gradient(to right, #000 85%, transparent);
+	}
+}
+
+/* ---------------------------------------------------------------- lists as cards on phones
+   A table with 6-9 columns only fits a phone by scrolling sideways, which hides the price, the status and the
+   Approve / Reject buttons. Below 900px every row becomes a card: title first, then "LABEL  value" lines
+   (from each cell's data-label), actions at the bottom. */
+@media (max-width: 900px) {
+	#pc-wrap.admin.ma-adm .ma-adm-cards {
+		min-width: 0 !important;
+		thead {
+			display: none;
+		}
+		tbody,
+		tr,
+		td {
+			display: block;
+		}
+		tr {
+			position: relative;
+			margin: 12px 0;
+			padding: 12px 14px;
+			border: 1px solid $adm-line;
+			border-radius: 16px;
+			background: $adm-card;
+		}
+		td {
+			display: flex;
+			/* MUI turns align="right" cells into row-reverse: keep "LABEL ... value" order everywhere */
+			flex-direction: row !important;
+			flex-wrap: wrap;
+			align-items: center;
+			justify-content: flex-end;
+			column-gap: 8px;
+			row-gap: 2px;
+			padding: 6px 0 !important;
+			border: 0 !important;
+			text-align: right !important;
+			max-width: none !important;
+		}
+		td[data-label]::before {
+			content: attr(data-label);
+			flex-shrink: 0;
+			font-size: 11px;
+			font-weight: 700;
+			letter-spacing: 0.04em;
+			text-transform: uppercase;
+			color: $adm-ink-3;
+			text-align: left;
+			/* label on the left, every value of the cell (e.g. nick + "Dealer") together on the right */
+			margin-right: auto;
+		}
+		td.ma-adm-cards__title {
+			display: block;
+			padding-right: 40px !important;
+			text-align: left !important;
+		}
+		td.ma-adm-cards__check {
+			position: absolute;
+			top: 4px;
+			right: 4px;
+			width: auto;
+			padding: 0 !important;
+		}
+		td.ma-adm-cards__actions {
+			justify-content: flex-end;
+			flex-wrap: wrap;
+			margin-top: 6px;
+			padding-top: 12px !important;
+			border-top: 1px solid $adm-line !important;
+		}
+		/* "no data" row */
+		td[colspan] {
+			justify-content: center;
+			text-align: center !important;
+		}
+	}
+	#pc-wrap.admin.ma-adm .table-wrap:has(.ma-adm-cards) {
+		overflow-x: visible;
+		padding: 0 12px;
+	}
+}
+
+/* icon button whose words appear only in the phone card layout */
+.ma-adm-icon-btn {
+	min-width: 0 !important;
+	gap: 6px;
+	white-space: nowrap;
+}
+@media (min-width: 901px) {
+	.ma-adm-icon-btn__text {
+		display: none;
+	}
+}

@@ -72,7 +72,7 @@ export const CurrencySwitch = () => {
 					aria-pressed={currency === value}
 					onClick={() => choose(value)}
 				>
-					{value === 'USD' ? '$' : "so'm"}
+					{value === 'USD' ? '$' : t("so'm")}
 				</button>
 			))}
 		</div>

@@ -61,7 +61,7 @@ const AdminReports: NextPage = () => {
 
 	return (
 		<Box component={'div'} className={'content'}>
-			<AdminPageHeader title={t('Reports')} description={t('Complaints from buyers about listings. Dismiss a complaint or delete the listing.') as string} />
+			<AdminPageHeader title={t('Reports')} description={t('Complaints from buyers about listings. Close the report if the car is fine, or delete the listing.') as string} />
 			<Box component={'div'} className={'table-wrap'}>
 				<List className={'tab-menu'}>
 					{(['OPEN', 'RESOLVED'] as const).map((item) => (
@@ -79,7 +79,7 @@ const AdminReports: NextPage = () => {
 				</List>
 				<Divider />
 				<TableContainer>
-					<Table sx={{ minWidth: 820 }}>
+					<Table sx={{ minWidth: 820 }} className={'ma-adm-cards'}>
 						<TableHead>
 							<TableRow>
 								<TableCell>{t('CAR')}</TableCell>
@@ -101,7 +101,7 @@ const AdminReports: NextPage = () => {
 								const car = report.propertyData;
 								return (
 									<TableRow hover key={report._id}>
-										<TableCell>
+										<TableCell className={'ma-adm-cards__title'}>
 											{car ? (
 												<Link href={`/property/detail?id=${car._id}`} target={'_blank'}>
 													<Stack direction={'row'} alignItems={'center'} gap={1.5}>
@@ -125,7 +125,7 @@ const AdminReports: NextPage = () => {
 												t('Deleted listing')
 											)}
 										</TableCell>
-										<TableCell>
+										<TableCell data-label={t('REASON')}>
 											<strong>{t(`report_${report.reportReason}`)}</strong>
 											{report.reportComment && (
 												<Typography variant="body2" color="text.secondary">
@@ -133,18 +133,26 @@ const AdminReports: NextPage = () => {
 												</Typography>
 											)}
 										</TableCell>
-										<TableCell>{report.memberData?.memberNick ?? '—'}</TableCell>
-										<TableCell>{moment(report.createdAt).format('DD.MM.YYYY HH:mm')}</TableCell>
-										<TableCell align="right">
+										<TableCell data-label={t('REPORTED BY')}>{report.memberData?.memberNick ?? '—'}</TableCell>
+										<TableCell data-label={t('DATE')}>{moment(report.createdAt).format('DD.MM.YYYY HH:mm')}</TableCell>
+										<TableCell align="right" className={'ma-adm-cards__actions'}>
 											{report.reportStatus === 'OPEN' ? (
 												<Stack direction={'row'} gap={1} justifyContent={'flex-end'}>
-													<Button size="small" variant="outlined" onClick={() => resolveHandler(report._id, 'DISMISS')}>
-														{t('Dismiss')}
+													{/* "Reject" on the Cars page rejects a listing; here the complaint is closed and the car stays */}
+													<Button
+														size="small"
+														variant="outlined"
+														sx={{ whiteSpace: 'nowrap' }}
+														title={t('The listing is fine: close the report and keep the car') as string}
+														onClick={() => resolveHandler(report._id, 'DISMISS')}
+													>
+														{t('Close report')}
 													</Button>
 													<Button
 														size="small"
 														color="error"
 														variant="contained"
+														sx={{ whiteSpace: 'nowrap' }}
 														disabled={!car || car.propertyStatus === 'DELETE'}
 														onClick={() => resolveHandler(report._id, 'REMOVE_LISTING')}
 													>

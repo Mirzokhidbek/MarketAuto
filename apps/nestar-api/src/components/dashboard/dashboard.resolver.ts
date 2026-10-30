@@ -34,7 +34,8 @@ export class DashboardResolver {
 						likes: { $sum: '$propertyLikes' },
 					},
 				},
-				{ $sort: { cars: -1, views: -1 } },
+				// _id last: sellers with equal numbers keep the same order on every load
+				{ $sort: { cars: -1, views: -1, likes: -1, _id: 1 } },
 				{ $limit: limit },
 				{ $lookup: { from: 'members', localField: '_id', foreignField: '_id', as: 'member' } },
 				{ $unwind: '$member' },

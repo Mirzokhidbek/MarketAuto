@@ -51,7 +51,7 @@ export const PropertyPanelList = ({
 
 	return (
 		<TableContainer>
-			<Table sx={{ minWidth: 960 }} size={'medium'}>
+			<Table sx={{ minWidth: 960 }} size={'medium'} className={'ma-adm-cards'}>
 				<TableHead>
 					<TableRow>
 						<TableCell padding="checkbox">
@@ -106,10 +106,10 @@ export const PropertyPanelList = ({
 
 						return (
 							<TableRow hover key={property._id} selected={selected.includes(property._id)}>
-								<TableCell padding="checkbox">
+								<TableCell padding="checkbox" className={'ma-adm-cards__check'}>
 									<Checkbox checked={selected.includes(property._id)} onChange={() => toggle(property._id)} />
 								</TableCell>
-								<TableCell className={'name'}>
+								<TableCell className={'name ma-adm-cards__title'}>
 									{/* admins can open pending and rejected cars too */}
 									{status !== PropertyStatus.DELETE ? (
 										<Link href={`/property/detail?id=${property._id}`} target={'_blank'}>
@@ -119,16 +119,18 @@ export const PropertyPanelList = ({
 										title
 									)}
 								</TableCell>
-								<TableCell align="right">${formatterStr(property.propertyPrice)}</TableCell>
-								<TableCell>
+								<TableCell align="right" data-label={t('PRICE')}>
+									${formatterStr(property.propertyPrice)}
+								</TableCell>
+								<TableCell data-label={t('SELLER')}>
 									<Link href={sellerHref(property.memberId)}>{property.memberData?.memberNick ?? '-'}</Link>
 									<Typography variant="caption" display="block" color="text.secondary">
 										{t(property.memberData?.memberType === 'AGENT' ? 'Dealer' : 'Private seller')}
 									</Typography>
 								</TableCell>
-								<TableCell>{formatCarPlace(property, t)}</TableCell>
-								<TableCell>{moment(property.createdAt).format('DD.MM.YYYY')}</TableCell>
-								<TableCell align="center">
+								<TableCell data-label={t('LOCATION')}>{formatCarPlace(property, t)}</TableCell>
+								<TableCell data-label={t('LISTED')}>{moment(property.createdAt).format('DD.MM.YYYY')}</TableCell>
+								<TableCell align="center" className={'ma-adm-cards__actions'} sx={{ minWidth: 200 }}>
 									{status === PropertyStatus.PENDING ? (
 										<Stack direction={'row'} gap={1} justifyContent={'center'}>
 											<Button
@@ -152,6 +154,8 @@ export const PropertyPanelList = ({
 										<Stack direction={'row'} gap={1} justifyContent={'center'} alignItems={'center'}>
 											<Select
 												size="small"
+												// same height as the Approve / Reject buttons, so every row has the same height
+												sx={{ height: 32, minWidth: 140 }}
 												className={`badge ${statusClass[status]}`}
 												value={status}
 												onChange={(e) => changeStatusHandler(property, e.target.value as PropertyStatus)}
@@ -176,7 +180,14 @@ export const PropertyPanelList = ({
 										</Stack>
 									)}
 									{status === PropertyStatus.REJECTED && property.propertyRejectReason && (
-										<Typography variant="caption" display="block" color="error" sx={{ mt: 0.5, maxWidth: 220, mx: 'auto' }}>
+										<Typography
+											variant="caption"
+											display="block"
+											color="error"
+											noWrap
+											title={property.propertyRejectReason}
+											sx={{ mt: 0.5, maxWidth: 220, mx: 'auto' }}
+										>
 											{property.propertyRejectReason}
 										</Typography>
 									)}
