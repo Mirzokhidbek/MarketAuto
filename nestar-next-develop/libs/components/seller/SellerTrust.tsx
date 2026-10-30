@@ -23,7 +23,7 @@ const SellerTrust = ({ member, compact = false, className = 'mb-3.5' }: SellerTr
 	if (member.memberDealerVerified) items.push({ icon: <StorefrontOutlinedIcon />, text: t('Verified dealer'), strong: true });
 	if (member.memberPhoneVerified) items.push({ icon: <VerifiedIcon />, text: t('Phone confirmed'), strong: true });
 	if (!compact && member.createdAt)
-		items.push({ icon: <EventAvailableOutlinedIcon />, text: `${t('On MarketAuto since')} ${moment(member.createdAt).format('MMMM YYYY')}` });
+		items.push({ icon: <EventAvailableOutlinedIcon />, text: `${t('On CarPort since')} ${moment(member.createdAt).format('MMMM YYYY')}` });
 	if (!compact && member.memberResponseMinutes)
 		items.push({
 			icon: <ScheduleOutlinedIcon />,

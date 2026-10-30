@@ -5,16 +5,16 @@
 
 $font: 'Inter', 'Poppins', sans-serif;
 
-/** MarketAuto design tokens **/
+/** CarPort design tokens (brand: blue #015dea, navy #10213c) **/
 // Direction: a calm "showroom ledger" — white paper, ink text, hairline rules instead of boxes,
 // photos and prices carry the page. Blue is reserved for actions, links and the selected state.
 $ma-font: 'Inter', 'Poppins', sans-serif;
 $ma-mono: ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, monospace;
 
-$ma-primary: #0b57d0;
-$ma-primary-dark: #0842a0;
-$ma-primary-soft: #e8f0fe;
-$ma-dark: #0f172a; // ink
+$ma-primary: #015dea;
+$ma-primary-dark: #0049bd;
+$ma-primary-soft: #e6efff;
+$ma-dark: #10213c; // ink = CarPort navy
 $ma-text: #1e293b;
 $ma-muted: #5b6475; // AA on white and on $ma-bg
 $ma-faint: #8a93a3; // meta text only, never body copy

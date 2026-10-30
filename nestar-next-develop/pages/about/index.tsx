@@ -47,13 +47,13 @@ const About: NextPage = () => {
 			<section className={'ma-section'}>
 				<div className={'ma-container ma-about'}>
 					<div className={'ma-about__intro'}>
-						<span className={'ma-eyebrow'}>{t('ABOUT MARKETAUTO')}</span>
+						<span className={'ma-eyebrow'}>{t('ABOUT CARPORT')}</span>
 						<h1>{t("We're on a Mission to Make Buying and Selling Cars Simple.")}</h1>
 					</div>
 					<div className={'ma-about__text'}>
 						<p>
 							{t(
-								'MarketAuto connects car buyers with trusted dealers and private sellers across Uzbekistan and abroad. Every listing shows the details that matter — brand, model, year, mileage, fuel and transmission — so you can compare cars quickly and honestly.',
+								'CarPort connects car buyers with trusted dealers and private sellers across Uzbekistan and abroad. Every listing shows the details that matter — brand, model, year, mileage, fuel and transmission — so you can compare cars quickly and honestly.',
 							)}
 						</p>
 						<p>
@@ -63,6 +63,14 @@ const About: NextPage = () => {
 						</p>
 					</div>
 				</div>
+				<figure className={'ma-container ma-about-brand'}>
+					<img
+						src={'/img/brand/brand.webp'}
+						alt={t('CarPort — car import from abroad to Uzbekistan') as string}
+						width={872}
+						height={492}
+					/>
+				</figure>
 			</section>
 
 			<section className={'ma-section ma-section--alt'}>

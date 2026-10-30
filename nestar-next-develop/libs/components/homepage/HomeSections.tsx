@@ -82,7 +82,7 @@ export const HowItWorks = () => {
 		<section className={'ma-section'}>
 			<div className={'ma-container ma-how'}>
 				<div>
-					<h2 className={'ma-title'}>{t('How MarketAuto Works')}</h2>
+					<h2 className={'ma-title'}>{t('How CarPort Works')}</h2>
 					<p className={'ma-subtitle'}>{t('From search to keys in three simple steps.')}</p>
 				</div>
 				<ol className={'ma-how__steps'}>
@@ -199,7 +199,7 @@ export const LatestArticles = () => {
 				<div className={'ma-hub__head'}>
 					<div>
 						<h2 className={'ma-title'}>{t('From the Community')}</h2>
-						<p className={'ma-subtitle'}>{t('News, reviews and tips written by MarketAuto members')}</p>
+						<p className={'ma-subtitle'}>{t('News, reviews and tips written by CarPort members')}</p>
 					</div>
 					<Link href={'/community?articleCategory=FREE'}>
 						<span className={'ma-btn ma-btn--link'}>{t('Go to Community')} →</span>
@@ -217,9 +217,9 @@ export const LatestArticles = () => {
 
 /** FAQ **/
 const faqs = [
-	{ q: 'Is it free to list a car?', a: 'Yes. Private sellers and dealers can list cars on MarketAuto for free.' },
+	{ q: 'Is it free to list a car?', a: 'Yes. Private sellers and dealers can list cars on CarPort for free.' },
 	{ q: 'Can sellers from abroad list cars?', a: 'Yes. Sellers from South Korea, China, Japan, the US, Germany, the UAE and other countries can list cars and choose the country where the car is located.' },
-	{ q: 'Does MarketAuto handle payment?', a: 'No. MarketAuto is a listings platform. Buyers and sellers agree on payment directly. Always inspect the car and documents before paying.' },
+	{ q: 'Does CarPort handle payment?', a: 'No. CarPort is a listings platform. Buyers and sellers agree on payment directly. Always inspect the car and documents before paying.' },
 	{ q: 'How do I contact a seller?', a: 'Open the car page and press "Show phone number" on the seller card to call the seller directly.' },
 ];
 

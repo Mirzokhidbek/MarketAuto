@@ -55,7 +55,7 @@ export class VerificationService {
 			expiresAt: new Date(Date.now() + CODE_TTL_SECONDS * 1000),
 		});
 
-		const sent = await this.smsService.send(phone, `MarketAuto: tasdiqlash kodi ${code}. Kodni hech kimga bermang.`);
+		const sent = await this.smsService.send(phone, `CarPort: tasdiqlash kodi ${code}. Kodni hech kimga bermang.`);
 		if (!sent) throw new BadRequestException(Message.CODE_NOT_SENT);
 
 		const devCode = !settings.production && !this.smsService.hasProvider(phone) ? code : undefined;

@@ -49,7 +49,7 @@ export const IOSSwitch = styled(Switch)(({ theme }) => ({
 			transform: 'translateX(16px)',
 			color: '#fff',
 			'& + .MuiSwitch-track': {
-				backgroundColor: theme.palette.mode === 'dark' ? '#2ECA45' : '#0b57d0',
+				backgroundColor: theme.palette.mode === 'dark' ? '#2ECA45' : '#015dea',
 				opacity: 1,
 				border: 0,
 			},

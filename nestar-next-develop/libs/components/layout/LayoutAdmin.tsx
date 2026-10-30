@@ -116,13 +116,13 @@ const withAdminLayout = (Component: ComponentType) => {
 		return (
 			<main id="pc-wrap" className={'admin ma-adm'}>
 				<Head>
-					<title>{`${t('Admin panel')} | MarketAuto`}</title>
+					<title>{`${t('Admin panel')} | CarPort`}</title>
 					<meta name="robots" content="noindex" />
 				</Head>
 
 				<aside className={`ma-adm__side ${sideOpen ? 'is-open' : ''}`}>
 					<Link href={'/_admin'} className={'ma-adm__logo'}>
-						<img src={'/img/logo/logoDark.svg'} alt={'MarketAuto'} />
+						<img src={'/img/logo/logo.png'} alt={'CarPort'} />
 					</Link>
 					<MenuList />
 					{tip && (

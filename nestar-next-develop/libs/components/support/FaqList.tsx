@@ -64,7 +64,7 @@ const FaqList = () => {
 		property: [
 			{
 				id: 'faq001',
-				subject: 'Are the cars listed on MarketAuto reliable?',
+				subject: 'Are the cars listed on CarPort reliable?',
 				content:
 					'Every listing belongs to a registered member with a public profile. Always inspect the car and its documents before paying.',
 			},
@@ -96,7 +96,7 @@ const FaqList = () => {
 			{
 				id: 'faq007',
 				subject: 'Is listing a car free?',
-				content: 'Yes, creating a listing on MarketAuto is free.',
+				content: 'Yes, creating a listing on CarPort is free.',
 			},
 			{
 				id: 'faq008',
@@ -116,8 +116,8 @@ const FaqList = () => {
 			},
 			{
 				id: 'faq011',
-				subject: 'Does MarketAuto take a commission?',
-				content: 'No. MarketAuto does not take a commission from the deal between buyer and seller.',
+				subject: 'Does CarPort take a commission?',
+				content: 'No. CarPort does not take a commission from the deal between buyer and seller.',
 			},
 		],
 		buyers: [
@@ -222,7 +222,7 @@ const FaqList = () => {
 		other: [
 			{
 				id: 'faq030',
-				subject: 'Which cities does MarketAuto cover?',
+				subject: 'Which cities does CarPort cover?',
 				content:
 					'All regions of Uzbekistan: Tashkent, Samarkand, Bukhara, Andijan, Namangan, Fergana, Navoi, Karshi, Termez, Jizzakh, Gulistan, Urgench, Nukus and Tashkent region.',
 			},

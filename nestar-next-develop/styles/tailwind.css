@@ -1,5 +1,5 @@
 /**
- * Tailwind for the MarketAuto UI.
+ * Tailwind for the CarPort UI.
  *
  * - No preflight: MUI's CssBaseline and styles/reset.scss already normalize the page.
  * - Utilities are imported WITHOUT a cascade layer on purpose. The SCSS in styles/ is unlayered,
@@ -17,10 +17,10 @@
 	--font-sans: 'Inter', 'Poppins', sans-serif;
 	--font-mono: ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, monospace;
 
-	--color-primary: #0b57d0;
-	--color-primary-dark: #0842a0;
-	--color-primary-soft: #e8f0fe;
-	--color-ink: #0f172a;
+	--color-primary: #015dea;
+	--color-primary-dark: #0049bd;
+	--color-primary-soft: #e6efff;
+	--color-ink: #10213c;
 	--color-text: #1e293b;
 	--color-muted: #5b6475;
 	--color-faint: #8a93a3;

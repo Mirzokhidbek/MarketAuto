@@ -39,7 +39,7 @@ const TYPE_LOOK: Record<string, { icon: React.ReactNode; tone: string }> = {
 
 export const typeLook = (type: string) => TYPE_LOOK[type] ?? { icon: <NotificationsRoundedIcon />, tone: 'blue' };
 
-/** moderation and alerts come from MarketAuto itself, not from a member: shown with the type icon, no avatar */
+/** moderation and alerts come from CarPort itself, not from a member: shown with the type icon, no avatar */
 export const isSystemNotification = (item: T) =>
 	['LISTING_APPROVED', 'LISTING_REJECTED', 'NEW_LISTING', 'PRICE_DROP'].includes(item.notificationType);
 

@@ -148,6 +148,6 @@ export class BatchService {
 	}
 
 	public getHello(): string {
-		return 'Welcome to MarketAuto BATCH Server!';
+		return 'Welcome to CarPort BATCH Server!';
 	}
 }

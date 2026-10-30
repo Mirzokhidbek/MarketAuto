@@ -101,6 +101,17 @@
 		color: $ma-text;
 	}
 }
+// CarPort brand picture under the About intro
+.ma-about-brand {
+	margin: 40px auto 0;
+	img {
+		display: block;
+		width: 100%;
+		height: auto;
+		border: 1px solid $ma-border;
+		border-radius: $ma-radius-lg;
+	}
+}
 
 /* notices & inquiries (expandable rows) */
 .ma-notice-item {

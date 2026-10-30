@@ -2,6 +2,7 @@ import React from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
+import { SITE_URL } from '../../config';
 
 interface SeoProps {
 	title?: string; // already translated, page specific (e.g. a car name)
@@ -27,14 +28,17 @@ const routeTitles: Record<string, string> = {
 	'/privacy': 'Privacy Policy',
 };
 
+// share preview for pages without their own photo (needs an absolute URL)
+const DEFAULT_IMAGE = SITE_URL ? `${SITE_URL}/img/brand/og-image.jpg` : undefined;
+
 const ogLocales: Record<string, string> = { en: 'en_US', uz: 'uz_UZ', ru: 'ru_RU' };
 
 /** <title>, description and Open Graph / Twitter tags; `key`s let a page override the layout's tags */
-const Seo = ({ title, description, image }: SeoProps) => {
+const Seo = ({ title, description, image = DEFAULT_IMAGE }: SeoProps) => {
 	const { t } = useTranslation('common');
 	const router = useRouter();
 	const pageTitle = title ?? t(routeTitles[router.pathname] ?? 'Buy and sell cars in Uzbekistan');
-	const fullTitle = `${pageTitle} | MarketAuto`;
+	const fullTitle = `${pageTitle} | CarPort`;
 	const desc =
 		description ??
 		t(
@@ -48,7 +52,7 @@ const Seo = ({ title, description, image }: SeoProps) => {
 			<meta key="og:title" property="og:title" content={fullTitle} />
 			<meta key="og:description" property="og:description" content={desc} />
 			<meta key="og:type" property="og:type" content={router.pathname === '/property/detail' ? 'product' : 'website'} />
-			<meta key="og:site_name" property="og:site_name" content="MarketAuto" />
+			<meta key="og:site_name" property="og:site_name" content="CarPort" />
 			<meta key="og:locale" property="og:locale" content={ogLocales[router.locale ?? 'en'] ?? 'en_US'} />
 			{image && <meta key="og:image" property="og:image" content={image} />}
 			<meta key="twitter:card" name="twitter:card" content={image ? 'summary_large_image' : 'summary'} />
