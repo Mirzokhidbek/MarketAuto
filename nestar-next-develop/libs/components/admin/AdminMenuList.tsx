@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
 import { useQuery, useReactiveVar } from '@apollo/client';
-import { ChartBar, Car, Flag, User, Article, Question, Megaphone, ChatCircleDots, ListChecks, GearSix } from 'phosphor-react';
+import { ChartBar, Car, Flag, User, Article, Question, Megaphone, ChatCircleDots, ListChecks, GearSix, Calculator } from 'phosphor-react';
 import { GET_ADMIN_BADGES } from '../../../apollo/admin/query';
 import { userVar } from '../../../apollo/store';
 
@@ -45,6 +45,7 @@ const SECTIONS: { title: string; items: MenuItem[] }[] = [
 		title: 'System',
 		items: [
 			{ label: 'Action log', href: '/_admin/system/logs', icon: icon(ListChecks), superOnly: true },
+			{ label: 'Import tariff', href: '/_admin/system/import-tariff', icon: icon(Calculator), superOnly: true },
 			{ label: 'Site settings', href: '/_admin/system/settings', icon: icon(GearSix), superOnly: true },
 		],
 	},

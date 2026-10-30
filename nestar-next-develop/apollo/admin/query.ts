@@ -448,3 +448,35 @@ export const GET_ADMIN_WAITING = gql`
 		}
 	}
 `;
+
+/** rules of the import cost estimate (public query, edited by super admins) */
+export const GET_IMPORT_TARIFF = gql`
+	query GetImportTariff {
+		getImportTariff {
+			vatPercent
+			electricDutyPercent
+			baseAmountUzs
+			clearanceUsd
+			defaultEngineCc
+			duty {
+				maxAgeYears
+				maxEngineCc
+				percent
+				usdPerCc
+				excisePercent
+			}
+			utilization {
+				group
+				maxAgeYears
+				maxEngineCc
+				baseAmounts
+			}
+			shipping {
+				country
+				costUsd
+				days
+			}
+			updatedAt
+		}
+	}
+`;
