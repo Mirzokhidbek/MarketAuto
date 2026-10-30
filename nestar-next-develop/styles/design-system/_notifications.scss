@@ -1,0 +1,489 @@
+/* ---------------------------------------------------------------- notifications
+   One look for the header bell panel and the My Page notification centre:
+   avatar (or a coloured type icon for MarketAuto's own messages) with a small type badge, text, time,
+   an unread dot, and quick actions (mark read, delete) that appear on hover / always on touch screens. */
+
+$noti-tones: (
+	rose: #e11d48,
+	blue: $ma-primary,
+	violet: #7c3aed,
+	green: $ma-success,
+	red: $ma-danger,
+	amber: #d97706,
+);
+
+@keyframes ma-bell-ring {
+	0%,
+	100% {
+		transform: rotate(0);
+	}
+	15% {
+		transform: rotate(14deg);
+	}
+	30% {
+		transform: rotate(-12deg);
+	}
+	45% {
+		transform: rotate(9deg);
+	}
+	60% {
+		transform: rotate(-6deg);
+	}
+	75% {
+		transform: rotate(3deg);
+	}
+}
+
+.ma-bell.is-ringing .notification-icon {
+	animation: ma-bell-ring 1s ease;
+	transform-origin: 50% 10%;
+}
+@media (prefers-reduced-motion: reduce) {
+	.ma-bell.is-ringing .notification-icon {
+		animation: none;
+	}
+}
+
+/* ---------- panel under the bell ---------- */
+.ma-bell__panel {
+	display: flex;
+	flex-direction: column;
+	width: 400px;
+	max-width: calc(100vw - 16px);
+	max-height: min(600px, calc(100vh - 96px));
+	margin-top: 10px;
+	border: 1px solid $ma-border;
+	border-radius: 16px !important;
+	box-shadow: $ma-shadow-float !important;
+	font-family: $ma-font;
+	overflow: hidden;
+}
+
+.ma-bell__head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	padding: 16px 18px 10px;
+	> div {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		min-width: 0;
+	}
+	strong {
+		font-size: 16px;
+		font-weight: 700;
+		color: $ma-dark;
+		white-space: nowrap;
+	}
+}
+
+.ma-bell__count {
+	white-space: nowrap;
+	padding: 2px 8px;
+	border-radius: 999px;
+	background: $ma-primary-soft;
+	color: $ma-primary-dark;
+	font-size: 12px;
+	font-weight: 600;
+}
+
+.ma-bell__link {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	padding: 4px 6px;
+	border: 0;
+	border-radius: 6px;
+	background: none;
+	color: $ma-primary;
+	font-family: $ma-font;
+	font-size: 13px;
+	font-weight: 600;
+	cursor: pointer;
+	white-space: nowrap;
+	svg {
+		font-size: 17px;
+	}
+	&:hover:not(:disabled) {
+		background: $ma-primary-soft;
+	}
+	&:disabled {
+		color: $ma-faint;
+		cursor: default;
+	}
+	/* narrow phones: the icon alone (the words stay in its tooltip / aria-label) */
+	@media (max-width: 420px) {
+		span {
+			display: none;
+		}
+		svg {
+			font-size: 20px;
+		}
+	}
+}
+
+.ma-bell__tabs {
+	display: flex;
+	gap: 6px;
+	padding: 0 18px 10px;
+	border-bottom: 1px solid $ma-border;
+	button {
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+		height: 30px;
+		padding: 0 12px;
+		border: 0;
+		border-radius: 999px;
+		background: $ma-bg-alt;
+		color: $ma-muted;
+		font-family: $ma-font;
+		font-size: 13px;
+		font-weight: 600;
+		cursor: pointer;
+		&.is-active {
+			background: $ma-dark;
+			color: $ma-white;
+		}
+		span {
+			min-width: 18px;
+			padding: 0 5px;
+			border-radius: 999px;
+			background: $ma-danger;
+			color: $ma-white;
+			font-size: 11px;
+			line-height: 18px;
+		}
+	}
+}
+
+.ma-bell__list {
+	flex: 1;
+	overflow-y: auto;
+	overscroll-behavior: contain;
+}
+
+.ma-bell__group {
+	position: sticky;
+	top: 0;
+	z-index: 1;
+	margin: 0;
+	padding: 10px 18px 6px;
+	background: rgba(255, 255, 255, 0.96);
+	backdrop-filter: blur(4px);
+	color: $ma-faint;
+	font-size: 11.5px;
+	font-weight: 700;
+	letter-spacing: 0.05em;
+	text-transform: uppercase;
+}
+
+.ma-bell__state,
+.ma-noti-center__empty {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 6px;
+	padding: 36px 24px;
+	text-align: center;
+	color: $ma-muted;
+	font-size: 13.5px;
+	line-height: 1.5;
+	> svg {
+		width: 48px;
+		height: 48px;
+		padding: 10px;
+		border-radius: 50%;
+		background: $ma-bg-alt;
+		color: $ma-faint;
+	}
+	strong {
+		color: $ma-dark;
+		font-size: 15px;
+	}
+}
+
+.ma-bell__footer {
+	display: block;
+	padding: 12px 18px;
+	border-top: 1px solid $ma-border;
+	text-align: center;
+	color: $ma-primary;
+	font-size: 13.5px;
+	font-weight: 600;
+	&:hover {
+		background: $ma-bg;
+	}
+}
+
+/* ---------- one notification ---------- */
+.ma-noti {
+	position: relative;
+	display: flex;
+	align-items: stretch;
+	margin: 0 8px;
+	border-radius: 12px;
+	transition: background 0.15s ease;
+	&:hover {
+		background: $ma-bg;
+	}
+	&.is-unread {
+		background: rgba(11, 87, 208, 0.05);
+		&:hover {
+			background: rgba(11, 87, 208, 0.09);
+		}
+	}
+	&__main {
+		display: flex;
+		flex: 1;
+		min-width: 0;
+		gap: 12px;
+		padding: 10px 10px 10px 10px;
+		border: 0;
+		background: none;
+		text-align: left;
+		font-family: $ma-font;
+		cursor: pointer;
+	}
+	&__avatar {
+		position: relative;
+		flex-shrink: 0;
+		width: 44px;
+		height: 44px;
+		img {
+			width: 100%;
+			height: 100%;
+			border-radius: 50%;
+			object-fit: cover;
+			background: $ma-bg-alt;
+		}
+		&.is-system {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			border-radius: 50%;
+			svg {
+				font-size: 22px;
+			}
+		}
+	}
+	&__badge {
+		position: absolute;
+		right: -3px;
+		bottom: -3px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 20px;
+		height: 20px;
+		border: 2px solid $ma-white;
+		border-radius: 50%;
+		color: $ma-white;
+		svg {
+			font-size: 11px;
+		}
+	}
+	&__body {
+		display: flex;
+		flex: 1;
+		flex-direction: column;
+		gap: 3px;
+		min-width: 0;
+	}
+	&__text {
+		color: $ma-text;
+		font-size: 13.5px;
+		line-height: 1.45;
+		strong {
+			color: $ma-dark;
+			font-weight: 600;
+		}
+	}
+	&.is-unread &__text {
+		color: $ma-dark;
+	}
+	&__reason {
+		padding: 4px 8px;
+		border-radius: 6px;
+		background: #fdecec;
+		color: #a50e0e;
+		font-size: 12px;
+		line-height: 1.4;
+	}
+	&__time {
+		color: $ma-faint;
+		font-size: 12px;
+	}
+	&__dot {
+		flex-shrink: 0;
+		align-self: center;
+		width: 9px;
+		height: 9px;
+		border-radius: 50%;
+		background: $ma-primary;
+	}
+	&__actions {
+		position: absolute;
+		top: 8px;
+		right: 8px;
+		display: flex;
+		gap: 4px;
+		opacity: 0;
+		transition: opacity 0.15s ease;
+		button {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			width: 28px;
+			height: 28px;
+			border: 1px solid $ma-border;
+			border-radius: 50%;
+			background: $ma-white;
+			color: $ma-muted;
+			cursor: pointer;
+			box-shadow: $ma-shadow;
+			svg {
+				font-size: 16px;
+			}
+			&:hover {
+				color: $ma-dark;
+				border-color: $ma-border-strong;
+			}
+		}
+	}
+	&:hover &__actions,
+	&:focus-within &__actions {
+		opacity: 1;
+	}
+	/* no hover on touch screens: keep the actions visible */
+	@media (hover: none) {
+		&__actions {
+			opacity: 1;
+			position: static;
+			align-self: center;
+			padding-right: 8px;
+		}
+	}
+
+	/* type colour: the badge on a member's avatar, or the tinted circle of a system message */
+	@each $name, $color in $noti-tones {
+		&__avatar.ma-noti--#{$name} .ma-noti__badge {
+			background: $color;
+		}
+		&__avatar.ma-noti--#{$name}.is-system {
+			background: rgba($color, 0.12);
+			color: $color;
+		}
+	}
+
+	/* the page version: a bit roomier, full date */
+	&--wide {
+		margin: 0;
+		.ma-noti__main {
+			padding: 14px 16px;
+			gap: 14px;
+		}
+		.ma-noti__avatar {
+			width: 48px;
+			height: 48px;
+		}
+		.ma-noti__text {
+			font-size: 14.5px;
+		}
+		.ma-noti__actions {
+			top: 12px;
+			right: 12px;
+		}
+	}
+}
+
+/* ---------- My Page → Notifications ---------- */
+.ma-noti-center {
+	&__actions {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 8px;
+		.ma-btn {
+			height: 38px;
+			padding: 0 14px;
+			font-size: 13.5px;
+		}
+	}
+	&__bar {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: space-between;
+		gap: 8px 16px;
+		margin-bottom: 8px;
+		border-bottom: 1px solid $ma-border;
+		[role='tablist'] {
+			border-bottom: 0;
+		}
+	}
+	&__tab {
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+		span {
+			min-width: 20px;
+			padding: 0 6px;
+			border-radius: 999px;
+			background: $ma-danger;
+			color: $ma-white;
+			font-size: 11.5px;
+			line-height: 20px;
+			text-align: center;
+		}
+	}
+	&__toggle {
+		display: inline-flex;
+		align-items: center;
+		gap: 2px;
+		color: $ma-muted;
+		font-family: $ma-font;
+		font-size: 13.5px;
+		font-weight: 600;
+		cursor: pointer;
+	}
+	&__group {
+		margin-top: 18px;
+		h2 {
+			margin: 0 0 8px;
+			color: $ma-faint;
+			font-family: $ma-font;
+			font-size: 12px;
+			font-weight: 700;
+			letter-spacing: 0.05em;
+			text-transform: uppercase;
+		}
+	}
+	&__list {
+		display: flex;
+		flex-direction: column;
+		gap: 4px;
+		.ma-noti {
+			border: 1px solid $ma-border;
+			&.is-unread {
+				border-color: rgba(11, 87, 208, 0.25);
+			}
+		}
+	}
+	&__more {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 12px;
+		margin-top: 20px;
+		color: $ma-faint;
+		font-family: $ma-font;
+		font-size: 13px;
+	}
+	&__empty {
+		margin-top: 24px;
+		border: 1px dashed $ma-border-strong;
+		border-radius: 14px;
+	}
+}

@@ -38,3 +38,7 @@ export const compareVar = makeVar<string[]>([]);
 /** private messages: unread total for the header badge and the last message pushed by the socket */
 export const unreadMessagesVar = makeVar<number>(0);
 export const incomingMessageVar = makeVar<any>(null);
+
+/** notifications: unread total for the bell / My Page badge, and a counter the socket bumps on each new one */
+export const unreadNotificationsVar = makeVar<number>(0);
+export const notificationPingVar = makeVar<number>(0);
