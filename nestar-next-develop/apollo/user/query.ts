@@ -870,6 +870,42 @@ export const GET_PRICE_ESTIMATE = gql`
 	}
 `;
 
+/** what a car abroad costs registered in Uzbekistan; recalculated with today's rate on every request */
+export const GET_IMPORT_COST = gql`
+	query GetImportCost($propertyId: String!) {
+		getImportCost(propertyId: $propertyId) {
+			applicable
+			reason
+			carPriceUsd
+			ageYears
+			engineCc
+			customsValueUsd
+			items {
+				key
+				amountUsd
+				basis
+			}
+			extraUsd
+			extraPercent
+			totalUsd
+			totalUzs
+			deliveryDays
+			warnings
+			comparison {
+				localAverageUsd
+				localCount
+				differenceUsd
+				verdict
+			}
+			usdToUzs
+			rateSource
+			rateUpdatedAt
+			tariffUpdatedAt
+			calculatedAt
+		}
+	}
+`;
+
 /** support contacts and social links edited in the admin panel */
 export const GET_SITE_SETTINGS = gql`
 	query GetSiteSettings {

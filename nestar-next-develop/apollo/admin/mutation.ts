@@ -238,3 +238,11 @@ export const UPDATE_SITE_SETTINGS = gql`
 		}
 	}
 `;
+
+export const UPDATE_IMPORT_TARIFF = gql`
+	mutation UpdateImportTariff($input: ImportTariffInput!) {
+		updateImportTariff(input: $input) {
+			updatedAt
+		}
+	}
+`;

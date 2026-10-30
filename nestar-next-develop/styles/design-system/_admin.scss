@@ -1577,3 +1577,101 @@ $wait-tones: (
 		gap: 10px;
 	}
 }
+
+/* ---------------------------------------------------------------- import tariff: rows of small labelled fields */
+.ma-tariff {
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+	max-width: 1040px;
+	.ma-admin-card h6 {
+		margin-bottom: 4px;
+		font-weight: 700;
+	}
+	&__status {
+		margin: 0;
+		font-size: 14px;
+		color: $adm-ink-2;
+	}
+	&__hint {
+		margin: 0 0 16px;
+		font-size: 13px;
+		color: $adm-ink-2;
+	}
+	&__general {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+		gap: 16px;
+		margin-top: 12px;
+	}
+	&__cell {
+		display: flex;
+		flex-direction: column;
+		gap: 4px;
+		min-width: 0;
+		> span {
+			font-size: 12px;
+			font-weight: 600;
+			line-height: 1.3;
+			color: $adm-ink-2;
+		}
+	}
+	&__row {
+		display: grid;
+		gap: 12px;
+		align-items: end;
+		padding: 12px 0;
+		border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+		&--duty {
+			grid-template-columns: repeat(5, minmax(0, 1fr)) 40px;
+		}
+		&--util {
+			grid-template-columns: minmax(0, 1.6fr) repeat(3, minmax(0, 1fr)) 40px;
+		}
+		&--ship {
+			grid-template-columns: minmax(0, 1fr) 160px 120px;
+			strong {
+				align-self: center;
+				font-weight: 600;
+			}
+		}
+		& + button {
+			margin-top: 12px;
+		}
+	}
+	&__save {
+		position: sticky;
+		bottom: 0;
+		z-index: 2;
+		display: flex;
+		align-items: center;
+		justify-content: flex-end;
+		gap: 16px;
+		padding: 14px 0;
+		background: linear-gradient(to top, $adm-bg 70%, transparent);
+		span {
+			font-size: 14px;
+			color: #c62828;
+		}
+	}
+}
+
+@media (max-width: 900px) {
+	.ma-tariff__row {
+		&--duty,
+		&--util {
+			grid-template-columns: 1fr 1fr;
+			// the remove button sits at the end of its row
+			> span:last-child {
+				grid-column: 1 / -1;
+				justify-self: end;
+			}
+		}
+		&--ship {
+			grid-template-columns: 1fr 1fr;
+			strong {
+				grid-column: 1 / -1;
+			}
+		}
+	}
+}
