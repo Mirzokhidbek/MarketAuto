@@ -148,7 +148,7 @@ const Header = () => {
 				<Stack className={'container'}>
 					<Box component={'div'} className={'logo-box'}>
 						<Link href={'/'}>
-							<img src="/img/logo/logoDark.svg" alt="MarketAuto" />
+							<img src="/img/logo/logo.png" alt="CarPort" />
 						</Link>
 					</Box>
 					<button
@@ -233,7 +233,7 @@ const Header = () => {
 										{t('My Page')}
 									</MenuItem>
 									<MenuItem onClick={() => logOut()}>
-										<Logout fontSize="small" style={{ color: '#0B57D0', marginRight: '10px' }} />
+										<Logout fontSize="small" style={{ color: '#015DEA', marginRight: '10px' }} />
 										{t('Logout')}
 									</MenuItem>
 								</Menu>

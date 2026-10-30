@@ -53,7 +53,7 @@ const MyArticles: NextPage = ({ initialInput, ...props }: T) => {
 			<div className={'ma-account-panel__head'}>
 				<div>
 					<h1>{t('My Articles')}</h1>
-					<p>{t('Articles you shared with the MarketAuto community.')}</p>
+					<p>{t('Articles you shared with the CarPort community.')}</p>
 				</div>
 				<button className={'ma-btn ma-btn--primary'} onClick={() => router.push('/mypage?category=writeArticle')}>
 					+ {t('Write Article')}

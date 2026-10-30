@@ -9,12 +9,12 @@ export const terms: Record<string, LegalDoc> = {
 	uz: {
 		updated: 'Oxirgi yangilanish: 2026-yil oktyabr',
 		intro:
-			"MarketAuto — avtomobil sotish e'lonlari platformasi. Saytdan foydalanish orqali siz quyidagi shartlarga rozilik bildirasiz.",
+			"CarPort — avtomobil sotish e'lonlari platformasi. Saytdan foydalanish orqali siz quyidagi shartlarga rozilik bildirasiz.",
 		sections: [
 			{
 				title: '1. Platformaning roli',
 				text: [
-					"MarketAuto faqat e'lonlarni joylash va sotuvchi bilan bog'lanish imkonini beradi. Biz avtomobil sotmaymiz, to'lovlarni qabul qilmaymiz va bitim tomoni hisoblanmaymiz.",
+					"CarPort faqat e'lonlarni joylash va sotuvchi bilan bog'lanish imkonini beradi. Biz avtomobil sotmaymiz, to'lovlarni qabul qilmaymiz va bitim tomoni hisoblanmaymiz.",
 					"Narx, to'lov va topshirish shartlari xaridor va sotuvchi o'rtasida to'g'ridan-to'g'ri kelishiladi.",
 				],
 			},
@@ -44,7 +44,7 @@ export const terms: Record<string, LegalDoc> = {
 				title: "5. Javobgarlik",
 				text: [
 					"Avtomobilni sotib olishdan oldin uni va hujjatlarini shaxsan tekshiring, VIN raqamini solishtiring. Ko'rmagan avtomobilingiz uchun oldindan pul o'tkazmang.",
-					"MarketAuto foydalanuvchilar o'rtasidagi bitimlar natijasi uchun javob bermaydi, lekin shikoyat qilingan e'lonlarni tekshiradi.",
+					"CarPort foydalanuvchilar o'rtasidagi bitimlar natijasi uchun javob bermaydi, lekin shikoyat qilingan e'lonlarni tekshiradi.",
 				],
 			},
 			{
@@ -55,12 +55,12 @@ export const terms: Record<string, LegalDoc> = {
 	},
 	ru: {
 		updated: 'Последнее обновление: октябрь 2026 г.',
-		intro: 'MarketAuto — платформа объявлений о продаже автомобилей. Пользуясь сайтом, вы соглашаетесь с этими условиями.',
+		intro: 'CarPort — платформа объявлений о продаже автомобилей. Пользуясь сайтом, вы соглашаетесь с этими условиями.',
 		sections: [
 			{
 				title: '1. Роль платформы',
 				text: [
-					'MarketAuto только размещает объявления и помогает связаться с продавцом. Мы не продаём автомобили, не принимаем платежи и не являемся стороной сделки.',
+					'CarPort только размещает объявления и помогает связаться с продавцом. Мы не продаём автомобили, не принимаем платежи и не являемся стороной сделки.',
 					'Цена, оплата и передача автомобиля согласуются напрямую между покупателем и продавцом.',
 				],
 			},
@@ -90,7 +90,7 @@ export const terms: Record<string, LegalDoc> = {
 				title: '5. Ответственность',
 				text: [
 					'Перед покупкой лично осмотрите автомобиль и документы, сверьте VIN. Не переводите деньги за автомобиль, который вы не видели.',
-					'MarketAuto не отвечает за результат сделок между пользователями, но проверяет объявления, на которые пожаловались.',
+					'CarPort не отвечает за результат сделок между пользователями, но проверяет объявления, на которые пожаловались.',
 				],
 			},
 			{ title: '6. Связь', text: ['Вопросы и жалобы: Поддержка → «Задать вопрос».'] },
@@ -98,12 +98,12 @@ export const terms: Record<string, LegalDoc> = {
 	},
 	en: {
 		updated: 'Last updated: October 2026',
-		intro: 'MarketAuto is a marketplace for car sale listings. By using the site you agree to these terms.',
+		intro: 'CarPort is a marketplace for car sale listings. By using the site you agree to these terms.',
 		sections: [
 			{
 				title: '1. Our role',
 				text: [
-					'MarketAuto only publishes listings and helps buyers contact sellers. We do not sell cars, take payments or act as a party to any deal.',
+					'CarPort only publishes listings and helps buyers contact sellers. We do not sell cars, take payments or act as a party to any deal.',
 					'Price, payment and hand-over are agreed directly between the buyer and the seller.',
 				],
 			},
@@ -133,7 +133,7 @@ export const terms: Record<string, LegalDoc> = {
 				title: '5. Responsibility',
 				text: [
 					'Inspect the car and its documents in person and check the VIN before buying. Never send money for a car you have not seen.',
-					'MarketAuto is not responsible for the outcome of deals between members, but reviews every reported listing.',
+					'CarPort is not responsible for the outcome of deals between members, but reviews every reported listing.',
 				],
 			},
 			{ title: '6. Contact', text: ['Questions and complaints: Support Center → "Ask a question".'] },
@@ -144,7 +144,7 @@ export const terms: Record<string, LegalDoc> = {
 export const privacy: Record<string, LegalDoc> = {
 	uz: {
 		updated: 'Oxirgi yangilanish: 2026-yil oktyabr',
-		intro: "Ushbu siyosat MarketAuto qanday ma'lumot to'plashi va undan qanday foydalanishini tushuntiradi.",
+		intro: "Ushbu siyosat CarPort qanday ma'lumot to'plashi va undan qanday foydalanishini tushuntiradi.",
 		sections: [
 			{
 				title: "1. Qanday ma'lumot to'playmiz",
@@ -185,7 +185,7 @@ export const privacy: Record<string, LegalDoc> = {
 	},
 	ru: {
 		updated: 'Последнее обновление: октябрь 2026 г.',
-		intro: 'Эта политика объясняет, какие данные собирает MarketAuto и как их использует.',
+		intro: 'Эта политика объясняет, какие данные собирает CarPort и как их использует.',
 		sections: [
 			{
 				title: '1. Какие данные мы собираем',
@@ -226,7 +226,7 @@ export const privacy: Record<string, LegalDoc> = {
 	},
 	en: {
 		updated: 'Last updated: October 2026',
-		intro: 'This policy explains what data MarketAuto collects and how it is used.',
+		intro: 'This policy explains what data CarPort collects and how it is used.',
 		sections: [
 			{
 				title: '1. What we collect',

@@ -115,7 +115,7 @@ const CarFilter = (props: FilterType) => {
 				showCancelButton: true,
 				confirmButtonText: t('Save') as string,
 				cancelButtonText: t('Cancel') as string,
-				confirmButtonColor: '#0b57d0',
+				confirmButtonColor: '#015dea',
 				inputValidator: (value: string) => (!value || value.trim().length < 2 ? (t('Enter a name') as string) : null),
 			});
 			if (!title) return;

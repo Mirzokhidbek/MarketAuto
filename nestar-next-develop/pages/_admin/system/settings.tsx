@@ -20,9 +20,9 @@ const EMPTY: Settings = { supportPhone: '', supportEmail: '', telegramUrl: '', i
 const FIELDS: { key: keyof Settings; label: string; placeholder: string }[] = [
 	{ key: 'supportPhone', label: 'Support phone', placeholder: '+998 71 200 00 00' },
 	{ key: 'supportEmail', label: 'Support email', placeholder: 'support@marketauto.uz' },
-	{ key: 'telegramUrl', label: 'Telegram', placeholder: 'https://t.me/marketauto' },
-	{ key: 'instagramUrl', label: 'Instagram', placeholder: 'https://instagram.com/marketauto' },
-	{ key: 'facebookUrl', label: 'Facebook', placeholder: 'https://facebook.com/marketauto' },
+	{ key: 'telegramUrl', label: 'Telegram', placeholder: 'https://t.me/carport' },
+	{ key: 'instagramUrl', label: 'Instagram', placeholder: 'https://instagram.com/carport' },
+	{ key: 'facebookUrl', label: 'Facebook', placeholder: 'https://facebook.com/carport' },
 ];
 
 const isUrl = (value: string) => !value || /^https:\/\/[^\s]+$/.test(value);

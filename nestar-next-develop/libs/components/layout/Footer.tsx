@@ -23,7 +23,7 @@ const Footer = () => {
 		<footer className={'ma-footer'}>
 			<div className={'ma-container ma-footer__grid'}>
 				<div className={'ma-footer__brand'}>
-					<img src="/img/logo/logoDark.svg" alt="MarketAuto" />
+					<img src="/img/logo/logo-tagline.png" alt="CarPort" />
 					<p>{t('The marketplace connecting car sellers in Uzbekistan and abroad with buyers across Uzbekistan.')}</p>
 					{socials.length > 0 && (
 						<div className={'ma-footer__social'}>
@@ -59,7 +59,7 @@ const Footer = () => {
 			</div>
 			<div className={'ma-container ma-footer__bottom'}>
 				<span>
-					© {moment().year()} MarketAuto. {t('All rights reserved.')}
+					© {moment().year()} CarPort. {t('All rights reserved.')}
 				</span>
 				<span>{t('Tashkent, Uzbekistan')} · {site.email}</span>
 			</div>

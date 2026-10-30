@@ -1,6 +1,6 @@
-# MarketAuto — website and admin panel
+# CarPort — website and admin panel
 
-Next.js 15 (pages router) app for the MarketAuto API. See the main [README](../README.md) for the whole project.
+Next.js 15 (pages router) app for the CarPort API. See the main [README](../README.md) for the whole project.
 
 ```bash
 npm ci --legacy-peer-deps   # @toast-ui/react-editor still declares React <= 17
