@@ -57,17 +57,33 @@ export class BatchService {
 		const wanted = new Set(paths);
 		const mark = (value: unknown) => typeof value === 'string' && wanted.has(value) && used.add(value);
 
-		(await this.memberModel.find({ memberImage: { $in: paths } }, { memberImage: 1 }).lean().exec()).forEach((ele: any) =>
-			mark(ele.memberImage),
-		);
-		(await this.propertyModel.find({ propertyImages: { $in: paths } }, { propertyImages: 1 }).lean().exec()).forEach(
-			(ele: any) => (ele.propertyImages ?? []).forEach(mark),
-		);
-		(await this.messageModel.find({ image: { $in: paths } }, { image: 1 }).lean().exec()).forEach((ele: any) => mark(ele.image));
+		(
+			await this.memberModel
+				.find({ memberImage: { $in: paths } }, { memberImage: 1 })
+				.lean()
+				.exec()
+		).forEach((ele: any) => mark(ele.memberImage));
+		(
+			await this.propertyModel
+				.find({ propertyImages: { $in: paths } }, { propertyImages: 1 })
+				.lean()
+				.exec()
+		).forEach((ele: { propertyImages?: string[] }) => {
+			for (const image of ele.propertyImages ?? []) mark(image);
+		});
+		(
+			await this.messageModel
+				.find({ image: { $in: paths } }, { image: 1 })
+				.lean()
+				.exec()
+		).forEach((ele: any) => mark(ele.image));
 		// article images live inside the article text
 		const anyPath = new RegExp(paths.map((item) => item.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|'));
 		const articles = await this.boardArticleModel
-			.find({ $or: [{ articleImage: { $in: paths } }, { articleContent: { $regex: anyPath } }] }, { articleContent: 1, articleImage: 1 })
+			.find(
+				{ $or: [{ articleImage: { $in: paths } }, { articleContent: { $regex: anyPath } }] },
+				{ articleContent: 1, articleImage: 1 },
+			)
 			.lean()
 			.exec();
 		for (const ele of articles as any[]) {
@@ -85,7 +101,10 @@ export class BatchService {
 		await this.memberModel
 			.updateMany(
 				{
-					$or: [{ memberStatus: { $ne: MemberStatus.ACTIVE } }, { memberType: { $nin: [MemberType.USER, MemberType.AGENT] } }],
+					$or: [
+						{ memberStatus: { $ne: MemberStatus.ACTIVE } },
+						{ memberType: { $nin: [MemberType.USER, MemberType.AGENT] } },
+					],
 					memberRank: { $ne: 0 },
 				},
 				{ memberRank: 0 },

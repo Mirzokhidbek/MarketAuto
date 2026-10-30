@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
-import axios from 'axios';
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
 import CloudUploadOutlinedIcon from '@mui/icons-material/CloudUploadOutlined';
 import CloseIcon from '@mui/icons-material/Close';
@@ -19,49 +18,22 @@ import {
 } from '../../enums/property.enum';
 import { propertyYears } from '../../config';
 import { formatCountry, formatEnumLabel, imageUrl } from '../../utils';
-import { PropertyInput } from '../../types/property/property.input';
-import { getFreshToken } from '../../auth/index';
 import { sweetErrorHandling, sweetMixinErrorAlert, sweetMixinSuccessAlert } from '../../sweetAlert';
 import { usdRateVar, userVar } from '../../../apollo/store';
 import { CREATE_PROPERTY, UPDATE_PROPERTY } from '../../../apollo/user/mutation';
+import { uploadImages } from '../../upload';
+import {
+	buildPayload,
+	DRAFT_KEY,
+	emptyCar,
+	formKeys,
+	MAX_PHOTOS,
+	MIN_PHOTOS,
+	missingFields,
+	STEPS,
+	suggestTitle,
+} from './addCarForm.logic';
 import { GET_CAR_MODELS, GET_PROPERTY } from '../../../apollo/user/query';
-
-const MAX_PHOTOS = 10;
-const MIN_PHOTOS = 3;
-const DRAFT_KEY = 'carDraft';
-const STEPS = ['Car', 'History & location', 'Photos & price'];
-
-const emptyCar: any = {
-	propertyTitle: '',
-	propertyPrice: 0,
-	propertyPriceCurrency: 'USD', // the price is kept in the currency the seller typed it in
-	propertyType: '',
-	carCountry: '',
-	propertyLocation: '',
-	propertyAddress: '',
-	propertyBarter: false,
-	propertyNegotiable: false,
-	carBrand: '',
-	carModel: '',
-	carYear: 0,
-	carMileage: 0,
-	carFuel: '',
-	carTransmission: '',
-	carColor: '',
-	carTrim: '',
-	carEngine: undefined,
-	carVin: '',
-	carAccidentHistory: '',
-	carOwners: undefined,
-	carCustomsCleared: undefined,
-	carDeliveryDays: undefined,
-	carDeliveryCost: undefined,
-	propertyDesc: '',
-	propertyImages: [],
-};
-
-// fields the form edits; everything else returned by getProperty is ignored
-const formKeys = Object.keys(emptyCar);
 
 const AddCarForm = () => {
 	const { t } = useTranslation('common');
@@ -137,36 +109,16 @@ const AddCarForm = () => {
 	const set = (key: string, value: any) => setCar((prev: any) => ({ ...prev, [key]: value }));
 	const number = (value: string, float = false) => (value === '' ? undefined : float ? parseFloat(value) : parseInt(value));
 
-	const uploadImages = async () => {
+	const addPhotos = async () => {
 		const files = Array.from(inputRef.current?.files ?? []);
 		if (!files.length) return;
-		const room = MAX_PHOTOS - car.propertyImages.length;
-		if (files.length > room) {
+		if (files.length > MAX_PHOTOS - car.propertyImages.length) {
 			await sweetMixinErrorAlert(t('You can upload up to 10 photos.') as string);
 			return;
 		}
 		setUploading(true);
 		try {
-			const formData = new FormData();
-			formData.append(
-				'operations',
-				JSON.stringify({
-					query: `mutation ImagesUploader($files: [Upload!]!, $target: String!) { imagesUploader(files: $files, target: $target) }`,
-					variables: { files: files.map(() => null), target: 'property' },
-				}),
-			);
-			formData.append('map', JSON.stringify(Object.fromEntries(files.map((_, i) => [String(i), [`variables.files.${i}`]]))));
-			files.forEach((file, i) => formData.append(String(i), file));
-
-			const response = await axios.post(`${process.env.REACT_APP_API_GRAPHQL_URL}`, formData, {
-				headers: {
-					'Content-Type': 'multipart/form-data',
-					'apollo-require-preflight': true,
-					Authorization: `Bearer ${await getFreshToken()}`,
-				},
-			});
-			const uploaded: string[] = response.data?.data?.imagesUploader ?? [];
-			if (response.data?.errors?.length) throw new Error(response.data.errors[0].message);
+			const uploaded = await uploadImages(files, 'property');
 			setCar((prev: any) => ({ ...prev, propertyImages: [...prev.propertyImages, ...uploaded] }));
 		} catch (err: any) {
 			await sweetMixinErrorAlert(err.message);
@@ -192,67 +144,22 @@ const AddCarForm = () => {
 		set('propertyImages', images);
 	};
 
-	const suggestedTitle = [car.carYear || '', formatEnumLabel(car.carBrand), car.carModel, car.carTrim].filter(Boolean).join(' ');
-
-	/** per-step required fields */
-	const stepValid = [
-		!!car.carBrand && !!car.carModel?.trim() && !!car.carYear && !!car.propertyType && car.carMileage >= 0 && !!car.carFuel && !!car.carTransmission && (!car.carVin || /^[A-HJ-NPR-Z0-9]{17}$/i.test(car.carVin)),
-		!!car.carCountry && (!isUzbekistan || !!car.propertyLocation) && !!car.propertyAddress?.trim() && (car.propertyDesc?.trim().length ?? 0) >= 5,
-		car.propertyPrice > 0 &&
-			car.propertyImages.length >= MIN_PHOTOS &&
-			(car.propertyTitle || suggestedTitle).trim().length > 0,
-	];
-
-	/** what is still missing on the current step, shown next to the disabled button */
-	const missing: string[][] = [
-		[
-			!car.carBrand && 'Brand',
-			!car.carModel?.trim() && 'Model',
-			!car.carYear && 'Year',
-			!car.propertyType && 'Body type',
-			!car.carFuel && 'Fuel',
-			!car.carTransmission && 'Transmission',
-			car.carVin && !/^[A-HJ-NPR-Z0-9]{17}$/i.test(car.carVin) && 'VIN (17 characters)',
-		].filter(Boolean) as string[],
-		[
-			!car.carCountry && 'Country',
-			isUzbekistan && !car.propertyLocation && 'City',
-			!car.propertyAddress?.trim() && (isUzbekistan ? 'District / street' : 'City abroad'),
-			(car.propertyDesc?.trim().length ?? 0) < 5 && 'Description',
-		].filter(Boolean) as string[],
-		[
-			car.propertyImages.length < MIN_PHOTOS && 'Photos',
-			!(car.propertyPrice > 0) && 'Price',
-		].filter(Boolean) as string[],
-	];
-
-	/** drops empty optional fields and the city for cars located abroad */
-	const buildPayload = (): PropertyInput => {
-		const payload: any = { ...car, propertyTitle: (car.propertyTitle || suggestedTitle).trim() };
-		delete payload.propertyPriceOriginal; // the server derives it from propertyPrice + propertyPriceCurrency
-		Object.keys(payload).forEach((key) => {
-			if (payload[key] === '' || payload[key] === undefined || payload[key] === null || Number.isNaN(payload[key]))
-				delete payload[key];
-		});
-		if (payload.carCountry !== CarCountry.UZBEKISTAN) delete payload.propertyLocation;
-		else {
-			delete payload.carDeliveryDays;
-			delete payload.carDeliveryCost;
-		}
-		return payload;
-	};
+	const suggestedTitle = suggestTitle(car);
+	/** what is still missing on each step, shown next to the disabled button */
+	const missing = missingFields(car);
+	const stepValid = missing.map((fields) => fields.length === 0);
 
 	const submitHandler = async () => {
 		try {
 			if (editId) {
 				const wasRejected = propertyData?.getProperty?.propertyStatus === 'REJECTED';
-				await updateProperty({ variables: { input: { _id: editId, ...buildPayload() } } });
+				await updateProperty({ variables: { input: { _id: editId, ...buildPayload(car) } } });
 				// a fixed rejected listing goes back to moderation
 				await sweetMixinSuccessAlert(
 					(wasRejected ? t('Sent for review again. We will check the changes soon.') : t('This car has been updated successfully.')) as string,
 				);
 			} else {
-				const { data } = await createProperty({ variables: { input: buildPayload() } });
+				const { data } = await createProperty({ variables: { input: buildPayload(car) } });
 				localStorage.removeItem(DRAFT_KEY);
 				const pending = data?.createProperty?.propertyStatus === 'PENDING';
 				await sweetMixinSuccessAlert(
@@ -292,7 +199,7 @@ const AddCarForm = () => {
 	const usdValue = priceCurrency === 'UZS' ? Math.round((car.propertyPrice || 0) / usdRate) : car.propertyPrice || 0;
 	// what buyers will see on the card
 	const previewCar: any = {
-		...buildPayload(),
+		...buildPayload(car),
 		_id: editId ?? 'preview',
 		propertyPrice: usdValue,
 		propertyPriceOriginal: priceCurrency === 'UZS' ? car.propertyPrice : undefined,
@@ -546,7 +453,7 @@ const AddCarForm = () => {
 								ref={inputRef}
 								type="file"
 								hidden
-								onChange={uploadImages}
+								onChange={addPhotos}
 								multiple
 								accept="image/jpg, image/jpeg, image/png, image/webp"
 							/>

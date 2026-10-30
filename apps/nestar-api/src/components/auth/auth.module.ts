@@ -1,3 +1,4 @@
+import { settings } from '../../libs/env';
 import { Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { HttpModule } from '@nestjs/axios';
@@ -12,8 +13,8 @@ import SessionSchema from '../../schemas/Session.model';
 		// read when the app starts (after .env is loaded), not when this file is imported
 		JwtModule.registerAsync({
 			useFactory: () => ({
-				secret: process.env.SECRET_TOKEN,
-				signOptions: { expiresIn: (process.env.ACCESS_TOKEN_TTL ?? '1h') as any },
+				secret: settings.secretToken,
+				signOptions: { expiresIn: settings.accessTokenTtl as any },
 			}),
 		}),
 		// the token is only proof of identity; status and role are always read from the database

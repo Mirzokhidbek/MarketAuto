@@ -1,3 +1,4 @@
+import { settings } from './env';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { Message } from './enums/common.enum';
 
@@ -58,7 +59,7 @@ export class RateLimiter {
 
 const MINUTE = 60 * 1000;
 // per-IP limits are strict in production; in development many tests run from one IP (localhost)
-const ipFactor = process.env.NODE_ENV === 'production' ? 1 : 20;
+const ipFactor = settings.production ? 1 : 20;
 
 export const limiters = {
 	// wrong passwords per nick and per IP
@@ -72,6 +73,8 @@ export const limiters = {
 	codeCheck: new RateLimiter(5, 15 * MINUTE),
 	messages: new RateLimiter(30, MINUTE),
 	reports: new RateLimiter(10, 60 * MINUTE),
+	// uploaded photos per member (a listing has at most 10; avatars, articles and chat photos share this)
+	uploads: new RateLimiter(100, 60 * MINUTE),
 };
 
 // stale keys are removed every 5 minutes; unref: this timer alone does not keep the process (or tests) running

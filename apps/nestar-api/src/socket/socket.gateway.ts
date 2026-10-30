@@ -1,3 +1,4 @@
+import { idString } from '../libs/config';
 import { Logger, OnModuleDestroy } from '@nestjs/common';
 import {
 	ConnectedSocket,
@@ -69,7 +70,7 @@ export class SocketGateway implements OnGatewayInit, OnModuleDestroy {
 			const token = String(data?.token ?? '');
 			const member = await this.authService.verifyToken(token);
 			if (client.readyState !== WebSocket.OPEN) return;
-			const memberId = String(member._id);
+			const memberId = idString(member._id);
 			state.memberId = memberId;
 			if (!this.memberSockets.has(memberId)) this.memberSockets.set(memberId, new Set());
 			this.memberSockets.get(memberId)!.add(client);

@@ -1,3 +1,4 @@
+import { settings } from '../../libs/env';
 import { Injectable, Logger } from '@nestjs/common';
 import { ExchangeRate } from './exchange.resolver';
 
@@ -28,7 +29,7 @@ export class ExchangeService {
 			this.cache =
 				this.cache?.source === 'CBU'
 					? { ...this.cache, updatedAt: new Date() }
-					: { usdToUzs: Number(process.env.DEFAULT_USD_UZS ?? 12700), updatedAt: new Date(), source: 'FALLBACK' };
+					: { usdToUzs: settings.defaultUsdUzs, updatedAt: new Date(), source: 'FALLBACK' };
 		}
 		return this.cache;
 	}

@@ -1,98 +1,72 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# MarketAuto
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Used-car marketplace: sellers and dealers list cars, buyers search, compare, save searches, like and chat
+with sellers. Admins and moderators review listings and reports.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+| Part | Folder | Stack |
+|---|---|---|
+| API | `apps/nestar-api` | NestJS 12, GraphQL (Apollo), MongoDB (Mongoose), WebSocket chat |
+| Batch jobs | `apps/nestar-batch` | NestJS: top listings/agents, cleanup of unused uploads |
+| Website + admin panel | `nestar-next-develop` | Next.js 15 (pages router), Apollo Client, MUI, i18n (uz / ru / en) |
 
-## Description
+## Requirements
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- **Node.js 24.9 or newer** (`.nvmrc`). NestJS 12 is ESM-only; the unit tests need Node 24's VM modules API.
+- MongoDB 7 (local, Docker or Atlas).
 
-## Project setup
+## Run locally
 
 ```bash
-$ npm install
+cp .env.example .env              # set SECRET_TOKEN and MONGO_DEV at least
+npm ci
+npm run start:dev                 # API  -> http://localhost:3007/graphql
+npm run start:dev:batch           # batch jobs (optional)
+
+cd nestar-next-develop
+npm ci --legacy-peer-deps         # @toast-ui/react-editor still declares React <= 17
+npm run dev                       # site -> http://localhost:3000, admin -> /admin
 ```
 
-## Compile and run the project
+Without SMS provider keys the verification code is printed in the API log and returned as `devCode`
+(development only). Everything in one go: `cp .env.example .env && docker compose up -d --build`.
+
+## Checks (the same ones CI runs)
 
 ```bash
-# development
-$ npm run start
+npm run typecheck && npm run lint:check && npm run test:unit
+npx nest build nestar-api && node dist/apps/nestar-api/main &   # needs MongoDB
+MONGO_URL=mongodb://localhost:27017/<db> npm run test:api       # end-to-end API checks
 
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+cd nestar-next-develop && npm run typecheck && npm run build
 ```
 
-## Run tests
+## How the API is organised
 
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+```
+apps/nestar-api/src
+├── components/<feature>/   resolver (GraphQL in/out) -> service (rules, database) per feature:
+│                           member, auth, verification (SMS), property, board-article, comment, like,
+│                           follow, view, message, notification, report, saved-search, notice,
+│                           dashboard, admin-log, setting, exchange (USD/UZS), storage (images)
+├── libs/dto, libs/enums    GraphQL types and inputs, validated with class-validator
+├── libs/env.ts             every setting (`settings.*`) + startup checks (assertEnv)
+├── schemas/                Mongoose models
+└── socket/                 WebSocket channel for live chat messages
 ```
 
-## Deployment
+## Security model (short)
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+- **Sessions:** 1-hour JWT access token + 30-day refresh token in an httpOnly cookie, rotated on use and
+  stored hashed (revocable). Status and role are re-read from the database on every request.
+- **Who is calling:** `AuthGuard` (login required), `RolesGuard` + `@Roles()` / `@SuperAdminOnly()`,
+  `WithoutGuard` (login optional). The verified member is stored on the request (`req.authMember`) and read
+  with `@AuthMember()`. It is never taken from the request body.
+- **Abuse limits:** login, SMS, code checks, sign-ups, messages, reports and uploads are rate limited
+  (`libs/rate-limiter.ts`, in memory; move to Redis before running several API instances).
+- **Uploads:** images are re-encoded to WebP. The stored name starts with the uploader's id
+  (`uploads/property/<memberId>_<uuid>.webp`), and listings, avatars, article covers and chat photos accept
+  only the author's own uploads.
+- **Headers:** the API and the site send `nosniff`, `X-Frame-Options: DENY` and a referrer policy; the site also
+  sends HSTS, `Permissions-Policy` and a CSP with `frame-ancestors`, `object-src` and `base-uri` rules.
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
-```
-
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+Settings are documented in `.env.example`.

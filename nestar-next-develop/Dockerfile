@@ -1,5 +1,5 @@
 # Frontend image. The public API URLs are baked in at build time.
-FROM node:22-alpine AS build
+FROM node:24-alpine AS build
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci --legacy-peer-deps
@@ -24,7 +24,7 @@ ENV REACT_APP_API_URL=$REACT_APP_API_URL \
 	NEXT_PUBLIC_FACEBOOK_URL=$NEXT_PUBLIC_FACEBOOK_URL
 RUN npm run build
 
-FROM node:22-alpine
+FROM node:24-alpine
 WORKDIR /app
 ENV NODE_ENV=production
 COPY --from=build /app ./

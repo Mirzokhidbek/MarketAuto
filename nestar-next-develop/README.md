@@ -1,38 +1,21 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# MarketAuto — website and admin panel
 
-## Getting Started
-
-First, run the development server:
+Next.js 15 (pages router) app for the MarketAuto API. See the main [README](../README.md) for the whole project.
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
+npm ci --legacy-peer-deps   # @toast-ui/react-editor still declares React <= 17
+npm run dev                 # http://localhost:3000, admin panel at /admin
+npm run typecheck
+npm run build
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+API addresses are read at build time from `REACT_APP_API_URL`, `REACT_APP_API_GRAPHQL_URL` and `REACT_APP_API_WS`
+(see `docker-compose.yml`). Translations live in `public/locales/{uz,ru,en}/common.json`.
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
-
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
-
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
-
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+| Folder | What is there |
+|---|---|
+| `pages/` | routes; `pages/_admin` is the admin panel (`/admin` redirects there) |
+| `libs/components/` | UI by area: `car`, `mypage`, `community`, `admin`, `layout`, `ui`, ... |
+| `libs/auth/` | login, sessions and token refresh |
+| `libs/upload.ts` | image uploads (GraphQL multipart) |
+| `apollo/` | Apollo client, reactive store, queries and mutations |
