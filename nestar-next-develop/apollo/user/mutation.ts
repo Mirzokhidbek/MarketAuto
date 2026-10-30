@@ -387,9 +387,17 @@ export const CHANGE_PASSWORD = gql`
 	}
 `;
 
+/** without ids: every notification is marked read */
 export const MARK_NOTIFICATIONS_READ = gql`
-	mutation MarkNotificationsRead {
-		markNotificationsRead
+	mutation MarkNotificationsRead($ids: [String!]) {
+		markNotificationsRead(ids: $ids)
+	}
+`;
+
+/** the given notifications, or every read one with readOnly: true */
+export const REMOVE_NOTIFICATIONS = gql`
+	mutation RemoveNotifications($ids: [String!], $readOnly: Boolean) {
+		removeNotifications(ids: $ids, readOnly: $readOnly)
 	}
 `;
 

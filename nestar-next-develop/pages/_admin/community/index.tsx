@@ -149,7 +149,7 @@ const AdminCommunity: NextPage = () => {
 				</Stack>
 				<Divider />
 				<TableContainer>
-					<Table sx={{ minWidth: 860 }}>
+					<Table sx={{ minWidth: 860 }} className={'ma-adm-cards'}>
 						<TableHead>
 							<TableRow>
 								<TableCell>{t('ARTICLE')}</TableCell>
@@ -158,7 +158,8 @@ const AdminCommunity: NextPage = () => {
 								<TableCell align="center">{t('VIEWS')}</TableCell>
 								<TableCell align="center">{t('LIKES')}</TableCell>
 								<TableCell>{t('DATE')}</TableCell>
-								<TableCell align="right">{t('STATUS')}</TableCell>
+								{/* the tabs above filter by status; this column holds what can be done with the article */}
+								<TableCell align="right">{t('ACTIONS')}</TableCell>
 							</TableRow>
 						</TableHead>
 						<TableBody>
@@ -188,7 +189,7 @@ const AdminCommunity: NextPage = () => {
 								);
 								return (
 									<TableRow hover key={article._id}>
-										<TableCell>
+										<TableCell className={'ma-adm-cards__title'}>
 											{active ? (
 												<Link href={`/community/detail?articleCategory=${article.articleCategory}&id=${article._id}`} target={'_blank'}>
 													{title}
@@ -197,16 +198,22 @@ const AdminCommunity: NextPage = () => {
 												title
 											)}
 										</TableCell>
-										<TableCell>{t(articleCategoryLabels[article.articleCategory] ?? article.articleCategory)}</TableCell>
-										<TableCell>
+										<TableCell data-label={t('CATEGORY')}>
+											{t(articleCategoryLabels[article.articleCategory] ?? article.articleCategory)}
+										</TableCell>
+										<TableCell data-label={t('AUTHOR')}>
 											<Link href={isSuper ? `/_admin/users/detail?id=${article.memberId}` : `/member?memberId=${article.memberId}`}>
 												{article.memberData?.memberNick ?? '—'}
 											</Link>
 										</TableCell>
-										<TableCell align="center">{article.articleViews}</TableCell>
-										<TableCell align="center">{article.articleLikes}</TableCell>
-										<TableCell>{moment(article.createdAt).format('DD.MM.YYYY')}</TableCell>
-										<TableCell align="right">
+										<TableCell align="center" data-label={t('VIEWS')}>
+											{article.articleViews}
+										</TableCell>
+										<TableCell align="center" data-label={t('LIKES')}>
+											{article.articleLikes}
+										</TableCell>
+										<TableCell data-label={t('DATE')}>{moment(article.createdAt).format('DD.MM.YYYY')}</TableCell>
+										<TableCell align="right" className={'ma-adm-cards__actions'}>
 											<Stack direction={'row'} gap={1} justifyContent={'flex-end'}>
 												{active ? (
 													<Button size="small" color="error" variant="outlined" onClick={() => statusHandler(article._id, BoardArticleStatus.DELETE)}>

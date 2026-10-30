@@ -12,6 +12,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import NotificationsNoneRoundedIcon from '@mui/icons-material/NotificationsNoneRounded';
 import LightbulbOutlinedIcon from '@mui/icons-material/LightbulbOutlined';
 import MenuList, { isSuperOnlyPath } from '../admin/AdminMenuList';
+import AdminWaitingPanel from '../admin/AdminWaitingPanel';
 import { getJwtToken, logOut, updateUserInfo } from '../../auth';
 import { userVar } from '../../../apollo/store';
 import { GET_ADMIN_BADGES } from '../../../apollo/admin/query';
@@ -197,13 +198,8 @@ const withAdminLayout = (Component: ComponentType) => {
 							transformOrigin={{ vertical: 'top', horizontal: 'right' }}
 							PaperProps={{ className: 'ma-adm__pop' }}
 						>
-							<strong className={'ma-adm__pop-title'}>{t('Waiting work')}</strong>
-							{waiting.map((item) => (
-								<Link key={item.href} href={item.href} className={'ma-adm__pop-row'} onClick={() => setBellAnchor(null)}>
-									<span>{t(item.label)}</span>
-									<b className={item.count ? 'is-hot' : ''}>{item.count}</b>
-								</Link>
-							))}
+							{/* loaded when opened: the oldest cars, reports and questions that wait for a decision */}
+							<AdminWaitingPanel counts={counts} onNavigate={() => setBellAnchor(null)} />
 						</Popover>
 
 						<select

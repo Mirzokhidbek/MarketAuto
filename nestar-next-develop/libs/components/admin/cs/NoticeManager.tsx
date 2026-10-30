@@ -262,7 +262,7 @@ const NoticeManager = ({ category }: NoticeManagerProps) => {
 										{/* the same coloured status pill as on the Cars and Members pages */}
 										<Select
 											size="small"
-											sx={{ height: 32, minWidth: 140 }}
+											sx={{ height: 32, minWidth: 140, maxWidth: 200 }}
 											className={`badge ${statusClass[item.noticeStatus] ?? ''}`}
 											value={item.noticeStatus}
 											onChange={(e) => statusHandler(item._id, e.target.value as string)}

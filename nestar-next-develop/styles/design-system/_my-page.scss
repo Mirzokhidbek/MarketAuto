@@ -524,66 +524,7 @@
 	}
 }
 
-.ma-bell__panel {
-	width: 360px;
-	max-width: calc(100vw - 24px);
-	max-height: 460px;
-	margin-top: 8px;
-	border-radius: 14px !important;
-	box-shadow: 0 12px 40px rgba(15, 23, 42, 0.16) !important;
-}
-
-.ma-bell__head {
-	padding: 14px 18px;
-	font-weight: 600;
-	color: $ma-dark;
-	border-bottom: 1px solid $ma-border;
-}
-
-.ma-bell__item {
-	display: flex;
-	gap: 12px;
-	width: 100%;
-	padding: 12px 18px;
-	border: 0;
-	border-bottom: 1px solid $ma-border;
-	background: #fff;
-	text-align: left;
-	cursor: pointer;
-	&:hover {
-		background: $ma-bg-alt;
-	}
-	&.is-new {
-		background: rgba(11, 87, 208, 0.06);
-	}
-	img {
-		flex: 0 0 36px;
-		width: 36px;
-		height: 36px;
-		border-radius: 50%;
-		object-fit: cover;
-	}
-	p {
-		margin: 0 0 2px;
-		font-size: 13px;
-		line-height: 1.45;
-		color: $ma-dark;
-	}
-	strong {
-		font-weight: 600;
-	}
-	span {
-		font-size: 12px;
-		color: $ma-muted;
-	}
-}
-
-.ma-bell__empty {
-	padding: 28px 18px;
-	text-align: center;
-	font-size: 13px;
-	color: $ma-muted;
-}
+/* notification bell panel and list: see _notifications.scss */
 
 .chatting .msg-author {
 	display: block;

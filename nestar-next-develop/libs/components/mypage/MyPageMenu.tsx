@@ -14,11 +14,12 @@ import GroupOutlinedIcon from '@mui/icons-material/GroupOutlined';
 import PersonAddAltOutlinedIcon from '@mui/icons-material/PersonAddAltOutlined';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import NotificationsActiveOutlinedIcon from '@mui/icons-material/NotificationsActiveOutlined';
+import NotificationsNoneOutlinedIcon from '@mui/icons-material/NotificationsNoneOutlined';
 import LogoutIcon from '@mui/icons-material/Logout';
 import Badge from '../ui/Badge';
 import { ButtonLink } from '../ui/Button';
 import { cx } from '../ui/classNames';
-import { unreadMessagesVar, userVar } from '../../../apollo/store';
+import { unreadMessagesVar, unreadNotificationsVar, userVar } from '../../../apollo/store';
 import { logOut } from '../../auth';
 import { sweetConfirmAlert } from '../../sweetAlert';
 import { formatPhone, imageUrl } from '../../utils';
@@ -41,6 +42,7 @@ const MyPageMenu = () => {
 	const { t } = useTranslation('common');
 	const user = useReactiveVar(userVar);
 	const unread = useReactiveVar(unreadMessagesVar);
+	const unreadNotifications = useReactiveVar(unreadNotificationsVar);
 	const activeKey = (router.query?.category as string) ?? 'myProfile';
 	const canSell = user?.memberType !== 'ADMIN';
 
@@ -55,6 +57,12 @@ const MyPageMenu = () => {
 					  ]
 					: []),
 				{ key: 'messages', label: 'Messages', icon: <ChatBubbleOutlineIcon />, badge: unread },
+				{
+					key: 'notifications',
+					label: 'Notifications',
+					icon: <NotificationsNoneOutlinedIcon />,
+					badge: unreadNotifications,
+				},
 				{ key: 'savedSearches', label: 'Saved searches', icon: <NotificationsActiveOutlinedIcon /> },
 				{ key: 'myFavorites', label: 'My Favorites', icon: <FavoriteBorderIcon /> },
 				{ key: 'recentlyVisited', label: 'Recently Visited', icon: <HistoryIcon /> },
