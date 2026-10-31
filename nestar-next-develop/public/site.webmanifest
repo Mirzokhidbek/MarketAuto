@@ -3,11 +3,57 @@
 	"short_name": "CarPort",
 	"description": "Import · Trust · Drive — cars from anywhere, for you",
 	"icons": [
-		{ "src": "/img/logo/icon-192.png", "sizes": "192x192", "type": "image/png" },
-		{ "src": "/img/logo/icon-512.png", "sizes": "512x512", "type": "image/png" }
+		{
+			"src": "/img/logo/icon-192.png",
+			"sizes": "192x192",
+			"type": "image/png",
+			"purpose": "any"
+		},
+		{
+			"src": "/img/logo/icon-512.png",
+			"sizes": "512x512",
+			"type": "image/png",
+			"purpose": "any"
+		},
+		{
+			"src": "/img/logo/icon-maskable-512.png",
+			"sizes": "512x512",
+			"type": "image/png",
+			"purpose": "maskable"
+		}
 	],
 	"start_url": "/",
 	"display": "standalone",
 	"background_color": "#ffffff",
-	"theme_color": "#015dea"
+	"theme_color": "#015dea",
+	"id": "/",
+	"scope": "/",
+	"lang": "uz",
+	"orientation": "portrait-primary",
+	"categories": [
+		"shopping",
+		"lifestyle"
+	],
+	"shortcuts": [
+		{
+			"name": "Mashinalar",
+			"url": "/property/",
+			"icons": [
+				{
+					"src": "/img/logo/icon-192.png",
+					"sizes": "192x192"
+				}
+			]
+		},
+		{
+			"name": "Mashina sotish",
+			"url": "/mypage/?category=addProperty",
+			"icons": [
+				{
+					"src": "/img/logo/icon-192.png",
+					"sizes": "192x192"
+				}
+			]
+		}
+	]
 }

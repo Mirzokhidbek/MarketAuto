@@ -24,6 +24,17 @@ describe('assertEnv', () => {
 		expect(() => assertEnv(env)).toThrow(/32 characters[\s\S]*MONGO_PROD[\s\S]*CORS_ORIGINS/);
 	});
 
+	it('refuses to turn off admin 2FA in production', () => {
+		const env = {
+			NODE_ENV: 'production',
+			SECRET_TOKEN: strongSecret,
+			MONGO_PROD: 'mongodb://db/x',
+			CORS_ORIGINS: 'https://carport.uz',
+			ADMIN_2FA: 'off',
+		};
+		expect(() => assertEnv(env)).toThrow(/ADMIN_2FA/);
+	});
+
 	it('accepts a complete production setup', () => {
 		const env = {
 			NODE_ENV: 'production',
@@ -31,6 +42,10 @@ describe('assertEnv', () => {
 			MONGO_PROD: 'mongodb://db/x',
 			CORS_ORIGINS: 'https://marketauto.uz',
 		};
+		const warn = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
 		expect(() => assertEnv(env)).not.toThrow();
+		// optional services that are not set are named once at startup
+		expect(warn).toHaveBeenCalledWith(expect.stringContaining('SMTP_HOST'));
+		warn.mockRestore();
 	});
 });

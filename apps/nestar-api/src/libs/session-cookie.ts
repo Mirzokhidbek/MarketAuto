@@ -44,14 +44,27 @@ export const readCookie = (cookieHeader: string | undefined, name: string): stri
 
 export const readRefreshCookie = (req: any): string | undefined => readCookie(req?.headers?.cookie, REFRESH_COOKIE);
 
+/**
+ * Native mobile apps send `X-Client: mobile`. They have no browser cookie jar and keep the refresh token in the
+ * device keychain, so for them it stays in the response body and is read from the request (argument or the
+ * `X-Refresh-Token` header) — never from a cookie. Browsers always use the httpOnly cookie.
+ */
+export const isNativeClient = (req: any): boolean =>
+	String(req?.headers?.['x-client'] ?? '').toLowerCase() === 'mobile';
+
+/** the caller's refresh token: the cookie for browsers, the header for native apps */
+export const currentRefreshToken = (req: any): string | undefined =>
+	isNativeClient(req) ? String(req?.headers?.['x-refresh-token'] ?? '') || undefined : readRefreshCookie(req);
+
 /** moves `refreshToken` from a login/signup/refresh result into the cookie and removes it from the body */
 @Injectable()
 export class SessionCookieInterceptor implements NestInterceptor {
 	intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
-		const res = GqlExecutionContext.create(context).getContext()?.res;
+		const { req, res } = GqlExecutionContext.create(context).getContext() ?? {};
+		const native = isNativeClient(req);
 		return next.handle().pipe(
 			map((result: { refreshToken?: unknown } | null | undefined): unknown => {
-				if (result && typeof result.refreshToken === 'string') {
+				if (!native && result && typeof result.refreshToken === 'string') {
 					setRefreshCookie(res, result.refreshToken);
 					result.refreshToken = null;
 				}

@@ -16,8 +16,19 @@ export const assertEnv = (env: NodeJS.ProcessEnv = process.env): void => {
 	if (!production && !env.MONGO_DEV) problems.push('MONGO_DEV is not set');
 	if (production && !env.CORS_ORIGINS?.split(',').some((origin) => origin.trim()))
 		problems.push('CORS_ORIGINS must list the site addresses in production');
+	if (production && env.ADMIN_2FA === 'off') problems.push('ADMIN_2FA=off is for local development only');
 
 	if (problems.length) throw new Error(`Invalid environment:\n - ${problems.join('\n - ')}`);
+
+	// the server can run without these, but a feature stays off: say so once at startup
+	if (production) {
+		const missing: string[] = [];
+		if (!env.SMTP_HOST) missing.push('SMTP_HOST (email codes and security emails are only logged)');
+		if (!env.ESKIZ_EMAIL) missing.push('ESKIZ_EMAIL (SMS codes to Uzbek numbers are only logged)');
+		if (!env.TRUST_PROXY) missing.push('TRUST_PROXY (behind nginx every request looks like one IP to the rate limits)');
+		if (!env.SENTRY_DSN) missing.push('SENTRY_DSN (server errors are not reported)');
+		if (missing.length) console.warn(`[env] Production without:\n - ${missing.join('\n - ')}`);
+	}
 };
 
 const env = (name: string): string | undefined => process.env[name] || undefined;

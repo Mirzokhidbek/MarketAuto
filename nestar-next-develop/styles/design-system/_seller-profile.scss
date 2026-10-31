@@ -173,6 +173,32 @@
 	font-size: 15px;
 	line-height: 1.7;
 	color: $ma-dark;
+	overflow-wrap: anywhere;
+	// switch between the three documents
+	&__nav {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 8px;
+		margin: 0 0 20px;
+		a {
+			padding: 6px 14px;
+			border: 1px solid $ma-border;
+			border-radius: 999px;
+			font-size: 13px;
+			font-weight: 600;
+			color: $ma-text;
+			text-decoration: none;
+			&:hover {
+				border-color: $ma-primary;
+				color: $ma-primary;
+			}
+			&.is-active {
+				border-color: $ma-primary;
+				background: $ma-primary-soft;
+				color: $ma-primary-dark;
+			}
+		}
+	}
 	&__updated {
 		font-size: 13px;
 		color: $ma-muted;
