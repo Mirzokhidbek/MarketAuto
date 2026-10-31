@@ -1135,5 +1135,10 @@
 	"This device": "Shu qurilma",
 	"Logged in": "Kirilgan",
 	"Log out": "Chiqish",
-	"Add phone": "Telefon qoʻshish"
+	"Add phone": "Telefon qoʻshish",
+	"Public Offer": "Ommaviy oferta",
+	"Home / Public Offer": "Bosh sahifa / Ommaviy oferta",
+	"Legal documents": "Huquqiy hujjatlar",
+	"Something went wrong on our side. Please try again in a minute.": "Bizning tomonda xatolik yuz berdi. Bir daqiqadan soʻng qayta urinib koʻring.",
+	"Try again": "Qayta urinish"
 }

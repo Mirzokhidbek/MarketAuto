@@ -1135,5 +1135,10 @@
 	"This device": "Это устройство",
 	"Logged in": "Вход",
 	"Log out": "Выйти",
-	"Add phone": "Добавить телефон"
+	"Add phone": "Добавить телефон",
+	"Public Offer": "Публичная оферта",
+	"Home / Public Offer": "Главная / Публичная оферта",
+	"Legal documents": "Юридические документы",
+	"Something went wrong on our side. Please try again in a minute.": "У нас что-то пошло не так. Попробуйте через минуту.",
+	"Try again": "Повторить"
 }

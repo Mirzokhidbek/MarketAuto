@@ -15,6 +15,8 @@ RUN npm ci --omit=dev && npm cache clean --force
 ARG APP=nestar-api
 ENV APP=${APP}
 COPY --from=build /app/dist ./dist
+# one-off tools (e.g. docker compose exec api node scripts/create-admin.mjs ...)
+COPY scripts ./scripts
 # local image storage (mount a volume, or set S3_BUCKET to use S3)
 RUN mkdir -p uploads && chown -R node:node /app
 USER node

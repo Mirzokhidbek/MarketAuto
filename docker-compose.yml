@@ -6,6 +6,11 @@ services:
     restart: unless-stopped
     volumes:
       - mongo-data:/data/db
+    healthcheck:
+      test: ['CMD', 'mongosh', '--quiet', '--eval', 'db.adminCommand("ping").ok']
+      interval: 10s
+      timeout: 5s
+      retries: 10
 
   api:
     build: { context: ., args: { APP: nestar-api } }
@@ -21,7 +26,15 @@ services:
       - uploads:/app/uploads
     ports:
       - '3007:3007'
-    depends_on: [mongo]
+    depends_on:
+      mongo: { condition: service_healthy }
+    # 200 while the database answers (GET /health); unhealthy instances get no traffic
+    healthcheck:
+      test: ['CMD', 'wget', '-qO', '/dev/null', 'http://127.0.0.1:3007/health']
+      interval: 15s
+      timeout: 5s
+      start_period: 30s
+      retries: 3
 
   batch:
     build: { context: ., args: { APP: nestar-batch } }
@@ -33,7 +46,8 @@ services:
       MONGO_PROD: mongodb://mongo:27017/marketauto
     volumes:
       - uploads:/app/uploads
-    depends_on: [mongo]
+    depends_on:
+      mongo: { condition: service_healthy }
 
   web:
     build:
@@ -42,6 +56,10 @@ services:
         REACT_APP_API_URL: ${PUBLIC_API_URL:-http://localhost:3007}
         REACT_APP_API_GRAPHQL_URL: ${PUBLIC_API_URL:-http://localhost:3007}/graphql
         REACT_APP_API_WS: ${PUBLIC_WS_URL:-ws://localhost:3007}
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-}
+        NEXT_PUBLIC_LEGAL_NAME: ${NEXT_PUBLIC_LEGAL_NAME:-}
+        NEXT_PUBLIC_LEGAL_INN: ${NEXT_PUBLIC_LEGAL_INN:-}
+        NEXT_PUBLIC_LEGAL_ADDRESS: ${NEXT_PUBLIC_LEGAL_ADDRESS:-}
         NEXT_PUBLIC_SUPPORT_PHONE: ${NEXT_PUBLIC_SUPPORT_PHONE:-}
         NEXT_PUBLIC_SUPPORT_EMAIL: ${NEXT_PUBLIC_SUPPORT_EMAIL:-}
         NEXT_PUBLIC_SENTRY_DSN: ${NEXT_PUBLIC_SENTRY_DSN:-}
@@ -54,7 +72,8 @@ services:
       API_INTERNAL_GRAPHQL_URL: http://api:3007/graphql
     ports:
       - '3000:3000'
-    depends_on: [api]
+    depends_on:
+      api: { condition: service_healthy }
 
 volumes:
   mongo-data:

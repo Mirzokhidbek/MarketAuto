@@ -259,7 +259,7 @@
 .ma-compare-bar {
 	position: fixed;
 	left: 50%;
-	bottom: 20px;
+	bottom: calc(20px + env(safe-area-inset-bottom));
 	z-index: 1200;
 	display: flex;
 	align-items: center;
