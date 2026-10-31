@@ -27,6 +27,9 @@ export const assertEnv = (env: NodeJS.ProcessEnv = process.env): void => {
 		if (!env.ESKIZ_EMAIL) missing.push('ESKIZ_EMAIL (SMS codes to Uzbek numbers are only logged)');
 		if (!env.TRUST_PROXY) missing.push('TRUST_PROXY (behind nginx every request looks like one IP to the rate limits)');
 		if (!env.SENTRY_DSN) missing.push('SENTRY_DSN (server errors are not reported)');
+		if (!env.REDIS_URL)
+			missing.push('REDIS_URL (rate limits, cache and live events work inside one API instance only)');
+		if (!env.METRICS_TOKEN) missing.push('METRICS_TOKEN (GET /metrics is turned off)');
 		if (missing.length) console.warn(`[env] Production without:\n - ${missing.join('\n - ')}`);
 	}
 };
@@ -75,6 +78,26 @@ export const settings = {
 	},
 	get sentryDsn(): string | undefined {
 		return env('SENTRY_DSN');
+	},
+	/** redis://[:password@]host:6379/0 — shared rate limits, cache and WebSocket events for several API instances */
+	get redisUrl(): string | undefined {
+		return env('REDIS_URL');
+	},
+	/** GET /metrics (Prometheus) needs "Authorization: Bearer <METRICS_TOKEN>" in production; open in development */
+	get metricsToken(): string | undefined {
+		return env('METRICS_TOKEN');
+	},
+	/** requests and database commands slower than this are logged as warnings */
+	get slowRequestMs(): number {
+		return Number(env('SLOW_REQUEST_MS') ?? 500);
+	},
+	get slowQueryMs(): number {
+		return Number(env('SLOW_QUERY_MS') ?? 200);
+	},
+	/** one JSON object per log line (for Loki, ELK, CloudWatch); default in production */
+	get jsonLogs(): boolean {
+		const value = env('LOG_FORMAT');
+		return value ? value === 'json' : settings.production;
 	},
 	/** admins confirm logins with an SMS code unless ADMIN_2FA=off (local development only) */
 	get adminTwoFactor(): boolean {

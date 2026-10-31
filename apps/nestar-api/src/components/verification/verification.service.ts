@@ -35,8 +35,8 @@ export class VerificationService {
 
 	public async requestCode(rawPhone: string, purpose: VerificationPurpose, ip: string): Promise<PhoneCodeResult> {
 		const phone = this.normalize(rawPhone);
-		limiters.smsIp.consume(ip);
-		limiters.smsPhone.consume(phone);
+		await limiters.smsIp.consume(ip);
+		await limiters.smsPhone.consume(phone);
 
 		const exists = await this.memberModel.exists({ memberPhone: phone });
 		const forExisting = [
@@ -81,8 +81,8 @@ export class VerificationService {
 	/** the same rules as SMS codes: 6 digits, 5 minutes, 5 attempts, no account enumeration on login/reset */
 	public async requestEmailCode(rawEmail: string, purpose: VerificationPurpose, ip: string): Promise<PhoneCodeResult> {
 		const email = this.normalizeEmail(rawEmail);
-		limiters.emailIp.consume(ip);
-		limiters.emailAddress.consume(email);
+		await limiters.emailIp.consume(ip);
+		await limiters.emailAddress.consume(email);
 
 		const exists = await this.memberModel.exists({ memberEmail: email });
 		if (purpose === VerificationPurpose.SIGNUP || purpose === VerificationPurpose.VERIFY_EMAIL) {
@@ -126,15 +126,15 @@ export class VerificationService {
 		code: string,
 	) {
 		const limitKey = `${target}:${filter.purpose}`;
-		limiters.codeCheck.assert(limitKey);
+		await limiters.codeCheck.assert(limitKey);
 
 		const record = await this.verificationModel.findOne(filter).exec();
 		if (!record || record.expiresAt < new Date()) {
-			limiters.codeCheck.hit(limitKey);
+			await limiters.codeCheck.hit(limitKey);
 			throw new BadRequestException(Message.WRONG_CODE);
 		}
 		if (record.codeHash !== this.hash(target, filter.purpose, String(code ?? '').trim())) {
-			limiters.codeCheck.hit(limitKey);
+			await limiters.codeCheck.hit(limitKey);
 			record.attempts += 1;
 			if (record.attempts >= MAX_CODE_ATTEMPTS) await record.deleteOne();
 			else await record.save();
@@ -142,6 +142,6 @@ export class VerificationService {
 		}
 
 		await record.deleteOne();
-		limiters.codeCheck.reset(limitKey);
+		await limiters.codeCheck.reset(limitKey);
 	}
 }

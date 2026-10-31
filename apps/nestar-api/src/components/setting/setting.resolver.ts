@@ -11,6 +11,7 @@ import { AuthMember } from '../auth/decorators/authMember.decorator';
 import { MemberType } from '../../libs/enums/member.enum';
 import { Message } from '../../libs/enums/common.enum';
 import { AdminLogService } from '../admin-log/admin-log.service';
+import { caches } from '../../libs/cache';
 
 const KEYS = ['supportPhone', 'supportEmail', 'telegramUrl', 'instagramUrl', 'facebookUrl'] as const;
 
@@ -24,11 +25,14 @@ export class SettingResolver {
 
 	@Query(() => SiteSettings)
 	public async getSiteSettings(): Promise<SiteSettings> {
-		const rows = await this.settingModel
-			.find({ key: { $in: KEYS } })
-			.lean()
-			.exec();
-		return Object.fromEntries(rows.map((row: { key: string; value: unknown }) => [row.key, row.value]));
+		// the footer of every page asks for these: cached, cleared on save
+		return await caches.siteSettings.get('contacts', async () => {
+			const rows = await this.settingModel
+				.find({ key: { $in: KEYS } })
+				.lean()
+				.exec();
+			return Object.fromEntries(rows.map((row: { key: string; value: unknown }) => [row.key, row.value]));
+		});
 	}
 
 	@Roles(MemberType.ADMIN)
@@ -56,6 +60,7 @@ export class SettingResolver {
 			if (value === undefined) continue;
 			await this.settingModel.updateOne({ key }, { key, value: value.trim() }, { upsert: true }).exec();
 		}
+		await caches.siteSettings.clear();
 		await this.adminLogService.log(adminId, 'SETTINGS_UPDATE', 'SETTINGS', undefined, JSON.stringify(input));
 		return await this.getSiteSettings();
 	}
