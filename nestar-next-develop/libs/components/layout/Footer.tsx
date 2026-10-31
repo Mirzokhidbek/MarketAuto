@@ -53,6 +53,7 @@ const Footer = () => {
 					<Link href={'/about'}>{t('About Us')}</Link>
 					<Link href={'/cs'}>{t('Support Center')}</Link>
 					<Link href={'/terms'}>{t('Terms of Use')}</Link>
+					<Link href={'/offer'}>{t('Public Offer')}</Link>
 					<Link href={'/privacy'}>{t('Privacy Policy')}</Link>
 					<a href={site.phoneHref}>{site.phone}</a>
 				</div>

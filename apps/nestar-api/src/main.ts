@@ -45,6 +45,8 @@ async function bootstrap() {
 	app.use('/uploads', express.static('uploads'));
 
 	app.useWebSocketAdapter(new WsAdapter(app));
+	// SIGTERM from Docker / the orchestrator: finish open requests and close the database cleanly
+	app.enableShutdownHooks();
 	await app.listen(settings.port);
 }
 void bootstrap();

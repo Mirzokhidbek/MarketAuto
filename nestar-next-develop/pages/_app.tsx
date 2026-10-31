@@ -1,7 +1,8 @@
 import type { AppProps } from 'next/app';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { CssBaseline } from '@mui/material';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import Head from 'next/head';
 import { light } from '../styles/mui-theme';
 import { ApolloProvider } from '@apollo/client';
 import { useApollo } from '../apollo/client';
@@ -46,8 +47,18 @@ const App = ({ Component, pageProps }: AppProps) => {
 	const { locale } = useRouter();
 	moment.locale(locale === 'uz' ? 'uz-latn' : locale === 'ru' ? 'ru' : 'en');
 
+	// installable app + offline page; only in production builds (in development it would cache stale code)
+	useEffect(() => {
+		if (process.env.NODE_ENV !== 'production' || !('serviceWorker' in navigator)) return;
+		navigator.serviceWorker.register('/sw.js').catch(() => undefined);
+	}, []);
+
 	return (
 		<ApolloProvider client={client}>
+			<Head>
+				{/* viewport-fit=cover: content may use the full screen; fixed bars add the safe-area insets themselves */}
+				<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+			</Head>
 			<ThemeProvider theme={theme}>
 				<CssBaseline />
 				<Component {...pageProps} />

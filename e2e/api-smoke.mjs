@@ -171,6 +171,23 @@ const run = async () => {
 	const others = (await gqlWithCookie(`mutation{logoutOtherSessions}`, emailMember?.accessToken, undefined, viaEmail.cookie)).json.data
 		?.logoutOtherSessions;
 	check('log out other devices', others === 1);
+
+	// native mobile apps (X-Client: mobile) get the refresh token in the body and never use a cookie
+	const mobileFetch = async (query, variables, extraHeaders = {}) => {
+		const response = await fetch(API, {
+			method: 'POST',
+			headers: { 'content-type': 'application/json', 'x-client': 'mobile', ...extraHeaders },
+			body: JSON.stringify({ query, variables }),
+		});
+		return { json: await response.json(), setCookie: response.headers.getSetCookie?.() ?? [] };
+	};
+	const mobileLogin = await mobileFetch(`mutation{login(input:{memberNick:"${email}",memberPassword:"Mashina2026"}){accessToken refreshToken}}`);
+	const mobileToken = mobileLogin.json.data?.login?.refreshToken;
+	check('mobile login returns the refresh token in the body', !!mobileToken && !mobileLogin.setCookie.length);
+	const mobileRefresh = await mobileFetch(`mutation{refreshSession{accessToken refreshToken}}`, undefined, { 'x-refresh-token': mobileToken });
+	check('mobile refresh with the X-Refresh-Token header', !!mobileRefresh.json.data?.refreshSession?.refreshToken, error(mobileRefresh.json));
+	const cookieOnly = await mobileFetch(`mutation{refreshSession{accessToken}}`, undefined, { cookie: viaEmail.cookie ?? '' });
+	check('mobile mode ignores the browser cookie', !cookieOnly.json.data?.refreshSession);
 };
 
 const cleanup = async () => {
