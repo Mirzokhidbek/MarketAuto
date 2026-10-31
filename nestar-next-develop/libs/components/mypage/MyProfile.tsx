@@ -8,8 +8,12 @@ import { useMutation, useReactiveVar } from '@apollo/client';
 import { userVar } from '../../../apollo/store';
 import { MemberUpdate } from '../../types/member/member.update';
 import { sweetErrorHandling, sweetMixinSuccessAlert } from '../../sweetAlert';
-import { CHANGE_PASSWORD, CHANGE_PHONE, UPDATE_MEMBER } from '../../../apollo/user/mutation';
+import { CHANGE_EMAIL, CHANGE_PASSWORD, CHANGE_PHONE, UPDATE_MEMBER } from '../../../apollo/user/mutation';
 import PhoneCodeField from '../common/PhoneCodeField';
+import EmailCodeField from '../common/EmailCodeField';
+import PasswordRules from '../common/PasswordRules';
+import MySessions from './MySessions';
+import { isStrongPassword, PASSWORD_MAX } from '../../password';
 import { formatPhone, imageUrl } from '../../utils';
 
 const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
@@ -22,8 +26,24 @@ const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 	const [updateMember] = useMutation(UPDATE_MEMBER);
 	const [changePassword] = useMutation(CHANGE_PASSWORD);
 	const [changePhone] = useMutation(CHANGE_PHONE);
+	const [changeEmail] = useMutation(CHANGE_EMAIL);
 	const [phoneEdit, setPhoneEdit] = useState<boolean>(false);
 	const [newPhone, setNewPhone] = useState({ phone: '', code: '' });
+	const [emailEdit, setEmailEdit] = useState<boolean>(false);
+	const [newEmail, setNewEmail] = useState({ email: '', code: '' });
+
+	const changeEmailHandler = async () => {
+		try {
+			const result = await changeEmail({ variables: { input: newEmail } });
+			const saved = result.data?.changeEmail;
+			userVar({ ...userVar(), memberEmail: saved?.memberEmail ?? '', memberEmailVerified: !!saved?.memberEmailVerified });
+			setEmailEdit(false);
+			setNewEmail({ email: '', code: '' });
+			await sweetMixinSuccessAlert(t('Email confirmed.') as string);
+		} catch (err: any) {
+			sweetErrorHandling(err).then();
+		}
+	};
 
 	const changePhoneHandler = async () => {
 		try {
@@ -93,9 +113,9 @@ const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 
 	const passwordMismatch = !!passwords.confirmPassword && passwords.newPassword !== passwords.confirmPassword;
 	const canChangePassword =
-		passwords.currentPassword.length >= 5 &&
-		passwords.newPassword.length >= 5 &&
-		passwords.newPassword.length <= 12 &&
+		passwords.currentPassword.length > 0 &&
+		isStrongPassword(passwords.newPassword, user.memberNick, user.memberEmail) &&
+		passwords.newPassword !== passwords.currentPassword &&
 		passwords.newPassword === passwords.confirmPassword;
 
 	const changePasswordHandler = async () => {
@@ -166,6 +186,22 @@ const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 				</div>
 			)}
 
+			{emailEdit && (
+				<div className={'ma-panel ma-phone-change'}>
+					<EmailCodeField
+						purpose={'VERIFY_EMAIL'}
+						emailLabel={(user.memberEmail ? t('New email') : t('Email')) as string}
+						email={newEmail.email}
+						code={newEmail.code}
+						onEmailChange={(email) => setNewEmail({ ...newEmail, email })}
+						onCodeChange={(code) => setNewEmail({ ...newEmail, code })}
+					/>
+					<button className={'ma-btn ma-btn--primary'} disabled={newEmail.code.length !== 6} onClick={changeEmailHandler}>
+						{t('Confirm email')}
+					</button>
+				</div>
+			)}
+
 			<div className={'ma-form-grid'}>
 				<label className={'ma-input'}>
 					<span>{t('Nickname')}</span>
@@ -189,12 +225,36 @@ const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 					<span>{t('Phone')}</span>
 					{/* the phone is changed only with an SMS code to the new number */}
 					<div className={'ma-code-row'}>
-						<input type="tel" value={formatPhone(user.memberPhone)} readOnly />
+						<input
+							type="tel"
+							value={user.memberPhone ? formatPhone(user.memberPhone) : ''}
+							placeholder={t('Not added') as string}
+							readOnly
+						/>
 						<button type="button" className={'ma-btn ma-btn--outline'} onClick={() => setPhoneEdit(!phoneEdit)}>
-							{phoneEdit ? t('Cancel') : t('Change')}
+							{phoneEdit ? t('Cancel') : user.memberPhone ? t('Change') : t('Add')}
 						</button>
 					</div>
-					<em className={'ma-input__hint'}>{user.memberPhoneVerified ? `✓ ${t('Phone confirmed')}` : t('Phone not confirmed')}</em>
+					<em className={'ma-input__hint'}>
+						{user.memberPhone && user.memberPhoneVerified
+							? `✓ ${t('Phone confirmed')}`
+							: t('A confirmed phone is needed to list a car.')}
+					</em>
+				</label>
+				<label className={'ma-input'}>
+					<span>{t('Email')}</span>
+					{/* changed only with the code sent to the new address; never shown to other members */}
+					<div className={'ma-code-row'}>
+						<input type="email" value={user.memberEmail ?? ''} placeholder={t('Not added') as string} readOnly />
+						<button type="button" className={'ma-btn ma-btn--outline'} onClick={() => setEmailEdit(!emailEdit)}>
+							{emailEdit ? t('Cancel') : user.memberEmail ? t('Change') : t('Add')}
+						</button>
+					</div>
+					<em className={'ma-input__hint'}>
+						{user.memberEmail && user.memberEmailVerified
+							? `✓ ${t('Email confirmed')} · ${t('only you can see it')}`
+							: t('Used to log in, reset the password and receive security alerts.')}
+					</em>
 				</label>
 				<label className={'ma-input'}>
 					<span>{t('Address')}</span>
@@ -237,18 +297,19 @@ const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 						<input
 							type="password"
 							autoComplete="new-password"
-							maxLength={12}
-							placeholder={t('5-12 characters') as string}
+							maxLength={PASSWORD_MAX}
+							placeholder={t('At least 8 characters') as string}
 							value={passwords.newPassword}
 							onChange={({ target: { value } }) => setPasswords({ ...passwords, newPassword: value })}
 						/>
+						<PasswordRules password={passwords.newPassword} nick={user.memberNick} email={user.memberEmail} />
 					</label>
 					<label className={'ma-input'}>
 						<span>{t('Confirm new password')}</span>
 						<input
 							type="password"
 							autoComplete="new-password"
-							maxLength={12}
+							maxLength={PASSWORD_MAX}
 							value={passwords.confirmPassword}
 							onChange={({ target: { value } }) => setPasswords({ ...passwords, confirmPassword: value })}
 						/>
@@ -260,7 +321,10 @@ const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 						{t('Change password')}
 					</button>
 				</div>
+				<p className={'ma-input__hint'}>{t('After a password change you are logged out on every other device.')}</p>
 			</section>
+
+			<MySessions />
 		</div>
 	);
 };

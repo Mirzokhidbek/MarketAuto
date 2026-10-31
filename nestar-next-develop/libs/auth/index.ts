@@ -2,7 +2,7 @@ import decodeJWT from 'jwt-decode';
 import { initializeApollo } from '../../apollo/client';
 import { userVar } from '../../apollo/store';
 import { CustomJwtPayload } from '../types/customJwtPayload';
-import { LOGIN, LOGIN_WITH_CODE, RESET_PASSWORD, SIGN_UP, VERIFY_ADMIN_LOGIN } from '../../apollo/user/mutation';
+import { LOGIN, LOGIN_WITH_CODE, RESET_PASSWORD, SIGN_UP, SIGN_UP_WITH_EMAIL, VERIFY_ADMIN_LOGIN } from '../../apollo/user/mutation';
 import { GET_ME } from '../../apollo/user/query';
 
 /**
@@ -128,12 +128,34 @@ export const signUp = async ({ nick, password, phone, type, code }: SignUpInput)
 	}
 };
 
-export const resetPassword = async (phone: string, code: string, newPassword: string): Promise<void> => {
+/** registration with an email address and the code sent to it */
+export const signUpWithEmail = async ({ nick, password, email, type, code }: Omit<SignUpInput, 'phone'> & { email: string }) => {
+	const apolloClient = await initializeApollo();
+	try {
+		const result = await apolloClient.mutate({
+			mutation: SIGN_UP_WITH_EMAIL,
+			variables: {
+				input: { memberNick: nick, memberPassword: password, memberEmail: email, memberType: type, verificationCode: code },
+			},
+			fetchPolicy: 'network-only',
+		});
+		applySession(result?.data?.signupWithEmail);
+	} catch (err: any) {
+		throw graphqlError(err);
+	}
+};
+
+/** the code went to the account phone or to the account email (exactly one of them) */
+export const resetPassword = async (
+	target: { phone?: string; email?: string },
+	code: string,
+	newPassword: string,
+): Promise<void> => {
 	const apolloClient = await initializeApollo();
 	try {
 		const result = await apolloClient.mutate({
 			mutation: RESET_PASSWORD,
-			variables: { input: { phone, code, newPassword } },
+			variables: { input: { ...target, code, newPassword } },
 			fetchPolicy: 'network-only',
 		});
 		applySession(result?.data?.resetPassword);
@@ -261,6 +283,8 @@ const loadMe = async (jwtToken: string): Promise<void> => {
 			memberLikes: me.memberLikes,
 			memberViews: me.memberViews,
 			memberPhoneVerified: !!me.memberPhoneVerified,
+			memberEmail: me.memberEmail ?? '',
+			memberEmailVerified: !!me.memberEmailVerified,
 			memberTrusted: !!me.memberTrusted,
 			memberAdminRole: me.memberAdminRole ?? '',
 		});

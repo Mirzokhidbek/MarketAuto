@@ -3,6 +3,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import VerificationSchema from '../../schemas/Verification.model';
 import MemberSchema from '../../schemas/Member.model';
 import { SmsService } from './sms.service';
+import { MailService } from './mail.service';
 import { VerificationService } from './verification.service';
 import { VerificationResolver } from './verification.resolver';
 
@@ -13,7 +14,7 @@ import { VerificationResolver } from './verification.resolver';
 			{ name: 'Member', schema: MemberSchema },
 		]),
 	],
-	providers: [SmsService, VerificationService, VerificationResolver],
-	exports: [VerificationService],
+	providers: [SmsService, MailService, VerificationService, VerificationResolver],
+	exports: [VerificationService, MailService],
 })
 export class VerificationModule {}

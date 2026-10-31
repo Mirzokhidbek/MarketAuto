@@ -71,6 +71,9 @@ export const limiters = {
 	smsIp: new RateLimiter(10 * ipFactor, 60 * MINUTE),
 	// wrong SMS codes per phone
 	codeCheck: new RateLimiter(5, 15 * MINUTE),
+	// email codes per address and per IP
+	emailAddress: new RateLimiter(3, 10 * MINUTE),
+	emailIp: new RateLimiter(10 * ipFactor, 60 * MINUTE),
 	messages: new RateLimiter(30, MINUTE),
 	reports: new RateLimiter(10, 60 * MINUTE),
 	// uploaded photos per member (a listing has at most 10; avatars, articles and chat photos share this)
@@ -87,3 +90,13 @@ export const normalizePhone = (phone: string): string => {
 };
 
 export const isValidPhone = (phone: string): boolean => /^\d{10,15}$/.test(phone);
+
+/** emails are compared in lower case without spaces */
+export const normalizeEmail = (email: string): string =>
+	String(email ?? '')
+		.trim()
+		.toLowerCase();
+
+// one @, a dot in the domain, no spaces; length limit of RFC 5321
+export const isValidEmail = (email: string): boolean =>
+	email.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);

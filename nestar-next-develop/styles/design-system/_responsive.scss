@@ -228,7 +228,11 @@
 		grid-template-columns: 1fr 1fr;
 	}
 	.ma-auth__card {
-		grid-template-columns: 1fr;
+		// minmax(0, 1fr): long words in the form (terms, role cards) must wrap, not widen the card
+		grid-template-columns: minmax(0, 1fr);
+	}
+	.ma-auth__form {
+		min-width: 0;
 	}
 	.ma-auth__brand {
 		display: none;

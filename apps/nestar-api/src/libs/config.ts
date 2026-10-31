@@ -126,7 +126,7 @@ export const lookupAuthMemberFollowed = (input: LookupAuthMemberFollowed) => {
 };
 
 // public lists never carry phone numbers: a seller's phone is shown only on their profile and car pages
-const publicMemberFields = [{ $project: { memberPhone: 0, memberPassword: 0 } }];
+const publicMemberFields = [{ $project: { memberPhone: 0, memberPassword: 0, memberEmail: 0 } }];
 
 export const lookupMember = {
 	$lookup: {

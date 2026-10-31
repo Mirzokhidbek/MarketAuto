@@ -13,7 +13,7 @@ export class MemberInput {
 	memberNick!: string;
 
 	@IsNotEmpty()
-	@Length(5, 12)
+	@Length(8, 64)
 	@Field(() => String)
 	memberPassword!: string;
 
@@ -36,15 +36,45 @@ export class MemberInput {
 	memberAuthType?: MemberAuthType;
 }
 
+/** registration with an email address instead of a phone number (code from requestEmailCode, purpose SIGNUP) */
+@InputType()
+export class EmailSignupInput {
+	@IsNotEmpty()
+	@Length(3, 12)
+	@Matches(/^[a-zA-Z0-9_.]+$/, { message: 'Nickname may contain only latin letters, digits, "_" and "."' })
+	@Field(() => String)
+	memberNick!: string;
+
+	@IsNotEmpty()
+	@Length(8, 64)
+	@Field(() => String)
+	memberPassword!: string;
+
+	@IsNotEmpty()
+	@Length(5, 254)
+	@Field(() => String)
+	memberEmail!: string;
+
+	@IsNotEmpty()
+	@Length(6, 6)
+	@Field(() => String)
+	verificationCode!: string;
+
+	@IsOptional()
+	@Field(() => MemberType, { nullable: true })
+	memberType?: MemberType;
+}
+
 @InputType()
 export class PasswordInput {
+	// old accounts may still have a short password, so only the new one follows the new rules
 	@IsNotEmpty()
-	@Length(5, 12)
+	@Length(1, 64)
 	@Field(() => String)
 	currentPassword!: string;
 
 	@IsNotEmpty()
-	@Length(5, 12)
+	@Length(8, 64)
 	@Field(() => String)
 	newPassword!: string;
 }
@@ -64,14 +94,14 @@ export class AdminCodeInput {
 
 @InputType()
 export class LoginInput {
-	/** nickname or phone number */
+	/** nickname, phone number or email */
 	@IsNotEmpty()
-	@Length(3, 20)
+	@Length(3, 254)
 	@Field(() => String)
 	memberNick!: string;
 
 	@IsNotEmpty()
-	@Length(5, 12)
+	@Length(1, 64)
 	@Field(() => String)
 	memberPassword!: string;
 }

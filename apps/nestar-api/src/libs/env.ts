@@ -43,7 +43,8 @@ export const settings = {
 		return env('SECRET_TOKEN') ?? '';
 	},
 	get accessTokenTtl(): string {
-		return env('ACCESS_TOKEN_TTL') ?? '1h';
+		// short: a stolen access token works only minutes; the httpOnly refresh cookie renews it silently
+		return env('ACCESS_TOKEN_TTL') ?? '15m';
 	},
 	get refreshTokenDays(): number {
 		return Number(env('REFRESH_TOKEN_DAYS') ?? 30);
@@ -73,6 +74,16 @@ export const settings = {
 	},
 	get eskiz() {
 		return { email: env('ESKIZ_EMAIL'), password: env('ESKIZ_PASSWORD'), from: env('ESKIZ_FROM') ?? '4546' };
+	},
+	/** outgoing email (codes, security alerts); without SMTP_HOST the mail is only logged (development) */
+	get smtp() {
+		return {
+			host: env('SMTP_HOST'),
+			port: Number(env('SMTP_PORT') ?? 465),
+			user: env('SMTP_USER'),
+			pass: env('SMTP_PASS'),
+			from: env('MAIL_FROM') ?? 'CarPort <no-reply@carport.uz>',
+		};
 	},
 	get twilio() {
 		return { sid: env('TWILIO_SID'), token: env('TWILIO_TOKEN'), from: env('TWILIO_FROM') };
