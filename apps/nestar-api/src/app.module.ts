@@ -13,6 +13,9 @@ import { DatabaseModule } from './database/database.module';
 import { GraphqlErrorShape } from './libs/types/common';
 import { SocketModule } from './socket/socket.module';
 import { depthLimit, MAX_QUERY_DEPTH } from './libs/graphql-depth-limit';
+import { costLimit } from './libs/graphql-cost-limit';
+import { graphqlErrors, routeLabels } from './libs/observability/metrics';
+import { currentRequest } from './libs/observability/request-context';
 
 const graphqlLogger = new Logger('GraphQL');
 
@@ -25,7 +28,7 @@ const graphqlLogger = new Logger('GraphQL');
 			graphiql: !settings.production,
 			introspection: !settings.production,
 			autoSchemaFile: true,
-			validationRules: [depthLimit(MAX_QUERY_DEPTH)],
+			validationRules: [depthLimit(MAX_QUERY_DEPTH), costLimit()],
 			// res is needed to set/clear the refresh-token cookie
 			context: ({ req, res }: { req: unknown; res: unknown }) => ({ req, res }),
 			formatError: (error: GraphqlErrorShape) => {
@@ -44,6 +47,10 @@ const graphqlLogger = new Logger('GraphQL');
 				};
 				// expected business errors (validation, wrong password...) carry a known message; log and report the rest
 				const known = (Object.values(Message) as string[]).includes(String(graphqlFormattedError.message));
+				graphqlErrors.inc({
+					route: routeLabels.of(currentRequest()?.route ?? 'unknown'),
+					code: String(graphqlFormattedError.extensions.code ?? 'UNKNOWN'),
+				});
 				if (!known) graphqlLogger.warn(`${graphqlFormattedError.extensions.code}: ${graphqlFormattedError.message}`);
 				if (settings.sentryDsn && !known && graphqlFormattedError.extensions.code === 'INTERNAL_SERVER_ERROR')
 					Sentry.captureException(error);

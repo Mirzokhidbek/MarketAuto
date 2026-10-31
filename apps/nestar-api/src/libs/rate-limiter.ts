@@ -1,12 +1,12 @@
 import { settings } from './env';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { Message } from './enums/common.enum';
+import { randomUUID } from 'node:crypto';
+import { rateLimitBlocks } from './observability/metrics';
+import { hashKey, redisReady } from './redis';
 
-/**
- * Small in-memory sliding-window limiter (one API instance).
- * For several instances behind a load balancer move the counters to Redis.
- */
-export class RateLimiter {
+/** sliding window kept in this process: used without Redis, and while Redis is unreachable */
+export class MemoryWindow {
 	private readonly hits = new Map<string, number[]>();
 
 	constructor(
@@ -26,21 +26,17 @@ export class RateLimiter {
 		return this.recent(key).length >= this.max;
 	}
 
-	/** throws 429 when the key already reached the limit */
-	public assert(key: string): void {
-		if (this.isLimited(key)) throw new HttpException(Message.TOO_MANY_ATTEMPTS, HttpStatus.TOO_MANY_REQUESTS);
-	}
-
 	public hit(key: string): void {
 		const list = this.recent(key);
 		list.push(Date.now());
 		this.hits.set(key, list);
 	}
 
-	/** assert + hit in one call, for actions limited on every attempt */
-	public consume(key: string): void {
-		this.assert(key);
+	/** true when allowed (and counted), false when the limit was already reached */
+	public take(key: string): boolean {
+		if (this.isLimited(key)) return false;
 		this.hit(key);
+		return true;
 	}
 
 	public reset(key: string): void {
@@ -57,31 +53,135 @@ export class RateLimiter {
 	}
 }
 
+// one round trip, atomic: two API instances cannot both let the last allowed attempt through
+const TAKE_SCRIPT = `
+redis.call('ZREMRANGEBYSCORE', KEYS[1], 0, ARGV[1] - ARGV[2])
+if redis.call('ZCARD', KEYS[1]) >= tonumber(ARGV[3]) then return 0 end
+redis.call('ZADD', KEYS[1], ARGV[1], ARGV[4])
+redis.call('PEXPIRE', KEYS[1], ARGV[2])
+return 1`;
+
+/**
+ * Sliding-window limiter. With REDIS_URL the counters live in Redis (one sorted set per key), so the limits
+ * hold across every API instance and survive restarts; without it, or while Redis is down, in memory.
+ */
+export class RateLimiter {
+	public readonly memory: MemoryWindow;
+
+	constructor(
+		private readonly name: string,
+		private readonly max: number,
+		private readonly windowMs: number,
+	) {
+		this.memory = new MemoryWindow(max, windowMs);
+	}
+
+	private redisKey(key: string): string {
+		return `rl:${this.name}:${hashKey(key)}`;
+	}
+
+	private blocked(): never {
+		rateLimitBlocks.inc({ limiter: this.name });
+		throw new HttpException(Message.TOO_MANY_ATTEMPTS, HttpStatus.TOO_MANY_REQUESTS);
+	}
+
+	public async isLimited(key: string): Promise<boolean> {
+		const connection = redisReady();
+		if (connection) {
+			try {
+				const now = Date.now();
+				const replies = await connection
+					.multi()
+					.zremrangebyscore(this.redisKey(key), 0, now - this.windowMs)
+					.zcard(this.redisKey(key))
+					.exec();
+				return Number(replies?.[1]?.[1] ?? 0) >= this.max;
+			} catch {
+				/* Redis went away: the memory window below */
+			}
+		}
+		return this.memory.isLimited(key);
+	}
+
+	/** throws 429 when the key already reached the limit */
+	public async assert(key: string): Promise<void> {
+		if (await this.isLimited(key)) this.blocked();
+	}
+
+	public async hit(key: string): Promise<void> {
+		const connection = redisReady();
+		if (connection) {
+			try {
+				const now = Date.now();
+				await connection
+					.multi()
+					.zadd(this.redisKey(key), now, `${now}-${randomUUID()}`)
+					.pexpire(this.redisKey(key), this.windowMs)
+					.exec();
+				return;
+			} catch {
+				/* memory below */
+			}
+		}
+		this.memory.hit(key);
+	}
+
+	/** assert + hit in one step, for actions limited on every attempt */
+	public async consume(key: string): Promise<void> {
+		const connection = redisReady();
+		if (connection) {
+			try {
+				const now = Date.now();
+				const allowed = await connection.eval(
+					TAKE_SCRIPT,
+					1,
+					this.redisKey(key),
+					now,
+					this.windowMs,
+					this.max,
+					`${now}-${randomUUID()}`,
+				);
+				if (Number(allowed) !== 1) this.blocked();
+				return;
+			} catch (error) {
+				if (error instanceof HttpException) throw error;
+			}
+		}
+		if (!this.memory.take(key)) this.blocked();
+	}
+
+	public async reset(key: string): Promise<void> {
+		this.memory.reset(key);
+		const connection = redisReady();
+		if (connection) await connection.del(this.redisKey(key)).catch(() => undefined);
+	}
+}
+
 const MINUTE = 60 * 1000;
 // per-IP limits are strict in production; in development many tests run from one IP (localhost)
 const ipFactor = settings.production ? 1 : 20;
 
 export const limiters = {
 	// wrong passwords per nick and per IP
-	loginNick: new RateLimiter(5, 15 * MINUTE),
-	loginIp: new RateLimiter(30 * ipFactor, 15 * MINUTE),
-	signupIp: new RateLimiter(10 * ipFactor, 60 * MINUTE),
+	loginNick: new RateLimiter('loginNick', 5, 15 * MINUTE),
+	loginIp: new RateLimiter('loginIp', 30 * ipFactor, 15 * MINUTE),
+	signupIp: new RateLimiter('signupIp', 10 * ipFactor, 60 * MINUTE),
 	// SMS codes per phone and per IP
-	smsPhone: new RateLimiter(3, 10 * MINUTE),
-	smsIp: new RateLimiter(10 * ipFactor, 60 * MINUTE),
+	smsPhone: new RateLimiter('smsPhone', 3, 10 * MINUTE),
+	smsIp: new RateLimiter('smsIp', 10 * ipFactor, 60 * MINUTE),
 	// wrong SMS codes per phone
-	codeCheck: new RateLimiter(5, 15 * MINUTE),
+	codeCheck: new RateLimiter('codeCheck', 5, 15 * MINUTE),
 	// email codes per address and per IP
-	emailAddress: new RateLimiter(3, 10 * MINUTE),
-	emailIp: new RateLimiter(10 * ipFactor, 60 * MINUTE),
-	messages: new RateLimiter(30, MINUTE),
-	reports: new RateLimiter(10, 60 * MINUTE),
+	emailAddress: new RateLimiter('emailAddress', 3, 10 * MINUTE),
+	emailIp: new RateLimiter('emailIp', 10 * ipFactor, 60 * MINUTE),
+	messages: new RateLimiter('messages', 30, MINUTE),
+	reports: new RateLimiter('reports', 10, 60 * MINUTE),
 	// uploaded photos per member (a listing has at most 10; avatars, articles and chat photos share this)
-	uploads: new RateLimiter(100, 60 * MINUTE),
+	uploads: new RateLimiter('uploads', 100, 60 * MINUTE),
 };
 
 // stale keys are removed every 5 minutes; unref: this timer alone does not keep the process (or tests) running
-setInterval(() => Object.values(limiters).forEach((limiter) => limiter.sweep()), 5 * MINUTE).unref();
+setInterval(() => Object.values(limiters).forEach((limiter) => limiter.memory.sweep()), 5 * MINUTE).unref();
 
 /** "+998 (90) 123-45-67" -> "998901234567"; 9-digit local numbers get the Uzbek code */
 export const normalizePhone = (phone: string): string => {

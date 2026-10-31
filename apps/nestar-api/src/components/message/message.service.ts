@@ -28,7 +28,7 @@ export class MessageService {
 	) {}
 
 	public async sendMessage(senderId: ObjectId, input: SendMessageInput): Promise<ChatMessage> {
-		limiters.messages.consume(idString(senderId));
+		await limiters.messages.consume(idString(senderId));
 		const receiverId = shapeIntoMongoObjectId(input.receiverId);
 		if (idString(receiverId) === idString(senderId)) throw new BadRequestException(Message.NOT_ALLOWED_REQUEST);
 		const receiver = await this.memberModel.exists({ _id: receiverId, memberStatus: MemberStatus.ACTIVE });

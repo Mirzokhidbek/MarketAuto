@@ -2,6 +2,7 @@ import { settings } from '../libs/env';
 import { Module, Logger } from '@nestjs/common';
 import { InjectConnection, MongooseModule } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
+import { watchDatabase } from '../libs/observability/db-monitor';
 
 const logger = new Logger('DatabaseModule');
 
@@ -10,6 +11,9 @@ const logger = new Logger('DatabaseModule');
 		MongooseModule.forRootAsync({
 			useFactory: () => ({
 				uri: settings.mongoUri,
+				// timing of every query for /metrics and the slow-query log
+				monitorCommands: true,
+				onConnectionCreate: (connection: Connection) => watchDatabase(connection.getClient()),
 			}),
 		}),
 	],

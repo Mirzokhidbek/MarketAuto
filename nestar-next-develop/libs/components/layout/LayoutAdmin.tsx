@@ -13,7 +13,7 @@ import NotificationsNoneRoundedIcon from '@mui/icons-material/NotificationsNoneR
 import LightbulbOutlinedIcon from '@mui/icons-material/LightbulbOutlined';
 import MenuList, { isSuperOnlyPath } from '../admin/AdminMenuList';
 import AdminWaitingPanel from '../admin/AdminWaitingPanel';
-import { getJwtToken, logOut, updateUserInfo } from '../../auth';
+import { getJwtToken, logOut, restoreSession, updateUserInfo } from '../../auth';
 import { userVar } from '../../../apollo/store';
 import { GET_ADMIN_BADGES } from '../../../apollo/admin/query';
 import { MemberType } from '../../enums/member.enum';
@@ -79,9 +79,11 @@ const withAdminLayout = (Component: ComponentType) => {
 
 		/** LIFECYCLES **/
 		useEffect(() => {
-			const jwt = getJwtToken();
-			if (jwt) updateUserInfo(jwt);
-			setLoading(false);
+			// wait for the token renewed from the refresh cookie before deciding to redirect
+			restoreSession().then((jwt) => {
+				if (jwt) updateUserInfo(jwt);
+				setLoading(false);
+			});
 		}, []);
 
 		useEffect(() => {

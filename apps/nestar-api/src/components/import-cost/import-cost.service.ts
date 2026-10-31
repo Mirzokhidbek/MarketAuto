@@ -10,6 +10,7 @@ import { ExchangeService } from '../exchange/exchange.service';
 import { AdminLogService } from '../admin-log/admin-log.service';
 import { calculateImportCost, DEFAULT_TARIFF, tariffProblem } from './import-cost.calc';
 
+import { caches } from '../../libs/cache';
 const TARIFF_KEY = 'importTariff';
 /** the local market verdict needs this many cars already in Uzbekistan */
 const MIN_LOCAL = 2;
@@ -29,7 +30,13 @@ export class ImportCostService {
 		private readonly adminLogService: AdminLogService,
 	) {}
 
+	/** read for every car page and every import-cost refresh: cached, cleared when the admin saves the tariff */
 	public async getTariff(): Promise<ImportTariff> {
+		const tariff = await caches.importTariff.get('current', () => this.loadTariff());
+		return { ...tariff, updatedAt: tariff.updatedAt ? new Date(tariff.updatedAt) : tariff.updatedAt };
+	}
+
+	private async loadTariff(): Promise<ImportTariff> {
 		const row = await this.settingModel.findOne({ key: TARIFF_KEY }).lean<{ value: string; updatedAt: Date }>().exec();
 		if (!row?.value) return DEFAULT_TARIFF;
 		try {
@@ -67,6 +74,7 @@ export class ImportCostService {
 		await this.settingModel
 			.updateOne({ key: TARIFF_KEY }, { key: TARIFF_KEY, value: JSON.stringify(tariff) }, { upsert: true })
 			.exec();
+		await caches.importTariff.clear();
 		await this.adminLogService.log(adminId, 'IMPORT_TARIFF_UPDATE', 'SETTINGS', undefined, 'import tariff');
 		return await this.getTariff();
 	}

@@ -6,27 +6,71 @@ import { LOGIN, LOGIN_WITH_CODE, RESET_PASSWORD, SIGN_UP, SIGN_UP_WITH_EMAIL, VE
 import { GET_ME } from '../../apollo/user/query';
 
 /**
- * Session = short-lived access token (JWT, ~1h, kept in localStorage) + long-lived refresh token.
- * The refresh token is an httpOnly cookie set by the API: page scripts never see it, so an XSS cannot steal
- * a 30-day session. The Apollo link renews the access token before it expires (see apollo/client.ts).
+ * Session = short-lived access token (JWT, 15 min) + long-lived refresh token.
+ * The access token lives only in this page's memory, never in localStorage, so a script injected into the page
+ * (XSS) cannot read a stored token. The refresh token is an httpOnly cookie set by the API, which page scripts
+ * cannot read either. After a reload the first request exchanges the cookie for a new access token (the Apollo
+ * link in apollo/client.ts, or restoreSession() in the layouts).
  */
-export function getJwtToken(): any {
-	if (typeof window !== 'undefined') {
-		return localStorage.getItem('accessToken') ?? '';
+let accessToken = '';
+
+// localStorage only says "this browser has a session" (no secret), so a reload knows a refresh is worth trying
+const SESSION_FLAG = 'session';
+// sessions started before the cookie existed kept the refresh token here; it is sent once and removed
+const LEGACY_REFRESH_KEY = 'refreshToken';
+// older versions kept the access token in localStorage: it is moved into memory once and deleted
+const LEGACY_ACCESS_KEY = 'accessToken';
+
+if (typeof window !== 'undefined') {
+	try {
+		const legacy = localStorage.getItem(LEGACY_ACCESS_KEY);
+		if (legacy) {
+			accessToken = legacy;
+			localStorage.removeItem(LEGACY_ACCESS_KEY);
+			localStorage.setItem(SESSION_FLAG, '1');
+		}
+	} catch (err) {
+		// storage blocked (private mode): the session lasts as long as the page
 	}
 }
 
-// sessions started before the cookie existed kept the refresh token here; it is sent once and removed
-const LEGACY_REFRESH_KEY = 'refreshToken';
+const storage = {
+	get: (key: string): string | null => {
+		try {
+			return localStorage.getItem(key);
+		} catch (err) {
+			return null;
+		}
+	},
+	set: (key: string, value: string) => {
+		try {
+			localStorage.setItem(key, value);
+		} catch (err) {
+			/* blocked */
+		}
+	},
+	remove: (key: string) => {
+		try {
+			localStorage.removeItem(key);
+		} catch (err) {
+			/* blocked */
+		}
+	},
+};
 
-/** a session exists (its access token may be expired; the refresh cookie renews it) */
+export function getJwtToken(): any {
+	if (typeof window !== 'undefined') return accessToken;
+}
+
+/** a session exists (its access token may be missing after a reload or expired; the refresh cookie renews it) */
 export function hasSession(): boolean {
 	if (typeof window === 'undefined') return false;
-	return !!localStorage.getItem('accessToken') || !!localStorage.getItem(LEGACY_REFRESH_KEY);
+	return !!accessToken || storage.get(SESSION_FLAG) === '1' || !!storage.get(LEGACY_REFRESH_KEY);
 }
 
 export function setJwtToken(token: string) {
-	localStorage.setItem('accessToken', token);
+	accessToken = token ?? '';
+	if (accessToken) storage.set(SESSION_FLAG, '1');
 }
 
 /** true when the token is missing or expires within `skewSeconds` */
@@ -46,7 +90,7 @@ const graphqlError = (err: any) => new Error(err?.graphQLErrors?.[0]?.message ??
 export const applySession = (session: { accessToken?: string } | null | undefined) => {
 	if (!session?.accessToken) return;
 	updateStorage({ jwtToken: session.accessToken });
-	localStorage.removeItem(LEGACY_REFRESH_KEY);
+	storage.remove(LEGACY_REFRESH_KEY);
 	updateUserInfo(session.accessToken);
 };
 
@@ -169,7 +213,7 @@ export const resetPassword = async (
  * Apollo link chain. Returns the new access token or null when the session is over.
  * The API rotates the refresh token on every use, so tabs must not refresh at the same time (the second one would
  * present an already used token and log everybody out): a browser-wide lock lets one tab refresh, the others
- * then find the fresh access token in localStorage.
+ * then refresh with the rotated cookie the first one received.
  */
 let refreshing: Promise<string | null> | null = null;
 export const refreshAccessToken = (): Promise<string | null> => {
@@ -178,8 +222,8 @@ export const refreshAccessToken = (): Promise<string | null> => {
 
 	const refresh = async (): Promise<string | null> => {
 		const current = getJwtToken();
-		if (current && !isTokenExpired(current)) return current; // another tab has just refreshed
-		const legacyToken = localStorage.getItem(LEGACY_REFRESH_KEY);
+		if (current && !isTokenExpired(current)) return current; // refreshed while this call waited for the lock
+		const legacyToken = storage.get(LEGACY_REFRESH_KEY);
 		let data: any;
 		try {
 			const response = await fetch(process.env.REACT_APP_API_GRAPHQL_URL as string, {
@@ -218,9 +262,18 @@ export const getFreshToken = async (): Promise<string> => {
 	return (await refreshAccessToken()) ?? '';
 };
 
+/**
+ * Layouts call this on mount: after a reload the access token is gone from memory, so the refresh cookie is
+ * exchanged for a new one. Resolves to '' for visitors without a session (no request is made for them).
+ */
+export const restoreSession = async (): Promise<string> => {
+	if (typeof window === 'undefined' || !hasSession()) return '';
+	return await getFreshToken();
+};
+
 export const updateStorage = ({ jwtToken }: { jwtToken: any }) => {
 	setJwtToken(jwtToken);
-	window.localStorage.setItem('login', Date.now().toString());
+	storage.set('login', Date.now().toString());
 };
 
 /**
@@ -302,7 +355,7 @@ export const logOut = () => {
 			headers: { 'content-type': 'application/json' },
 			body: JSON.stringify({
 				query: 'mutation($t:String){logout(refreshToken:$t)}',
-				variables: { t: localStorage.getItem(LEGACY_REFRESH_KEY) || null },
+				variables: { t: storage.get(LEGACY_REFRESH_KEY) || null },
 			}),
 			keepalive: true,
 		}).catch(() => undefined);
@@ -312,10 +365,12 @@ export const logOut = () => {
 };
 
 export const clearSession = () => {
-	localStorage.removeItem('accessToken');
-	localStorage.removeItem(LEGACY_REFRESH_KEY);
+	accessToken = '';
+	storage.remove(SESSION_FLAG);
+	storage.remove(LEGACY_ACCESS_KEY);
+	storage.remove(LEGACY_REFRESH_KEY);
 	meLoadedFor = '';
-	window.localStorage.setItem('logout', Date.now().toString());
+	storage.set('logout', Date.now().toString());
 	deleteUserInfo();
 };
 

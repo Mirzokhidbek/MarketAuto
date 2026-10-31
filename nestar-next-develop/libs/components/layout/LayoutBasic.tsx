@@ -6,7 +6,7 @@ import Header from './Header';
 import Footer from './Footer';
 import CompareBar from '../car/CompareBar';
 import { Stack } from '@mui/material';
-import { getJwtToken, updateUserInfo } from '../../auth';
+import { updateUserInfo, restoreSession } from '../../auth';
 import { useReactiveVar } from '@apollo/client';
 import { userVar } from '../../../apollo/store';
 import { useTranslation } from 'next-i18next';
@@ -103,8 +103,8 @@ const withLayoutBasic = (Component: any) => {
 
 		/** LIFECYCLES **/
 		useEffect(() => {
-			const jwt = getJwtToken();
-			if (jwt) updateUserInfo(jwt);
+			// after a reload the token is renewed from the refresh cookie first
+			restoreSession().then((jwt) => jwt && updateUserInfo(jwt));
 		}, []);
 
 		/** HANDLERS **/

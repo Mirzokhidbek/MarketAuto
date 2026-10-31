@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useRef } from 'react';
 import { useState } from 'react';
 import { useRouter, withRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
-import { getJwtToken, logOut, updateUserInfo } from '../../auth/index';
+import { logOut, updateUserInfo, restoreSession } from '../../auth/index';
 import { Stack, Box } from '@mui/material';
 import MenuItem from '@mui/material/MenuItem';
 import Button from '@mui/material/Button';
@@ -58,8 +58,8 @@ const Header = () => {
 	}, [router]);
 
 	useEffect(() => {
-		const jwt = getJwtToken();
-		if (jwt) updateUserInfo(jwt);
+		// after a reload the token is renewed from the refresh cookie first
+		restoreSession().then((jwt) => jwt && updateUserInfo(jwt));
 	}, []);
 
 	/** HANDLERS **/

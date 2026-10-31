@@ -22,6 +22,10 @@ turns introspection off, so commit the generated schema with the app.
 | `X-Client: mobile` | **every request from the app.** Tokens then travel in the response body and headers, never in cookies |
 | `Authorization: Bearer <accessToken>` | logged-in requests |
 | `X-Refresh-Token: <refreshToken>` | `refreshSession`, `logout`, `getMySessions`, `logoutOtherSessions` |
+| `X-Request-Id: <uuid>` | optional; every answer carries one. Show it in error reports: support finds the request in the logs by it |
+
+One request may hold at most 15 root fields and 400 selected fields, nested at most 10 levels; split bigger
+screens into several queries.
 
 ## 2. Sign-up and login
 

@@ -18,7 +18,7 @@ export class ReportService {
 	) {}
 
 	public async reportProperty(memberId: ObjectId, input: ReportInput): Promise<Report> {
-		limiters.reports.consume(idString(memberId));
+		await limiters.reports.consume(idString(memberId));
 		const propertyId = shapeIntoMongoObjectId(input.propertyId);
 		const property = await this.propertyModel.findById(propertyId).select('memberId').lean().exec();
 		if (!property) throw new NotFoundException(Message.NO_DATA_FOUND);

@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { NextPage } from 'next';
-import { getJwtToken } from '../../libs/auth';
+import { restoreSession } from '../../libs/auth';
 import withLayoutFull from '../../libs/components/layout/LayoutFull';
 import SidebarLayout from '../../libs/components/ui/SidebarLayout';
 import MyCars from '../../libs/components/mypage/MyCars';
@@ -42,8 +42,10 @@ const MyPage: NextPage = () => {
 
 	/** LIFECYCLES **/
 	useEffect(() => {
-		// user info is restored from the token by the layout; only redirect when there is no session at all
-		if (!getJwtToken()) router.push('/account/join').then();
+		// user info is restored by the layout; only redirect when there is no session at all
+		restoreSession().then((jwt) => {
+			if (!jwt) router.push('/account/join').then();
+		});
 	}, []);
 
 	/** HANDLERS **/
