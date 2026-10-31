@@ -1,6 +1,7 @@
 import { Types } from 'mongoose';
 import { calculateImportCost, DEFAULT_TARIFF, tariffProblem } from './import-cost.calc';
 import { ImportCostService } from './import-cost.service';
+import { caches } from '../../libs/cache';
 import { CarCountry, CarFuel, PropertyStatus } from '../../libs/enums/property.enum';
 
 const NOW = new Date('2026-10-30T12:00:00Z');
@@ -80,6 +81,9 @@ describe('tariffProblem', () => {
 });
 
 describe('ImportCostService', () => {
+	// the tariff is cached between calls; every test starts from the database
+	beforeEach(() => caches.importTariff.clear());
+
 	const setup = (car: any, local: any[] = [], tariffRow: any = null) => {
 		const propertyModel = {
 			findById: jest.fn(() => ({ lean: () => ({ exec: () => Promise.resolve(car) }) })),

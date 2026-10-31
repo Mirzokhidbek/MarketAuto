@@ -1,41 +1,45 @@
-import { isValidPhone, normalizePhone, RateLimiter } from './rate-limiter';
+import { isValidPhone, MemoryWindow, normalizePhone, RateLimiter } from './rate-limiter';
 
-describe('RateLimiter', () => {
-	it('allows up to the limit, then rejects', () => {
-		const limiter = new RateLimiter(3, 60_000);
-		limiter.consume('ip');
-		limiter.consume('ip');
-		limiter.consume('ip');
-		expect(limiter.isLimited('ip')).toBe(true);
-		expect(() => limiter.consume('ip')).toThrow('Too many attempts');
+describe('RateLimiter (memory, no REDIS_URL)', () => {
+	it('allows up to the limit, then rejects', async () => {
+		const limiter = new RateLimiter('test', 3, 60_000);
+		await limiter.consume('ip');
+		await limiter.consume('ip');
+		await limiter.consume('ip');
+		expect(await limiter.isLimited('ip')).toBe(true);
+		await expect(limiter.consume('ip')).rejects.toThrow('Too many attempts');
 	});
 
-	it('counts keys separately and can be reset', () => {
-		const limiter = new RateLimiter(1, 60_000);
-		limiter.hit('a');
-		expect(limiter.isLimited('a')).toBe(true);
-		expect(limiter.isLimited('b')).toBe(false);
-		limiter.reset('a');
-		expect(limiter.isLimited('a')).toBe(false);
+	it('counts keys separately and can be reset', async () => {
+		const limiter = new RateLimiter('test', 1, 60_000);
+		await limiter.hit('a');
+		expect(await limiter.isLimited('a')).toBe(true);
+		expect(await limiter.isLimited('b')).toBe(false);
+		await expect(limiter.assert('a')).rejects.toThrow('Too many attempts');
+		await limiter.reset('a');
+		expect(await limiter.isLimited('a')).toBe(false);
 	});
+});
 
+describe('MemoryWindow', () => {
 	it('sweep removes keys with only old hits', () => {
 		jest.useFakeTimers();
-		const limiter = new RateLimiter(5, 1000);
-		limiter.hit('old');
+		const window = new MemoryWindow(5, 1000);
+		window.hit('old');
 		jest.advanceTimersByTime(1001);
-		limiter.hit('new');
-		limiter.sweep();
-		expect(limiter.size).toBe(1);
+		window.hit('new');
+		window.sweep();
+		expect(window.size).toBe(1);
 		jest.useRealTimers();
 	});
 
 	it('forgets hits older than the window', () => {
 		jest.useFakeTimers();
-		const limiter = new RateLimiter(1, 1000);
-		limiter.hit('k');
+		const window = new MemoryWindow(1, 1000);
+		expect(window.take('k')).toBe(true);
+		expect(window.take('k')).toBe(false);
 		jest.advanceTimersByTime(1001);
-		expect(limiter.isLimited('k')).toBe(false);
+		expect(window.isLimited('k')).toBe(false);
 		jest.useRealTimers();
 	});
 });

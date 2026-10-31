@@ -45,7 +45,8 @@ import { LikeInput } from '../../libs/dto/like/like.input';
 import { LikeGroup } from '../../libs/enums/like.enum';
 import { LikeService } from '../like/like.service';
 import { Follower, Following, MeFollowed } from '../../libs/dto/follow/follow';
-import { lookupAuthMemberLiked, searchRegex, idString } from '../../libs/config';
+import { lookupAuthMemberLiked, searchRegex, idString, shapeIntoMongoObjectId } from '../../libs/config';
+import { caches } from '../../libs/cache';
 import { SocketGateway } from '../../socket/socket.gateway';
 
 const logger = new Logger('MemberService');
@@ -103,7 +104,7 @@ export class MemberService {
 
 	public async signup(input: MemberInput, ip: string, userAgent?: string): Promise<Member> {
 		if (input.memberType === MemberType.ADMIN) throw new BadRequestException(Message.NOT_ALLOWED_REQUEST);
-		limiters.signupIp.consume(ip);
+		await limiters.signupIp.consume(ip);
 		this.assertStrongPassword(input.memberPassword, input.memberNick);
 		// the phone must be confirmed with the SMS code before the account exists
 		const memberPhone = await this.verificationService.consumeCode(
@@ -131,7 +132,7 @@ export class MemberService {
 	/** registration with an email; a phone is added later (it is needed only to list a car) */
 	public async signupWithEmail(input: EmailSignupInput, ip: string, userAgent?: string): Promise<Member> {
 		if (input.memberType === MemberType.ADMIN) throw new BadRequestException(Message.NOT_ALLOWED_REQUEST);
-		limiters.signupIp.consume(ip);
+		await limiters.signupIp.consume(ip);
 		this.assertStrongPassword(input.memberPassword, input.memberNick, input.memberEmail);
 		const memberEmail = await this.verificationService.consumeEmailCode(
 			input.memberEmail,
@@ -159,8 +160,8 @@ export class MemberService {
 		const { memberNick } = input;
 		const nickKey = memberNick.toLowerCase();
 		// brute-force protection: limited wrong passwords per nickname and per IP
-		limiters.loginIp.assert(ip);
-		limiters.loginNick.assert(nickKey);
+		await limiters.loginIp.assert(ip);
+		await limiters.loginNick.assert(nickKey);
 
 		// the login field takes a nickname, a phone number ("+998 90 123 45 67") or an email
 		const phone = normalizePhone(memberNick);
@@ -177,18 +178,18 @@ export class MemberService {
 		if (!response || response.memberStatus === MemberStatus.DELETE) {
 			// compare anyway so both cases take about the same time
 			await this.authService.comparePasswords(input.memberPassword, DUMMY_HASH);
-			limiters.loginIp.hit(ip);
-			limiters.loginNick.hit(nickKey);
+			await limiters.loginIp.hit(ip);
+			await limiters.loginNick.hit(nickKey);
 			throw new BadRequestException(Message.WRONG_LOGIN);
 		}
 
 		const isMatch = await this.authService.comparePasswords(input.memberPassword, response.memberPassword!);
 		if (!isMatch) {
-			limiters.loginIp.hit(ip);
-			limiters.loginNick.hit(nickKey);
+			await limiters.loginIp.hit(ip);
+			await limiters.loginNick.hit(nickKey);
 			throw new BadRequestException(Message.WRONG_LOGIN);
 		}
-		limiters.loginNick.reset(nickKey);
+		await limiters.loginNick.reset(nickKey);
 		// checked after the password, so the block reason is shown only to the account owner
 		if (response.memberStatus === MemberStatus.BLOCK) throw new ForbiddenException(blockedMessage(response));
 		// hashes made with fewer bcrypt rounds are upgraded while the plain password is at hand
@@ -526,6 +527,7 @@ export class MemberService {
 			.findOneAndUpdate({ _id: input._id }, input, { new: true })
 			.exec();
 		if (!result) throw new BadRequestException(Message.UPDATE_FAILED);
+		if (input.memberStatus && input.memberStatus !== before.memberStatus) await caches.hiddenSellers.clear();
 
 		// audit: one entry per kind of change
 		const changes: [string, string | undefined][] = [];
@@ -588,8 +590,15 @@ export class MemberService {
 	}
 
 	/** blocked and deleted members: their cars are hidden from the public lists */
+	/** asked on every car list request, so kept in the cache (cleared when an admin changes a member's status) */
 	public async inactiveMemberIds(): Promise<ObjectId[]> {
-		return await this.memberModel.distinct('_id', { memberStatus: { $ne: MemberStatus.ACTIVE } }).exec();
+		const ids = await caches.hiddenSellers.get('all', async () => {
+			const found: unknown[] = await this.memberModel
+				.distinct('_id', { memberStatus: { $ne: MemberStatus.ACTIVE } })
+				.exec();
+			return found.map(idString);
+		});
+		return ids.map((id) => shapeIntoMongoObjectId(id) as ObjectId);
 	}
 
 	/** buyers contact sellers by phone, so a listing needs a confirmed number (email accounts add one first) */

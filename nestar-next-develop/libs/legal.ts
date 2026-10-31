@@ -450,7 +450,7 @@ export const privacy: Record<string, LegalDoc> = {
 			{
 				title: '5. Brauzer xotirasi',
 				text: [
-					'Qisqa muddatli kirish tokeni, tanlangan til, valyuta va taqqoslash roʻyxati brauzeringiz xotirasida (localStorage) saqlanadi. Seansni yangilash tokeni faqat httpOnly cookie’da saqlanadi. Reklama cookie’laridan foydalanmaymiz.',
+					'Tanlangan til, valyuta, taqqoslash roʻyxati va kirganingiz haqidagi belgi brauzeringiz xotirasida (localStorage) saqlanadi. Qisqa muddatli kirish tokeni faqat ochiq sahifa xotirasida turadi, seansni yangilash tokeni esa faqat httpOnly cookie’da saqlanadi. Reklama cookie’laridan foydalanmaymiz.',
 				],
 			},
 		],
@@ -493,7 +493,7 @@ export const privacy: Record<string, LegalDoc> = {
 			{
 				title: '5. Хранилище браузера',
 				text: [
-					'Короткоживущий токен входа, язык, валюта и список сравнения хранятся в localStorage браузера. Токен обновления сеанса хранится только в httpOnly cookie. Рекламные cookie мы не используем.',
+					'Язык, валюта, список сравнения и отметка о входе хранятся в localStorage браузера. Короткоживущий токен входа хранится только в памяти открытой страницы, а токен обновления сеанса — только в httpOnly cookie. Рекламные cookie мы не используем.',
 				],
 			},
 		],
@@ -536,7 +536,7 @@ export const privacy: Record<string, LegalDoc> = {
 			{
 				title: '5. Browser storage',
 				text: [
-					'A short-lived login token, your language, currency and comparison list are kept in your browser (localStorage). The session refresh token is kept only in an httpOnly cookie. We do not use advertising cookies.',
+					'Your language, currency, comparison list and a note that you are logged in are kept in your browser (localStorage). The short-lived login token stays only in the memory of the open page, and the session refresh token only in an httpOnly cookie. We do not use advertising cookies.',
 				],
 			},
 		],

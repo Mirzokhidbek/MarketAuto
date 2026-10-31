@@ -275,7 +275,7 @@ export class MemberResolver {
 		if (!filename) throw new BadRequestException(Message.UPLOAD_FAILED);
 		if (!validMimeTypes.includes(mimetype)) throw new BadRequestException(Message.PROVIDE_ALLOWED_FORMAT);
 		if (!uploadTargets.includes(target)) throw new BadRequestException(Message.INVALID_UPLOAD_TARGET);
-		limiters.uploads.consume(idString(memberId));
+		await limiters.uploads.consume(idString(memberId));
 
 		// compressed to WebP and stored locally or on S3 (see StorageService)
 		const buffer = await this.storageService.readStream(createReadStream());
@@ -292,7 +292,7 @@ export class MemberResolver {
 	): Promise<string[]> {
 		if (!uploadTargets.includes(target)) throw new BadRequestException(Message.INVALID_UPLOAD_TARGET);
 		// every file counts: one call with 10 photos uses 10 of the hourly allowance
-		for (let i = 0; i < files.length; i++) limiters.uploads.consume(idString(memberId));
+		for (let i = 0; i < files.length; i++) await limiters.uploads.consume(idString(memberId));
 
 		const uploadedImages: string[] = [];
 		await Promise.all(
