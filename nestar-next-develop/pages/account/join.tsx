@@ -3,13 +3,16 @@ import { NextPage } from 'next';
 import Link from 'next/link';
 import withLayoutFull from '../../libs/components/layout/LayoutFull';
 import { useRouter } from 'next/router';
-import { logIn, logInWithCode, resetPassword, signUp, verifyAdminLogin } from '../../libs/auth';
+import { logIn, logInWithCode, resetPassword, signUp, signUpWithEmail, verifyAdminLogin } from '../../libs/auth';
 import { sweetMixinSuccessAlert } from '../../libs/sweetAlert';
 import { userVar } from '../../apollo/store';
 import { MemberType } from '../../libs/enums/member.enum';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useTranslation } from 'next-i18next';
 import PhoneCodeField from '../../libs/components/common/PhoneCodeField';
+import EmailCodeField, { EMAIL_PATTERN } from '../../libs/components/common/EmailCodeField';
+import PasswordRules from '../../libs/components/common/PasswordRules';
+import { isStrongPassword, PASSWORD_MAX } from '../../libs/password';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {
@@ -18,6 +21,8 @@ export const getStaticProps = async ({ locale }: any) => ({
 });
 
 type View = 'login' | 'code' | 'register' | 'reset' | 'admin2fa';
+/** registration and password reset work with a phone (SMS code) or an email (code by email) */
+type Channel = 'phone' | 'email';
 
 const NICK_PATTERN = /^[a-zA-Z0-9_.]{3,12}$/;
 
@@ -25,7 +30,8 @@ const Join: NextPage = () => {
 	const router = useRouter();
 	const { t } = useTranslation('common');
 	const [view, setView] = useState<View>('login');
-	const [input, setInput] = useState({ nick: '', password: '', phone: '', code: '', type: 'USER' });
+	const [input, setInput] = useState({ nick: '', password: '', phone: '', email: '', code: '', type: 'USER' });
+	const [channel, setChannel] = useState<Channel>('phone');
 	const [agreed, setAgreed] = useState<boolean>(false);
 	const [busy, setBusy] = useState<boolean>(false);
 	// errors are shown inside the form, next to the button, not in a popup
@@ -34,6 +40,11 @@ const Join: NextPage = () => {
 	const [admin, setAdmin] = useState<{ nick: string; devCode: string }>({ nick: '', devCode: '' });
 	const switchView = (next: View) => {
 		setView(next);
+		setError('');
+	};
+	const switchChannel = (next: Channel) => {
+		setChannel(next);
+		setInput((prev) => ({ ...prev, code: '' }));
 		setError('');
 	};
 
@@ -73,9 +84,11 @@ const Join: NextPage = () => {
 			} else if (view === 'code') {
 				await logInWithCode(input.phone, input.code);
 			} else if (view === 'register') {
-				await signUp({ nick: input.nick, password: input.password, phone: input.phone, type: input.type, code: input.code });
+				const account = { nick: input.nick, password: input.password, type: input.type, code: input.code };
+				if (channel === 'email') await signUpWithEmail({ ...account, email: input.email });
+				else await signUp({ ...account, phone: input.phone });
 			} else {
-				await resetPassword(input.phone, input.code, input.password);
+				await resetPassword(channel === 'email' ? { email: input.email } : { phone: input.phone }, input.code, input.password);
 				await sweetMixinSuccessAlert(t('Password changed successfully.') as string);
 			}
 			await goAfterAuth();
@@ -86,7 +99,9 @@ const Join: NextPage = () => {
 		}
 	};
 
-	const passwordOk = input.password.length >= 5 && input.password.length <= 12;
+	// new passwords follow the server rules; the login form takes any password (old accounts may have short ones)
+	const passwordOk = isStrongPassword(input.password, view === 'register' ? input.nick : undefined, channel === 'email' ? input.email : undefined);
+	const targetOk = channel === 'email' ? EMAIL_PATTERN.test(input.email) : input.phone.replace(/\D/g, '').length >= 9;
 	const codeOk = input.code.length === 6;
 	const canSubmit =
 		!busy &&
@@ -95,14 +110,24 @@ const Join: NextPage = () => {
 			: view === 'code' || view === 'admin2fa'
 			? codeOk
 			: view === 'register'
-			? NICK_PATTERN.test(input.nick) && passwordOk && codeOk && agreed
-			: passwordOk && codeOk);
+			? NICK_PATTERN.test(input.nick) && passwordOk && targetOk && codeOk && agreed
+			: passwordOk && targetOk && codeOk);
 
 	const titles: Record<View, [string, string]> = {
 		login: ['Welcome back', 'Log in to save cars and contact sellers.'],
 		code: ['Log in with SMS code', 'No password needed: we send a code to your phone.'],
-		register: ['Create your account', 'Confirm your phone with an SMS code — it protects buyers from fake sellers.'],
-		reset: ['Reset password', 'We will send a code to the phone number of your account.'],
+		register: [
+			'Create your account',
+			channel === 'email'
+				? 'Confirm your email with a code. To list a car you will also confirm a phone number.'
+				: 'Confirm your phone with an SMS code — it protects buyers from fake sellers.',
+		],
+		reset: [
+			'Reset password',
+			channel === 'email'
+				? 'We will send a code to the email of your account.'
+				: 'We will send a code to the phone number of your account.',
+		],
 		admin2fa: ['Admin login confirmation', 'We sent a code to the phone number of the admin account.'],
 	};
 
@@ -138,13 +163,36 @@ const Join: NextPage = () => {
 					<h1>{t(titles[view][0])}</h1>
 					<p className={'ma-auth__lead'}>{t(titles[view][1])}</p>
 
+					{(view === 'register' || view === 'reset') && (
+						<div className={'ma-auth__channel'} role={'tablist'} aria-label={t('Confirm with') as string}>
+							<button
+								type="button"
+								role={'tab'}
+								aria-selected={channel === 'phone'}
+								className={channel === 'phone' ? 'is-active' : ''}
+								onClick={() => switchChannel('phone')}
+							>
+								{t('With phone')}
+							</button>
+							<button
+								type="button"
+								role={'tab'}
+								aria-selected={channel === 'email'}
+								className={channel === 'email' ? 'is-active' : ''}
+								onClick={() => switchChannel('email')}
+							>
+								{t('With email')}
+							</button>
+						</div>
+					)}
+
 					{(view === 'login' || view === 'register') && (
 						<label className={'ma-input'}>
-							<span>{view === 'login' ? t('Phone or nickname') : t('Nickname')}</span>
+							<span>{view === 'login' ? t('Phone, email or nickname') : t('Nickname')}</span>
 							<input
 								type="text"
 								autoComplete="username"
-								placeholder={(view === 'login' ? t('+998 90 123 45 67 or nickname') : t('Enter nickname')) as string}
+								placeholder={(view === 'login' ? t('+998 90 123 45 67, email or nickname') : t('Enter nickname')) as string}
 								value={input.nick}
 								onChange={(e) => set('nick', view === 'login' ? e.target.value : e.target.value.trim())}
 							/>
@@ -176,12 +224,23 @@ const Join: NextPage = () => {
 						</label>
 					)}
 
-					{view !== 'login' && view !== 'admin2fa' && (
+					{view !== 'login' && view !== 'admin2fa' && (view === 'code' || channel === 'phone') && (
 						<PhoneCodeField
+							key={view}
 							purpose={view === 'register' ? 'SIGNUP' : view === 'code' ? 'LOGIN' : 'RESET_PASSWORD'}
 							phone={input.phone}
 							code={input.code}
 							onPhoneChange={(value) => set('phone', value)}
+							onCodeChange={(value) => set('code', value)}
+						/>
+					)}
+					{(view === 'register' || view === 'reset') && channel === 'email' && (
+						<EmailCodeField
+							key={view}
+							purpose={view === 'register' ? 'SIGNUP' : 'RESET_PASSWORD'}
+							email={input.email}
+							code={input.code}
+							onEmailChange={(value) => set('email', value)}
 							onCodeChange={(value) => set('code', value)}
 						/>
 					)}
@@ -192,11 +251,18 @@ const Join: NextPage = () => {
 						<input
 							type="password"
 							autoComplete={view === 'login' ? 'current-password' : 'new-password'}
-							placeholder={(view === 'login' ? t('Enter password') : t('5-12 characters')) as string}
-							maxLength={12}
+							placeholder={(view === 'login' ? t('Enter password') : t('At least 8 characters')) as string}
+							maxLength={PASSWORD_MAX}
 							value={input.password}
 							onChange={(e) => set('password', e.target.value)}
 						/>
+						{view !== 'login' && (
+							<PasswordRules
+								password={input.password}
+								nick={view === 'register' ? input.nick : undefined}
+								email={channel === 'email' ? input.email : undefined}
+							/>
+						)}
 					</label>
 					)}
 

@@ -1022,3 +1022,88 @@
 	border-radius: 10px;
 	object-fit: cover;
 }
+
+/* Profile → Devices */
+.ma-sessions {
+	&__head {
+		display: flex;
+		align-items: flex-start;
+		justify-content: space-between;
+		gap: 16px;
+		margin-bottom: 8px;
+		h2 {
+			margin-bottom: 4px;
+		}
+		p {
+			margin: 0;
+			font-size: 13px;
+			color: $ma-muted;
+		}
+		.ma-btn {
+			flex-shrink: 0;
+		}
+	}
+	ul {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+	li {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+		padding: 12px 0;
+		border-bottom: 1px solid $ma-border;
+		&:last-child {
+			border-bottom: none;
+		}
+	}
+	&__icon {
+		display: grid;
+		place-items: center;
+		width: 40px;
+		height: 40px;
+		flex-shrink: 0;
+		border-radius: 10px;
+		background: $ma-bg;
+		color: $ma-muted;
+	}
+	li.is-current &__icon {
+		background: $ma-primary-soft;
+		color: $ma-primary;
+	}
+	&__body {
+		display: flex;
+		flex: 1;
+		min-width: 0;
+		flex-direction: column;
+		gap: 2px;
+		strong {
+			display: flex;
+			flex-wrap: wrap;
+			align-items: center;
+			gap: 8px;
+			font-size: 14px;
+			color: $ma-dark;
+		}
+		em {
+			padding: 1px 8px;
+			border-radius: 999px;
+			background: #e6f4ea;
+			color: $ma-success;
+			font-size: 11px;
+			font-style: normal;
+			font-weight: 600;
+		}
+		span {
+			font-size: 12px;
+			color: $ma-muted;
+		}
+	}
+}
+
+@media (max-width: 600px) {
+	.ma-sessions__head {
+		flex-direction: column;
+	}
+}

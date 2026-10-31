@@ -36,6 +36,7 @@ export enum VerificationPurpose {
 	CHANGE_PHONE = 'CHANGE_PHONE',
 	LOGIN = 'LOGIN',
 	ADMIN_2FA = 'ADMIN_2FA', // second step of an admin login
+	VERIFY_EMAIL = 'VERIFY_EMAIL', // adding or changing the email of an account
 }
 registerEnumType(VerificationPurpose, {
 	name: 'VerificationPurpose',

@@ -1,10 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-base-to-string */
-import { Args, Context, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { Args, Context, Int, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { MemberService } from './member.service';
 import {
 	AdminCodeInput,
 	AgentsInquiry,
+	EmailSignupInput,
 	LoginInput,
 	MemberInput,
 	MembersInquiry,
@@ -24,7 +25,13 @@ import { MemberUpdate, pickSelfEditable } from '../../libs/dto/member/member.upd
 import { clientIp, idString, shapeIntoMongoObjectId, uploadTargets, validMimeTypes } from '../../libs/config';
 import { limiters } from '../../libs/rate-limiter';
 import { StorageService } from '../storage/storage.service';
-import { ChangePhoneInput, CodeLoginInput, ResetPasswordInput } from '../../libs/dto/verification/verification';
+import {
+	ChangeEmailInput,
+	ChangePhoneInput,
+	CodeLoginInput,
+	ResetPasswordInput,
+} from '../../libs/dto/verification/verification';
+import { MemberSession } from '../../libs/dto/member/session';
 import { AuthService } from '../auth/auth.service';
 import { WithoutGuard } from '../auth/guards/without.guard';
 import { Message } from '../../libs/enums/common.enum';
@@ -53,6 +60,11 @@ export class MemberResolver {
 	@Mutation(() => Member)
 	public async signup(@Args('input') input: MemberInput, @Context() context: any): Promise<Member> {
 		return await this.memberService.signup(input, clientIp(context), context?.req?.headers?.['user-agent']);
+	}
+
+	@Mutation(() => Member)
+	public async signupWithEmail(@Args('input') input: EmailSignupInput, @Context() context: any): Promise<Member> {
+		return await this.memberService.signupWithEmail(input, clientIp(context), context?.req?.headers?.['user-agent']);
 	}
 
 	@Mutation(() => Member)
@@ -108,6 +120,38 @@ export class MemberResolver {
 		@AuthMember('_id') memberId: ObjectId,
 	): Promise<Member> {
 		return await this.memberService.changePhone(memberId, input);
+	}
+
+	@UseGuards(AuthGuard)
+	@Mutation(() => Member)
+	public async changeEmail(
+		@Args('input') input: ChangeEmailInput,
+		@AuthMember('_id') memberId: ObjectId,
+	): Promise<Member> {
+		return await this.memberService.changeEmail(memberId, input);
+	}
+
+	/** devices where this account is logged in */
+	@UseGuards(AuthGuard)
+	@Query(() => [MemberSession])
+	public async getMySessions(@AuthMember('_id') memberId: ObjectId, @Context() context: any): Promise<MemberSession[]> {
+		return await this.authService.listSessions(memberId, readRefreshCookie(context?.req));
+	}
+
+	@UseGuards(AuthGuard)
+	@Mutation(() => Boolean)
+	public async revokeMySession(
+		@Args('sessionId') sessionId: string,
+		@AuthMember('_id') memberId: ObjectId,
+	): Promise<boolean> {
+		return await this.authService.revokeSessionById(memberId, sessionId);
+	}
+
+	/** "log out on all other devices"; returns how many were logged out */
+	@UseGuards(AuthGuard)
+	@Mutation(() => Int)
+	public async logoutOtherSessions(@AuthMember('_id') memberId: ObjectId, @Context() context: any): Promise<number> {
+		return await this.authService.revokeOtherSessions(memberId, readRefreshCookie(context?.req));
 	}
 
 	@UseGuards(AuthGuard)

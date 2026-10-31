@@ -27,8 +27,8 @@ npm ci --legacy-peer-deps         # @toast-ui/react-editor still declares React 
 npm run dev                       # site -> http://localhost:3000, admin -> /admin
 ```
 
-Without SMS provider keys the verification code is printed in the API log and returned as `devCode`
-(development only). Everything in one go: `cp .env.example .env && docker compose up -d --build`.
+Without SMS provider keys or `SMTP_HOST` the verification code (SMS or email) is printed in the API log and
+returned as `devCode` (development only). Everything in one go: `cp .env.example .env && docker compose up -d --build`.
 
 ## Checks (the same ones CI runs)
 
@@ -56,8 +56,16 @@ apps/nestar-api/src
 
 ## Security model (short)
 
-- **Sessions:** 1-hour JWT access token + 30-day refresh token in an httpOnly cookie, rotated on use and
-  stored hashed (revocable). Status and role are re-read from the database on every request.
+- **Sign-up and login:** with a phone (SMS code) or an email (code by email). Login takes a nickname, phone
+  or email. Password reset works by SMS or email. An email account adds a confirmed phone before listing a car.
+- **Passwords:** new passwords are 8-64 characters with letters and digits, not a common password and not the
+  nickname or email (`libs/password.ts`). bcrypt cost 12; older hashes are upgraded at the next login.
+- **Sessions:** 15-minute JWT access token + 30-day refresh token in an httpOnly cookie, rotated on use and
+  stored hashed. A rotated token used again later (a stolen copy) ends every session of the member.
+  Members see their devices in Profile → Devices and can log out any of them. Status and role are re-read
+  from the database on every request.
+- **Security emails:** a login from a new browser, a password change and a password reset are reported to the
+  confirmed email. The email itself is private: only getMe and the admin panel return it.
 - **Who is calling:** `AuthGuard` (login required), `RolesGuard` + `@Roles()` / `@SuperAdminOnly()`,
   `WithoutGuard` (login optional). The verified member is stored on the request (`req.authMember`) and read
   with `@AuthMember()`. It is never taken from the request body.

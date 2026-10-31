@@ -16,16 +16,24 @@ import { Member, Members } from '../../libs/dto/member/member';
 import {
 	AdminCodeInput,
 	AgentsInquiry,
+	EmailSignupInput,
 	LoginInput,
 	MemberInput,
 	MembersInquiry,
 	PasswordInput,
 } from '../../libs/dto/member/member.input';
-import { ChangePhoneInput, CodeLoginInput, ResetPasswordInput } from '../../libs/dto/verification/verification';
+import {
+	ChangeEmailInput,
+	ChangePhoneInput,
+	CodeLoginInput,
+	ResetPasswordInput,
+} from '../../libs/dto/verification/verification';
+import { MailService } from '../verification/mail.service';
+import { passwordProblem } from '../../libs/password';
 import { VerificationService } from '../verification/verification.service';
-import { isValidPhone, limiters, normalizePhone } from '../../libs/rate-limiter';
+import { isValidPhone, limiters, normalizeEmail, normalizePhone } from '../../libs/rate-limiter';
 import { Direction, Message } from '../../libs/enums/common.enum';
-import { AdminRole, MemberStatus, MemberType, VerificationPurpose } from '../../libs/enums/member.enum';
+import { AdminRole, MemberAuthType, MemberStatus, MemberType, VerificationPurpose } from '../../libs/enums/member.enum';
 import { AdminLogService } from '../admin-log/admin-log.service';
 import { MemberAdminDetail } from '../../libs/dto/member/member-admin';
 import { AuthService } from '../auth/auth.service';
@@ -62,11 +70,41 @@ export class MemberService {
 		private storageService: StorageService,
 		private adminLogService: AdminLogService,
 		private socketGateway: SocketGateway,
+		private mailService: MailService,
 	) {}
+
+	/** new passwords: 8-64 characters, letters and digits, not common, not the nick or email */
+	private assertStrongPassword(password: string, nick?: string, email?: string): void {
+		if (passwordProblem(password, nick, email)) throw new BadRequestException(Message.WEAK_PASSWORD);
+	}
+
+	/**
+	 * Security emails (new device, password changed) go only to a confirmed address and never block the
+	 * action that triggered them.
+	 */
+	private notifyByEmail(memberId: unknown, subject: string, lines: string[]): void {
+		void (async () => {
+			const member = await this.memberModel.findById(memberId).select('+memberEmail').lean().exec();
+			if (!member?.memberEmail || !member.memberEmailVerified) return;
+			await this.mailService.send(member.memberEmail, subject, [`Salom, ${member.memberNick}!`, ...lines]);
+		})().catch((err) => logger.warn(`security email failed: ${err instanceof Error ? err.message : String(err)}`));
+	}
+
+	/** login tokens; a login from a browser this account has not used before is reported by email */
+	private async startSession(member: Member, userAgent?: string): Promise<Member> {
+		if (await this.authService.isNewDevice(member._id, userAgent))
+			this.notifyByEmail(member._id, 'CarPort: hisobingizga yangi qurilmadan kirildi', [
+				`Hisobingizga yangi qurilmadan kirildi: ${(userAgent ?? 'nomaʼlum brauzer').slice(0, 120)}.`,
+				'Agar bu siz boʻlsangiz, hech narsa qilish shart emas.',
+				'Agar siz boʻlmasangiz, darhol parolni oʻzgartiring: Mening sahifam → Profil → Parol. Parol oʻzgarganda boshqa barcha qurilmalardan chiqiladi.',
+			]);
+		return await this.authService.issueTokens(member, userAgent);
+	}
 
 	public async signup(input: MemberInput, ip: string, userAgent?: string): Promise<Member> {
 		if (input.memberType === MemberType.ADMIN) throw new BadRequestException(Message.NOT_ALLOWED_REQUEST);
 		limiters.signupIp.consume(ip);
+		this.assertStrongPassword(input.memberPassword, input.memberNick);
 		// the phone must be confirmed with the SMS code before the account exists
 		const memberPhone = await this.verificationService.consumeCode(
 			input.memberPhone,
@@ -76,7 +114,40 @@ export class MemberService {
 		const { verificationCode, ...data } = input;
 		const memberPassword = await this.authService.hashPassword(input.memberPassword);
 		try {
-			const result = await this.memberModel.create({ ...data, memberPhone, memberPassword, memberPhoneVerified: true });
+			const result = await this.memberModel.create({
+				...data,
+				memberAuthType: MemberAuthType.PHONE,
+				memberPhone,
+				memberPassword,
+				memberPhoneVerified: true,
+			});
+			return await this.authService.issueTokens(result, userAgent);
+		} catch (err) {
+			logger.warn(`Error on Service.model: ${err instanceof Error ? err.message : String(err)}`);
+			throw new BadRequestException(Message.USED_MEMBER_NICK_OR_PHONE);
+		}
+	}
+
+	/** registration with an email; a phone is added later (it is needed only to list a car) */
+	public async signupWithEmail(input: EmailSignupInput, ip: string, userAgent?: string): Promise<Member> {
+		if (input.memberType === MemberType.ADMIN) throw new BadRequestException(Message.NOT_ALLOWED_REQUEST);
+		limiters.signupIp.consume(ip);
+		this.assertStrongPassword(input.memberPassword, input.memberNick, input.memberEmail);
+		const memberEmail = await this.verificationService.consumeEmailCode(
+			input.memberEmail,
+			VerificationPurpose.SIGNUP,
+			input.verificationCode,
+		);
+		const memberPassword = await this.authService.hashPassword(input.memberPassword);
+		try {
+			const result = await this.memberModel.create({
+				memberNick: input.memberNick,
+				memberType: input.memberType ?? MemberType.USER,
+				memberAuthType: MemberAuthType.EMAIL,
+				memberEmail,
+				memberEmailVerified: true,
+				memberPassword,
+			});
 			return await this.authService.issueTokens(result, userAgent);
 		} catch (err) {
 			logger.warn(`Error on Service.model: ${err instanceof Error ? err.message : String(err)}`);
@@ -91,13 +162,16 @@ export class MemberService {
 		limiters.loginIp.assert(ip);
 		limiters.loginNick.assert(nickKey);
 
-		// the login field takes a nickname or a phone number ("+998 90 123 45 67")
+		// the login field takes a nickname, a phone number ("+998 90 123 45 67") or an email
 		const phone = normalizePhone(memberNick);
 		const byPhone = /^[+\d\s()-]+$/.test(memberNick.trim()) && isValidPhone(phone);
-		const response: Member | null = await this.memberModel
-			.findOne(byPhone ? { memberPhone: phone } : { memberNick: memberNick })
-			.select('+memberPassword')
-			.exec();
+		const byEmail = memberNick.includes('@');
+		const filter = byEmail
+			? { memberEmail: normalizeEmail(memberNick) }
+			: byPhone
+				? { memberPhone: phone }
+				: { memberNick: memberNick };
+		const response: Member | null = await this.memberModel.findOne(filter).select('+memberPassword').exec();
 
 		// one answer for "no such account" and "wrong password": the login form must not reveal who is registered
 		if (!response || response.memberStatus === MemberStatus.DELETE) {
@@ -117,6 +191,11 @@ export class MemberService {
 		limiters.loginNick.reset(nickKey);
 		// checked after the password, so the block reason is shown only to the account owner
 		if (response.memberStatus === MemberStatus.BLOCK) throw new ForbiddenException(blockedMessage(response));
+		// hashes made with fewer bcrypt rounds are upgraded while the plain password is at hand
+		if (this.authService.needsRehash(response.memberPassword!)) {
+			const memberPassword = await this.authService.hashPassword(input.memberPassword);
+			await this.memberModel.updateOne({ _id: response._id }, { memberPassword }).exec();
+		}
 
 		// admins: the password is only the first step, an SMS code to the admin phone is the second
 		if (response.memberType === MemberType.ADMIN && settings.adminTwoFactor) {
@@ -125,7 +204,7 @@ export class MemberService {
 			const { memberPassword, ...member } = (response as T).toObject();
 			return { ...member, twoFactorRequired: true, devCode: sent.devCode } as Member;
 		}
-		return await this.authService.issueTokens(response, userAgent);
+		return await this.startSession(response, userAgent);
 	}
 
 	/** second step of an admin login */
@@ -135,7 +214,7 @@ export class MemberService {
 			.exec();
 		if (!member || member.memberStatus !== MemberStatus.ACTIVE) throw new BadRequestException(Message.WRONG_CODE);
 		await this.verificationService.consumeCode(member.memberPhone, VerificationPurpose.ADMIN_2FA, input.code);
-		return await this.authService.issueTokens(member, userAgent);
+		return await this.startSession(member, userAgent);
 	}
 
 	/** password-less login: SMS code to the account phone */
@@ -146,23 +225,66 @@ export class MemberService {
 		if (member.memberStatus === MemberStatus.BLOCK) throw new ForbiddenException(blockedMessage(member));
 		// an SMS alone is not enough for an admin account
 		if (member.memberType === MemberType.ADMIN) throw new BadRequestException(Message.NOT_ALLOWED_REQUEST);
-		return await this.authService.issueTokens(member, userAgent);
+		return await this.startSession(member, userAgent);
 	}
 
-	/** "forgot password": SMS code to the account phone, then a new password; all old sessions end */
+	/** "forgot password": a code to the account phone or email, then a new password; all old sessions end */
 	public async resetPassword(input: ResetPasswordInput, userAgent?: string): Promise<Member> {
-		const memberPhone = await this.verificationService.consumeCode(
-			input.phone,
-			VerificationPurpose.RESET_PASSWORD,
-			input.code,
-		);
+		if (!input.phone === !input.email) throw new BadRequestException(Message.BAD_REQUEST);
+		if (passwordProblem(input.newPassword)) throw new BadRequestException(Message.WEAK_PASSWORD);
+		const filter = input.email
+			? {
+					memberEmail: await this.verificationService.consumeEmailCode(
+						input.email,
+						VerificationPurpose.RESET_PASSWORD,
+						input.code,
+					),
+				}
+			: {
+					memberPhone: await this.verificationService.consumeCode(
+						input.phone as string,
+						VerificationPurpose.RESET_PASSWORD,
+						input.code,
+					),
+				};
+		const account = await this.memberModel.findOne(filter).select('+memberEmail').lean().exec();
+		if (account && passwordProblem(input.newPassword, account.memberNick, account.memberEmail))
+			throw new BadRequestException(Message.WEAK_PASSWORD);
 		const memberPassword = await this.authService.hashPassword(input.newPassword);
 		const member = await this.memberModel
-			.findOneAndUpdate({ memberPhone, memberStatus: MemberStatus.ACTIVE }, { memberPassword }, { new: true })
+			.findOneAndUpdate({ ...filter, memberStatus: MemberStatus.ACTIVE }, { memberPassword }, { new: true })
 			.exec();
 		if (!member) throw new BadRequestException(Message.WRONG_CODE);
 		await this.authService.revokeAllSessions(member._id);
+		this.notifyByEmail(member._id, 'CarPort: parolingiz tiklandi', [
+			'Hisobingiz paroli hozirgina tiklandi va boshqa barcha qurilmalardan chiqildi.',
+			'Agar bu siz boʻlmasangiz, darhol yordam markaziga yozing.',
+		]);
 		return await this.authService.issueTokens(member, userAgent);
+	}
+
+	/** adds or replaces the account email; accepted only with the code sent to the new address */
+	public async changeEmail(memberId: ObjectId, input: ChangeEmailInput): Promise<Member> {
+		const memberEmail = await this.verificationService.consumeEmailCode(
+			input.email,
+			VerificationPurpose.VERIFY_EMAIL,
+			input.code,
+		);
+		try {
+			const result = await this.memberModel
+				.findOneAndUpdate(
+					{ _id: memberId, memberStatus: MemberStatus.ACTIVE },
+					{ memberEmail, memberEmailVerified: true },
+					{ new: true },
+				)
+				.select('+memberEmail')
+				.exec();
+			if (!result) throw new BadRequestException(Message.UPDATE_FAILED);
+			return result;
+		} catch (err: any) {
+			if (err instanceof BadRequestException) throw err;
+			throw new BadRequestException(Message.USED_EMAIL);
+		}
 	}
 
 	/** a new phone number is accepted only with the SMS code sent to that number */
@@ -220,12 +342,14 @@ export class MemberService {
 	public async changePassword(memberId: ObjectId, input: PasswordInput): Promise<Member> {
 		const member: Member | null = await this.memberModel
 			.findOne({ _id: memberId, memberStatus: MemberStatus.ACTIVE })
-			.select('+memberPassword')
+			.select('+memberPassword +memberEmail')
 			.exec();
 		if (!member) throw new NotFoundException(Message.NO_DATA_FOUND);
 
 		const isMatch = await this.authService.comparePasswords(input.currentPassword, member.memberPassword!);
 		if (!isMatch) throw new BadRequestException(Message.WRONG_CURRENT_PASSWORD);
+		this.assertStrongPassword(input.newPassword, member.memberNick, member.memberEmail);
+		if (input.newPassword === input.currentPassword) throw new BadRequestException(Message.WEAK_PASSWORD);
 
 		const memberPassword = await this.authService.hashPassword(input.newPassword);
 		const result = await this.memberModel.findByIdAndUpdate(memberId, { memberPassword }, { new: true }).exec();
@@ -233,6 +357,10 @@ export class MemberService {
 
 		// other devices are logged out; this one gets a fresh session
 		await this.authService.revokeAllSessions(memberId);
+		this.notifyByEmail(memberId, 'CarPort: parolingiz oʻzgartirildi', [
+			'Hisobingiz paroli hozirgina oʻzgartirildi va boshqa barcha qurilmalardan chiqildi.',
+			'Agar bu siz boʻlmasangiz, darhol parolni tiklang yoki yordam markaziga yozing.',
+		]);
 		return await this.authService.issueTokens(result);
 	}
 
@@ -296,7 +424,7 @@ export class MemberService {
 							{ $skip: (input.page - 1) * input.limit }, //
 							{ $limit: input.limit },
 							// the public seller list carries no phone numbers
-							{ $project: { memberPhone: 0 } },
+							{ $project: { memberPhone: 0, memberEmail: 0 } },
 							// meLiked
 							lookupAuthMemberLiked(memberId),
 						],
@@ -355,6 +483,7 @@ export class MemberService {
 			];
 			const digits = text.replace(/\D/g, '');
 			if (digits.length >= 4) or.push({ memberPhone: { $regex: digits } });
+			if (text.includes('@')) or.push({ memberEmail: { $regex: searchRegex(text.trim().toLowerCase()) } });
 			match.$or = or;
 		}
 
@@ -424,7 +553,7 @@ export class MemberService {
 
 	/** everything an admin needs about one member on a single screen */
 	public async getMemberAdminDetail(memberId: ObjectId): Promise<MemberAdminDetail> {
-		const member = await this.memberModel.findById(memberId).lean().exec();
+		const member = await this.memberModel.findById(memberId).select('+memberEmail').lean().exec();
 		if (!member) throw new NotFoundException(Message.NO_DATA_FOUND);
 		const db = this.memberModel.db;
 		const cars = await db
@@ -461,6 +590,12 @@ export class MemberService {
 	/** blocked and deleted members: their cars are hidden from the public lists */
 	public async inactiveMemberIds(): Promise<ObjectId[]> {
 		return await this.memberModel.distinct('_id', { memberStatus: { $ne: MemberStatus.ACTIVE } }).exec();
+	}
+
+	/** buyers contact sellers by phone, so a listing needs a confirmed number (email accounts add one first) */
+	public async hasVerifiedPhone(memberId: ObjectId): Promise<boolean> {
+		const member = await this.memberModel.findById(memberId).select('memberPhone memberPhoneVerified').lean().exec();
+		return !!member?.memberPhone && !!member.memberPhoneVerified;
 	}
 
 	public async isTrusted(memberId: ObjectId): Promise<boolean> {

@@ -1,5 +1,5 @@
 import { Field, InputType, Int, ObjectType } from '@nestjs/graphql';
-import { IsNotEmpty, Length } from 'class-validator';
+import { IsNotEmpty, IsOptional, Length } from 'class-validator';
 import { VerificationPurpose } from '../../enums/member.enum';
 
 @InputType()
@@ -28,11 +28,30 @@ export class PhoneCodeResult {
 }
 
 @InputType()
-export class ResetPasswordInput {
+export class EmailCodeInput {
 	@IsNotEmpty()
-	@Length(9, 20)
+	@Length(5, 254)
 	@Field(() => String)
-	phone!: string;
+	email!: string;
+
+	/** SIGNUP, RESET_PASSWORD or VERIFY_EMAIL */
+	@IsNotEmpty()
+	@Field(() => VerificationPurpose)
+	purpose!: VerificationPurpose;
+}
+
+/** the code went to the account phone or to the account email: give exactly one of them */
+@InputType()
+export class ResetPasswordInput {
+	@IsOptional()
+	@Length(9, 20)
+	@Field(() => String, { nullable: true })
+	phone?: string;
+
+	@IsOptional()
+	@Length(5, 254)
+	@Field(() => String, { nullable: true })
+	email?: string;
 
 	@IsNotEmpty()
 	@Length(6, 6)
@@ -40,9 +59,22 @@ export class ResetPasswordInput {
 	code!: string;
 
 	@IsNotEmpty()
-	@Length(5, 12)
+	@Length(8, 64)
 	@Field(() => String)
 	newPassword!: string;
+}
+
+@InputType()
+export class ChangeEmailInput {
+	@IsNotEmpty()
+	@Length(5, 254)
+	@Field(() => String)
+	email!: string;
+
+	@IsNotEmpty()
+	@Length(6, 6)
+	@Field(() => String)
+	code!: string;
 }
 
 @InputType()
