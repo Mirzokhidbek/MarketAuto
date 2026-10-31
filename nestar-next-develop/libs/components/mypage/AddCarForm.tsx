@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
@@ -216,6 +217,16 @@ const AddCarForm = () => {
 					<p>{t('Fill in the details buyers care about most. Fields marked * are required.')}</p>
 				</div>
 			</div>
+
+			{/* buyers call sellers: an account made with an email confirms a phone before listing */}
+			{!editId && user._id && !(user.memberPhone && user.memberPhoneVerified) && (
+				<div className={'ma-note ma-note--warn'} role={'status'}>
+					{t('Confirm your phone number in your profile before listing a car.')}{' '}
+					<Link href={{ pathname: '/mypage', query: { category: 'myProfile' } }} className={'ma-link-btn'}>
+						{t('Add phone')}
+					</Link>
+				</div>
+			)}
 
 			{draftRestored && (
 				<div className={'ma-note'}>

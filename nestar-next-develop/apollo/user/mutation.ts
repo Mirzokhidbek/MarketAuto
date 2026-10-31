@@ -426,6 +426,48 @@ export const REQUEST_PHONE_CODE = gql`
 	}
 `;
 
+export const REQUEST_EMAIL_CODE = gql`
+	mutation RequestEmailCode($input: EmailCodeInput!) {
+		requestEmailCode(input: $input) {
+			sent
+			expiresIn
+			devCode
+		}
+	}
+`;
+
+export const SIGN_UP_WITH_EMAIL = gql`
+	mutation SignupWithEmail($input: EmailSignupInput!) {
+		signupWithEmail(input: $input) {
+			_id
+			accessToken
+			refreshToken
+		}
+	}
+`;
+
+export const CHANGE_EMAIL = gql`
+	mutation ChangeEmail($input: ChangeEmailInput!) {
+		changeEmail(input: $input) {
+			_id
+			memberEmail
+			memberEmailVerified
+		}
+	}
+`;
+
+export const REVOKE_MY_SESSION = gql`
+	mutation RevokeMySession($sessionId: String!) {
+		revokeMySession(sessionId: $sessionId)
+	}
+`;
+
+export const LOGOUT_OTHER_SESSIONS = gql`
+	mutation LogoutOtherSessions {
+		logoutOtherSessions
+	}
+`;
+
 export const RESET_PASSWORD = gql`
 	mutation ResetPassword($input: ResetPasswordInput!) {
 		resetPassword(input: $input) {

@@ -59,6 +59,8 @@ export class PropertyService {
 	) {}
 
 	public async createProperty(input: PropertyInput): Promise<Property> {
+		if (!(await this.memberService.hasVerifiedPhone(input.memberId as ObjectId)))
+			throw new BadRequestException(Message.PHONE_REQUIRED);
 		if (input.carCountry === CarCountry.UZBEKISTAN && !input.propertyLocation) {
 			throw new BadRequestException(Message.BAD_REQUEST);
 		}
