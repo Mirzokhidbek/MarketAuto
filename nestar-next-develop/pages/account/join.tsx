@@ -303,6 +303,10 @@ const Join: NextPage = () => {
 									{t('I accept the')}{' '}
 									<Link href={'/terms'} target={'_blank'}>
 										{t('Terms of Use')}
+									</Link>
+									,{' '}
+									<Link href={'/offer'} target={'_blank'}>
+										{t('Public Offer')}
 									</Link>{' '}
 									{t('and')}{' '}
 									<Link href={'/privacy'} target={'_blank'}>

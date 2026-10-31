@@ -13,6 +13,8 @@ const securityHeaders = [
 /** @type {import('next').NextConfig} */
 const nextConfig = {
 	poweredByHeader: false,
+	// production image: a self-contained server (node server.js) without the dev dependencies
+	output: 'standalone',
 	async headers() {
 		return [{ source: '/:path*', headers: securityHeaders }];
 	},

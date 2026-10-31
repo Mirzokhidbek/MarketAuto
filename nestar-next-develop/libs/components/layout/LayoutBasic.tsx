@@ -79,6 +79,11 @@ const withLayoutBasic = (Component: any) => {
 					desc = 'Home / Terms of Use';
 					bgImage = '/img/banner/header2.svg';
 					break;
+				case '/offer':
+					title = 'Public Offer';
+					desc = 'Home / Public Offer';
+					bgImage = '/img/banner/header2.svg';
+					break;
 				case '/privacy':
 					title = 'Privacy Policy';
 					desc = 'Home / Privacy Policy';

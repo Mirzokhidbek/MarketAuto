@@ -36,7 +36,13 @@ import { AuthService } from '../auth/auth.service';
 import { WithoutGuard } from '../auth/guards/without.guard';
 import { Message } from '../../libs/enums/common.enum';
 import GraphQLUpload from 'graphql-upload/GraphQLUpload.mjs';
-import { clearRefreshCookie, readRefreshCookie, SessionCookieInterceptor } from '../../libs/session-cookie';
+import {
+	clearRefreshCookie,
+	currentRefreshToken,
+	isNativeClient,
+	readRefreshCookie,
+	SessionCookieInterceptor,
+} from '../../libs/session-cookie';
 
 const logger = new Logger('MemberResolver');
 
@@ -81,7 +87,10 @@ export class MemberResolver {
 		@Args('refreshToken', { type: () => String, nullable: true }) refreshToken: string | null,
 		@Context() context: any,
 	): Promise<Member> {
-		const token = refreshToken || readRefreshCookie(context?.req) || '';
+		// a native app never falls back to a cookie, so a web page cannot get a token handed back in the body
+		const token = isNativeClient(context?.req)
+			? refreshToken || currentRefreshToken(context?.req) || ''
+			: refreshToken || readRefreshCookie(context?.req) || '';
 		return await this.authService.refreshSession(token, context?.req?.headers?.['user-agent']);
 	}
 
@@ -90,7 +99,7 @@ export class MemberResolver {
 		@Args('refreshToken', { type: () => String, nullable: true }) refreshToken: string | null,
 		@Context() context: any,
 	): Promise<boolean> {
-		const token = refreshToken || readRefreshCookie(context?.req);
+		const token = refreshToken || currentRefreshToken(context?.req);
 		if (token) await this.authService.revokeSession(token);
 		clearRefreshCookie(context?.res);
 		return true;
@@ -135,7 +144,7 @@ export class MemberResolver {
 	@UseGuards(AuthGuard)
 	@Query(() => [MemberSession])
 	public async getMySessions(@AuthMember('_id') memberId: ObjectId, @Context() context: any): Promise<MemberSession[]> {
-		return await this.authService.listSessions(memberId, readRefreshCookie(context?.req));
+		return await this.authService.listSessions(memberId, currentRefreshToken(context?.req));
 	}
 
 	@UseGuards(AuthGuard)
@@ -151,7 +160,7 @@ export class MemberResolver {
 	@UseGuards(AuthGuard)
 	@Mutation(() => Int)
 	public async logoutOtherSessions(@AuthMember('_id') memberId: ObjectId, @Context() context: any): Promise<number> {
-		return await this.authService.revokeOtherSessions(memberId, readRefreshCookie(context?.req));
+		return await this.authService.revokeOtherSessions(memberId, currentRefreshToken(context?.req));
 	}
 
 	@UseGuards(AuthGuard)

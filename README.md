@@ -9,6 +9,13 @@ with sellers. Admins and moderators review listings and reports.
 | Batch jobs | `apps/nestar-batch` | NestJS: top listings/agents, cleanup of unused uploads |
 | Website + admin panel | `nestar-next-develop` | Next.js 15 (pages router), Apollo Client, MUI, i18n (uz / ru / en) |
 
+Clients: the website works as an installable web app (PWA, offline page), and native iOS/Android apps use the
+same API (`X-Client: mobile` mode). Guides:
+
+- **[DEPLOY.md](DEPLOY.md)** — production setup: settings, Docker, nginx + HTTPS, first admin, monitoring, launch checklist.
+- **[docs/MOBILE_API.md](docs/MOBILE_API.md)** — the API for mobile apps: login and tokens, screens, uploads, live events.
+- Legal pages: `/terms`, `/offer` (public offer), `/privacy` — texts in `nestar-next-develop/libs/legal.ts`.
+
 ## Requirements
 
 - **Node.js 24.9 or newer** (`.nvmrc`). NestJS 12 is ESM-only; the unit tests need Node 24's VM modules API.

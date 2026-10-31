@@ -26,6 +26,7 @@ const routeTitles: Record<string, string> = {
 	'/compare': 'Compare cars',
 	'/terms': 'Terms of Use',
 	'/privacy': 'Privacy Policy',
+	'/offer': 'Public Offer',
 };
 
 // share preview for pages without their own photo (needs an absolute URL)
