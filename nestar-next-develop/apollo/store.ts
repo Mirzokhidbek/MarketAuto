@@ -20,6 +20,8 @@ export const userVar = makeVar<CustomJwtPayload>({
 	memberLikes: 0,
 	memberViews: 0,
 	memberPhoneVerified: false,
+	memberEmail: '',
+	memberEmailVerified: false,
 	memberTrusted: false,
 	memberAdminRole: '',
 });

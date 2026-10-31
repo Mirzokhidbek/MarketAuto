@@ -93,6 +93,8 @@ export const GET_ME = gql`
 			memberAuthType
 			memberPhone
 			memberPhoneVerified
+			memberEmail
+			memberEmailVerified
 			memberNick
 			memberFullName
 			memberImage
@@ -915,6 +917,19 @@ export const GET_SITE_SETTINGS = gql`
 			telegramUrl
 			instagramUrl
 			facebookUrl
+		}
+	}
+`;
+
+/** devices where the logged-in member is signed in (Profile → Devices) */
+export const GET_MY_SESSIONS = gql`
+	query GetMySessions {
+		getMySessions {
+			_id
+			userAgent
+			startedAt
+			lastActiveAt
+			current
 		}
 	}
 `;

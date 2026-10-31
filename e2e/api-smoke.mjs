@@ -39,7 +39,7 @@ const signup = async (prefix, type = 'USER') => {
 	const { json: result, cookie, setCookie } = await gqlWithCookie(
 		`mutation($i:MemberInput!){signup(input:$i){_id accessToken refreshToken}}`,
 		null,
-		{ i: { memberNick: nick, memberPassword: '12345', memberPhone: phone, verificationCode: code, memberType: type } },
+		{ i: { memberNick: nick, memberPassword: 'Avto2026yil', memberPhone: phone, verificationCode: code, memberType: type } },
 	);
 	const member = result.data?.signup;
 	if (member) created.members.push(member._id);
@@ -54,7 +54,7 @@ const run = async () => {
 	const wrongCode = await gql(
 		`mutation($i:MemberInput!){signup(input:$i){_id}}`,
 		null,
-		{ i: { memberNick: `zz${Date.now() % 1e5}`, memberPassword: '12345', memberPhone: '998990000001', verificationCode: '000000' } },
+		{ i: { memberNick: `zz${Date.now() % 1e5}`, memberPassword: 'Avto2026yil', memberPhone: '998990000001', verificationCode: '000000' } },
 	);
 	check('signup rejects a wrong code', /wrong or expired/.test(error(wrongCode)));
 	const seller = await signup('e2es');
@@ -82,7 +82,7 @@ const run = async () => {
 	// login does not reveal whether an account exists
 	const noUser = error(await gql(`mutation{login(input:{memberNick:"nobody${Date.now() % 1e6}",memberPassword:"wrong1"}){_id}}`));
 	const badPass = error(await gql(`mutation{login(input:{memberNick:"${seller.nick}",memberPassword:"wrong1"}){_id}}`));
-	check('same login error for unknown user and wrong password', noUser === badPass && /Wrong nickname/.test(noUser), noUser);
+	check('same login error for unknown user and wrong password', noUser === badPass && /Wrong login/.test(noUser), noUser);
 
 	// very deep queries are rejected
 	const normal = await gql(`{getProperties(input:{page:1,limit:1,search:{}}){list{memberData{_id} meLiked{memberId}}}}`);
@@ -134,6 +134,43 @@ const run = async () => {
 	// report
 	check('report listing', !error(await gql(`mutation{reportProperty(input:{propertyId:"${carId}",reportReason:SPAM}){_id}}`, buyer.accessToken)));
 	check('exchange rate available', (await gql(`{getExchangeRate{usdToUzs}}`)).data?.getExchangeRate?.usdToUzs > 0);
+
+	// weak passwords are refused before any code is used
+	const weak = await gql(`mutation($i:MemberInput!){signup(input:$i){_id}}`, null, {
+		i: { memberNick: `wk${Date.now() % 1e6}`, memberPassword: 'password1', memberPhone: '998990000002', verificationCode: '000000' },
+	});
+	check('weak password is refused', /Password must be/.test(error(weak)), error(weak));
+
+	// registration with an email address
+	const email = `e2e${Date.now()}@mail.uz`;
+	const emailCode = (await gql(`mutation{requestEmailCode(input:{email:"${email.toUpperCase()}",purpose:SIGNUP}){devCode}}`)).data
+		?.requestEmailCode?.devCode;
+	const emailNick = `e2em${String(Date.now()).slice(-6)}`;
+	const viaEmail = await gqlWithCookie(`mutation($i:EmailSignupInput!){signupWithEmail(input:$i){_id accessToken}}`, null, {
+		i: { memberNick: emailNick, memberPassword: 'Mashina2026', memberEmail: email, verificationCode: emailCode },
+	});
+	const emailMember = viaEmail.json.data?.signupWithEmail;
+	if (emailMember) created.members.push(emailMember._id);
+	check('signup with email code', !!emailMember?.accessToken && !!viaEmail.cookie, error(viaEmail.json));
+	const emailMe = (await gql(`{getMe{memberEmail memberEmailVerified memberPhone memberAuthType}}`, emailMember?.accessToken)).data?.getMe;
+	check('getMe returns the own email', emailMe?.memberEmail === email && emailMe?.memberEmailVerified && !emailMe?.memberPhone);
+	const byEmail = await gql(`mutation{login(input:{memberNick:"${email}",memberPassword:"Mashina2026"}){accessToken}}`);
+	check('login with email', !!byEmail.data?.login?.accessToken, error(byEmail));
+	const publicView = (await gql(`{getMember(memberId:"${emailMember?._id}"){memberEmail}}`, buyer.accessToken)).data?.getMember;
+	check('email is not shown to other members', publicView && !publicView.memberEmail);
+	const noPhoneCar = await gql(
+		`mutation{createProperty(input:{propertyType:SEDAN,carCountry:SOUTH_KOREA,propertyAddress:"Seoul",propertyTitle:"No phone",propertyPrice:9000,carBrand:HYUNDAI,carModel:"Avante",carYear:2022,carMileage:1000,carFuel:PETROL,carTransmission:AUTOMATIC,propertyImages:[${ownPhotos(emailMember?._id)}]}){_id}}`,
+		emailMember?.accessToken,
+	);
+	check('listing needs a confirmed phone', /Confirm your phone/.test(error(noPhoneCar)), error(noPhoneCar));
+
+	// logged-in devices
+	const devices = (await gqlWithCookie(`{getMySessions{_id current}}`, emailMember?.accessToken, undefined, viaEmail.cookie)).json.data
+		?.getMySessions;
+	check('device list marks the current device', devices?.length === 2 && devices.filter((d) => d.current).length === 1);
+	const others = (await gqlWithCookie(`mutation{logoutOtherSessions}`, emailMember?.accessToken, undefined, viaEmail.cookie)).json.data
+		?.logoutOtherSessions;
+	check('log out other devices', others === 1);
 };
 
 const cleanup = async () => {

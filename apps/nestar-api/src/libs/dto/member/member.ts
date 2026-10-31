@@ -31,6 +31,13 @@ export class Member {
 	@Field(() => Boolean)
 	memberPhoneVerified!: boolean;
 
+	/** private: only getMe and the admin panel return it (never in lists or other members' profiles) */
+	@Field(() => String, { nullable: true })
+	memberEmail?: string;
+
+	@Field(() => Boolean, { nullable: true })
+	memberEmailVerified?: boolean;
+
 	@Field(() => Boolean)
 	memberTrusted!: boolean;
 

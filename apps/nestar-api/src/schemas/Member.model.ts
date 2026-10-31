@@ -21,10 +21,23 @@ const MemberSchema = new Schema(
 			default: MemberAuthType.PHONE,
 		},
 
+		// empty for accounts registered by email until they add a phone (needed to list a car)
 		memberPhone: {
 			type: String,
 			index: { unique: true, sparse: true },
-			required: true,
+		},
+
+		// lower case; unique only among accounts that have one. select: false, so it never leaks through
+		// a find() of another member; getMe and the admin panel read it on purpose
+		memberEmail: {
+			type: String,
+			select: false,
+			index: { unique: true, partialFilterExpression: { memberEmail: { $type: 'string' } } },
+		},
+
+		memberEmailVerified: {
+			type: Boolean,
+			default: false,
 		},
 
 		memberNick: {

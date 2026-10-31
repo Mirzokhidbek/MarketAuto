@@ -13,7 +13,7 @@ export enum Message {
 	NO_MEMBER_NICK = 'No account with this nickname or phone!',
 	BLOCKED_USER = 'You have been blocked!',
 	WRONG_PASSWORD = 'Wrong password, try again!',
-	WRONG_LOGIN = 'Wrong nickname, phone or password!',
+	WRONG_LOGIN = 'Wrong login or password!',
 	NOT_AUTHENTICATED = 'You are not authenticated, please login first!',
 	TOKEN_NOT_EXIST = 'Bearer Token is not provided!',
 	ONLY_SPECIFIC_ROLES_ALLOWED = 'Allowed only for members with specific roles!',
@@ -33,6 +33,12 @@ export enum Message {
 	ALREADY_REPORTED = 'You have already reported this listing.',
 	REJECT_REASON_REQUIRED = 'Please give the reason for rejecting.',
 	ADMIN_CODE_LOGIN = 'Admins log in with password and SMS code.',
+	WEAK_PASSWORD = 'Password must be 8-64 characters with letters and digits, not a common password and not your nickname or email.',
+	INVALID_EMAIL = 'Please enter a valid email address!',
+	USED_EMAIL = 'This email is already used by another account!',
+	EMAIL_NOT_SENT = 'Could not send the email. Please try again later.',
+	PHONE_REQUIRED = 'Confirm your phone number in your profile before listing a car.',
+	SESSION_REUSED = 'Your session was used from another device. Please log in again.',
 }
 
 export enum Direction {
