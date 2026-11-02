@@ -276,11 +276,17 @@
 
 .ma-form-actions {
 	display: flex;
+	flex-wrap: wrap;
 	justify-content: flex-end;
 	gap: 12px;
 	padding-top: 20px;
 	border-top: 1px solid $ma-border;
 	margin-top: 8px;
+	/* "please fill in …" takes its own line above the buttons */
+	> .ma-form-note {
+		flex-basis: 100%;
+		margin: 0;
+	}
 }
 
 .ma-switch-row {

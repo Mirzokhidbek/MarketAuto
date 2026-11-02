@@ -317,3 +317,101 @@ $ma-tabbar-height: 62px;
 		overflow: hidden;
 	}
 }
+
+/* ---------- back button and the add / edit car form on phones ---------- */
+.ma-back-btn {
+	display: none;
+}
+
+@media (max-width: 600px) {
+	.ma-back-btn {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		flex-shrink: 0;
+		width: 40px;
+		height: 40px;
+		margin: 0 2px 0 -10px;
+		padding: 0;
+		border: 0;
+		border-radius: 12px;
+		background: transparent;
+		color: $ma-dark;
+		cursor: pointer;
+		-webkit-tap-highlight-color: transparent;
+		svg {
+			font-size: 20px;
+		}
+		&:active {
+			background: $ma-bg-alt;
+		}
+	}
+	/* with the back button the logo gets smaller, so the account icons keep their room */
+	#pc-wrap #top .navbar .navbar-main .container .ma-back-btn + .logo-box img {
+		width: 108px;
+		height: auto;
+	}
+
+	/* iPhone zooms into any field with text under 16px when it is tapped */
+	input:not([type='checkbox']):not([type='radio']):not([type='range']),
+	select,
+	textarea {
+		font-size: 16px !important;
+	}
+
+	/* the form takes the full width; its back / next buttons stay at hand just above the tab bar */
+	#add-property-page {
+		padding: 4px 0 0;
+		border: 0;
+		box-shadow: none;
+		background: transparent;
+		.ma-form-actions {
+			position: sticky;
+			bottom: calc(#{$ma-tabbar-height} + env(safe-area-inset-bottom));
+			z-index: 5;
+			flex-wrap: wrap;
+			gap: 10px;
+			margin-top: 16px;
+			padding: 12px 0;
+			background: $ma-white;
+			> .ma-form-note {
+				text-align: left;
+			}
+			.ma-btn {
+				flex: 1 1 0;
+				min-height: 48px;
+			}
+			/* last step (back, preview, publish): "publish" gets a full row of its own */
+			&:has(> .ma-btn:nth-of-type(3)) .ma-btn--primary {
+				flex-basis: 100%;
+				order: 1;
+			}
+		}
+	}
+}
+
+/* ---------- Telegram Mini App ---------- */
+.is-telegram {
+	/* Telegram shows its own back button in the top bar */
+	.ma-back-btn {
+		display: none;
+	}
+	/* an app, not a web page: the bottom tab bar is the menu */
+	.ma-footer {
+		display: none;
+	}
+}
+
+@media (max-width: 600px) {
+	/* the Mini App opens on the search: a short title, no marketing paragraph */
+	.is-telegram .ma-hero {
+		padding-top: 80px;
+		h1 {
+			font-size: 24px;
+			margin-bottom: 14px;
+		}
+		&__lead {
+			display: none;
+		}
+	}
+}

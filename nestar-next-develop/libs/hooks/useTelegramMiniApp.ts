@@ -1,10 +1,17 @@
 import { useEffect } from 'react';
+import { useRouter } from 'next/router';
 import { hasSession, logInWithTelegram } from '../auth';
+import { goBack, isRootPage } from './useBack';
 
 interface TelegramWebApp {
 	initData: string;
 	ready: () => void;
 	expand: () => void;
+	// newer Telegram clients only; called with ?.()
+	disableVerticalSwipes?: () => void;
+	setHeaderColor?: (color: string) => void;
+	setBackgroundColor?: (color: string) => void;
+	BackButton?: { show: () => void; hide: () => void; onClick: (handler: () => void) => void };
 }
 
 declare global {
@@ -60,12 +67,40 @@ export const telegramSignIn = (fresh = false): Promise<boolean> => {
 	return signIn;
 };
 
+/** app-like behaviour inside Telegram; runs once the script is loaded */
+const setUpApp = (webApp: TelegramWebApp): void => {
+	// scrolling up must not swipe the Mini App closed (a half-filled listing would be lost)
+	webApp.disableVerticalSwipes?.();
+	webApp.setHeaderColor?.('#ffffff');
+	webApp.setBackgroundColor?.('#ffffff');
+	webApp.BackButton?.onClick(goBack);
+};
+
 /**
- * The Mini App inside Telegram: full height, and signed in with the Telegram account (no password, no SMS).
+ * The Mini App inside Telegram: full height, signed in with the Telegram account (no password, no SMS),
+ * Telegram's own back button on every page but home, and no site footer (the bottom tab bar is the menu).
  * Telegram's script is loaded only there, so the site opened in a normal browser does not wait for telegram.org.
  */
 export const useTelegramMiniApp = (): void => {
+	const { pathname } = useRouter();
+
 	useEffect(() => {
-		if (isInsideTelegram()) void telegramSignIn();
+		if (!isInsideTelegram()) return;
+		document.documentElement.classList.add('is-telegram');
+		void telegramSignIn();
+		loadScript()
+			.then(() => window.Telegram?.WebApp && setUpApp(window.Telegram.WebApp))
+			.catch(() => undefined);
 	}, []);
+
+	useEffect(() => {
+		if (!isInsideTelegram()) return;
+		loadScript()
+			.then(() => {
+				const back = window.Telegram?.WebApp?.BackButton;
+				if (isRootPage(pathname)) back?.hide();
+				else back?.show();
+			})
+			.catch(() => undefined);
+	}, [pathname]);
 };

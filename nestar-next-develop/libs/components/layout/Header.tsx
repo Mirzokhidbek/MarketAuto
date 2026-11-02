@@ -20,6 +20,8 @@ import { Logout } from '@mui/icons-material';
 import { REACT_APP_API_URL } from '../../config';
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
+import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
+import { goBack, isRootPage } from '../../hooks/useBack';
 
 const Header = () => {
 	const user = useReactiveVar(userVar);
@@ -150,6 +152,12 @@ const Header = () => {
 		<Stack className={'navbar'}>
 			<Stack className={`navbar-main ${colorChange ? 'transparent' : ''} ${bgColor ? 'transparent' : ''}`}>
 				<Stack className={'container'}>
+					{/* phones: back to the previous page (inside Telegram its own back button does this) */}
+					{!isRootPage(router.pathname) && (
+						<button type="button" className={'ma-back-btn'} aria-label={t('Back') as string} onClick={goBack}>
+							<ArrowBackIosNewIcon />
+						</button>
+					)}
 					<Box component={'div'} className={'logo-box'}>
 						<Link href={'/'}>
 							<img src="/img/logo/logo.png" alt="CarPort" />

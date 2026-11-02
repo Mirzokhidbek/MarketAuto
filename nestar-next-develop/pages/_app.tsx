@@ -37,6 +37,7 @@ moment.updateLocale('uz-latn', {
 	},
 });
 import { useTelegramMiniApp } from '../libs/hooks/useTelegramMiniApp';
+import { useBackHistory } from '../libs/hooks/useBack';
 import '../styles/index.scss';
 import '../styles/tailwind.css';
 
@@ -48,6 +49,7 @@ const App = ({ Component, pageProps }: AppProps) => {
 	const { locale } = useRouter();
 	moment.locale(locale === 'uz' ? 'uz-latn' : locale === 'ru' ? 'ru' : 'en');
 
+	useBackHistory();
 	useTelegramMiniApp();
 
 	// installable app + offline page; only in production builds (in development it would cache stale code)

@@ -45,6 +45,17 @@ const AddCarForm = () => {
 	const editId = router.query.propertyId as string | undefined;
 	const [car, setCar] = useState<any>(emptyCar);
 	const [step, setStep] = useState<number>(0);
+	const stepsRef = useRef<HTMLOListElement>(null);
+	const firstStep = useRef(true);
+	// a new step starts at its first field, not where the buttons were (on phones that is mid-page)
+	useEffect(() => {
+		if (firstStep.current) {
+			firstStep.current = false;
+			return;
+		}
+		const top = stepsRef.current?.getBoundingClientRect().top;
+		if (top !== undefined) window.scrollTo({ top: window.scrollY + top - 96, behavior: 'smooth' });
+	}, [step]);
 	// missing fields are pointed out only after the seller presses Next/Publish, not before typing anything
 	const [tried, setTried] = useState<boolean>(false);
 	const [previewOpen, setPreviewOpen] = useState<boolean>(false);
@@ -237,7 +248,7 @@ const AddCarForm = () => {
 				</div>
 			)}
 
-			<ol className={'ma-steps'}>
+			<ol className={'ma-steps'} ref={stepsRef}>
 				{STEPS.map((label, index) => (
 					<li key={label} className={index === step ? 'is-active' : index < step ? 'is-done' : ''}>
 						<button disabled={index > step && !stepValid.slice(0, index).every(Boolean)} onClick={() => setStep(index)}>
@@ -566,6 +577,12 @@ const AddCarForm = () => {
 			)}
 
 			<div className={'ma-form-actions'}>
+				{/* inside the button bar: on phones the bar stays on screen, so what is missing does too */}
+				{tried && !stepValid[step] && missing[step].length > 0 && (
+					<p className={'ma-field-error ma-form-note'}>
+						{t('Please fill in')}: {missing[step].map((label) => t(label)).join(', ')}
+					</p>
+				)}
 				{step > 0 ? (
 					<button className={'ma-btn ma-btn--outline'} onClick={() => setStep(step - 1)}>
 						← {t('Back')}
@@ -601,11 +618,6 @@ const AddCarForm = () => {
 					</button>
 				)}
 			</div>
-			{tried && !stepValid[step] && missing[step].length > 0 && (
-				<p className={'ma-field-error ma-form-note'}>
-					{t('Please fill in')}: {missing[step].map((label) => t(label)).join(', ')}
-				</p>
-			)}
 			{step === STEPS.length - 1 && !editId && !user?.memberTrusted && (
 				<p className={'ma-input__hint ma-form-note'}>
 					{t('Your first listing is checked by our team, usually within 2 hours. After that you publish instantly.')}
