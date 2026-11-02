@@ -50,6 +50,7 @@ import { LikeService } from '../like/like.service';
 import { Follower, Following, MeFollowed } from '../../libs/dto/follow/follow';
 import { lookupAuthMemberLiked, searchRegex, idString } from '../../libs/config';
 import { SocketGateway } from '../../socket/socket.gateway';
+import { Cached } from '../../libs/cache';
 
 const logger = new Logger('MemberService');
 
@@ -598,6 +599,7 @@ export class MemberService {
 			.findOneAndUpdate({ _id: input._id }, input, { new: true })
 			.exec();
 		if (!result) throw new BadRequestException(Message.UPDATE_FAILED);
+		if (input.memberStatus && input.memberStatus !== before.memberStatus) this.inactiveIds.clear();
 
 		// audit: one entry per kind of change
 		const changes: [string, string | undefined][] = [];
@@ -660,8 +662,13 @@ export class MemberService {
 	}
 
 	/** blocked and deleted members: their cars are hidden from the public lists */
+	// asked by every car search; members are blocked or deleted only through updateMemberByAdmin (which clears it)
+	private readonly inactiveIds = new Cached<ObjectId[]>(60 * 1000, () =>
+		this.memberModel.distinct('_id', { memberStatus: { $ne: MemberStatus.ACTIVE } }).exec(),
+	);
+
 	public async inactiveMemberIds(): Promise<ObjectId[]> {
-		return await this.memberModel.distinct('_id', { memberStatus: { $ne: MemberStatus.ACTIVE } }).exec();
+		return await this.inactiveIds.get();
 	}
 
 	/** buyers contact sellers by phone, so a listing needs a confirmed number (email accounts add one first) */

@@ -9,6 +9,7 @@ import { searchRegex } from '../../libs/config';
 import { ExchangeService } from '../exchange/exchange.service';
 import { AdminLogService } from '../admin-log/admin-log.service';
 import { calculateImportCost, DEFAULT_TARIFF, tariffProblem } from './import-cost.calc';
+import { Cached } from '../../libs/cache';
 
 const TARIFF_KEY = 'importTariff';
 /** the local market verdict needs this many cars already in Uzbekistan */
@@ -22,6 +23,9 @@ const SIMILAR_BAND = 0.05;
  */
 @Injectable()
 export class ImportCostService {
+	// the tariff changes only from the admin panel (updateTariff clears this)
+	private readonly tariff = new Cached<ImportTariff>(5 * 60 * 1000, () => this.loadTariff());
+
 	constructor(
 		@InjectModel('Property') private readonly propertyModel: Model<Property>,
 		@InjectModel('Setting') private readonly settingModel: Model<any>,
@@ -30,6 +34,10 @@ export class ImportCostService {
 	) {}
 
 	public async getTariff(): Promise<ImportTariff> {
+		return await this.tariff.get();
+	}
+
+	private async loadTariff(): Promise<ImportTariff> {
 		const row = await this.settingModel.findOne({ key: TARIFF_KEY }).lean<{ value: string; updatedAt: Date }>().exec();
 		if (!row?.value) return DEFAULT_TARIFF;
 		try {
@@ -67,6 +75,7 @@ export class ImportCostService {
 		await this.settingModel
 			.updateOne({ key: TARIFF_KEY }, { key: TARIFF_KEY, value: JSON.stringify(tariff) }, { upsert: true })
 			.exec();
+		this.tariff.clear();
 		await this.adminLogService.log(adminId, 'IMPORT_TARIFF_UPDATE', 'SETTINGS', undefined, 'import tariff');
 		return await this.getTariff();
 	}

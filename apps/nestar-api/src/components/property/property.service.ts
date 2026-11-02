@@ -41,11 +41,22 @@ import {
 import { LikeService } from '../like/like.service';
 import { LikeInput } from '../../libs/dto/like/like.input';
 import { LikeGroup } from '../../libs/enums/like.enum';
+import { CachedByKey } from '../../libs/cache';
 
 const logger = new Logger('PropertyService');
 
 @Injectable()
 export class PropertyService {
+	// the model list of a brand under the search form; a model added by a new listing shows within 5 minutes
+	private readonly carModels = new CachedByKey<CarBrand, string[]>(5 * 60 * 1000, async (brand) => {
+		const models: string[] = await this.propertyModel
+			.distinct('carModel', { carBrand: brand, propertyStatus: { $in: [PropertyStatus.ACTIVE, PropertyStatus.SOLD] } })
+			.exec();
+		// "K5", "k5 " -> one entry
+		const unique = new Map(models.map((model) => [model.trim().toLowerCase(), model.trim()]));
+		return [...unique.values()].sort((a, b) => a.localeCompare(b));
+	});
+
 	constructor(
 		@InjectModel('Property') private readonly propertyModel: Model<Property>,
 		private memberService: MemberService,
@@ -263,12 +274,7 @@ export class PropertyService {
 	}
 
 	public async getCarModels(brand: CarBrand): Promise<string[]> {
-		const models: string[] = await this.propertyModel
-			.distinct('carModel', { carBrand: brand, propertyStatus: { $in: [PropertyStatus.ACTIVE, PropertyStatus.SOLD] } })
-			.exec();
-		// "K5", "k5 " -> one entry
-		const unique = new Map(models.map((model) => [model.trim().toLowerCase(), model.trim()]));
-		return [...unique.values()].sort((a, b) => a.localeCompare(b));
+		return await this.carModels.get(brand);
 	}
 
 	public async getFavorites(memberId: ObjectId, input: OrdinaryInquiry): Promise<Properties> {

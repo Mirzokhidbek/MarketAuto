@@ -11,12 +11,22 @@ import { AuthMember } from '../auth/decorators/authMember.decorator';
 import { MemberType } from '../../libs/enums/member.enum';
 import { Message } from '../../libs/enums/common.enum';
 import { AdminLogService } from '../admin-log/admin-log.service';
+import { Cached } from '../../libs/cache';
 
 const KEYS = ['supportPhone', 'supportEmail', 'telegramUrl', 'instagramUrl', 'facebookUrl'] as const;
 
 /** contacts and social links editable from the admin panel (public read) */
 @Resolver()
 export class SettingResolver {
+	// read on every page (footer, contacts), changed only from the admin panel
+	private readonly settings = new Cached<SiteSettings>(5 * 60 * 1000, async () => {
+		const rows = await this.settingModel
+			.find({ key: { $in: KEYS } })
+			.lean()
+			.exec();
+		return Object.fromEntries(rows.map((row: { key: string; value: unknown }) => [row.key, row.value]));
+	});
+
 	constructor(
 		@InjectModel('Setting') private readonly settingModel: Model<any>,
 		private readonly adminLogService: AdminLogService,
@@ -24,11 +34,7 @@ export class SettingResolver {
 
 	@Query(() => SiteSettings)
 	public async getSiteSettings(): Promise<SiteSettings> {
-		const rows = await this.settingModel
-			.find({ key: { $in: KEYS } })
-			.lean()
-			.exec();
-		return Object.fromEntries(rows.map((row: { key: string; value: unknown }) => [row.key, row.value]));
+		return await this.settings.get();
 	}
 
 	@Roles(MemberType.ADMIN)
@@ -56,6 +62,7 @@ export class SettingResolver {
 			if (value === undefined) continue;
 			await this.settingModel.updateOne({ key }, { key, value: value.trim() }, { upsert: true }).exec();
 		}
+		this.settings.clear();
 		await this.adminLogService.log(adminId, 'SETTINGS_UPDATE', 'SETTINGS', undefined, JSON.stringify(input));
 		return await this.getSiteSettings();
 	}
