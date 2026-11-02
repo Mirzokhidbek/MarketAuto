@@ -1,0 +1,14 @@
+rules_version = '2';
+
+// AutoMarket — Cloud Storage for Firebase rules (prototype)
+//
+// Images are uploaded only by the NestJS API through the Admin SDK (not subject to these rules)
+// and shown through download-token URLs, which do not depend on these rules either.
+// So the apps never touch Storage directly: every client read and write is denied.
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

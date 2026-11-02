@@ -1,8 +1,8 @@
 import { BadRequestException, Injectable, Logger, ServiceUnavailableException } from '@nestjs/common';
-import { App, getApps, initializeApp } from 'firebase-admin/app';
 import { DecodedIdToken, getAuth } from 'firebase-admin/auth';
 import { settings } from '../../libs/env';
 import { Message } from '../../libs/enums/common.enum';
+import { firebaseAdminApp } from '../../libs/firebase-admin';
 
 /** what the API trusts about a Firebase user: only fields Firebase itself has verified */
 export interface FirebaseIdentity {
@@ -21,19 +21,12 @@ export interface FirebaseIdentity {
 @Injectable()
 export class FirebaseAuthService {
 	private readonly logger = new Logger('FirebaseAuthService');
-	private app: App | null = null;
-
-	private firebaseApp(): App {
-		const { projectId } = settings.firebase;
-		if (!projectId) throw new ServiceUnavailableException(Message.NOT_ALLOWED_REQUEST);
-		if (!this.app) this.app = getApps().find((app) => app.name === 'auth') ?? initializeApp({ projectId }, 'auth');
-		return this.app;
-	}
 
 	public async verify(idToken: string): Promise<FirebaseIdentity> {
+		if (!settings.firebase.projectId) throw new ServiceUnavailableException(Message.NOT_ALLOWED_REQUEST);
 		let decoded: DecodedIdToken;
 		try {
-			decoded = await getAuth(this.firebaseApp()).verifyIdToken(idToken);
+			decoded = await getAuth(firebaseAdminApp()).verifyIdToken(idToken);
 		} catch (err: any) {
 			this.logger.warn(`Rejected Firebase ID token: ${err?.code ?? err?.message}`);
 			throw new BadRequestException(Message.WRONG_LOGIN);

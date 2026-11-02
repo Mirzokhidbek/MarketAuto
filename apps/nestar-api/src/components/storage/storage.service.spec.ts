@@ -24,6 +24,22 @@ describe('StorageService', () => {
 		expect(storage.isOwnPath(`uploads/member/${OWNER}_x.webp`, 'member', undefined)).toBe(false);
 	});
 
+	it("accepts only the owner's Firebase Storage download URLs for the target", () => {
+		process.env.FIREBASE_STORAGE_BUCKET = 'demo.firebasestorage.app';
+		const firebase = new StorageService(connectionWith(false));
+		delete process.env.FIREBASE_STORAGE_BUCKET;
+		const base = 'https://firebasestorage.googleapis.com/v0/b/demo.firebasestorage.app/o/';
+		const token = 'alt=media&token=3f2c1a9e-1111-4222-8333-444455556666';
+		expect(firebase.isOwnPath(`${base}property%2F${OWNER}_3f2c-9a.webp?${token}`, 'property', OWNER)).toBe(true);
+		expect(firebase.isOwnPath(`${base}property%2F${OTHER}_3f2c-9a.webp?${token}`, 'property', OWNER)).toBe(false);
+		expect(firebase.isOwnPath(`${base}member%2F${OWNER}_3f2c-9a.webp?${token}`, 'property', OWNER)).toBe(false);
+		expect(firebase.isOwnPath(`${base}property%2F..%2Fmember%2F${OWNER}_x.webp?${token}`, 'property', OWNER)).toBe(false);
+		expect(firebase.isOwnPath(`${base}property%2F${OWNER}_x.webp`, 'property', OWNER)).toBe(false); // no token
+		expect(
+			firebase.isOwnPath(`https://firebasestorage.googleapis.com/v0/b/other/o/property%2F${OWNER}_x.webp?${token}`, 'property', OWNER),
+		).toBe(false);
+	});
+
 	it('names stored files after the uploader', async () => {
 		const write = jest.spyOn(fs.promises, 'writeFile').mockResolvedValue();
 		const mkdir = jest.spyOn(fs.promises, 'mkdir').mockResolvedValue(undefined);

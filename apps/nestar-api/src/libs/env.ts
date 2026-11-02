@@ -101,7 +101,7 @@ export const settings = {
 	},
 	// Firebase Authentication: ID tokens from the web/mobile apps are verified against this project
 	get firebase() {
-		return { projectId: env('FIREBASE_PROJECT_ID') };
+		return { projectId: env('FIREBASE_PROJECT_ID'), storageBucket: env('FIREBASE_STORAGE_BUCKET') };
 	},
 	get s3() {
 		const region = env('S3_REGION') ?? 'us-east-1';

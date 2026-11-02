@@ -1,0 +1,3864 @@
+{
+	"_info": {
+		"description": "CarPort seed data. MongoDB Extended JSON: _id/memberId are {$oid}, dates are {$date}.",
+		"generatedBy": "node seed/generate.mjs",
+		"images": "Paths point to seed/uploads/...; copy that folder to the API uploads/ folder on import.",
+		"counts": {
+			"members": 19,
+			"properties": 64,
+			"boardArticles": 8
+		}
+	},
+	"members": [
+		{
+			"_id": {
+				"$oid": "431686bf999556a87db1fded"
+			},
+			"memberType": "ADMIN",
+			"memberStatus": "ACTIVE",
+			"memberAuthType": "PHONE",
+			"memberPhoneVerified": true,
+			"memberTrusted": true,
+			"memberDealerVerified": false,
+			"memberPassword": "$2b$10$.K0EAvBl.cIUDIX6F6JCaebpwRaq/shi.6d9mU8m/uYaij4OvRLo2",
+			"memberImage": "uploads/member/431686bf999556a87db1fded_55641ae0-7583-e131-8f79-ae79c2104e61.webp",
+			"memberProperties": 0,
+			"memberArticles": 2,
+			"memberFollowers": 0,
+			"memberFollowings": 0,
+			"memberLikes": 0,
+			"memberViews": 311,
+			"memberComments": 0,
+			"memberRank": 0,
+			"createdAt": {
+				"$date": "2026-04-30T05:06:02.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-04-30T05:06:02.000Z"
+			},
+			"memberAdminRole": "SUPER",
+			"memberNick": "admin",
+			"memberFullName": "CarPort Admin",
+			"memberPhone": "998900000001",
+			"memberAddress": "Toshkent"
+		},
+		{
+			"_id": {
+				"$oid": "32feac355c43eda8b50fe00d"
+			},
+			"memberType": "AGENT",
+			"memberStatus": "ACTIVE",
+			"memberAuthType": "PHONE",
+			"memberPhoneVerified": true,
+			"memberTrusted": true,
+			"memberDealerVerified": true,
+			"memberPassword": "$2b$10$.K0EAvBl.cIUDIX6F6JCaebpwRaq/shi.6d9mU8m/uYaij4OvRLo2",
+			"memberImage": "uploads/member/32feac355c43eda8b50fe00d_aab75e4f-cc58-78de-2763-38f13c22c18c.webp",
+			"memberProperties": 8,
+			"memberArticles": 0,
+			"memberFollowers": 249,
+			"memberFollowings": 0,
+			"memberLikes": 185,
+			"memberViews": 67,
+			"memberComments": 0,
+			"memberRank": 125,
+			"createdAt": {
+				"$date": "2025-04-18T07:03:07.000Z"
+			},
+			"updatedAt": {
+				"$date": "2025-04-18T07:03:07.000Z"
+			},
+			"memberResponseMinutes": 37,
+			"memberNick": "autoleader",
+			"memberFullName": "Auto Leader Toshkent",
+			"memberPhone": "998901111111",
+			"memberAddress": "Toshkent, Yunusobod tumani",
+			"memberDesc": "Rasmiy diler emas, lekin 8 yildan beri Chevrolet va Kia sotamiz. Har bir mashina diagnostikadan o‘tgan."
+		},
+		{
+			"_id": {
+				"$oid": "1b2579ec4d20d629a740278a"
+			},
+			"memberType": "AGENT",
+			"memberStatus": "ACTIVE",
+			"memberAuthType": "PHONE",
+			"memberPhoneVerified": true,
+			"memberTrusted": true,
+			"memberDealerVerified": true,
+			"memberPassword": "$2b$10$.K0EAvBl.cIUDIX6F6JCaebpwRaq/shi.6d9mU8m/uYaij4OvRLo2",
+			"memberImage": "uploads/member/1b2579ec4d20d629a740278a_d1e01bc0-dd91-6772-31c9-7353ebbb10e1.webp",
+			"memberProperties": 9,
+			"memberArticles": 0,
+			"memberFollowers": 58,
+			"memberFollowings": 0,
+			"memberLikes": 342,
+			"memberViews": 709,
+			"memberComments": 0,
+			"memberRank": 230,
+			"createdAt": {
+				"$date": "2026-06-24T20:05:51.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-06-24T20:05:51.000Z"
+			},
+			"memberResponseMinutes": 26,
+			"memberNick": "koreacars",
+			"memberFullName": "Korea Cars Import",
+			"memberPhone": "998901222222",
+			"memberAddress": "Toshkent, Yunusobod tumani",
+			"memberDesc": "Janubiy Koreyadan mashina olib kelamiz: auksion, tekshiruv, yetkazib berish va rastamojka bir joyda."
+		},
+		{
+			"_id": {
+				"$oid": "bdd8e1884fc5dc4b961f0b8d"
+			},
+			"memberType": "AGENT",
+			"memberStatus": "ACTIVE",
+			"memberAuthType": "PHONE",
+			"memberPhoneVerified": true,
+			"memberTrusted": true,
+			"memberDealerVerified": true,
+			"memberPassword": "$2b$10$.K0EAvBl.cIUDIX6F6JCaebpwRaq/shi.6d9mU8m/uYaij4OvRLo2",
+			"memberImage": "uploads/member/bdd8e1884fc5dc4b961f0b8d_cbb9f35c-7139-2a49-eb90-de40b54ba437.webp",
+			"memberProperties": 7,
+			"memberArticles": 0,
+			"memberFollowers": 71,
+			"memberFollowings": 0,
+			"memberLikes": 427,
+			"memberViews": 385,
+			"memberComments": 0,
+			"memberRank": 266,
+			"createdAt": {
+				"$date": "2025-05-27T17:29:53.000Z"
+			},
+			"updatedAt": {
+				"$date": "2025-05-27T17:29:53.000Z"
+			},
+			"memberResponseMinutes": 44,
+			"memberNick": "chinaev",
+			"memberFullName": "China EV Center",
+			"memberPhone": "998901333333",
+			"memberAddress": "Toshkent, Mirzo Ulug‘bek tumani",
+			"memberDesc": "BYD, Chery, Haval — elektr va gibrid mashinalar. Kafolat va servis xizmati bor."
+		},
+		{
+			"_id": {
+				"$oid": "87df9d4110bbac51902b1163"
+			},
+			"memberType": "AGENT",
+			"memberStatus": "ACTIVE",
+			"memberAuthType": "PHONE",
+			"memberPhoneVerified": true,
+			"memberTrusted": true,
+			"memberDealerVerified": false,
+			"memberPassword": "$2b$10$.K0EAvBl.cIUDIX6F6JCaebpwRaq/shi.6d9mU8m/uYaij4OvRLo2",
+			"memberImage": "uploads/member/87df9d4110bbac51902b1163_d5c59e51-edb5-03ad-e52c-dc9832f1d9df.webp",
+			"memberProperties": 9,
+			"memberArticles": 2,
+			"memberFollowers": 100,
+			"memberFollowings": 0,
+			"memberLikes": 439,
+			"memberViews": 885,
+			"memberComments": 0,
+			"memberRank": 218,
+			"createdAt": {
+				"$date": "2025-01-19T07:50:23.000Z"
+			},
+			"updatedAt": {
+				"$date": "2025-01-19T07:50:23.000Z"
+			},
+			"memberResponseMinutes": 40,
+			"memberNick": "samavto",
+			"memberFullName": "Samarqand Avto",
+			"memberPhone": "998901444444",
+			"memberAddress": "Samarqand, Registon ko‘chasi",
+			"memberDesc": "Samarqanddagi eng katta avtosalonlardan biri. Bo‘lib to‘lash imkoniyati mavjud."
+		},
+		{
+			"_id": {
+				"$oid": "8a77afcc37663022bd43179c"
+			},
+			"memberType": "AGENT",
+			"memberStatus": "ACTIVE",
+			"memberAuthType": "PHONE",
+			"memberPhoneVerified": true,
+			"memberTrusted": true,
+			"memberDealerVerified": true,
+			"memberPassword": "$2b$10$.K0EAvBl.cIUDIX6F6JCaebpwRaq/shi.6d9mU8m/uYaij4OvRLo2",
+			"memberImage": "uploads/member/8a77afcc37663022bd43179c_dd38ba17-6dad-905c-9482-392da2d20319.webp",
+			"memberProperties": 2,
+			"memberArticles": 1,
+			"memberFollowers": 257,
+			"memberFollowings": 0,
+			"memberLikes": 62,
+			"memberViews": 826,
+			"memberComments": 0,
+			"memberRank": 299,
+			"createdAt": {
+				"$date": "2025-07-14T01:20:42.000Z"
+			},
+			"updatedAt": {
+				"$date": "2025-07-14T01:20:42.000Z"
+			},
+			"memberResponseMinutes": 32,
+			"memberNick": "premiumuz",
+			"memberFullName": "Premium Motors UZ",
+			"memberPhone": "998901555555",
+			"memberAddress": "Toshkent, Mirzo Ulug‘bek tumani",
+			"memberDesc": "Mercedes-Benz, BMW, Lexus va Audi. Germaniya va BAAdan buyurtma asosida olib kelamiz."
+		},
+		{
+			"_id": {
+				"$oid": "2c4a420fb5858ea22038a2c8"
+			},
+			"memberType": "AGENT",
+			"memberStatus": "ACTIVE",
+			"memberAuthType": "PHONE",
+			"memberPhoneVerified": true,
+			"memberTrusted": true,
+			"memberDealerVerified": false,
+			"memberPassword": "$2b$10$.K0EAvBl.cIUDIX6F6JCaebpwRaq/shi.6d9mU8m/uYaij4OvRLo2",
+			"memberImage": "uploads/member/2c4a420fb5858ea22038a2c8_e3e11111-aa25-3faa-f8d6-975dd6730fe0.webp",
+			"memberProperties": 6,
+			"memberArticles": 1,
+			"memberFollowers": 136,
+			"memberFollowings": 0,
+			"memberLikes": 324,
+			"memberViews": 725,
+			"memberComments": 0,
+			"memberRank": 204,
+			"createdAt": {
+				"$date": "2025-11-29T16:17:30.000Z"
+			},
+			"updatedAt": {
+				"$date": "2025-11-29T16:17:30.000Z"
+			},
+			"memberResponseMinutes": 41,
+			"memberNick": "fergonaavto",
+			"memberFullName": "Farg‘ona Avto Savdo",
+			"memberPhone": "998901666666",
+			"memberAddress": "Farg‘ona, Al-Farg‘oniy ko‘chasi",
+			"memberDesc": "Farg‘ona vodiysi bo‘ylab ishonchli ikkilamchi mashinalar."
+		},
+		{
+			"_id": {
+				"$oid": "6cb8b15f6b82d4f1b1ad6977"
+			},
+			"memberType": "USER",
+			"memberStatus": "ACTIVE",
+			"memberAuthType": "PHONE",
+			"memberPhoneVerified": true,
+			"memberTrusted": false,
+			"memberDealerVerified": false,
+			"memberPassword": "$2b$10$.K0EAvBl.cIUDIX6F6JCaebpwRaq/shi.6d9mU8m/uYaij4OvRLo2",
+			"memberImage": "uploads/member/6cb8b15f6b82d4f1b1ad6977_36dbdf63-f12a-07f3-d959-186bfc63dc12.webp",
+			"memberProperties": 1,
+			"memberArticles": 0,
+			"memberFollowers": 0,
+			"memberFollowings": 0,
+			"memberLikes": 0,
+			"memberViews": 641,
+			"memberComments": 0,
+			"memberRank": 0,
+			"createdAt": {
+				"$date": "2025-11-15T11:38:48.000Z"
+			},
+			"updatedAt": {
+				"$date": "2025-11-15T11:38:48.000Z"
+			},
+			"memberNick": "aziz12",
+			"memberFullName": "Aziz Karimov",
+			"memberPhone": "998912000000",
+			"memberAddress": "Andijon, Bobur shoh ko‘chasi"
+		},
+		{
+			"_id": {
+				"$oid": "8cdc039eeda711a8b849cf99"
+			},
+			"memberType": "USER",
+			"memberStatus": "ACTIVE",
+			"memberAuthType": "PHONE",
+			"memberPhoneVerified": true,
+			"memberTrusted": true,
+			"memberDealerVerified": false,
+			"memberPassword": "$2b$10$.K0EAvBl.cIUDIX6F6JCaebpwRaq/shi.6d9mU8m/uYaij4OvRLo2",
+			"memberImage": "uploads/member/8cdc039eeda711a8b849cf99_0c8a418f-466f-b6ba-3d79-baab082276eb.webp",
+			"memberProperties": 1,
+			"memberArticles": 0,
+			"memberFollowers": 0,
+			"memberFollowings": 0,
+			"memberLikes": 38,
+			"memberViews": 404,
+			"memberComments": 0,
+			"memberRank": 0,
+			"createdAt": {
+				"$date": "2025-09-10T13:57:32.000Z"
+			},
+			"updatedAt": {
+				"$date": "2025-09-10T13:57:32.000Z"
+			},
+			"memberNick": "jasur87",
+			"memberFullName": "Jasur Ismoilov",
+			"memberPhone": "998992523417",
+			"memberAddress": "Qo‘qon shahri"
+		},
+		{
+			"_id": {
+				"$oid": "4d3564b868a59688de4651fc"
+			},
+			"memberType": "USER",
+			"memberStatus": "ACTIVE",
+			"memberAuthType": "PHONE",
+			"memberPhoneVerified": true,
+			"memberTrusted": true,
+			"memberDealerVerified": false,
+			"memberPassword": "$2b$10$.K0EAvBl.cIUDIX6F6JCaebpwRaq/shi.6d9mU8m/uYaij4OvRLo2",
+			"memberImage": "uploads/member/4d3564b868a59688de4651fc_7ca09447-35d6-07be-ef16-2a96990e62ba.webp",
+			"memberProperties": 3,
+			"memberArticles": 1,
+			"memberFollowers": 0,
+			"memberFollowings": 0,
+			"memberLikes": 135,
+			"memberViews": 173,
+			"memberComments": 0,
+			"memberRank": 0,
+			"createdAt": {
+				"$date": "2025-11-02T04:51:02.000Z"
+			},
+			"updatedAt": {
+				"$date": "2025-11-02T04:51:02.000Z"
+			},
+			"memberNick": "sardor70",
+			"memberFullName": "Sardor Hasanova",
+			"memberPhone": "998913046834",
+			"memberAddress": "Qo‘qon shahri"
+		},
+		{
+			"_id": {
+				"$oid": "17f58c2e563119814f782ce2"
+			},
+			"memberType": "USER",
+			"memberStatus": "ACTIVE",
+			"memberAuthType": "PHONE",
+			"memberPhoneVerified": true,
+			"memberTrusted": false,
+			"memberDealerVerified": false,
+			"memberPassword": "$2b$10$.K0EAvBl.cIUDIX6F6JCaebpwRaq/shi.6d9mU8m/uYaij4OvRLo2",
+			"memberImage": "uploads/member/17f58c2e563119814f782ce2_21e246fa-971b-057b-2eac-67185c44dc1d.webp",
+			"memberProperties": 5,
+			"memberArticles": 0,
+			"memberFollowers": 0,
+			"memberFollowings": 0,
+			"memberLikes": 196,
+			"memberViews": 624,
+			"memberComments": 0,
+			"memberRank": 0,
+			"createdAt": {
+				"$date": "2025-08-06T00:39:35.000Z"
+			},
+			"updatedAt": {
+				"$date": "2025-08-06T00:39:35.000Z"
+			},
+			"memberNick": "bekzod96",
+			"memberFullName": "Bekzod Umarov",
+			"memberPhone": "998913570251",
+			"memberAddress": "Urganch, Al-Xorazmiy ko‘chasi"
+		},
+		{
+			"_id": {
+				"$oid": "429b50d04f256a772c09d333"
+			},
+			"memberType": "USER",
+			"memberStatus": "ACTIVE",
+			"memberAuthType": "PHONE",
+			"memberPhoneVerified": true,
+			"memberTrusted": true,
+			"memberDealerVerified": false,
+			"memberPassword": "$2b$10$.K0EAvBl.cIUDIX6F6JCaebpwRaq/shi.6d9mU8m/uYaij4OvRLo2",
+			"memberImage": "uploads/member/429b50d04f256a772c09d333_3fb9f217-1300-3333-631e-497606b3f1fe.webp",
+			"memberProperties": 1,
+			"memberArticles": 1,
+			"memberFollowers": 0,
+			"memberFollowings": 0,
+			"memberLikes": 60,
+			"memberViews": 23,
+			"memberComments": 0,
+			"memberRank": 0,
+			"createdAt": {
+				"$date": "2025-02-21T07:40:28.000Z"
+			},
+			"updatedAt": {
+				"$date": "2025-02-21T07:40:28.000Z"
+			},
+			"memberNick": "dilshod73",
+			"memberFullName": "Dilshod Abdullayev",
+			"memberPhone": "998944093668",
+			"memberAddress": "Nukus, Doslik guzari"
+		},
+		{
+			"_id": {
+				"$oid": "466d5718da75713a4ef8c719"
+			},
+			"memberType": "USER",
+			"memberStatus": "ACTIVE",
+			"memberAuthType": "PHONE",
+			"memberPhoneVerified": true,
+			"memberTrusted": true,
+			"memberDealerVerified": false,
+			"memberPassword": "$2b$10$.K0EAvBl.cIUDIX6F6JCaebpwRaq/shi.6d9mU8m/uYaij4OvRLo2",
+			"memberImage": "uploads/member/466d5718da75713a4ef8c719_23823370-9306-da12-97d6-c8a896892b61.webp",
+			"memberProperties": 2,
+			"memberArticles": 0,
+			"memberFollowers": 0,
+			"memberFollowings": 0,
+			"memberLikes": 162,
+			"memberViews": 875,
+			"memberComments": 0,
+			"memberRank": 0,
+			"createdAt": {
+				"$date": "2025-02-28T02:47:57.000Z"
+			},
+			"updatedAt": {
+				"$date": "2025-02-28T02:47:57.000Z"
+			},
+			"memberNick": "otabek37",
+			"memberFullName": "Otabek Saidova",
+			"memberPhone": "998914617085",
+			"memberAddress": "Samarqand avtobozori"
+		},
+		{
+			"_id": {
+				"$oid": "b038b4fb93bdb6ef396f8f1c"
+			},
+			"memberType": "USER",
+			"memberStatus": "ACTIVE",
+			"memberAuthType": "PHONE",
+			"memberPhoneVerified": true,
+			"memberTrusted": false,
+			"memberDealerVerified": false,
+			"memberPassword": "$2b$10$.K0EAvBl.cIUDIX6F6JCaebpwRaq/shi.6d9mU8m/uYaij4OvRLo2",
+			"memberImage": "uploads/member/b038b4fb93bdb6ef396f8f1c_9c861a14-715a-cf04-1cec-112fe6898d47.webp",
+			"memberProperties": 2,
+			"memberArticles": 0,
+			"memberFollowers": 0,
+			"memberFollowings": 0,
+			"memberLikes": 105,
+			"memberViews": 85,
+			"memberComments": 0,
+			"memberRank": 0,
+			"createdAt": {
+				"$date": "2025-08-13T21:43:39.000Z"
+			},
+			"updatedAt": {
+				"$date": "2025-08-13T21:43:39.000Z"
+			},
+			"memberNick": "sherzod48",
+			"memberFullName": "Sherzod Xolmatov",
+			"memberPhone": "998995140502",
+			"memberAddress": "Samarqand, Registon ko‘chasi"
+		},
+		{
+			"_id": {
+				"$oid": "c1f891e3b38de1393284373c"
+			},
+			"memberType": "USER",
+			"memberStatus": "ACTIVE",
+			"memberAuthType": "PHONE",
+			"memberPhoneVerified": true,
+			"memberTrusted": true,
+			"memberDealerVerified": false,
+			"memberPassword": "$2b$10$.K0EAvBl.cIUDIX6F6JCaebpwRaq/shi.6d9mU8m/uYaij4OvRLo2",
+			"memberImage": "uploads/member/c1f891e3b38de1393284373c_cf528156-a421-54f2-1eb5-4587cbcc347e.webp",
+			"memberProperties": 3,
+			"memberArticles": 0,
+			"memberFollowers": 0,
+			"memberFollowings": 0,
+			"memberLikes": 173,
+			"memberViews": 529,
+			"memberComments": 0,
+			"memberRank": 0,
+			"createdAt": {
+				"$date": "2025-08-21T02:39:50.000Z"
+			},
+			"updatedAt": {
+				"$date": "2025-08-21T02:39:50.000Z"
+			},
+			"memberNick": "ulugbek27",
+			"memberFullName": "Ulug‘bek Yusupov",
+			"memberPhone": "998975663919",
+			"memberAddress": "Jizzax, Sharof Rashidov ko‘chasi"
+		},
+		{
+			"_id": {
+				"$oid": "c67c48c309729f38445d3f1e"
+			},
+			"memberType": "USER",
+			"memberStatus": "ACTIVE",
+			"memberAuthType": "PHONE",
+			"memberPhoneVerified": true,
+			"memberTrusted": true,
+			"memberDealerVerified": false,
+			"memberPassword": "$2b$10$.K0EAvBl.cIUDIX6F6JCaebpwRaq/shi.6d9mU8m/uYaij4OvRLo2",
+			"memberImage": "uploads/member/c67c48c309729f38445d3f1e_3d591107-f383-1c16-967f-10d303de909f.webp",
+			"memberProperties": 1,
+			"memberArticles": 0,
+			"memberFollowers": 0,
+			"memberFollowings": 0,
+			"memberLikes": 56,
+			"memberViews": 746,
+			"memberComments": 0,
+			"memberRank": 0,
+			"createdAt": {
+				"$date": "2025-04-28T19:23:52.000Z"
+			},
+			"updatedAt": {
+				"$date": "2025-04-28T19:23:52.000Z"
+			},
+			"memberNick": "malika87",
+			"memberFullName": "Malika Ergasheva",
+			"memberPhone": "998916187336",
+			"memberAddress": "Andijon avtobozori"
+		},
+		{
+			"_id": {
+				"$oid": "acaa8636913abfa571999bea"
+			},
+			"memberType": "USER",
+			"memberStatus": "ACTIVE",
+			"memberAuthType": "PHONE",
+			"memberPhoneVerified": true,
+			"memberTrusted": false,
+			"memberDealerVerified": false,
+			"memberPassword": "$2b$10$.K0EAvBl.cIUDIX6F6JCaebpwRaq/shi.6d9mU8m/uYaij4OvRLo2",
+			"memberImage": "uploads/member/acaa8636913abfa571999bea_4074bdfa-0e69-e4d6-7927-c6415a8625cf.webp",
+			"memberProperties": 2,
+			"memberArticles": 0,
+			"memberFollowers": 0,
+			"memberFollowings": 0,
+			"memberLikes": 137,
+			"memberViews": 451,
+			"memberComments": 0,
+			"memberRank": 0,
+			"createdAt": {
+				"$date": "2026-01-14T20:51:18.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-01-14T20:51:18.000Z"
+			},
+			"memberNick": "nilufar89",
+			"memberFullName": "Nilufar Sobirov",
+			"memberPhone": "998936710753",
+			"memberAddress": "Navoiy, Xalqlar do‘stligi ko‘chasi"
+		},
+		{
+			"_id": {
+				"$oid": "3fbe5a79c294336b37ad0e39"
+			},
+			"memberType": "USER",
+			"memberStatus": "ACTIVE",
+			"memberAuthType": "PHONE",
+			"memberPhoneVerified": true,
+			"memberTrusted": true,
+			"memberDealerVerified": false,
+			"memberPassword": "$2b$10$.K0EAvBl.cIUDIX6F6JCaebpwRaq/shi.6d9mU8m/uYaij4OvRLo2",
+			"memberImage": "uploads/member/3fbe5a79c294336b37ad0e39_4d30e656-0891-6f3a-ad23-48f9160ec099.webp",
+			"memberProperties": 2,
+			"memberArticles": 0,
+			"memberFollowers": 0,
+			"memberFollowings": 0,
+			"memberLikes": 17,
+			"memberViews": 65,
+			"memberComments": 0,
+			"memberRank": 0,
+			"createdAt": {
+				"$date": "2025-01-26T10:10:17.000Z"
+			},
+			"updatedAt": {
+				"$date": "2025-01-26T10:10:17.000Z"
+			},
+			"memberNick": "dilnoza91",
+			"memberFullName": "Dilnoza Toshmatov",
+			"memberPhone": "998907234170",
+			"memberAddress": "Toshkent viloyati, Olmaliq"
+		},
+		{
+			"_id": {
+				"$oid": "97ff9a69dc8d00572f124afe"
+			},
+			"memberType": "USER",
+			"memberStatus": "BLOCK",
+			"memberAuthType": "PHONE",
+			"memberPhoneVerified": true,
+			"memberTrusted": true,
+			"memberDealerVerified": false,
+			"memberPassword": "$2b$10$.K0EAvBl.cIUDIX6F6JCaebpwRaq/shi.6d9mU8m/uYaij4OvRLo2",
+			"memberImage": "uploads/member/97ff9a69dc8d00572f124afe_da3e63e4-3c25-8e46-d48c-ce830538ac3f.webp",
+			"memberProperties": 0,
+			"memberArticles": 0,
+			"memberFollowers": 0,
+			"memberFollowings": 0,
+			"memberLikes": 0,
+			"memberViews": 393,
+			"memberComments": 0,
+			"memberRank": 0,
+			"createdAt": {
+				"$date": "2025-10-26T13:27:17.000Z"
+			},
+			"updatedAt": {
+				"$date": "2025-10-26T13:27:17.000Z"
+			},
+			"memberNick": "kamola45",
+			"memberFullName": "Kamola Qodirov",
+			"memberPhone": "998907757587",
+			"memberAddress": "Jizzax, Sharof Rashidov ko‘chasi",
+			"memberBlockReason": "Bir xil e’lonni ko‘p marta joylagan"
+		}
+	],
+	"properties": [
+		{
+			"_id": {
+				"$oid": "578796e5d2070aec77fd2419"
+			},
+			"propertyType": "HATCHBACK",
+			"propertyStatus": "ACTIVE",
+			"carCountry": "UZBEKISTAN",
+			"propertyLocation": "NAMANGAN",
+			"propertyAddress": "Namangan, Davlatobod tumani",
+			"propertyTitle": "BYD Seagull 2019",
+			"propertyPrice": 6800,
+			"propertyPriceCurrency": "UZS",
+			"propertyPriceOriginal": 86000000,
+			"carBrand": "BYD",
+			"carModel": "Seagull",
+			"carYear": 2019,
+			"carMileage": 75500,
+			"carFuel": "ELECTRIC",
+			"carTransmission": "AUTOMATIC",
+			"carColor": "Kulrang",
+			"carTrim": "Sport",
+			"carVin": "82CF73EF882384D9E",
+			"carAccidentHistory": "MINOR",
+			"carOwners": 1,
+			"carCustomsCleared": true,
+			"propertyViews": 1270,
+			"propertyLikes": 51,
+			"propertyComments": 0,
+			"propertyRank": 11,
+			"propertyDesc": "Kraska toza, faqat bamper polirovka qilingan. Tonirovka ruxsatnomasi bor. Yangi shinalar (2026 yil), qishki shinalar ham beriladi. Kichik kosmetik ta’mir qilingan (bamper).",
+			"propertyBarter": false,
+			"propertyNegotiable": false,
+			"memberId": {
+				"$oid": "c1f891e3b38de1393284373c"
+			},
+			"createdAt": {
+				"$date": "2026-10-05T20:55:09.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-10-05T20:55:09.000Z"
+			},
+			"propertyImages": [
+				"uploads/property/c1f891e3b38de1393284373c_6f65609d-c83f-2988-2f21-f77f3ffe96c9.webp",
+				"uploads/property/c1f891e3b38de1393284373c_63729d77-85dc-4b3c-3c57-f9d9aab82f9b.webp",
+				"uploads/property/c1f891e3b38de1393284373c_989b4ff3-2b02-d40a-0aa4-afc15f889395.webp"
+			]
+		},
+		{
+			"_id": {
+				"$oid": "041ff7f76036111c52fdf229"
+			},
+			"propertyType": "SEDAN",
+			"propertyStatus": "ACTIVE",
+			"carCountry": "UZBEKISTAN",
+			"propertyLocation": "SAMARKAND",
+			"propertyAddress": "Samarqand avtobozori",
+			"propertyTitle": "Mercedes-Benz E-Class 2015",
+			"propertyPrice": 14300,
+			"propertyPriceCurrency": "USD",
+			"propertyPriceOriginal": 14300,
+			"carBrand": "MERCEDES_BENZ",
+			"carModel": "E-Class",
+			"carYear": 2015,
+			"carMileage": 149900,
+			"carFuel": "PETROL",
+			"carTransmission": "AUTOMATIC",
+			"carColor": "Qizil",
+			"carEngine": 2,
+			"carTrim": "Comfort",
+			"carAccidentHistory": "MINOR",
+			"carOwners": 3,
+			"carCustomsCleared": true,
+			"propertyViews": 1354,
+			"propertyLikes": 56,
+			"propertyComments": 0,
+			"propertyRank": 60,
+			"propertyDesc": "Har 10 000 km da moy almashtirilgan, servis kitobchasi bor. Salon toza, chekilmagan, bolalar o‘tirmagan. Mashina ideal holatda, hech qanday texnik muammo yo‘q. Kichik kosmetik ta’mir qilingan (bamper).",
+			"propertyBarter": false,
+			"propertyNegotiable": false,
+			"memberId": {
+				"$oid": "1b2579ec4d20d629a740278a"
+			},
+			"createdAt": {
+				"$date": "2026-09-18T05:57:48.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-09-18T05:57:48.000Z"
+			},
+			"propertyImages": [
+				"uploads/property/1b2579ec4d20d629a740278a_595c6185-0983-5a44-7ed8-528bec7ae81e.webp",
+				"uploads/property/1b2579ec4d20d629a740278a_33968a68-e57e-c1d0-fff7-060f26f96c72.webp",
+				"uploads/property/1b2579ec4d20d629a740278a_48139671-922c-6fb2-62a4-e0dacea4312c.webp"
+			]
+		},
+		{
+			"_id": {
+				"$oid": "b81ecbfccead6a58ed75cae2"
+			},
+			"propertyType": "SEDAN",
+			"propertyStatus": "ACTIVE",
+			"carCountry": "CHINA",
+			"propertyAddress": "Guanchjou, Xitoy",
+			"propertyTitle": "BYD Han 2020",
+			"propertyPrice": 20100,
+			"propertyPriceCurrency": "USD",
+			"propertyPriceOriginal": 20100,
+			"carBrand": "BYD",
+			"carModel": "Han",
+			"carYear": 2020,
+			"carMileage": 57500,
+			"carFuel": "ELECTRIC",
+			"carTransmission": "AUTOMATIC",
+			"carColor": "Bej",
+			"carTrim": "Elegant",
+			"carAccidentHistory": "NONE",
+			"carOwners": 2,
+			"carCustomsCleared": false,
+			"carDeliveryDays": 20,
+			"carDeliveryCost": 1405,
+			"propertyViews": 787,
+			"propertyLikes": 52,
+			"propertyComments": 0,
+			"propertyRank": 47,
+			"propertyDesc": "Shahar ichida yurilgan, trassaga kam chiqilgan. Salon toza, chekilmagan, bolalar o‘tirmagan. Kraska toza, faqat bamper polirovka qilingan. Mashina ideal holatda, hech qanday texnik muammo yo‘q.",
+			"propertyBarter": false,
+			"propertyNegotiable": false,
+			"memberId": {
+				"$oid": "bdd8e1884fc5dc4b961f0b8d"
+			},
+			"createdAt": {
+				"$date": "2026-09-10T01:55:40.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-09-10T01:55:40.000Z"
+			},
+			"propertyImages": [
+				"uploads/property/bdd8e1884fc5dc4b961f0b8d_6ce501a1-bfdb-310f-d161-058b4971b4fa.webp",
+				"uploads/property/bdd8e1884fc5dc4b961f0b8d_7c8de2b9-dea9-8dbc-ae54-27f17a36b968.webp",
+				"uploads/property/bdd8e1884fc5dc4b961f0b8d_cd986119-1942-49c5-9cca-784704725c57.webp"
+			]
+		},
+		{
+			"_id": {
+				"$oid": "f608303d69a3aa7ad009e032"
+			},
+			"propertyType": "SEDAN",
+			"propertyStatus": "ACTIVE",
+			"carCountry": "UZBEKISTAN",
+			"propertyLocation": "NAVOI",
+			"propertyAddress": "Navoiy, Xalqlar do‘stligi ko‘chasi",
+			"propertyTitle": "BMW 5 Series 2024",
+			"propertyPrice": 41800,
+			"propertyPriceCurrency": "UZS",
+			"propertyPriceOriginal": 531000000,
+			"carBrand": "BMW",
+			"carModel": "5 Series",
+			"carYear": 2024,
+			"carMileage": 36300,
+			"carFuel": "PETROL",
+			"carTransmission": "AUTOMATIC",
+			"carColor": "Kulrang",
+			"carEngine": 2,
+			"carTrim": "Luxe",
+			"carVin": "2D348A277342DAC62",
+			"carAccidentHistory": "NONE",
+			"carOwners": 1,
+			"carCustomsCleared": true,
+			"propertyViews": 1930,
+			"propertyLikes": 55,
+			"propertyComments": 0,
+			"propertyRank": 23,
+			"propertyDesc": "Tonirovka ruxsatnomasi bor. Kraska toza, faqat bamper polirovka qilingan. Salon toza, chekilmagan, bolalar o‘tirmagan.",
+			"propertyBarter": false,
+			"propertyNegotiable": true,
+			"memberId": {
+				"$oid": "b038b4fb93bdb6ef396f8f1c"
+			},
+			"createdAt": {
+				"$date": "2026-10-07T01:09:00.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-10-07T01:09:00.000Z"
+			},
+			"propertyImages": [
+				"uploads/property/b038b4fb93bdb6ef396f8f1c_8d9362cd-fcf0-29b4-70f4-88074ce55ae6.webp",
+				"uploads/property/b038b4fb93bdb6ef396f8f1c_0056b794-db84-befd-0118-7e0764460fa9.webp",
+				"uploads/property/b038b4fb93bdb6ef396f8f1c_18efb07a-591c-9fb8-f6c8-af3281fd7c43.webp"
+			]
+		},
+		{
+			"_id": {
+				"$oid": "a4d054088e91080413f85f8a"
+			},
+			"propertyType": "SUV",
+			"propertyStatus": "ACTIVE",
+			"carCountry": "UZBEKISTAN",
+			"propertyLocation": "TASHKENT",
+			"propertyAddress": "Toshkent, Mirzo Ulug‘bek tumani",
+			"propertyTitle": "Honda CR-V 2025",
+			"propertyPrice": 28600,
+			"propertyPriceCurrency": "UZS",
+			"propertyPriceOriginal": 363000000,
+			"carBrand": "HONDA",
+			"carModel": "CR-V",
+			"carYear": 2025,
+			"carMileage": 14800,
+			"carFuel": "HYBRID",
+			"carTransmission": "CVT",
+			"carColor": "Oq",
+			"carEngine": 2,
+			"carTrim": "Base",
+			"carAccidentHistory": "NONE",
+			"carOwners": 1,
+			"carCustomsCleared": true,
+			"propertyViews": 1843,
+			"propertyLikes": 49,
+			"propertyComments": 0,
+			"propertyRank": 9,
+			"propertyDesc": "Har 10 000 km da moy almashtirilgan, servis kitobchasi bor. Salon toza, chekilmagan, bolalar o‘tirmagan. Mashina ideal holatda, hech qanday texnik muammo yo‘q. Birinchi egasidan, hujjatlari joyida.",
+			"propertyBarter": true,
+			"propertyNegotiable": true,
+			"memberId": {
+				"$oid": "17f58c2e563119814f782ce2"
+			},
+			"createdAt": {
+				"$date": "2026-09-23T09:54:33.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-09-23T09:54:33.000Z"
+			},
+			"propertyImages": [
+				"uploads/property/17f58c2e563119814f782ce2_9ab4b1cd-4151-0d56-9c57-427bf50bb083.webp",
+				"uploads/property/17f58c2e563119814f782ce2_fe360d5e-00e7-6c89-f284-6f11cfb47044.webp",
+				"uploads/property/17f58c2e563119814f782ce2_65a0690d-2f31-9708-245c-e9f9450f681d.webp"
+			]
+		},
+		{
+			"_id": {
+				"$oid": "e389f52a3f686e965b7050e8"
+			},
+			"propertyType": "SUV",
+			"propertyStatus": "ACTIVE",
+			"carCountry": "UAE",
+			"propertyAddress": "Dubay, BAA",
+			"propertyTitle": "Mercedes-Benz GLE 2017",
+			"propertyPrice": 30100,
+			"propertyPriceCurrency": "USD",
+			"propertyPriceOriginal": 30100,
+			"carBrand": "MERCEDES_BENZ",
+			"carModel": "GLE",
+			"carYear": 2017,
+			"carMileage": 109400,
+			"carFuel": "DIESEL",
+			"carTransmission": "AUTOMATIC",
+			"carColor": "Yashil",
+			"carEngine": 3,
+			"carTrim": "Sport",
+			"carVin": "46A79FC7ACCF6EA13",
+			"carAccidentHistory": "NONE",
+			"carOwners": 1,
+			"carCustomsCleared": false,
+			"carDeliveryDays": 24,
+			"carDeliveryCost": 1709,
+			"propertyViews": 2364,
+			"propertyLikes": 33,
+			"propertyComments": 0,
+			"propertyRank": 42,
+			"propertyDesc": "Mashina ideal holatda, hech qanday texnik muammo yo‘q. Yangi shinalar (2026 yil), qishki shinalar ham beriladi.",
+			"propertyBarter": true,
+			"propertyNegotiable": true,
+			"memberId": {
+				"$oid": "87df9d4110bbac51902b1163"
+			},
+			"createdAt": {
+				"$date": "2026-10-14T19:27:15.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-10-14T19:27:15.000Z"
+			},
+			"propertyImages": [
+				"uploads/property/87df9d4110bbac51902b1163_3301b821-65c1-66fd-5f6e-c83c81c86953.webp",
+				"uploads/property/87df9d4110bbac51902b1163_fd475810-bd51-6910-95db-0c7dd4dbf72a.webp",
+				"uploads/property/87df9d4110bbac51902b1163_ffba9100-d064-be3c-40bb-6dfa5c46ec63.webp"
+			]
+		},
+		{
+			"_id": {
+				"$oid": "c443c180f9d9a7972de39718"
+			},
+			"propertyType": "SEDAN",
+			"propertyStatus": "ACTIVE",
+			"carCountry": "UZBEKISTAN",
+			"propertyLocation": "FERGANA",
+			"propertyAddress": "Qo‘qon shahri",
+			"propertyTitle": "Chevrolet Gentra 2015",
+			"propertyPrice": 3900,
+			"propertyPriceCurrency": "UZS",
+			"propertyPriceOriginal": 50000000,
+			"carBrand": "CHEVROLET",
+			"carModel": "Gentra",
+			"carYear": 2015,
+			"carMileage": 196100,
+			"carFuel": "PETROL",
+			"carTransmission": "AUTOMATIC",
+			"carColor": "Jigarrang",
+			"carEngine": 1.5,
+			"carTrim": "Comfort",
+			"carVin": "8FF199611E3410DAF",
+			"carAccidentHistory": "NONE",
+			"carOwners": 4,
+			"carCustomsCleared": true,
+			"propertyViews": 500,
+			"propertyLikes": 47,
+			"propertyComments": 0,
+			"propertyRank": 20,
+			"propertyDesc": "Shahar ichida yurilgan, trassaga kam chiqilgan. Konditsioner, multimedia, orqa kamera ishlaydi. Tonirovka ruxsatnomasi bor. Birinchi egasidan, hujjatlari joyida.",
+			"propertyBarter": false,
+			"propertyNegotiable": false,
+			"memberId": {
+				"$oid": "bdd8e1884fc5dc4b961f0b8d"
+			},
+			"createdAt": {
+				"$date": "2026-09-01T17:10:19.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-09-01T17:10:19.000Z"
+			},
+			"propertyImages": [
+				"uploads/property/bdd8e1884fc5dc4b961f0b8d_767bb8e1-96e4-6a8d-2714-c501d0922a85.webp",
+				"uploads/property/bdd8e1884fc5dc4b961f0b8d_0d95c5fb-4e6d-8009-d5af-214c337a9a2d.webp",
+				"uploads/property/bdd8e1884fc5dc4b961f0b8d_e2347b05-4b9f-547c-592e-19b21c8dbda8.webp"
+			]
+		},
+		{
+			"_id": {
+				"$oid": "3fae6e1f50e9cee0da9bc05b"
+			},
+			"propertyType": "SUV",
+			"propertyStatus": "ACTIVE",
+			"carCountry": "UZBEKISTAN",
+			"propertyLocation": "NUKUS",
+			"propertyAddress": "Nukus, Doslik guzari",
+			"propertyTitle": "Mercedes-Benz GLE 2023",
+			"propertyPrice": 54500,
+			"propertyPriceCurrency": "UZS",
+			"propertyPriceOriginal": 692000000,
+			"carBrand": "MERCEDES_BENZ",
+			"carModel": "GLE",
+			"carYear": 2023,
+			"carMileage": 29500,
+			"carFuel": "DIESEL",
+			"carTransmission": "AUTOMATIC",
+			"carColor": "Qizil",
+			"carEngine": 3,
+			"carTrim": "Elegant",
+			"carVin": "6172EDB2B7C8BD1F5",
+			"carAccidentHistory": "NONE",
+			"carOwners": 2,
+			"carCustomsCleared": true,
+			"propertyViews": 1496,
+			"propertyLikes": 17,
+			"propertyComments": 0,
+			"propertyRank": 25,
+			"propertyDesc": "Konditsioner, multimedia, orqa kamera ishlaydi. Ko‘rib, diagnostikadan o‘tkazishingiz mumkin. Birinchi egasidan, hujjatlari joyida.",
+			"propertyBarter": false,
+			"propertyNegotiable": false,
+			"memberId": {
+				"$oid": "3fbe5a79c294336b37ad0e39"
+			},
+			"createdAt": {
+				"$date": "2026-09-01T05:18:10.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-09-01T05:18:10.000Z"
+			},
+			"propertyImages": [
+				"uploads/property/3fbe5a79c294336b37ad0e39_1de1da6b-b442-387f-84cd-eccb38052545.webp",
+				"uploads/property/3fbe5a79c294336b37ad0e39_2ef10f51-7f10-8494-5860-3f56be2f3fe9.webp",
+				"uploads/property/3fbe5a79c294336b37ad0e39_26c59e7f-145d-cd2c-4bfb-69269bb04eb6.webp"
+			]
+		},
+		{
+			"_id": {
+				"$oid": "dcb7313da166291afd87bc13"
+			},
+			"propertyType": "SUV",
+			"propertyStatus": "ACTIVE",
+			"carCountry": "CHINA",
+			"propertyAddress": "Urumchi, Xitoy",
+			"propertyTitle": "Chery Tiggo 7 Pro 2020",
+			"propertyPrice": 10000,
+			"propertyPriceCurrency": "USD",
+			"propertyPriceOriginal": 10000,
+			"carBrand": "CHERY",
+			"carModel": "Tiggo 7 Pro",
+			"carYear": 2020,
+			"carMileage": 63900,
+			"carFuel": "PETROL",
+			"carTransmission": "CVT",
+			"carColor": "Bej",
+			"carEngine": 1.5,
+			"carTrim": "Premier",
+			"carVin": "015D3C29FCBACDDEC",
+			"carAccidentHistory": "NONE",
+			"carOwners": 1,
+			"carCustomsCleared": false,
+			"carDeliveryDays": 17,
+			"carDeliveryCost": 1354,
+			"propertyViews": 886,
+			"propertyLikes": 62,
+			"propertyComments": 0,
+			"propertyRank": 11,
+			"propertyDesc": "Kraska toza, faqat bamper polirovka qilingan. Har 10 000 km da moy almashtirilgan, servis kitobchasi bor.",
+			"propertyBarter": false,
+			"propertyNegotiable": false,
+			"memberId": {
+				"$oid": "8a77afcc37663022bd43179c"
+			},
+			"createdAt": {
+				"$date": "2026-10-12T13:27:14.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-10-12T13:27:14.000Z"
+			},
+			"propertyImages": [
+				"uploads/property/8a77afcc37663022bd43179c_15798e9f-cfa8-2173-852a-3dfd479cb637.webp",
+				"uploads/property/8a77afcc37663022bd43179c_10b171de-8dba-5f00-94fc-c420d09bd0d0.webp",
+				"uploads/property/8a77afcc37663022bd43179c_d7c237f8-8a1c-8a26-a633-b9ed28724fe0.webp"
+			]
+		},
+		{
+			"_id": {
+				"$oid": "53097347c35cb5c6f11b239d"
+			},
+			"propertyType": "SEDAN",
+			"propertyStatus": "ACTIVE",
+			"carCountry": "UZBEKISTAN",
+			"propertyLocation": "ANDIJAN",
+			"propertyAddress": "Andijon, Bobur shoh ko‘chasi",
+			"propertyTitle": "Honda Accord 2025",
+			"propertyPrice": 22700,
+			"propertyPriceCurrency": "UZS",
+			"propertyPriceOriginal": 288000000,
+			"carBrand": "HONDA",
+			"carModel": "Accord",
+			"carYear": 2025,
+			"carMileage": 13300,
+			"carFuel": "PETROL",
+			"carTransmission": "CVT",
+			"carColor": "Qora",
+			"carEngine": 1.5,
+			"carTrim": "Elegant",
+			"carVin": "BDDEEFC5B79538BCF",
+			"carAccidentHistory": "NONE",
+			"carOwners": 1,
+			"carCustomsCleared": true,
+			"propertyViews": 16,
+			"propertyLikes": 0,
+			"propertyComments": 0,
+			"propertyRank": 33,
+			"propertyDesc": "Tonirovka ruxsatnomasi bor. Ko‘rib, diagnostikadan o‘tkazishingiz mumkin. Salon toza, chekilmagan, bolalar o‘tirmagan.",
+			"propertyBarter": true,
+			"propertyNegotiable": true,
+			"memberId": {
+				"$oid": "17f58c2e563119814f782ce2"
+			},
+			"createdAt": {
+				"$date": "2026-08-10T11:03:05.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-08-10T11:03:05.000Z"
+			},
+			"propertyImages": [
+				"uploads/property/17f58c2e563119814f782ce2_8e2d5392-4fc3-b6ae-0b60-7e46a2a30c3d.webp",
+				"uploads/property/17f58c2e563119814f782ce2_90e01194-874b-4c5e-f9dd-9aa430e7e9c5.webp",
+				"uploads/property/17f58c2e563119814f782ce2_4951a351-f5b5-404e-80ab-3eef5ce1848e.webp"
+			]
+		},
+		{
+			"_id": {
+				"$oid": "c005b33e1e8f148d25246619"
+			},
+			"propertyType": "SEDAN",
+			"propertyStatus": "ACTIVE",
+			"carCountry": "UZBEKISTAN",
+			"propertyLocation": "NUKUS",
+			"propertyAddress": "Nukus, Doslik guzari",
+			"propertyTitle": "Audi A6 2018",
+			"propertyPrice": 19700,
+			"propertyPriceCurrency": "USD",
+			"propertyPriceOriginal": 19700,
+			"carBrand": "AUDI",
+			"carModel": "A6",
+			"carYear": 2018,
+			"carMileage": 126600,
+			"carFuel": "PETROL",
+			"carTransmission": "ROBOT",
+			"carColor": "Yashil",
+			"carEngine": 2,
+			"carTrim": "Elegant",
+			"carAccidentHistory": "MINOR",
+			"carOwners": 2,
+			"carCustomsCleared": true,
+			"propertyViews": 1886,
+			"propertyLikes": 70,
+			"propertyComments": 0,
+			"propertyRank": 52,
+			"propertyDesc": "Mashina ideal holatda, hech qanday texnik muammo yo‘q. Birinchi egasidan, hujjatlari joyida. Kraska toza, faqat bamper polirovka qilingan. Shahar ichida yurilgan, trassaga kam chiqilgan. Kichik kosmetik ta’mir qilingan (bamper).",
+			"propertyBarter": false,
+			"propertyNegotiable": true,
+			"memberId": {
+				"$oid": "17f58c2e563119814f782ce2"
+			},
+			"createdAt": {
+				"$date": "2026-09-23T05:15:57.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-09-23T05:15:57.000Z"
+			},
+			"propertyImages": [
+				"uploads/property/17f58c2e563119814f782ce2_86204736-6ec1-0abd-fe0c-ff6f3953d0ba.webp",
+				"uploads/property/17f58c2e563119814f782ce2_e281e1cf-8a18-30fc-0570-2e3461c42904.webp",
+				"uploads/property/17f58c2e563119814f782ce2_1400bc12-ab9b-96ae-49f5-1dc20939492f.webp"
+			]
+		},
+		{
+			"_id": {
+				"$oid": "52b8e3f67e1ad65aebd73f64"
+			},
+			"propertyType": "SEDAN",
+			"propertyStatus": "ACTIVE",
+			"carCountry": "USA",
+			"propertyAddress": "Nyu-Jersi, AQSh",
+			"propertyTitle": "Chevrolet Malibu 2 2025",
+			"propertyPrice": 27000,
+			"propertyPriceCurrency": "USD",
+			"propertyPriceOriginal": 27000,
+			"carBrand": "CHEVROLET",
+			"carModel": "Malibu 2",
+			"carYear": 2025,
+			"carMileage": 10400,
+			"carFuel": "PETROL",
+			"carTransmission": "AUTOMATIC",
+			"carColor": "Oq",
+			"carEngine": 1.5,
+			"carTrim": "Premier",
+			"carVin": "66A8AE080EAFBDE32",
+			"carAccidentHistory": "NONE",
+			"carOwners": 1,
+			"carCustomsCleared": false,
+			"carDeliveryDays": 57,
+			"carDeliveryCost": 3512,
+			"propertyViews": 236,
+			"propertyLikes": 0,
+			"propertyComments": 0,
+			"propertyRank": 40,
+			"propertyDesc": "Shahar ichida yurilgan, trassaga kam chiqilgan. Salon toza, chekilmagan, bolalar o‘tirmagan.",
+			"propertyBarter": false,
+			"propertyNegotiable": true,
+			"memberId": {
+				"$oid": "32feac355c43eda8b50fe00d"
+			},
+			"createdAt": {
+				"$date": "2026-08-03T08:37:52.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-08-03T08:37:52.000Z"
+			},
+			"propertyImages": [
+				"uploads/property/32feac355c43eda8b50fe00d_b93b8661-5193-6e75-f64f-99a2eec64be4.webp",
+				"uploads/property/32feac355c43eda8b50fe00d_0ad6c2ae-1832-ff23-ecec-e406c31d47e6.webp",
+				"uploads/property/32feac355c43eda8b50fe00d_57e74b72-dd22-4b6a-a955-b10eddc20020.webp"
+			]
+		},
+		{
+			"_id": {
+				"$oid": "2aedd7a5f2560614a6185498"
+			},
+			"propertyType": "SUV",
+			"propertyStatus": "ACTIVE",
+			"carCountry": "UZBEKISTAN",
+			"propertyLocation": "TERMEZ",
+			"propertyAddress": "Termiz, At-Termiziy ko‘chasi",
+			"propertyTitle": "Chevrolet Tracker 2 2017",
+			"propertyPrice": 8100,
+			"propertyPriceCurrency": "USD",
+			"propertyPriceOriginal": 8100,
+			"carBrand": "CHEVROLET",
+			"carModel": "Tracker 2",
+			"carYear": 2017,
+			"carMileage": 155100,
+			"carFuel": "PETROL",
+			"carTransmission": "AUTOMATIC",
+			"carColor": "Ko‘k",
+			"carEngine": 1.2,
+			"carTrim": "Full",
+			"carAccidentHistory": "MINOR",
+			"carOwners": 1,
+			"carCustomsCleared": true,
+			"propertyViews": 845,
+			"propertyLikes": 62,
+			"propertyComments": 0,
+			"propertyRank": 29,
+			"propertyDesc": "Har 10 000 km da moy almashtirilgan, servis kitobchasi bor. Ko‘rib, diagnostikadan o‘tkazishingiz mumkin. Tonirovka ruxsatnomasi bor. Salon toza, chekilmagan, bolalar o‘tirmagan. Kichik kosmetik ta’mir qilingan (bamper).",
+			"propertyBarter": true,
+			"propertyNegotiable": true,
+			"memberId": {
+				"$oid": "acaa8636913abfa571999bea"
+			},
+			"createdAt": {
+				"$date": "2026-08-20T15:00:18.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-08-20T15:00:18.000Z"
+			},
+			"propertyImages": [
+				"uploads/property/acaa8636913abfa571999bea_6a99bc5b-c310-ab61-7ca9-26556fba7380.webp",
+				"uploads/property/acaa8636913abfa571999bea_4337033e-99cb-163e-b1e1-8dd4a450159e.webp",
+				"uploads/property/acaa8636913abfa571999bea_fffa3941-98e3-84f7-14b4-5a397583d7cd.webp"
+			]
+		},
+		{
+			"_id": {
+				"$oid": "57f56f97c07663146b9de361"
+			},
+			"propertyType": "SEDAN",
+			"propertyStatus": "ACTIVE",
+			"carCountry": "UZBEKISTAN",
+			"propertyLocation": "NAMANGAN",
+			"propertyAddress": "Namangan, Davlatobod tumani",
+			"propertyTitle": "Toyota Corolla 2016",
+			"propertyPrice": 8200,
+			"propertyPriceCurrency": "USD",
+			"propertyPriceOriginal": 8200,
+			"carBrand": "TOYOTA",
+			"carModel": "Corolla",
+			"carYear": 2016,
+			"carMileage": 171000,
+			"carFuel": "HYBRID",
+			"carTransmission": "CVT",
+			"carColor": "Qora",
+			"carEngine": 1.8,
+			"carTrim": "Comfort",
+			"carVin": "37B8ABEFFFE6CD667",
+			"carAccidentHistory": "MINOR",
+			"carOwners": 2,
+			"carCustomsCleared": true,
+			"propertyViews": 1285,
+			"propertyLikes": 75,
+			"propertyComments": 0,
+			"propertyRank": 58,
+			"propertyDesc": "Konditsioner, multimedia, orqa kamera ishlaydi. Birinchi egasidan, hujjatlari joyida. Kichik kosmetik ta’mir qilingan (bamper).",
+			"propertyBarter": false,
+			"propertyNegotiable": false,
+			"memberId": {
+				"$oid": "acaa8636913abfa571999bea"
+			},
+			"createdAt": {
+				"$date": "2026-10-22T05:39:15.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-10-22T05:39:15.000Z"
+			},
+			"propertyImages": [
+				"uploads/property/acaa8636913abfa571999bea_5e535e58-f9e3-244f-111b-a093be375125.webp",
+				"uploads/property/acaa8636913abfa571999bea_ef7d170d-d67d-9fff-54d1-bb6f3c964eeb.webp",
+				"uploads/property/acaa8636913abfa571999bea_1d2cd2ff-b89b-3e78-2a20-5463d5208056.webp"
+			]
+		},
+		{
+			"_id": {
+				"$oid": "4e2048e6a19dacb2bab3523f"
+			},
+			"propertyType": "SUV",
+			"propertyStatus": "ACTIVE",
+			"carCountry": "JAPAN",
+			"propertyAddress": "Yokogama, Yaponiya",
+			"propertyTitle": "Toyota RAV4 2014",
+			"propertyPrice": 9500,
+			"propertyPriceCurrency": "USD",
+			"propertyPriceOriginal": 9500,
+			"carBrand": "TOYOTA",
+			"carModel": "RAV4",
+			"carYear": 2014,
+			"carMileage": 196700,
+			"carFuel": "HYBRID",
+			"carTransmission": "CVT",
+			"carColor": "Kulrang",
+			"carEngine": 2.5,
+			"carTrim": "Full",
+			"carVin": "AE8684F59DABEEE08",
+			"carAccidentHistory": "NONE",
+			"carOwners": 4,
+			"carCustomsCleared": false,
+			"carDeliveryDays": 36,
+			"carDeliveryCost": 2790,
+			"propertyViews": 2194,
+			"propertyLikes": 73,
+			"propertyComments": 0,
+			"propertyRank": 43,
+			"propertyDesc": "Ko‘rib, diagnostikadan o‘tkazishingiz mumkin. Har 10 000 km da moy almashtirilgan, servis kitobchasi bor.",
+			"propertyBarter": false,
+			"propertyNegotiable": true,
+			"memberId": {
+				"$oid": "2c4a420fb5858ea22038a2c8"
+			},
+			"createdAt": {
+				"$date": "2026-10-25T16:28:12.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-10-25T16:28:12.000Z"
+			},
+			"propertyImages": [
+				"uploads/property/2c4a420fb5858ea22038a2c8_ccc2ba48-d815-e08a-7443-60082c4948a6.webp",
+				"uploads/property/2c4a420fb5858ea22038a2c8_3793831d-fd19-2f1e-36cd-49074a5b1da9.webp",
+				"uploads/property/2c4a420fb5858ea22038a2c8_3133d1a2-2cb7-25f8-4013-ce9bc81e5e6e.webp"
+			]
+		},
+		{
+			"_id": {
+				"$oid": "1f7b7926c579bebe60a5846f"
+			},
+			"propertyType": "SEDAN",
+			"propertyStatus": "ACTIVE",
+			"carCountry": "UZBEKISTAN",
+			"propertyLocation": "NAMANGAN",
+			"propertyAddress": "Namangan, Davlatobod tumani",
+			"propertyTitle": "BMW 5 Series 2021",
+			"propertyPrice": 30900,
+			"propertyPriceCurrency": "USD",
+			"propertyPriceOriginal": 30900,
+			"carBrand": "BMW",
+			"carModel": "5 Series",
+			"carYear": 2021,
+			"carMileage": 84100,
+			"carFuel": "PETROL",
+			"carTransmission": "AUTOMATIC",
+			"carColor": "Qizil",
+			"carEngine": 2,
+			"carTrim": "Sport",
+			"carAccidentHistory": "NONE",
+			"carOwners": 2,
+			"carCustomsCleared": true,
+			"propertyViews": 393,
+			"propertyLikes": 76,
+			"propertyComments": 0,
+			"propertyRank": 9,
+			"propertyDesc": "Yangi shinalar (2026 yil), qishki shinalar ham beriladi. Konditsioner, multimedia, orqa kamera ishlaydi. Tonirovka ruxsatnomasi bor. Mashina ideal holatda, hech qanday texnik muammo yo‘q.",
+			"propertyBarter": false,
+			"propertyNegotiable": false,
+			"memberId": {
+				"$oid": "4d3564b868a59688de4651fc"
+			},
+			"createdAt": {
+				"$date": "2026-09-01T02:31:24.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-09-01T02:31:24.000Z"
+			},
+			"propertyImages": [
+				"uploads/property/4d3564b868a59688de4651fc_c5abd942-580d-cc80-b7d7-81428f408d25.webp",
+				"uploads/property/4d3564b868a59688de4651fc_b56ce0ae-355a-5f67-06ae-931483f69fe0.webp",
+				"uploads/property/4d3564b868a59688de4651fc_83bb4a7d-ebae-e847-d7ed-c54986f8ae2b.webp"
+			]
+		},
+		{
+			"_id": {
+				"$oid": "f07567c8f55b391730945954"
+			},
+			"propertyType": "SEDAN",
+			"propertyStatus": "ACTIVE",
+			"carCountry": "UZBEKISTAN",
+			"propertyLocation": "SAMARKAND",
+			"propertyAddress": "Samarqand, Registon ko‘chasi",
+			"propertyTitle": "Honda Accord 2023",
+			"propertyPrice": 20000,
+			"propertyPriceCurrency": "USD",
+			"propertyPriceOriginal": 20000,
+			"carBrand": "HONDA",
+			"carModel": "Accord",
+			"carYear": 2023,
+			"carMileage": 38900,
+			"carFuel": "PETROL",
+			"carTransmission": "CVT",
+			"carColor": "Kumush",
+			"carEngine": 1.5,
+			"carTrim": "Full",
+			"carAccidentHistory": "NONE",
+			"carOwners": 2,
+			"carCustomsCleared": true,
+			"propertyViews": 1933,
+			"propertyLikes": 56,
+			"propertyComments": 0,
+			"propertyRank": 34,
+			"propertyDesc": "Birinchi egasidan, hujjatlari joyida.",
+			"propertyBarter": false,
+			"propertyNegotiable": true,
+			"memberId": {
+				"$oid": "2c4a420fb5858ea22038a2c8"
+			},
+			"createdAt": {
+				"$date": "2026-08-18T03:40:56.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-08-18T03:40:56.000Z"
+			},
+			"propertyImages": [
+				"uploads/property/2c4a420fb5858ea22038a2c8_2a8a7dbf-ffbc-6aea-a261-aa9f8af787fa.webp",
+				"uploads/property/2c4a420fb5858ea22038a2c8_6f77afd6-f56f-eb54-3432-45794fdaf853.webp",
+				"uploads/property/2c4a420fb5858ea22038a2c8_206ca53f-9deb-b236-5b92-bb11aeb8fe34.webp"
+			]
+		},
+		{
+			"_id": {
+				"$oid": "8b15868ea89674f66f20caeb"
+			},
+			"propertyType": "SUV",
+			"propertyStatus": "ACTIVE",
+			"carCountry": "GERMANY",
+			"propertyAddress": "Myunxen, Germaniya",
+			"propertyTitle": "Audi Q7 2025",
+			"propertyPrice": 54300,
+			"propertyPriceCurrency": "USD",
+			"propertyPriceOriginal": 54300,
+			"carBrand": "AUDI",
+			"carModel": "Q7",
+			"carYear": 2025,
+			"carMileage": 12700,
+			"carFuel": "DIESEL",
+			"carTransmission": "AUTOMATIC",
+			"carColor": "Ko‘k",
+			"carEngine": 3,
+			"carTrim": "Elegant",
+			"carVin": "A6E0B1198DC1E3318",
+			"carAccidentHistory": "NONE",
+			"carOwners": 1,
+			"carCustomsCleared": false,
+			"carDeliveryDays": 17,
+			"carDeliveryCost": 2658,
+			"propertyViews": 15,
+			"propertyLikes": 54,
+			"propertyComments": 0,
+			"propertyRank": 24,
+			"propertyDesc": "Kraska toza, faqat bamper polirovka qilingan. Birinchi egasidan, hujjatlari joyida. Har 10 000 km da moy almashtirilgan, servis kitobchasi bor. Tonirovka ruxsatnomasi bor.",
+			"propertyBarter": true,
+			"propertyNegotiable": false,
+			"memberId": {
+				"$oid": "87df9d4110bbac51902b1163"
+			},
+			"createdAt": {
+				"$date": "2026-09-05T23:04:21.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-09-05T23:04:21.000Z"
+			},
+			"propertyImages": [
+				"uploads/property/87df9d4110bbac51902b1163_fa378dad-bef7-833f-cee3-ba6a11e5b45c.webp",
+				"uploads/property/87df9d4110bbac51902b1163_9367f154-1f00-1d06-afb2-a2092a9f32ec.webp",
+				"uploads/property/87df9d4110bbac51902b1163_636fc730-81bc-5723-4da4-688d42c890e4.webp"
+			]
+		},
+		{
+			"_id": {
+				"$oid": "c5709b9f5b30a7046718cbe0"
+			},
+			"propertyType": "SEDAN",
+			"propertyStatus": "ACTIVE",
+			"carCountry": "UZBEKISTAN",
+			"propertyLocation": "GULISTAN",
+			"propertyAddress": "Guliston shahri",
+			"propertyTitle": "BYD Chazor 2018",
+			"propertyPrice": 9800,
+			"propertyPriceCurrency": "UZS",
+			"propertyPriceOriginal": 124000000,
+			"carBrand": "BYD",
+			"carModel": "Chazor",
+			"carYear": 2018,
+			"carMileage": 110900,
+			"carFuel": "HYBRID",
+			"carTransmission": "ROBOT",
+			"carColor": "Qizil",
+			"carEngine": 1.5,
+			"carTrim": "Base",
+			"carAccidentHistory": "NONE",
+			"carOwners": 3,
+			"carCustomsCleared": true,
+			"propertyViews": 2074,
+			"propertyLikes": 70,
+			"propertyComments": 0,
+			"propertyRank": 50,
+			"propertyDesc": "Mashina ideal holatda, hech qanday texnik muammo yo‘q. Yangi shinalar (2026 yil), qishki shinalar ham beriladi. Har 10 000 km da moy almashtirilgan, servis kitobchasi bor. Birinchi egasidan, hujjatlari joyida.",
+			"propertyBarter": false,
+			"propertyNegotiable": true,
+			"memberId": {
+				"$oid": "c1f891e3b38de1393284373c"
+			},
+			"createdAt": {
+				"$date": "2026-08-25T09:18:34.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-08-25T09:18:34.000Z"
+			},
+			"propertyImages": [
+				"uploads/property/c1f891e3b38de1393284373c_a25a78d9-d0ad-8226-04ae-6b2ff559e4c6.webp",
+				"uploads/property/c1f891e3b38de1393284373c_932a734c-ebbc-346f-88b8-b9fddf7aaabe.webp",
+				"uploads/property/c1f891e3b38de1393284373c_54eb7074-cd94-a90b-6937-e6dde5c37917.webp"
+			]
+		},
+		{
+			"_id": {
+				"$oid": "f2e4fc82773932893f3fedf3"
+			},
+			"propertyType": "SEDAN",
+			"propertyStatus": "ACTIVE",
+			"carCountry": "UZBEKISTAN",
+			"propertyLocation": "NAMANGAN",
+			"propertyAddress": "Namangan, Davlatobod tumani",
+			"propertyTitle": "Volkswagen Passat 2018",
+			"propertyPrice": 9200,
+			"propertyPriceCurrency": "USD",
+			"propertyPriceOriginal": 9200,
+			"carBrand": "VOLKSWAGEN",
+			"carModel": "Passat",
+			"carYear": 2018,
+			"carMileage": 142000,
+			"carFuel": "PETROL",
+			"carTransmission": "ROBOT",
+			"carColor": "Qora",
+			"carEngine": 1.8,
+			"carTrim": "Elegant",
+			"carVin": "58446347F8E542DBE",
+			"carAccidentHistory": "MINOR",
+			"carOwners": 1,
+			"carCustomsCleared": true,
+			"propertyViews": 220,
+			"propertyLikes": 50,
+			"propertyComments": 0,
+			"propertyRank": 32,
+			"propertyDesc": "Salon toza, chekilmagan, bolalar o‘tirmagan. Kraska toza, faqat bamper polirovka qilingan. Mashina ideal holatda, hech qanday texnik muammo yo‘q. Kichik kosmetik ta’mir qilingan (bamper).",
+			"propertyBarter": false,
+			"propertyNegotiable": true,
+			"memberId": {
+				"$oid": "b038b4fb93bdb6ef396f8f1c"
+			},
+			"createdAt": {
+				"$date": "2026-09-07T00:31:18.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-09-07T00:31:18.000Z"
+			},
+			"propertyImages": [
+				"uploads/property/b038b4fb93bdb6ef396f8f1c_a0893919-234b-f6d7-f2f8-0ca93cc77412.webp",
+				"uploads/property/b038b4fb93bdb6ef396f8f1c_d14763e2-128a-b946-d138-0bfc4ca8fbcd.webp",
+				"uploads/property/b038b4fb93bdb6ef396f8f1c_44d0f48a-c9ed-0e82-21e4-dde65ce84bb5.webp"
+			]
+		},
+		{
+			"_id": {
+				"$oid": "fef29cd349b59b058d6c3329"
+			},
+			"propertyType": "SEDAN",
+			"propertyStatus": "ACTIVE",
+			"carCountry": "SOUTH_KOREA",
+			"propertyAddress": "Seul, Janubiy Koreya",
+			"propertyTitle": "Hyundai Elantra 2021",
+			"propertyPrice": 12800,
+			"propertyPriceCurrency": "USD",
+			"propertyPriceOriginal": 12800,
+			"carBrand": "HYUNDAI",
+			"carModel": "Elantra",
+			"carYear": 2021,
+			"carMileage": 75900,
+			"carFuel": "PETROL",
+			"carTransmission": "CVT",
+			"carColor": "Kumush",
+			"carEngine": 1.6,
+			"carTrim": "Comfort",
+			"carAccidentHistory": "NONE",
+			"carOwners": 1,
+			"carCustomsCleared": false,
+			"carDeliveryDays": 24,
+			"carDeliveryCost": 2466,
+			"propertyViews": 1843,
+			"propertyLikes": 37,
+			"propertyComments": 0,
+			"propertyRank": 22,
+			"propertyDesc": "Salon toza, chekilmagan, bolalar o‘tirmagan. Tonirovka ruxsatnomasi bor.",
+			"propertyBarter": false,
+			"propertyNegotiable": false,
+			"memberId": {
+				"$oid": "bdd8e1884fc5dc4b961f0b8d"
+			},
+			"createdAt": {
+				"$date": "2026-09-03T16:40:30.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-09-03T16:40:30.000Z"
+			},
+			"propertyImages": [
+				"uploads/property/bdd8e1884fc5dc4b961f0b8d_3e5e7197-a423-b7c4-8e04-403ac2bbe0e0.webp",
+				"uploads/property/bdd8e1884fc5dc4b961f0b8d_c7a61a60-94ae-9f2e-8212-eced8291b9ff.webp",
+				"uploads/property/bdd8e1884fc5dc4b961f0b8d_0da4d254-893a-b8e6-37f0-97805aa837b3.webp"
+			]
+		},
+		{
+			"_id": {
+				"$oid": "519c38718932e61a42c18603"
+			},
+			"propertyType": "SEDAN",
+			"propertyStatus": "ACTIVE",
+			"carCountry": "UZBEKISTAN",
+			"propertyLocation": "BUKHARA",
+			"propertyAddress": "Buxoro, Navoiy shoh ko‘chasi",
+			"propertyTitle": "Chevrolet Nexia 3 2025",
+			"propertyPrice": 7100,
+			"propertyPriceCurrency": "USD",
+			"propertyPriceOriginal": 7100,
+			"carBrand": "CHEVROLET",
+			"carModel": "Nexia 3",
+			"carYear": 2025,
+			"carMileage": 15900,
+			"carFuel": "GAS",
+			"carTransmission": "MANUAL",
+			"carColor": "Qora",
+			"carEngine": 1.5,
+			"carTrim": "Base",
+			"carAccidentHistory": "NONE",
+			"carOwners": 1,
+			"carCustomsCleared": true,
+			"propertyViews": 1389,
+			"propertyLikes": 50,
+			"propertyComments": 0,
+			"propertyRank": 54,
+			"propertyDesc": "Ko‘rib, diagnostikadan o‘tkazishingiz mumkin. Salon toza, chekilmagan, bolalar o‘tirmagan. Kraska toza, faqat bamper polirovka qilingan.",
+			"propertyBarter": false,
+			"propertyNegotiable": false,
+			"memberId": {
+				"$oid": "17f58c2e563119814f782ce2"
+			},
+			"createdAt": {
+				"$date": "2026-09-28T08:58:30.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-09-28T08:58:30.000Z"
+			},
+			"propertyImages": [
+				"uploads/property/17f58c2e563119814f782ce2_dd2a1972-c110-83b0-d68f-dbd15afb1f2c.webp",
+				"uploads/property/17f58c2e563119814f782ce2_c4d594b6-5fef-b0ff-0d02-fbab2965a4a7.webp",
+				"uploads/property/17f58c2e563119814f782ce2_1baa6148-5cb2-10aa-a4f9-a5c4841e0899.webp"
+			]
+		},
+		{
+			"_id": {
+				"$oid": "e2b88bf604f891d38c9babd7"
+			},
+			"propertyType": "SEDAN",
+			"propertyStatus": "ACTIVE",
+			"carCountry": "UZBEKISTAN",
+			"propertyLocation": "FERGANA",
+			"propertyAddress": "Farg‘ona, Al-Farg‘oniy ko‘chasi",
+			"propertyTitle": "BYD Han 2026",
+			"propertyPrice": 36000,
+			"propertyPriceCurrency": "USD",
+			"propertyPriceOriginal": 36000,
+			"carBrand": "BYD",
+			"carModel": "Han",
+			"carYear": 2026,
+			"carMileage": 2337,
+			"carFuel": "ELECTRIC",
+			"carTransmission": "AUTOMATIC",
+			"carColor": "Bej",
+			"carTrim": "Comfort",
+			"carVin": "F972E9DE9951AE2DB",
+			"carAccidentHistory": "NONE",
+			"carOwners": 1,
+			"carCustomsCleared": true,
+			"propertyViews": 132,
+			"propertyLikes": 11,
+			"propertyComments": 0,
+			"propertyRank": 40,
+			"propertyDesc": "Salon toza, chekilmagan, bolalar o‘tirmagan. Konditsioner, multimedia, orqa kamera ishlaydi. Har 10 000 km da moy almashtirilgan, servis kitobchasi bor.",
+			"propertyBarter": false,
+			"propertyNegotiable": false,
+			"memberId": {
+				"$oid": "87df9d4110bbac51902b1163"
+			},
+			"createdAt": {
+				"$date": "2026-08-10T12:01:10.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-08-10T12:01:10.000Z"
+			},
+			"propertyImages": [
+				"uploads/property/87df9d4110bbac51902b1163_24a350ae-d427-4d0c-7f56-05a2b1424935.webp",
+				"uploads/property/87df9d4110bbac51902b1163_301859b6-1ad2-eb57-2996-8b19289af08c.webp",
+				"uploads/property/87df9d4110bbac51902b1163_56ee04a4-1510-f470-a625-80b6c47791f7.webp"
+			]
+		},
+		{
+			"_id": {
+				"$oid": "e5c227e383dc5863373621c9"
+			},
+			"propertyType": "SUV",
+			"propertyStatus": "ACTIVE",
+			"carCountry": "UAE",
+			"propertyAddress": "Dubay, BAA",
+			"propertyTitle": "Lexus RX 350 2017",
+			"propertyPrice": 20900,
+			"propertyPriceCurrency": "USD",
+			"propertyPriceOriginal": 20900,
+			"carBrand": "LEXUS",
+			"carModel": "RX 350",
+			"carYear": 2017,
+			"carMileage": 142300,
+			"carFuel": "PETROL",
+			"carTransmission": "AUTOMATIC",
+			"carColor": "Yashil",
+			"carEngine": 2.4,
+			"carTrim": "Comfort",
+			"carAccidentHistory": "MINOR",
+			"carOwners": 2,
+			"carCustomsCleared": false,
+			"carDeliveryDays": 21,
+			"carDeliveryCost": 2260,
+			"propertyViews": 1087,
+			"propertyLikes": 84,
+			"propertyComments": 0,
+			"propertyRank": 4,
+			"propertyDesc": "Birinchi egasidan, hujjatlari joyida. Har 10 000 km da moy almashtirilgan, servis kitobchasi bor. Kichik kosmetik ta’mir qilingan (bamper).",
+			"propertyBarter": false,
+			"propertyNegotiable": false,
+			"memberId": {
+				"$oid": "bdd8e1884fc5dc4b961f0b8d"
+			},
+			"createdAt": {
+				"$date": "2026-08-29T06:20:26.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-08-29T06:20:26.000Z"
+			},
+			"propertyImages": [
+				"uploads/property/bdd8e1884fc5dc4b961f0b8d_4f019e37-4b60-1b70-06b9-dc01515ddaf7.webp",
+				"uploads/property/bdd8e1884fc5dc4b961f0b8d_c37a701c-3573-5c3d-832d-d29e2a44ef5c.webp",
+				"uploads/property/bdd8e1884fc5dc4b961f0b8d_7a676a47-e649-8d1e-1d40-9c1d72399ba1.webp"
+			]
+		},
+		{
+			"_id": {
+				"$oid": "dff6c06dcc5cb846e84ce6a7"
+			},
+			"propertyType": "SEDAN",
+			"propertyStatus": "ACTIVE",
+			"carCountry": "UZBEKISTAN",
+			"propertyLocation": "URGENCH",
+			"propertyAddress": "Urganch, Al-Xorazmiy ko‘chasi",
+			"propertyTitle": "Chevrolet Nexia 3 2025",
+			"propertyPrice": 7000,
+			"propertyPriceCurrency": "UZS",
+			"propertyPriceOriginal": 89000000,
+			"carBrand": "CHEVROLET",
+			"carModel": "Nexia 3",
+			"carYear": 2025,
+			"carMileage": 13800,
+			"carFuel": "GAS",
+			"carTransmission": "MANUAL",
+			"carColor": "Yashil",
+			"carEngine": 1.5,
+			"carTrim": "Luxe",
+			"carVin": "40A350CB5B90AB3D7",
+			"carAccidentHistory": "SERIOUS",
+			"carOwners": 1,
+			"carCustomsCleared": true,
+			"propertyViews": 1959,
+			"propertyLikes": 38,
+			"propertyComments": 0,
+			"propertyRank": 11,
+			"propertyDesc": "Har 10 000 km da moy almashtirilgan, servis kitobchasi bor. Konditsioner, multimedia, orqa kamera ishlaydi. Avariyadan keyin tiklangan, hujjatlari bor.",
+			"propertyBarter": false,
+			"propertyNegotiable": true,
+			"memberId": {
+				"$oid": "8cdc039eeda711a8b849cf99"
+			},
+			"createdAt": {
+				"$date": "2026-10-12T07:28:01.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-10-12T07:28:01.000Z"
+			},
+			"propertyImages": [
+				"uploads/property/8cdc039eeda711a8b849cf99_382fa087-b463-2252-aa93-316de993c3ac.webp",
+				"uploads/property/8cdc039eeda711a8b849cf99_061f0712-4825-83da-db09-f8096836e30b.webp",
+				"uploads/property/8cdc039eeda711a8b849cf99_2e5d8ed7-aee9-82c3-bc2e-9e8753de458e.webp"
+			]
+		},
+		{
+			"_id": {
+				"$oid": "0c9866945baef5ad2c4a5156"
+			},
+			"propertyType": "SEDAN",
+			"propertyStatus": "ACTIVE",
+			"carCountry": "UZBEKISTAN",
+			"propertyLocation": "FERGANA",
+			"propertyAddress": "Farg‘ona, Al-Farg‘oniy ko‘chasi",
+			"propertyTitle": "Lada Vesta 2015",
+			"propertyPrice": 3000,
+			"propertyPriceCurrency": "USD",
+			"propertyPriceOriginal": 3000,
+			"carBrand": "LADA",
+			"carModel": "Vesta",
+			"carYear": 2015,
+			"carMileage": 193000,
+			"carFuel": "PETROL",
+			"carTransmission": "MANUAL",
+			"carColor": "Bej",
+			"carEngine": 1.6,
+			"carTrim": "Base",
+			"carVin": "FB0DCF984515A466B",
+			"carAccidentHistory": "NONE",
+			"carOwners": 1,
+			"carCustomsCleared": true,
+			"propertyViews": 2368,
+			"propertyLikes": 26,
+			"propertyComments": 0,
+			"propertyRank": 9,
+			"propertyDesc": "Yangi shinalar (2026 yil), qishki shinalar ham beriladi. Kraska toza, faqat bamper polirovka qilingan.",
+			"propertyBarter": false,
+			"propertyNegotiable": false,
+			"memberId": {
+				"$oid": "1b2579ec4d20d629a740278a"
+			},
+			"createdAt": {
+				"$date": "2026-10-29T07:31:59.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-10-29T07:31:59.000Z"
+			},
+			"propertyImages": [
+				"uploads/property/1b2579ec4d20d629a740278a_21c36c3a-7ac6-642d-b684-b0bdcb7d9c3d.webp",
+				"uploads/property/1b2579ec4d20d629a740278a_8ec94be9-fa4e-02ad-d085-3d10c30f50c1.webp",
+				"uploads/property/1b2579ec4d20d629a740278a_e1bbfef5-7296-744f-0a28-8bebd1988dc0.webp"
+			]
+		},
+		{
+			"_id": {
+				"$oid": "99012f03190f3cea1058c73e"
+			},
+			"propertyType": "SUV",
+			"propertyStatus": "ACTIVE",
+			"carCountry": "GERMANY",
+			"propertyAddress": "Myunxen, Germaniya",
+			"propertyTitle": "BMW X5 2016",
+			"propertyPrice": 26100,
+			"propertyPriceCurrency": "USD",
+			"propertyPriceOriginal": 26100,
+			"carBrand": "BMW",
+			"carModel": "X5",
+			"carYear": 2016,
+			"carMileage": 118300,
+			"carFuel": "PETROL",
+			"carTransmission": "AUTOMATIC",
+			"carColor": "Jigarrang",
+			"carEngine": 3,
+			"carTrim": "Base",
+			"carVin": "0D33B4E91596EE292",
+			"carAccidentHistory": "NONE",
+			"carOwners": 1,
+			"carCustomsCleared": false,
+			"carDeliveryDays": 19,
+			"carDeliveryCost": 2583,
+			"propertyViews": 1343,
+			"propertyLikes": 73,
+			"propertyComments": 0,
+			"propertyRank": 32,
+			"propertyDesc": "Konditsioner, multimedia, orqa kamera ishlaydi. Har 10 000 km da moy almashtirilgan, servis kitobchasi bor. Birinchi egasidan, hujjatlari joyida.",
+			"propertyBarter": false,
+			"propertyNegotiable": false,
+			"memberId": {
+				"$oid": "bdd8e1884fc5dc4b961f0b8d"
+			},
+			"createdAt": {
+				"$date": "2026-08-25T15:09:05.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-08-25T15:09:05.000Z"
+			},
+			"propertyImages": [
+				"uploads/property/bdd8e1884fc5dc4b961f0b8d_006914e7-7155-4c7b-142f-dd28847df9a2.webp",
+				"uploads/property/bdd8e1884fc5dc4b961f0b8d_b0963cc4-e454-3266-fd99-7405eef153cd.webp",
+				"uploads/property/bdd8e1884fc5dc4b961f0b8d_1866c750-443c-0de9-9046-61d53559ce2d.webp"
+			]
+		},
+		{
+			"_id": {
+				"$oid": "e59bce7349a252dc6ab69dd2"
+			},
+			"propertyType": "SUV",
+			"propertyStatus": "ACTIVE",
+			"carCountry": "UZBEKISTAN",
+			"propertyLocation": "URGENCH",
+			"propertyAddress": "Urganch, Al-Xorazmiy ko‘chasi",
+			"propertyTitle": "Lexus RX 350 2022",
+			"propertyPrice": 43400,
+			"propertyPriceCurrency": "USD",
+			"propertyPriceOriginal": 43400,
+			"carBrand": "LEXUS",
+			"carModel": "RX 350",
+			"carYear": 2022,
+			"carMileage": 63600,
+			"carFuel": "PETROL",
+			"carTransmission": "AUTOMATIC",
+			"carColor": "Kumush",
+			"carEngine": 2.4,
+			"carTrim": "Luxe",
+			"carVin": "B19D7C459780A9D44",
+			"carAccidentHistory": "NONE",
+			"carOwners": 2,
+			"carCustomsCleared": true,
+			"propertyViews": 98,
+			"propertyLikes": 82,
+			"propertyComments": 0,
+			"propertyRank": 0,
+			"propertyDesc": "Tonirovka ruxsatnomasi bor. Mashina ideal holatda, hech qanday texnik muammo yo‘q. Kraska toza, faqat bamper polirovka qilingan. Har 10 000 km da moy almashtirilgan, servis kitobchasi bor.",
+			"propertyBarter": false,
+			"propertyNegotiable": true,
+			"memberId": {
+				"$oid": "466d5718da75713a4ef8c719"
+			},
+			"createdAt": {
+				"$date": "2026-08-13T19:50:47.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-08-13T19:50:47.000Z"
+			},
+			"propertyImages": [
+				"uploads/property/466d5718da75713a4ef8c719_9b51eddf-8ccd-8257-cb18-b1ec9da5f33b.webp",
+				"uploads/property/466d5718da75713a4ef8c719_5ee6b38d-5452-45df-b95d-b32cb3f621f4.webp",
+				"uploads/property/466d5718da75713a4ef8c719_c739f08c-57e4-51b2-1b40-1fa0336e5e9f.webp"
+			]
+		},
+		{
+			"_id": {
+				"$oid": "cddbfaf9f7077828be5084b4"
+			},
+			"propertyType": "SUV",
+			"propertyStatus": "ACTIVE",
+			"carCountry": "UZBEKISTAN",
+			"propertyLocation": "GULISTAN",
+			"propertyAddress": "Guliston shahri",
+			"propertyTitle": "Hyundai Tucson 2016",
+			"propertyPrice": 10600,
+			"propertyPriceCurrency": "USD",
+			"propertyPriceOriginal": 10600,
+			"carBrand": "HYUNDAI",
+			"carModel": "Tucson",
+			"carYear": 2016,
+			"carMileage": 132300,
+			"carFuel": "PETROL",
+			"carTransmission": "AUTOMATIC",
+			"carColor": "Yashil",
+			"carEngine": 2,
+			"carTrim": "Base",
+			"carVin": "99131673BB9FE48A9",
+			"carAccidentHistory": "NONE",
+			"carOwners": 1,
+			"carCustomsCleared": true,
+			"propertyViews": 418,
+			"propertyLikes": 27,
+			"propertyComments": 0,
+			"propertyRank": 18,
+			"propertyDesc": "Ko‘rib, diagnostikadan o‘tkazishingiz mumkin. Konditsioner, multimedia, orqa kamera ishlaydi.",
+			"propertyBarter": false,
+			"propertyNegotiable": false,
+			"memberId": {
+				"$oid": "17f58c2e563119814f782ce2"
+			},
+			"createdAt": {
+				"$date": "2026-10-19T19:13:32.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-10-19T19:13:32.000Z"
+			},
+			"propertyImages": [
+				"uploads/property/17f58c2e563119814f782ce2_da8242ed-d905-ddcf-5194-c31e873cd66c.webp",
+				"uploads/property/17f58c2e563119814f782ce2_70c3ea73-38f2-095a-aa16-39d55aa786cb.webp",
+				"uploads/property/17f58c2e563119814f782ce2_3e07fd61-62b7-e782-a1ea-dfaeab9c83fc.webp"
+			]
+		},
+		{
+			"_id": {
+				"$oid": "c5c8222629cd37e373af8ada"
+			},
+			"propertyType": "SEDAN",
+			"propertyStatus": "ACTIVE",
+			"carCountry": "UAE",
+			"propertyAddress": "Dubay, BAA",
+			"propertyTitle": "Mercedes-Benz E-Class 2023",
+			"propertyPrice": 35000,
+			"propertyPriceCurrency": "USD",
+			"propertyPriceOriginal": 35000,
+			"carBrand": "MERCEDES_BENZ",
+			"carModel": "E-Class",
+			"carYear": 2023,
+			"carMileage": 29600,
+			"carFuel": "PETROL",
+			"carTransmission": "AUTOMATIC",
+			"carColor": "Ko‘k",
+			"carEngine": 2,
+			"carTrim": "Sport",
+			"carAccidentHistory": "SERIOUS",
+			"carOwners": 1,
+			"carCustomsCleared": false,
+			"carDeliveryDays": 14,
+			"carDeliveryCost": 1830,
+			"propertyViews": 1613,
+			"propertyLikes": 59,
+			"propertyComments": 0,
+			"propertyRank": 27,
+			"propertyDesc": "Salon toza, chekilmagan, bolalar o‘tirmagan. Mashina ideal holatda, hech qanday texnik muammo yo‘q. Avariyadan keyin tiklangan, hujjatlari bor.",
+			"propertyBarter": false,
+			"propertyNegotiable": false,
+			"memberId": {
+				"$oid": "2c4a420fb5858ea22038a2c8"
+			},
+			"createdAt": {
+				"$date": "2026-10-30T04:23:51.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-10-30T04:23:51.000Z"
+			},
+			"propertyImages": [
+				"uploads/property/2c4a420fb5858ea22038a2c8_a77bec93-6d11-a647-153f-fbac6f74d72c.webp",
+				"uploads/property/2c4a420fb5858ea22038a2c8_dc9c5eaa-5f81-f6dd-d7f9-b67afcf5359f.webp",
+				"uploads/property/2c4a420fb5858ea22038a2c8_98e5fafc-ad0d-e755-7f8a-72d2e7d2fe27.webp"
+			]
+		},
+		{
+			"_id": {
+				"$oid": "24f2bfd226c4bd213e73ad70"
+			},
+			"propertyType": "SUV",
+			"propertyStatus": "ACTIVE",
+			"carCountry": "UZBEKISTAN",
+			"propertyLocation": "FERGANA",
+			"propertyAddress": "Farg‘ona, Al-Farg‘oniy ko‘chasi",
+			"propertyTitle": "Chevrolet Tracker 2 2019",
+			"propertyPrice": 9500,
+			"propertyPriceCurrency": "USD",
+			"propertyPriceOriginal": 9500,
+			"carBrand": "CHEVROLET",
+			"carModel": "Tracker 2",
+			"carYear": 2019,
+			"carMileage": 86300,
+			"carFuel": "PETROL",
+			"carTransmission": "AUTOMATIC",
+			"carColor": "Yashil",
+			"carEngine": 1.2,
+			"carTrim": "Full",
+			"carAccidentHistory": "NONE",
+			"carOwners": 2,
+			"carCustomsCleared": true,
+			"propertyViews": 1650,
+			"propertyLikes": 50,
+			"propertyComments": 0,
+			"propertyRank": 50,
+			"propertyDesc": "Konditsioner, multimedia, orqa kamera ishlaydi. Shahar ichida yurilgan, trassaga kam chiqilgan.",
+			"propertyBarter": true,
+			"propertyNegotiable": true,
+			"memberId": {
+				"$oid": "1b2579ec4d20d629a740278a"
+			},
+			"createdAt": {
+				"$date": "2026-08-03T03:03:46.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-08-03T03:03:46.000Z"
+			},
+			"propertyImages": [
+				"uploads/property/1b2579ec4d20d629a740278a_20952d17-8f43-5207-1b36-9858ae065776.webp",
+				"uploads/property/1b2579ec4d20d629a740278a_d158302c-fac1-6d2f-b258-48fb7734a54c.webp",
+				"uploads/property/1b2579ec4d20d629a740278a_e1abd1a5-ab7a-9040-192b-40218969c9e9.webp"
+			]
+		},
+		{
+			"_id": {
+				"$oid": "43e076bbe7af2e496a1a0c2f"
+			},
+			"propertyType": "SUV",
+			"propertyStatus": "ACTIVE",
+			"carCountry": "UZBEKISTAN",
+			"propertyLocation": "NUKUS",
+			"propertyAddress": "Nukus, Doslik guzari",
+			"propertyTitle": "Lexus RX 350 2025",
+			"propertyPrice": 56300,
+			"propertyPriceCurrency": "UZS",
+			"propertyPriceOriginal": 715000000,
+			"carBrand": "LEXUS",
+			"carModel": "RX 350",
+			"carYear": 2025,
+			"carMileage": 19000,
+			"carFuel": "PETROL",
+			"carTransmission": "AUTOMATIC",
+			"carColor": "Qora",
+			"carEngine": 2.4,
+			"carTrim": "Sport",
+			"carVin": "86E43C763D13748BB",
+			"carAccidentHistory": "NONE",
+			"carOwners": 1,
+			"carCustomsCleared": true,
+			"propertyViews": 873,
+			"propertyLikes": 59,
+			"propertyComments": 0,
+			"propertyRank": 49,
+			"propertyDesc": "Konditsioner, multimedia, orqa kamera ishlaydi. Birinchi egasidan, hujjatlari joyida.",
+			"propertyBarter": false,
+			"propertyNegotiable": true,
+			"memberId": {
+				"$oid": "4d3564b868a59688de4651fc"
+			},
+			"createdAt": {
+				"$date": "2026-08-05T20:34:52.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-08-05T20:34:52.000Z"
+			},
+			"propertyImages": [
+				"uploads/property/4d3564b868a59688de4651fc_03f5269f-c978-bcd4-751a-f3a7f1b84319.webp",
+				"uploads/property/4d3564b868a59688de4651fc_ba06e46c-e8be-9d31-7849-66fef929b5ba.webp",
+				"uploads/property/4d3564b868a59688de4651fc_00f2ca12-9731-1e54-bc27-5dfc3e189040.webp"
+			]
+		},
+		{
+			"_id": {
+				"$oid": "0d697612c6f2a94a859ad1e8"
+			},
+			"propertyType": "SEDAN",
+			"propertyStatus": "ACTIVE",
+			"carCountry": "JAPAN",
+			"propertyAddress": "Yokogama, Yaponiya",
+			"propertyTitle": "Toyota Corolla 2016",
+			"propertyPrice": 7000,
+			"propertyPriceCurrency": "USD",
+			"propertyPriceOriginal": 7000,
+			"carBrand": "TOYOTA",
+			"carModel": "Corolla",
+			"carYear": 2016,
+			"carMileage": 156400,
+			"carFuel": "HYBRID",
+			"carTransmission": "CVT",
+			"carColor": "Qora",
+			"carEngine": 1.8,
+			"carTrim": "Comfort",
+			"carAccidentHistory": "SERIOUS",
+			"carOwners": 1,
+			"carCustomsCleared": false,
+			"carDeliveryDays": 36,
+			"carDeliveryCost": 2581,
+			"propertyViews": 1431,
+			"propertyLikes": 8,
+			"propertyComments": 0,
+			"propertyRank": 5,
+			"propertyDesc": "Har 10 000 km da moy almashtirilgan, servis kitobchasi bor. Ko‘rib, diagnostikadan o‘tkazishingiz mumkin. Birinchi egasidan, hujjatlari joyida. Avariyadan keyin tiklangan, hujjatlari bor.",
+			"propertyBarter": false,
+			"propertyNegotiable": true,
+			"memberId": {
+				"$oid": "32feac355c43eda8b50fe00d"
+			},
+			"createdAt": {
+				"$date": "2026-09-14T12:41:31.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-09-14T12:41:31.000Z"
+			},
+			"propertyImages": [
+				"uploads/property/32feac355c43eda8b50fe00d_9e5da286-7052-7fa0-a61d-8a514ce12fa9.webp",
+				"uploads/property/32feac355c43eda8b50fe00d_22c68da9-48be-021f-84e1-bdbbaa0283af.webp",
+				"uploads/property/32feac355c43eda8b50fe00d_c666b0d5-d1bb-64ea-e4be-b188a954b1e6.webp"
+			]
+		},
+		{
+			"_id": {
+				"$oid": "85a8fd060a63c4f70df5682c"
+			},
+			"propertyType": "SEDAN",
+			"propertyStatus": "ACTIVE",
+			"carCountry": "UZBEKISTAN",
+			"propertyLocation": "TERMEZ",
+			"propertyAddress": "Termiz, At-Termiziy ko‘chasi",
+			"propertyTitle": "Chery Arrizo 8 2019",
+			"propertyPrice": 9400,
+			"propertyPriceCurrency": "UZS",
+			"propertyPriceOriginal": 119000000,
+			"carBrand": "CHERY",
+			"carModel": "Arrizo 8",
+			"carYear": 2019,
+			"carMileage": 76400,
+			"carFuel": "PETROL",
+			"carTransmission": "ROBOT",
+			"carColor": "Qizil",
+			"carEngine": 1.6,
+			"carTrim": "Base",
+			"carVin": "20B51CD2F4F0F5940",
+			"carAccidentHistory": "NONE",
+			"carOwners": 2,
+			"carCustomsCleared": true,
+			"propertyViews": 277,
+			"propertyLikes": 39,
+			"propertyComments": 0,
+			"propertyRank": 2,
+			"propertyDesc": "Har 10 000 km da moy almashtirilgan, servis kitobchasi bor. Yangi shinalar (2026 yil), qishki shinalar ham beriladi. Ko‘rib, diagnostikadan o‘tkazishingiz mumkin.",
+			"propertyBarter": false,
+			"propertyNegotiable": true,
+			"memberId": {
+				"$oid": "87df9d4110bbac51902b1163"
+			},
+			"createdAt": {
+				"$date": "2026-10-11T06:31:04.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-10-11T06:31:04.000Z"
+			},
+			"propertyImages": [
+				"uploads/property/87df9d4110bbac51902b1163_e2ecad68-c5ff-b7a5-0014-3631c4c27745.webp",
+				"uploads/property/87df9d4110bbac51902b1163_f445f72c-a141-f5f6-e267-e1839e0613ec.webp",
+				"uploads/property/87df9d4110bbac51902b1163_f1f8b0fe-1c81-d940-2bfc-89f816bd0a5b.webp"
+			]
+		},
+		{
+			"_id": {
+				"$oid": "cff8b86adfaa54888cd068ca"
+			},
+			"propertyType": "SUV",
+			"propertyStatus": "ACTIVE",
+			"carCountry": "UZBEKISTAN",
+			"propertyLocation": "JIZZAKH",
+			"propertyAddress": "Jizzax, Sharof Rashidov ko‘chasi",
+			"propertyTitle": "Toyota Land Cruiser 300 2024",
+			"propertyPrice": 73700,
+			"propertyPriceCurrency": "USD",
+			"propertyPriceOriginal": 73700,
+			"carBrand": "TOYOTA",
+			"carModel": "Land Cruiser 300",
+			"carYear": 2024,
+			"carMileage": 21700,
+			"carFuel": "DIESEL",
+			"carTransmission": "AUTOMATIC",
+			"carColor": "Bej",
+			"carEngine": 3.3,
+			"carTrim": "Sport",
+			"carVin": "B8ABE4E636023D067",
+			"carAccidentHistory": "NONE",
+			"carOwners": 1,
+			"carCustomsCleared": true,
+			"propertyViews": 2357,
+			"propertyLikes": 80,
+			"propertyComments": 0,
+			"propertyRank": 17,
+			"propertyDesc": "Yangi shinalar (2026 yil), qishki shinalar ham beriladi. Konditsioner, multimedia, orqa kamera ishlaydi.",
+			"propertyBarter": false,
+			"propertyNegotiable": true,
+			"memberId": {
+				"$oid": "466d5718da75713a4ef8c719"
+			},
+			"createdAt": {
+				"$date": "2026-08-31T16:51:05.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-08-31T16:51:05.000Z"
+			},
+			"propertyImages": [
+				"uploads/property/466d5718da75713a4ef8c719_e626a7df-7e92-8019-1c1c-57f5a6a7c7ba.webp",
+				"uploads/property/466d5718da75713a4ef8c719_156897f5-109e-73c7-1624-9e0a2e25d61a.webp",
+				"uploads/property/466d5718da75713a4ef8c719_c8ad63a7-e54c-bb10-a33f-eba3a9f0cbdd.webp"
+			]
+		},
+		{
+			"_id": {
+				"$oid": "f5a7bc40971f26db2cbf105c"
+			},
+			"propertyType": "SUV",
+			"propertyStatus": "ACTIVE",
+			"carCountry": "GERMANY",
+			"propertyAddress": "Berlin, Germaniya",
+			"propertyTitle": "Audi Q7 2021",
+			"propertyPrice": 38700,
+			"propertyPriceCurrency": "USD",
+			"propertyPriceOriginal": 38700,
+			"carBrand": "AUDI",
+			"carModel": "Q7",
+			"carYear": 2021,
+			"carMileage": 88800,
+			"carFuel": "DIESEL",
+			"carTransmission": "AUTOMATIC",
+			"carColor": "Ko‘k",
+			"carEngine": 3,
+			"carTrim": "Comfort",
+			"carAccidentHistory": "NONE",
+			"carOwners": 2,
+			"carCustomsCleared": false,
+			"carDeliveryDays": 23,
+			"carDeliveryCost": 2588,
+			"propertyViews": 1883,
+			"propertyLikes": 22,
+			"propertyComments": 0,
+			"propertyRank": 54,
+			"propertyDesc": "Kraska toza, faqat bamper polirovka qilingan. Mashina ideal holatda, hech qanday texnik muammo yo‘q. Salon toza, chekilmagan, bolalar o‘tirmagan.",
+			"propertyBarter": false,
+			"propertyNegotiable": true,
+			"memberId": {
+				"$oid": "32feac355c43eda8b50fe00d"
+			},
+			"createdAt": {
+				"$date": "2026-09-25T01:20:48.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-09-25T01:20:48.000Z"
+			},
+			"propertyImages": [
+				"uploads/property/32feac355c43eda8b50fe00d_d685e0d1-ac39-57de-e5c6-e6bc18aa1207.webp",
+				"uploads/property/32feac355c43eda8b50fe00d_958280bd-f3eb-19cc-8bd8-49689721357a.webp",
+				"uploads/property/32feac355c43eda8b50fe00d_7d4af098-ce2e-4a5d-3d2f-7f098faee97e.webp"
+			]
+		},
+		{
+			"_id": {
+				"$oid": "495e2fe95e114400a9ae11a3"
+			},
+			"propertyType": "SEDAN",
+			"propertyStatus": "ACTIVE",
+			"carCountry": "UZBEKISTAN",
+			"propertyLocation": "TASHKENT",
+			"propertyAddress": "Toshkent, Mirzo Ulug‘bek tumani",
+			"propertyTitle": "Lada Granta 2026",
+			"propertyPrice": 7100,
+			"propertyPriceCurrency": "UZS",
+			"propertyPriceOriginal": 90000000,
+			"carBrand": "LADA",
+			"carModel": "Granta",
+			"carYear": 2026,
+			"carMileage": 906,
+			"carFuel": "PETROL",
+			"carTransmission": "MANUAL",
+			"carColor": "Kulrang",
+			"carEngine": 1.6,
+			"carTrim": "Luxe",
+			"carAccidentHistory": "NONE",
+			"carOwners": 1,
+			"carCustomsCleared": true,
+			"propertyViews": 2203,
+			"propertyLikes": 63,
+			"propertyComments": 0,
+			"propertyRank": 22,
+			"propertyDesc": "Birinchi egasidan, hujjatlari joyida.",
+			"propertyBarter": false,
+			"propertyNegotiable": true,
+			"memberId": {
+				"$oid": "1b2579ec4d20d629a740278a"
+			},
+			"createdAt": {
+				"$date": "2026-10-16T18:36:26.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-10-16T18:36:26.000Z"
+			},
+			"propertyImages": [
+				"uploads/property/1b2579ec4d20d629a740278a_d24330e9-d94a-c2b3-3fd3-a82799288bba.webp",
+				"uploads/property/1b2579ec4d20d629a740278a_b66c767a-04c0-9aad-e267-8e4551ae186f.webp",
+				"uploads/property/1b2579ec4d20d629a740278a_0cdb64b1-3f55-f306-2cfb-d374e649e4df.webp"
+			]
+		},
+		{
+			"_id": {
+				"$oid": "7522fe1d74781096b566b684"
+			},
+			"propertyType": "SEDAN",
+			"propertyStatus": "ACTIVE",
+			"carCountry": "UZBEKISTAN",
+			"propertyLocation": "NAMANGAN",
+			"propertyAddress": "Namangan, Davlatobod tumani",
+			"propertyTitle": "Chevrolet Nexia 3 2014",
+			"propertyPrice": 2500,
+			"propertyPriceCurrency": "UZS",
+			"propertyPriceOriginal": 32000000,
+			"carBrand": "CHEVROLET",
+			"carModel": "Nexia 3",
+			"carYear": 2014,
+			"carMileage": 154500,
+			"carFuel": "GAS",
+			"carTransmission": "MANUAL",
+			"carColor": "Bej",
+			"carEngine": 1.5,
+			"carTrim": "Luxe",
+			"carVin": "AE3974914973927CB",
+			"carAccidentHistory": "MINOR",
+			"carOwners": 2,
+			"carCustomsCleared": true,
+			"propertyViews": 705,
+			"propertyLikes": 30,
+			"propertyComments": 0,
+			"propertyRank": 60,
+			"propertyDesc": "Kraska toza, faqat bamper polirovka qilingan. Shahar ichida yurilgan, trassaga kam chiqilgan. Kichik kosmetik ta’mir qilingan (bamper).",
+			"propertyBarter": true,
+			"propertyNegotiable": false,
+			"memberId": {
+				"$oid": "2c4a420fb5858ea22038a2c8"
+			},
+			"createdAt": {
+				"$date": "2026-10-01T11:05:34.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-10-01T11:05:34.000Z"
+			},
+			"propertyImages": [
+				"uploads/property/2c4a420fb5858ea22038a2c8_3fa52e99-1e02-fb34-8c53-89e7d2a85664.webp",
+				"uploads/property/2c4a420fb5858ea22038a2c8_170a9d80-3e79-9726-da49-30321b483a77.webp",
+				"uploads/property/2c4a420fb5858ea22038a2c8_d6db96aa-1787-4106-eead-078c36e4da8b.webp"
+			]
+		},
+		{
+			"_id": {
+				"$oid": "cf37ba1f269765b225f1334f"
+			},
+			"propertyType": "SEDAN",
+			"propertyStatus": "ACTIVE",
+			"carCountry": "GERMANY",
+			"propertyAddress": "Myunxen, Germaniya",
+			"propertyTitle": "BMW 5 Series 2019",
+			"propertyPrice": 25400,
+			"propertyPriceCurrency": "USD",
+			"propertyPriceOriginal": 25400,
+			"carBrand": "BMW",
+			"carModel": "5 Series",
+			"carYear": 2019,
+			"carMileage": 68100,
+			"carFuel": "PETROL",
+			"carTransmission": "AUTOMATIC",
+			"carColor": "Ko‘k",
+			"carEngine": 2,
+			"carTrim": "Elegant",
+			"carVin": "B6246B482C06E2EE2",
+			"carAccidentHistory": "SERIOUS",
+			"carOwners": 1,
+			"carCustomsCleared": false,
+			"carDeliveryDays": 16,
+			"carDeliveryCost": 2629,
+			"propertyViews": 1418,
+			"propertyLikes": 57,
+			"propertyComments": 0,
+			"propertyRank": 20,
+			"propertyDesc": "Mashina ideal holatda, hech qanday texnik muammo yo‘q. Kraska toza, faqat bamper polirovka qilingan. Konditsioner, multimedia, orqa kamera ishlaydi. Avariyadan keyin tiklangan, hujjatlari bor.",
+			"propertyBarter": false,
+			"propertyNegotiable": true,
+			"memberId": {
+				"$oid": "32feac355c43eda8b50fe00d"
+			},
+			"createdAt": {
+				"$date": "2026-10-18T02:39:15.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-10-18T02:39:15.000Z"
+			},
+			"propertyImages": [
+				"uploads/property/32feac355c43eda8b50fe00d_b33610d0-b702-c474-b5c2-a6a5b5c782de.webp",
+				"uploads/property/32feac355c43eda8b50fe00d_5637fc0e-5796-9917-934b-540893b07310.webp",
+				"uploads/property/32feac355c43eda8b50fe00d_0fbb56e2-806c-c451-bf6e-a65b9ed2ba20.webp"
+			]
+		},
+		{
+			"_id": {
+				"$oid": "b57a4d2a284f163bcd3f4e80"
+			},
+			"propertyType": "SUV",
+			"propertyStatus": "ACTIVE",
+			"carCountry": "UZBEKISTAN",
+			"propertyLocation": "SAMARKAND",
+			"propertyAddress": "Samarqand avtobozori",
+			"propertyTitle": "Nissan X-Trail 2019",
+			"propertyPrice": 12000,
+			"propertyPriceCurrency": "USD",
+			"propertyPriceOriginal": 12000,
+			"carBrand": "NISSAN",
+			"carModel": "X-Trail",
+			"carYear": 2019,
+			"carMileage": 73600,
+			"carFuel": "PETROL",
+			"carTransmission": "CVT",
+			"carColor": "Ko‘k",
+			"carEngine": 2.5,
+			"carTrim": "Full",
+			"carVin": "34D776785401BA8F1",
+			"carAccidentHistory": "NONE",
+			"carOwners": 1,
+			"carCustomsCleared": true,
+			"propertyViews": 1840,
+			"propertyLikes": 47,
+			"propertyComments": 0,
+			"propertyRank": 41,
+			"propertyDesc": "Salon toza, chekilmagan, bolalar o‘tirmagan. Birinchi egasidan, hujjatlari joyida.",
+			"propertyBarter": false,
+			"propertyNegotiable": false,
+			"memberId": {
+				"$oid": "1b2579ec4d20d629a740278a"
+			},
+			"createdAt": {
+				"$date": "2026-08-31T22:08:26.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-08-31T22:08:26.000Z"
+			},
+			"propertyImages": [
+				"uploads/property/1b2579ec4d20d629a740278a_9f906b20-0c57-ee32-d837-13e9a1be11a2.webp",
+				"uploads/property/1b2579ec4d20d629a740278a_72ee9736-dd9a-4539-ccb3-de488d97382b.webp",
+				"uploads/property/1b2579ec4d20d629a740278a_8bc968f5-da86-8693-649a-da59f8d71af0.webp"
+			]
+		},
+		{
+			"_id": {
+				"$oid": "e2e8fd1c6f3c304cfa971f81"
+			},
+			"propertyType": "SUV",
+			"propertyStatus": "ACTIVE",
+			"carCountry": "UZBEKISTAN",
+			"propertyLocation": "TERMEZ",
+			"propertyAddress": "Termiz, At-Termiziy ko‘chasi",
+			"propertyTitle": "Haval Jolion 2024",
+			"propertyPrice": 15800,
+			"propertyPriceCurrency": "USD",
+			"propertyPriceOriginal": 15800,
+			"carBrand": "HAVAL",
+			"carModel": "Jolion",
+			"carYear": 2024,
+			"carMileage": 22900,
+			"carFuel": "PETROL",
+			"carTransmission": "ROBOT",
+			"carColor": "Kulrang",
+			"carEngine": 1.5,
+			"carTrim": "Comfort",
+			"carVin": "6ED0CB9CF3BB4B693",
+			"carAccidentHistory": "NONE",
+			"carOwners": 1,
+			"carCustomsCleared": true,
+			"propertyViews": 1775,
+			"propertyLikes": 56,
+			"propertyComments": 0,
+			"propertyRank": 18,
+			"propertyDesc": "Shahar ichida yurilgan, trassaga kam chiqilgan. Tonirovka ruxsatnomasi bor. Salon toza, chekilmagan, bolalar o‘tirmagan. Yangi shinalar (2026 yil), qishki shinalar ham beriladi.",
+			"propertyBarter": false,
+			"propertyNegotiable": false,
+			"memberId": {
+				"$oid": "c67c48c309729f38445d3f1e"
+			},
+			"createdAt": {
+				"$date": "2026-09-04T22:34:32.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-09-04T22:34:32.000Z"
+			},
+			"propertyImages": [
+				"uploads/property/c67c48c309729f38445d3f1e_17aa786c-e488-36c5-ec85-8486dd041c65.webp",
+				"uploads/property/c67c48c309729f38445d3f1e_d66d3c96-42c0-a688-622e-54853edf828b.webp",
+				"uploads/property/c67c48c309729f38445d3f1e_ca846976-28f5-c6f6-30e8-9f84d6653faf.webp"
+			]
+		},
+		{
+			"_id": {
+				"$oid": "e563403ed8f2d0d6b0e5206c"
+			},
+			"propertyType": "SEDAN",
+			"propertyStatus": "ACTIVE",
+			"carCountry": "SOUTH_KOREA",
+			"propertyAddress": "Seul, Janubiy Koreya",
+			"propertyTitle": "Hyundai Elantra 2019",
+			"propertyPrice": 9200,
+			"propertyPriceCurrency": "USD",
+			"propertyPriceOriginal": 9200,
+			"carBrand": "HYUNDAI",
+			"carModel": "Elantra",
+			"carYear": 2019,
+			"carMileage": 82400,
+			"carFuel": "PETROL",
+			"carTransmission": "CVT",
+			"carColor": "Kumush",
+			"carEngine": 1.6,
+			"carTrim": "Comfort",
+			"carVin": "779879B9A9012DE07",
+			"carAccidentHistory": "NONE",
+			"carOwners": 2,
+			"carCustomsCleared": false,
+			"carDeliveryDays": 22,
+			"carDeliveryCost": 2192,
+			"propertyViews": 956,
+			"propertyLikes": 32,
+			"propertyComments": 0,
+			"propertyRank": 24,
+			"propertyDesc": "Kraska toza, faqat bamper polirovka qilingan. Salon toza, chekilmagan, bolalar o‘tirmagan. Shahar ichida yurilgan, trassaga kam chiqilgan. Ko‘rib, diagnostikadan o‘tkazishingiz mumkin.",
+			"propertyBarter": false,
+			"propertyNegotiable": true,
+			"memberId": {
+				"$oid": "32feac355c43eda8b50fe00d"
+			},
+			"createdAt": {
+				"$date": "2026-10-01T22:48:12.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-10-01T22:48:12.000Z"
+			},
+			"propertyImages": [
+				"uploads/property/32feac355c43eda8b50fe00d_c3a83f18-68c6-aca2-ea79-ad3b55e43ce5.webp",
+				"uploads/property/32feac355c43eda8b50fe00d_d42e9eb8-356a-8bba-0cfb-c380cbbb9c21.webp",
+				"uploads/property/32feac355c43eda8b50fe00d_52df4f73-4330-8e8c-c761-15315d17eef5.webp"
+			]
+		},
+		{
+			"_id": {
+				"$oid": "19a6515d95075b2f8cc9f35a"
+			},
+			"propertyType": "HATCHBACK",
+			"propertyStatus": "ACTIVE",
+			"carCountry": "UZBEKISTAN",
+			"propertyLocation": "TASHKENT",
+			"propertyAddress": "Toshkent, Yunusobod tumani",
+			"propertyTitle": "BYD Seagull 2019",
+			"propertyPrice": 6300,
+			"propertyPriceCurrency": "USD",
+			"propertyPriceOriginal": 6300,
+			"carBrand": "BYD",
+			"carModel": "Seagull",
+			"carYear": 2019,
+			"carMileage": 122400,
+			"carFuel": "ELECTRIC",
+			"carTransmission": "AUTOMATIC",
+			"carColor": "Yashil",
+			"carTrim": "Premier",
+			"carVin": "FD86B54776E9BDEE2",
+			"carAccidentHistory": "NONE",
+			"carOwners": 2,
+			"carCustomsCleared": true,
+			"propertyViews": 144,
+			"propertyLikes": 16,
+			"propertyComments": 0,
+			"propertyRank": 3,
+			"propertyDesc": "Shahar ichida yurilgan, trassaga kam chiqilgan. Kraska toza, faqat bamper polirovka qilingan.",
+			"propertyBarter": false,
+			"propertyNegotiable": false,
+			"memberId": {
+				"$oid": "1b2579ec4d20d629a740278a"
+			},
+			"createdAt": {
+				"$date": "2026-08-20T14:09:40.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-08-20T14:09:40.000Z"
+			},
+			"propertyImages": [
+				"uploads/property/1b2579ec4d20d629a740278a_0a60d44f-113c-5686-624c-b022bef7dfdc.webp",
+				"uploads/property/1b2579ec4d20d629a740278a_9f79ecb8-e2c7-5dc0-c21e-bc2057b6f49b.webp",
+				"uploads/property/1b2579ec4d20d629a740278a_d2c5b616-9095-2e30-e5e2-db59ef79068c.webp"
+			]
+		},
+		{
+			"_id": {
+				"$oid": "6317ff6f08a8f632d5f1b921"
+			},
+			"propertyType": "SEDAN",
+			"propertyStatus": "ACTIVE",
+			"carCountry": "UZBEKISTAN",
+			"propertyLocation": "SAMARKAND",
+			"propertyAddress": "Samarqand avtobozori",
+			"propertyTitle": "BYD Han 2017",
+			"propertyPrice": 14800,
+			"propertyPriceCurrency": "USD",
+			"propertyPriceOriginal": 14800,
+			"carBrand": "BYD",
+			"carModel": "Han",
+			"carYear": 2017,
+			"carMileage": 85500,
+			"carFuel": "ELECTRIC",
+			"carTransmission": "AUTOMATIC",
+			"carColor": "Kumush",
+			"carTrim": "Premier",
+			"carVin": "F39487157D8127A1F",
+			"carAccidentHistory": "NONE",
+			"carOwners": 3,
+			"carCustomsCleared": true,
+			"propertyViews": 1260,
+			"propertyLikes": 34,
+			"propertyComments": 0,
+			"propertyRank": 43,
+			"propertyDesc": "Yangi shinalar (2026 yil), qishki shinalar ham beriladi. Tonirovka ruxsatnomasi bor. Konditsioner, multimedia, orqa kamera ishlaydi.",
+			"propertyBarter": true,
+			"propertyNegotiable": false,
+			"memberId": {
+				"$oid": "1b2579ec4d20d629a740278a"
+			},
+			"createdAt": {
+				"$date": "2026-09-24T08:30:31.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-09-24T08:30:31.000Z"
+			},
+			"propertyImages": [
+				"uploads/property/1b2579ec4d20d629a740278a_856c790e-4416-fcc1-c6e8-27cc8d4dd77a.webp",
+				"uploads/property/1b2579ec4d20d629a740278a_3a476e23-860a-d7df-ce55-4bbc5cc11cb5.webp",
+				"uploads/property/1b2579ec4d20d629a740278a_8e2c197b-e89f-bbbf-41f3-62f2dbb13271.webp"
+			]
+		},
+		{
+			"_id": {
+				"$oid": "9ba51f3bed1eeeca292f177c"
+			},
+			"propertyType": "SUV",
+			"propertyStatus": "ACTIVE",
+			"carCountry": "CHINA",
+			"propertyAddress": "Urumchi, Xitoy",
+			"propertyTitle": "Chery Tiggo 7 Pro 2025",
+			"propertyPrice": 17800,
+			"propertyPriceCurrency": "USD",
+			"propertyPriceOriginal": 17800,
+			"carBrand": "CHERY",
+			"carModel": "Tiggo 7 Pro",
+			"carYear": 2025,
+			"carMileage": 14300,
+			"carFuel": "PETROL",
+			"carTransmission": "CVT",
+			"carColor": "Qizil",
+			"carEngine": 1.5,
+			"carTrim": "Sport",
+			"carVin": "00E40E86B59649F8C",
+			"carAccidentHistory": "NONE",
+			"carOwners": 1,
+			"carCustomsCleared": false,
+			"carDeliveryDays": 19,
+			"carDeliveryCost": 1536,
+			"propertyViews": 1722,
+			"propertyLikes": 78,
+			"propertyComments": 0,
+			"propertyRank": 29,
+			"propertyDesc": "Mashina ideal holatda, hech qanday texnik muammo yo‘q. Kraska toza, faqat bamper polirovka qilingan.",
+			"propertyBarter": false,
+			"propertyNegotiable": false,
+			"memberId": {
+				"$oid": "87df9d4110bbac51902b1163"
+			},
+			"createdAt": {
+				"$date": "2026-09-14T18:20:02.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-09-14T18:20:02.000Z"
+			},
+			"propertyImages": [
+				"uploads/property/87df9d4110bbac51902b1163_98500a6d-71bd-9300-8798-ae98a829998d.webp",
+				"uploads/property/87df9d4110bbac51902b1163_0bdb0019-f0a1-323c-3e9c-2f92c294e9f0.webp",
+				"uploads/property/87df9d4110bbac51902b1163_356a6440-137e-c75d-4947-79aa59dcba55.webp"
+			]
+		},
+		{
+			"_id": {
+				"$oid": "32d35b7217ef6dab5cf6a451"
+			},
+			"propertyType": "SEDAN",
+			"propertyStatus": "ACTIVE",
+			"carCountry": "UZBEKISTAN",
+			"propertyLocation": "FERGANA",
+			"propertyAddress": "Qo‘qon shahri",
+			"propertyTitle": "BMW 5 Series 2026",
+			"propertyPrice": 52700,
+			"propertyPriceCurrency": "USD",
+			"propertyPriceOriginal": 52700,
+			"carBrand": "BMW",
+			"carModel": "5 Series",
+			"carYear": 2026,
+			"carMileage": 2761,
+			"carFuel": "PETROL",
+			"carTransmission": "AUTOMATIC",
+			"carColor": "Bej",
+			"carEngine": 2,
+			"carTrim": "Elegant",
+			"carAccidentHistory": "NONE",
+			"carOwners": 1,
+			"carCustomsCleared": true,
+			"propertyViews": 1574,
+			"propertyLikes": 33,
+			"propertyComments": 0,
+			"propertyRank": 57,
+			"propertyDesc": "Har 10 000 km da moy almashtirilgan, servis kitobchasi bor. Birinchi egasidan, hujjatlari joyida.",
+			"propertyBarter": false,
+			"propertyNegotiable": true,
+			"memberId": {
+				"$oid": "2c4a420fb5858ea22038a2c8"
+			},
+			"createdAt": {
+				"$date": "2026-08-14T15:19:09.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-08-14T15:19:09.000Z"
+			},
+			"propertyImages": [
+				"uploads/property/2c4a420fb5858ea22038a2c8_7209280a-e62c-9d59-3536-16ca476e6527.webp",
+				"uploads/property/2c4a420fb5858ea22038a2c8_666692f0-9354-cb04-eb61-e4474a10dfd4.webp",
+				"uploads/property/2c4a420fb5858ea22038a2c8_8510627c-b861-4a1c-965f-d9eeed8deb6d.webp"
+			]
+		},
+		{
+			"_id": {
+				"$oid": "59ffffa53cc947f261e5e266"
+			},
+			"propertyType": "SEDAN",
+			"propertyStatus": "ACTIVE",
+			"carCountry": "UZBEKISTAN",
+			"propertyLocation": "FERGANA",
+			"propertyAddress": "Farg‘ona, Al-Farg‘oniy ko‘chasi",
+			"propertyTitle": "Volkswagen Passat 2017",
+			"propertyPrice": 9100,
+			"propertyPriceCurrency": "UZS",
+			"propertyPriceOriginal": 116000000,
+			"carBrand": "VOLKSWAGEN",
+			"carModel": "Passat",
+			"carYear": 2017,
+			"carMileage": 90800,
+			"carFuel": "PETROL",
+			"carTransmission": "ROBOT",
+			"carColor": "Jigarrang",
+			"carEngine": 1.8,
+			"carTrim": "Luxe",
+			"carAccidentHistory": "NONE",
+			"carOwners": 2,
+			"carCustomsCleared": true,
+			"propertyViews": 1476,
+			"propertyLikes": 74,
+			"propertyComments": 0,
+			"propertyRank": 29,
+			"propertyDesc": "Har 10 000 km da moy almashtirilgan, servis kitobchasi bor. Mashina ideal holatda, hech qanday texnik muammo yo‘q. Yangi shinalar (2026 yil), qishki shinalar ham beriladi.",
+			"propertyBarter": true,
+			"propertyNegotiable": false,
+			"memberId": {
+				"$oid": "bdd8e1884fc5dc4b961f0b8d"
+			},
+			"createdAt": {
+				"$date": "2026-10-23T06:39:25.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-10-23T06:39:25.000Z"
+			},
+			"propertyImages": [
+				"uploads/property/bdd8e1884fc5dc4b961f0b8d_3cac77e0-f07f-55d4-c097-ed363d01c27e.webp",
+				"uploads/property/bdd8e1884fc5dc4b961f0b8d_2ea9639c-8d46-d9e9-1478-df2e2e0c728c.webp",
+				"uploads/property/bdd8e1884fc5dc4b961f0b8d_f1fc752d-4d46-e3f6-1eff-5ad94d470ec8.webp"
+			]
+		},
+		{
+			"_id": {
+				"$oid": "0fef60ba9c35bac962fc599a"
+			},
+			"propertyType": "SUV",
+			"propertyStatus": "ACTIVE",
+			"carCountry": "UAE",
+			"propertyAddress": "Dubay, BAA",
+			"propertyTitle": "Toyota RAV4 2017",
+			"propertyPrice": 14000,
+			"propertyPriceCurrency": "USD",
+			"propertyPriceOriginal": 14000,
+			"carBrand": "TOYOTA",
+			"carModel": "RAV4",
+			"carYear": 2017,
+			"carMileage": 111900,
+			"carFuel": "HYBRID",
+			"carTransmission": "CVT",
+			"carColor": "Yashil",
+			"carEngine": 2.5,
+			"carTrim": "Comfort",
+			"carVin": "EFA206516C2656F63",
+			"carAccidentHistory": "NONE",
+			"carOwners": 4,
+			"carCustomsCleared": false,
+			"carDeliveryDays": 24,
+			"carDeliveryCost": 2217,
+			"propertyViews": 2051,
+			"propertyLikes": 78,
+			"propertyComments": 0,
+			"propertyRank": 9,
+			"propertyDesc": "Shahar ichida yurilgan, trassaga kam chiqilgan. Yangi shinalar (2026 yil), qishki shinalar ham beriladi.",
+			"propertyBarter": true,
+			"propertyNegotiable": false,
+			"memberId": {
+				"$oid": "87df9d4110bbac51902b1163"
+			},
+			"createdAt": {
+				"$date": "2026-09-23T14:45:26.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-09-23T14:45:26.000Z"
+			},
+			"propertyImages": [
+				"uploads/property/87df9d4110bbac51902b1163_280081c9-7a70-b893-be21-931dcec121f4.webp",
+				"uploads/property/87df9d4110bbac51902b1163_01245df8-44e9-aa5a-cfc1-dce2347e96c8.webp",
+				"uploads/property/87df9d4110bbac51902b1163_a136841f-5ce7-e3fc-8c1b-2ce7bc9fe320.webp"
+			]
+		},
+		{
+			"_id": {
+				"$oid": "e1eb8488ad1e9833d1127e14"
+			},
+			"propertyType": "SEDAN",
+			"propertyStatus": "ACTIVE",
+			"carCountry": "UZBEKISTAN",
+			"propertyLocation": "BUKHARA",
+			"propertyAddress": "Buxoro, Navoiy shoh ko‘chasi",
+			"propertyTitle": "Volkswagen Passat 2021",
+			"propertyPrice": 13600,
+			"propertyPriceCurrency": "UZS",
+			"propertyPriceOriginal": 173000000,
+			"carBrand": "VOLKSWAGEN",
+			"carModel": "Passat",
+			"carYear": 2021,
+			"carMileage": 70700,
+			"carFuel": "PETROL",
+			"carTransmission": "ROBOT",
+			"carColor": "Jigarrang",
+			"carEngine": 1.8,
+			"carTrim": "Base",
+			"carAccidentHistory": "NONE",
+			"carOwners": 1,
+			"carCustomsCleared": true,
+			"propertyViews": 441,
+			"propertyLikes": 52,
+			"propertyComments": 0,
+			"propertyRank": 31,
+			"propertyDesc": "Salon toza, chekilmagan, bolalar o‘tirmagan. Kraska toza, faqat bamper polirovka qilingan. Har 10 000 km da moy almashtirilgan, servis kitobchasi bor.",
+			"propertyBarter": true,
+			"propertyNegotiable": false,
+			"memberId": {
+				"$oid": "c1f891e3b38de1393284373c"
+			},
+			"createdAt": {
+				"$date": "2026-08-26T11:01:07.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-08-26T11:01:07.000Z"
+			},
+			"propertyImages": [
+				"uploads/property/c1f891e3b38de1393284373c_efe7910b-96f0-c9f7-938b-eb305ec1d25b.webp",
+				"uploads/property/c1f891e3b38de1393284373c_e1b5e509-73ef-a2d2-4392-a5fd28f19bd9.webp",
+				"uploads/property/c1f891e3b38de1393284373c_decdc7c1-36a9-fa37-d77b-c86daa007eac.webp"
+			]
+		},
+		{
+			"_id": {
+				"$oid": "1797bc54bd644b87bd1a8c39"
+			},
+			"propertyType": "SUV",
+			"propertyStatus": "ACTIVE",
+			"carCountry": "UZBEKISTAN",
+			"propertyLocation": "BUKHARA",
+			"propertyAddress": "Buxoro, Navoiy shoh ko‘chasi",
+			"propertyTitle": "Lada Niva Travel 2014",
+			"propertyPrice": 3100,
+			"propertyPriceCurrency": "UZS",
+			"propertyPriceOriginal": 39000000,
+			"carBrand": "LADA",
+			"carModel": "Niva Travel",
+			"carYear": 2014,
+			"carMileage": 144400,
+			"carFuel": "PETROL",
+			"carTransmission": "MANUAL",
+			"carColor": "Kulrang",
+			"carEngine": 1.7,
+			"carTrim": "Sport",
+			"carVin": "0529FE6F5609E9909",
+			"carAccidentHistory": "NONE",
+			"carOwners": 2,
+			"carCustomsCleared": true,
+			"propertyViews": 872,
+			"propertyLikes": 66,
+			"propertyComments": 0,
+			"propertyRank": 54,
+			"propertyDesc": "Ko‘rib, diagnostikadan o‘tkazishingiz mumkin. Har 10 000 km da moy almashtirilgan, servis kitobchasi bor.",
+			"propertyBarter": false,
+			"propertyNegotiable": false,
+			"memberId": {
+				"$oid": "32feac355c43eda8b50fe00d"
+			},
+			"createdAt": {
+				"$date": "2026-08-26T00:19:00.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-08-26T00:19:00.000Z"
+			},
+			"propertyImages": [
+				"uploads/property/32feac355c43eda8b50fe00d_275cd3cc-979e-1c07-2e1e-3041fc6bc6f2.webp",
+				"uploads/property/32feac355c43eda8b50fe00d_dfa02eb6-cc03-644d-ffde-8d80d2767352.webp",
+				"uploads/property/32feac355c43eda8b50fe00d_85af3228-24ed-5ae6-498e-2369df144cef.webp"
+			]
+		},
+		{
+			"_id": {
+				"$oid": "2a9b6ada1c32092f695dbe4e"
+			},
+			"propertyType": "SEDAN",
+			"propertyStatus": "ACTIVE",
+			"carCountry": "GERMANY",
+			"propertyAddress": "Myunxen, Germaniya",
+			"propertyTitle": "BMW 5 Series 2019",
+			"propertyPrice": 27300,
+			"propertyPriceCurrency": "USD",
+			"propertyPriceOriginal": 27300,
+			"carBrand": "BMW",
+			"carModel": "5 Series",
+			"carYear": 2019,
+			"carMileage": 106600,
+			"carFuel": "PETROL",
+			"carTransmission": "AUTOMATIC",
+			"carColor": "Qora",
+			"carEngine": 2,
+			"carTrim": "Comfort",
+			"carVin": "3660994CD3636DEB7",
+			"carAccidentHistory": "MINOR",
+			"carOwners": 2,
+			"carCustomsCleared": false,
+			"carDeliveryDays": 24,
+			"carDeliveryCost": 2433,
+			"propertyViews": 308,
+			"propertyLikes": 67,
+			"propertyComments": 0,
+			"propertyRank": 45,
+			"propertyDesc": "Ko‘rib, diagnostikadan o‘tkazishingiz mumkin. Tonirovka ruxsatnomasi bor. Kichik kosmetik ta’mir qilingan (bamper).",
+			"propertyBarter": false,
+			"propertyNegotiable": true,
+			"memberId": {
+				"$oid": "87df9d4110bbac51902b1163"
+			},
+			"createdAt": {
+				"$date": "2026-08-26T18:52:35.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-08-26T18:52:35.000Z"
+			},
+			"propertyImages": [
+				"uploads/property/87df9d4110bbac51902b1163_7277ef23-591f-569b-91c5-91506986253d.webp",
+				"uploads/property/87df9d4110bbac51902b1163_b1e74172-5e79-ebea-d27f-d5ea24cb24d4.webp",
+				"uploads/property/87df9d4110bbac51902b1163_51f62632-ebc1-4392-dc2c-21faf8d0acda.webp"
+			]
+		},
+		{
+			"_id": {
+				"$oid": "be69b569bda4b1607070f3d7"
+			},
+			"propertyType": "SEDAN",
+			"propertyStatus": "ACTIVE",
+			"carCountry": "UZBEKISTAN",
+			"propertyLocation": "SAMARKAND",
+			"propertyAddress": "Samarqand, Registon ko‘chasi",
+			"propertyTitle": "Kia K5 2020",
+			"propertyPrice": 14900,
+			"propertyPriceCurrency": "USD",
+			"propertyPriceOriginal": 14900,
+			"carBrand": "KIA",
+			"carModel": "K5",
+			"carYear": 2020,
+			"carMileage": 74800,
+			"carFuel": "PETROL",
+			"carTransmission": "AUTOMATIC",
+			"carColor": "Ko‘k",
+			"carEngine": 2,
+			"carTrim": "Sport",
+			"carVin": "F66DAEA895E5F316F",
+			"carAccidentHistory": "NONE",
+			"carOwners": 2,
+			"carCustomsCleared": true,
+			"propertyViews": 1697,
+			"propertyLikes": 73,
+			"propertyComments": 0,
+			"propertyRank": 27,
+			"propertyDesc": "Salon toza, chekilmagan, bolalar o‘tirmagan. Kraska toza, faqat bamper polirovka qilingan. Ko‘rib, diagnostikadan o‘tkazishingiz mumkin.",
+			"propertyBarter": true,
+			"propertyNegotiable": true,
+			"memberId": {
+				"$oid": "2c4a420fb5858ea22038a2c8"
+			},
+			"createdAt": {
+				"$date": "2026-08-26T09:11:08.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-08-26T09:11:08.000Z"
+			},
+			"propertyImages": [
+				"uploads/property/2c4a420fb5858ea22038a2c8_5327ced9-f099-2d78-b33c-ea3c88a85f68.webp",
+				"uploads/property/2c4a420fb5858ea22038a2c8_f513462e-972b-9b5d-badf-6a6679d1cc67.webp",
+				"uploads/property/2c4a420fb5858ea22038a2c8_d66d3677-702d-a5ce-bac9-fb65f8c21d88.webp"
+			]
+		},
+		{
+			"_id": {
+				"$oid": "0fac7443e184f8e91944dcc6"
+			},
+			"propertyType": "SEDAN",
+			"propertyStatus": "PENDING",
+			"carCountry": "UZBEKISTAN",
+			"propertyLocation": "TASHKENT_REGION",
+			"propertyAddress": "Toshkent viloyati, Olmaliq",
+			"propertyTitle": "Mercedes-Benz E-Class 2023",
+			"propertyPrice": 37100,
+			"propertyPriceCurrency": "USD",
+			"propertyPriceOriginal": 37100,
+			"carBrand": "MERCEDES_BENZ",
+			"carModel": "E-Class",
+			"carYear": 2023,
+			"carMileage": 32100,
+			"carFuel": "PETROL",
+			"carTransmission": "AUTOMATIC",
+			"carColor": "Ko‘k",
+			"carEngine": 2,
+			"carTrim": "Full",
+			"carVin": "C324E840C88EA0570",
+			"carAccidentHistory": "NONE",
+			"carOwners": 2,
+			"carCustomsCleared": true,
+			"propertyViews": 0,
+			"propertyLikes": 0,
+			"propertyComments": 0,
+			"propertyRank": 1,
+			"propertyDesc": "Shahar ichida yurilgan, trassaga kam chiqilgan. Tonirovka ruxsatnomasi bor.",
+			"propertyBarter": false,
+			"propertyNegotiable": true,
+			"memberId": {
+				"$oid": "3fbe5a79c294336b37ad0e39"
+			},
+			"createdAt": {
+				"$date": "2026-09-09T01:47:56.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-09-09T01:47:56.000Z"
+			},
+			"propertyImages": [
+				"uploads/property/3fbe5a79c294336b37ad0e39_70607062-900c-6f14-64f7-db5c3a828e25.webp",
+				"uploads/property/3fbe5a79c294336b37ad0e39_0dc5b60d-4206-d829-f883-43a7aca9f1fc.webp",
+				"uploads/property/3fbe5a79c294336b37ad0e39_3823f835-0313-222d-9715-654161c97ed2.webp"
+			]
+		},
+		{
+			"_id": {
+				"$oid": "27e69b9b5b0183b025cad57b"
+			},
+			"propertyType": "SUV",
+			"propertyStatus": "REJECTED",
+			"carCountry": "JAPAN",
+			"propertyAddress": "Yokogama, Yaponiya",
+			"propertyTitle": "Lexus LX 600 2025",
+			"propertyPrice": 119300,
+			"propertyPriceCurrency": "USD",
+			"propertyPriceOriginal": 119300,
+			"carBrand": "LEXUS",
+			"carModel": "LX 600",
+			"carYear": 2025,
+			"carMileage": 10000,
+			"carFuel": "PETROL",
+			"carTransmission": "AUTOMATIC",
+			"carColor": "Qora",
+			"carEngine": 3.4,
+			"carTrim": "Base",
+			"carVin": "01E24D6A9C06B9168",
+			"carAccidentHistory": "MINOR",
+			"carOwners": 1,
+			"carCustomsCleared": false,
+			"carDeliveryDays": 34,
+			"carDeliveryCost": 2570,
+			"propertyViews": 823,
+			"propertyLikes": 60,
+			"propertyComments": 0,
+			"propertyRank": 38,
+			"propertyDesc": "Kraska toza, faqat bamper polirovka qilingan. Har 10 000 km da moy almashtirilgan, servis kitobchasi bor. Kichik kosmetik ta’mir qilingan (bamper).",
+			"propertyBarter": true,
+			"propertyNegotiable": true,
+			"propertyRejectReason": "Rasmlar sifatsiz: mashinani yorug‘ joyda, to‘liq ko‘rinadigan qilib suratga oling.",
+			"memberId": {
+				"$oid": "bdd8e1884fc5dc4b961f0b8d"
+			},
+			"createdAt": {
+				"$date": "2026-09-03T18:42:45.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-09-03T18:42:45.000Z"
+			},
+			"propertyImages": [
+				"uploads/property/bdd8e1884fc5dc4b961f0b8d_95614f0e-251d-9d8a-a391-0fa84a8a0ab0.webp",
+				"uploads/property/bdd8e1884fc5dc4b961f0b8d_68337342-8b2b-4e1f-d02d-66352fd36c50.webp",
+				"uploads/property/bdd8e1884fc5dc4b961f0b8d_3f03ff32-bbcb-4030-cea6-b2f6df694e37.webp"
+			]
+		},
+		{
+			"_id": {
+				"$oid": "4153ce1c26240033cc9bc66d"
+			},
+			"propertyType": "SUV",
+			"propertyStatus": "PENDING",
+			"carCountry": "UZBEKISTAN",
+			"propertyLocation": "URGENCH",
+			"propertyAddress": "Urganch, Al-Xorazmiy ko‘chasi",
+			"propertyTitle": "Chery Tiggo 7 Pro 2014",
+			"propertyPrice": 5200,
+			"propertyPriceCurrency": "USD",
+			"propertyPriceOriginal": 5200,
+			"carBrand": "CHERY",
+			"carModel": "Tiggo 7 Pro",
+			"carYear": 2014,
+			"carMileage": 109400,
+			"carFuel": "PETROL",
+			"carTransmission": "CVT",
+			"carColor": "Qora",
+			"carEngine": 1.5,
+			"carTrim": "Luxe",
+			"carVin": "910FABB66D462B400",
+			"carAccidentHistory": "SERIOUS",
+			"carOwners": 3,
+			"carCustomsCleared": true,
+			"propertyViews": 0,
+			"propertyLikes": 0,
+			"propertyComments": 0,
+			"propertyRank": 32,
+			"propertyDesc": "Ko‘rib, diagnostikadan o‘tkazishingiz mumkin. Yangi shinalar (2026 yil), qishki shinalar ham beriladi. Kraska toza, faqat bamper polirovka qilingan. Shahar ichida yurilgan, trassaga kam chiqilgan. Avariyadan keyin tiklangan, hujjatlari bor.",
+			"propertyBarter": false,
+			"propertyNegotiable": false,
+			"memberId": {
+				"$oid": "4d3564b868a59688de4651fc"
+			},
+			"createdAt": {
+				"$date": "2026-10-12T03:29:29.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-10-12T03:29:29.000Z"
+			},
+			"propertyImages": [
+				"uploads/property/4d3564b868a59688de4651fc_a78793ac-8715-7951-14f5-95cc0864d0f1.webp",
+				"uploads/property/4d3564b868a59688de4651fc_3fcc3c83-cb89-3ab1-bd8e-4862c7501163.webp",
+				"uploads/property/4d3564b868a59688de4651fc_707e7dd6-8ead-75fc-64e1-712d5611675e.webp"
+			]
+		},
+		{
+			"_id": {
+				"$oid": "3caf6941edbaf09049c16819"
+			},
+			"propertyType": "SUV",
+			"propertyStatus": "REJECTED",
+			"carCountry": "UZBEKISTAN",
+			"propertyLocation": "URGENCH",
+			"propertyAddress": "Urganch, Al-Xorazmiy ko‘chasi",
+			"propertyTitle": "Chevrolet Captiva 2022",
+			"propertyPrice": 17600,
+			"propertyPriceCurrency": "USD",
+			"propertyPriceOriginal": 17600,
+			"carBrand": "CHEVROLET",
+			"carModel": "Captiva",
+			"carYear": 2022,
+			"carMileage": 66500,
+			"carFuel": "PETROL",
+			"carTransmission": "AUTOMATIC",
+			"carColor": "Jigarrang",
+			"carEngine": 1.5,
+			"carTrim": "Premier",
+			"carVin": "1B370DD1138AC11F9",
+			"carAccidentHistory": "NONE",
+			"carOwners": 2,
+			"carCustomsCleared": true,
+			"propertyViews": 2321,
+			"propertyLikes": 60,
+			"propertyComments": 0,
+			"propertyRank": 53,
+			"propertyDesc": "Yangi shinalar (2026 yil), qishki shinalar ham beriladi. Konditsioner, multimedia, orqa kamera ishlaydi. Shahar ichida yurilgan, trassaga kam chiqilgan.",
+			"propertyBarter": false,
+			"propertyNegotiable": false,
+			"propertyRejectReason": "Rasmlar sifatsiz: mashinani yorug‘ joyda, to‘liq ko‘rinadigan qilib suratga oling.",
+			"memberId": {
+				"$oid": "429b50d04f256a772c09d333"
+			},
+			"createdAt": {
+				"$date": "2026-08-25T12:28:45.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-08-25T12:28:45.000Z"
+			},
+			"propertyImages": [
+				"uploads/property/429b50d04f256a772c09d333_981853f1-4536-24db-b89b-48569c4b99bf.webp",
+				"uploads/property/429b50d04f256a772c09d333_d8cd82b7-d51b-00f9-7168-5e7068e6e2fe.webp",
+				"uploads/property/429b50d04f256a772c09d333_41592397-b45d-ec2a-a295-99defc42b0ce.webp"
+			]
+		},
+		{
+			"_id": {
+				"$oid": "d9db5823e3c377efaced2e53"
+			},
+			"propertyType": "SUV",
+			"propertyStatus": "PENDING",
+			"carCountry": "USA",
+			"propertyAddress": "Kaliforniya, AQSh",
+			"propertyTitle": "Chevrolet Tracker 2 2024",
+			"propertyPrice": 15700,
+			"propertyPriceCurrency": "USD",
+			"propertyPriceOriginal": 15700,
+			"carBrand": "CHEVROLET",
+			"carModel": "Tracker 2",
+			"carYear": 2024,
+			"carMileage": 25600,
+			"carFuel": "PETROL",
+			"carTransmission": "AUTOMATIC",
+			"carColor": "Ko‘k",
+			"carEngine": 1.2,
+			"carTrim": "Base",
+			"carAccidentHistory": "MINOR",
+			"carOwners": 1,
+			"carCustomsCleared": false,
+			"carDeliveryDays": 51,
+			"carDeliveryCost": 3450,
+			"propertyViews": 0,
+			"propertyLikes": 0,
+			"propertyComments": 0,
+			"propertyRank": 59,
+			"propertyDesc": "Tonirovka ruxsatnomasi bor. Konditsioner, multimedia, orqa kamera ishlaydi. Salon toza, chekilmagan, bolalar o‘tirmagan. Kichik kosmetik ta’mir qilingan (bamper).",
+			"propertyBarter": true,
+			"propertyNegotiable": false,
+			"memberId": {
+				"$oid": "87df9d4110bbac51902b1163"
+			},
+			"createdAt": {
+				"$date": "2026-07-03T02:59:09.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-07-03T02:59:09.000Z"
+			},
+			"propertyImages": [
+				"uploads/property/87df9d4110bbac51902b1163_23c1d694-fc39-d73e-1f48-922285bdbd4c.webp",
+				"uploads/property/87df9d4110bbac51902b1163_0f24e748-4efb-4c75-1731-2153fbd03697.webp",
+				"uploads/property/87df9d4110bbac51902b1163_31288375-7bab-25d4-bed3-7f298423b372.webp"
+			]
+		},
+		{
+			"_id": {
+				"$oid": "b7f877f323b123d95c97d634"
+			},
+			"propertyType": "SEDAN",
+			"propertyStatus": "PENDING",
+			"carCountry": "UZBEKISTAN",
+			"propertyLocation": "FERGANA",
+			"propertyAddress": "Qo‘qon shahri",
+			"propertyTitle": "Kia K5 2015",
+			"propertyPrice": 8800,
+			"propertyPriceCurrency": "UZS",
+			"propertyPriceOriginal": 112000000,
+			"carBrand": "KIA",
+			"carModel": "K5",
+			"carYear": 2015,
+			"carMileage": 100100,
+			"carFuel": "PETROL",
+			"carTransmission": "AUTOMATIC",
+			"carColor": "Bej",
+			"carEngine": 2,
+			"carTrim": "Luxe",
+			"carAccidentHistory": "NONE",
+			"carOwners": 4,
+			"carCustomsCleared": true,
+			"propertyViews": 0,
+			"propertyLikes": 0,
+			"propertyComments": 0,
+			"propertyRank": 5,
+			"propertyDesc": "Mashina ideal holatda, hech qanday texnik muammo yo‘q. Kraska toza, faqat bamper polirovka qilingan. Ko‘rib, diagnostikadan o‘tkazishingiz mumkin.",
+			"propertyBarter": false,
+			"propertyNegotiable": true,
+			"memberId": {
+				"$oid": "6cb8b15f6b82d4f1b1ad6977"
+			},
+			"createdAt": {
+				"$date": "2026-08-23T05:43:45.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-08-23T05:43:45.000Z"
+			},
+			"propertyImages": [
+				"uploads/property/6cb8b15f6b82d4f1b1ad6977_22c312e0-12ae-4cec-519c-7db93d39b1e9.webp",
+				"uploads/property/6cb8b15f6b82d4f1b1ad6977_01e28fae-8a8e-7904-6cbf-e5729bfa89b9.webp",
+				"uploads/property/6cb8b15f6b82d4f1b1ad6977_edb93cb4-a523-0e53-14c8-c396649cbd5e.webp"
+			]
+		},
+		{
+			"_id": {
+				"$oid": "16c5caa00b0819281bb2b9a2"
+			},
+			"propertyType": "SEDAN",
+			"propertyStatus": "SOLD",
+			"carCountry": "UZBEKISTAN",
+			"propertyLocation": "TASHKENT",
+			"propertyAddress": "Toshkent, Yunusobod tumani",
+			"propertyTitle": "Chevrolet Nexia 3 2019",
+			"propertyPrice": 4500,
+			"propertyPriceCurrency": "UZS",
+			"propertyPriceOriginal": 57000000,
+			"carBrand": "CHEVROLET",
+			"carModel": "Nexia 3",
+			"carYear": 2019,
+			"carMileage": 131800,
+			"carFuel": "GAS",
+			"carTransmission": "MANUAL",
+			"carColor": "Bej",
+			"carEngine": 1.5,
+			"carTrim": "Elegant",
+			"carAccidentHistory": "NONE",
+			"carOwners": 3,
+			"carCustomsCleared": true,
+			"propertyViews": 912,
+			"propertyLikes": 79,
+			"propertyComments": 0,
+			"propertyRank": 45,
+			"propertyDesc": "Kraska toza, faqat bamper polirovka qilingan. Konditsioner, multimedia, orqa kamera ishlaydi. Har 10 000 km da moy almashtirilgan, servis kitobchasi bor.",
+			"propertyBarter": false,
+			"propertyNegotiable": true,
+			"soldAt": {
+				"$date": "2026-10-27T06:24:22.000Z"
+			},
+			"memberId": {
+				"$oid": "87df9d4110bbac51902b1163"
+			},
+			"createdAt": {
+				"$date": "2026-10-21T19:55:16.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-10-21T19:55:16.000Z"
+			},
+			"propertyImages": [
+				"uploads/property/87df9d4110bbac51902b1163_56544b60-38c8-c047-74d0-2d110e19279c.webp",
+				"uploads/property/87df9d4110bbac51902b1163_47ca8d8d-f46e-e6d5-6682-165a05a8ffbb.webp",
+				"uploads/property/87df9d4110bbac51902b1163_b9e41ff9-9556-4577-f70c-ad87ce6e4574.webp"
+			]
+		},
+		{
+			"_id": {
+				"$oid": "2ffee58cd75db623c3bc252f"
+			},
+			"propertyType": "HATCHBACK",
+			"propertyStatus": "PENDING",
+			"carCountry": "CHINA",
+			"propertyAddress": "Urumchi, Xitoy",
+			"propertyTitle": "BYD Seagull 2014",
+			"propertyPrice": 3800,
+			"propertyPriceCurrency": "USD",
+			"propertyPriceOriginal": 3800,
+			"carBrand": "BYD",
+			"carModel": "Seagull",
+			"carYear": 2014,
+			"carMileage": 171100,
+			"carFuel": "ELECTRIC",
+			"carTransmission": "AUTOMATIC",
+			"carColor": "Kumush",
+			"carTrim": "Comfort",
+			"carAccidentHistory": "NONE",
+			"carOwners": 2,
+			"carCustomsCleared": false,
+			"carDeliveryDays": 10,
+			"carDeliveryCost": 1305,
+			"propertyViews": 0,
+			"propertyLikes": 0,
+			"propertyComments": 0,
+			"propertyRank": 47,
+			"propertyDesc": "Kraska toza, faqat bamper polirovka qilingan. Salon toza, chekilmagan, bolalar o‘tirmagan.",
+			"propertyBarter": false,
+			"propertyNegotiable": false,
+			"memberId": {
+				"$oid": "32feac355c43eda8b50fe00d"
+			},
+			"createdAt": {
+				"$date": "2026-08-16T01:48:42.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-08-16T01:48:42.000Z"
+			},
+			"propertyImages": [
+				"uploads/property/32feac355c43eda8b50fe00d_9d8210ad-d27a-2cbf-538e-3a7faf6fecb0.webp",
+				"uploads/property/32feac355c43eda8b50fe00d_c6e36cbd-cfff-d486-b906-d15888225a56.webp",
+				"uploads/property/32feac355c43eda8b50fe00d_421bbec5-7979-38ed-6a27-3abc5118eace.webp"
+			]
+		},
+		{
+			"_id": {
+				"$oid": "3ae0c558960993608a901449"
+			},
+			"propertyType": "SEDAN",
+			"propertyStatus": "REJECTED",
+			"carCountry": "UZBEKISTAN",
+			"propertyLocation": "SAMARKAND",
+			"propertyAddress": "Samarqand avtobozori",
+			"propertyTitle": "Toyota Camry 70 2018",
+			"propertyPrice": 14700,
+			"propertyPriceCurrency": "UZS",
+			"propertyPriceOriginal": 187000000,
+			"carBrand": "TOYOTA",
+			"carModel": "Camry 70",
+			"carYear": 2018,
+			"carMileage": 126600,
+			"carFuel": "PETROL",
+			"carTransmission": "AUTOMATIC",
+			"carColor": "Ko‘k",
+			"carEngine": 2.5,
+			"carTrim": "Premier",
+			"carAccidentHistory": "NONE",
+			"carOwners": 2,
+			"carCustomsCleared": true,
+			"propertyViews": 466,
+			"propertyLikes": 50,
+			"propertyComments": 0,
+			"propertyRank": 18,
+			"propertyDesc": "Yangi shinalar (2026 yil), qishki shinalar ham beriladi. Ko‘rib, diagnostikadan o‘tkazishingiz mumkin.",
+			"propertyBarter": false,
+			"propertyNegotiable": true,
+			"propertyRejectReason": "Rasmlar sifatsiz: mashinani yorug‘ joyda, to‘liq ko‘rinadigan qilib suratga oling.",
+			"memberId": {
+				"$oid": "1b2579ec4d20d629a740278a"
+			},
+			"createdAt": {
+				"$date": "2026-09-20T07:48:20.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-09-20T07:48:20.000Z"
+			},
+			"propertyImages": [
+				"uploads/property/1b2579ec4d20d629a740278a_d101c30a-d4d0-bc97-99b9-5414f43a6453.webp",
+				"uploads/property/1b2579ec4d20d629a740278a_c5bba9db-bc14-346b-5862-e28ea054bb23.webp",
+				"uploads/property/1b2579ec4d20d629a740278a_bca3b807-f7c0-1845-d85d-c3874c3d5fcc.webp"
+			]
+		},
+		{
+			"_id": {
+				"$oid": "139f487e4089a68610b925c2"
+			},
+			"propertyType": "SEDAN",
+			"propertyStatus": "PENDING",
+			"carCountry": "UZBEKISTAN",
+			"propertyLocation": "SAMARKAND",
+			"propertyAddress": "Samarqand, Registon ko‘chasi",
+			"propertyTitle": "BYD Han 2019",
+			"propertyPrice": 18700,
+			"propertyPriceCurrency": "UZS",
+			"propertyPriceOriginal": 237000000,
+			"carBrand": "BYD",
+			"carModel": "Han",
+			"carYear": 2019,
+			"carMileage": 114100,
+			"carFuel": "ELECTRIC",
+			"carTransmission": "AUTOMATIC",
+			"carColor": "Qora",
+			"carTrim": "Comfort",
+			"carVin": "3AB0FF2FB84AA1211",
+			"carAccidentHistory": "MINOR",
+			"carOwners": 1,
+			"carCustomsCleared": true,
+			"propertyViews": 0,
+			"propertyLikes": 0,
+			"propertyComments": 0,
+			"propertyRank": 33,
+			"propertyDesc": "Kraska toza, faqat bamper polirovka qilingan. Salon toza, chekilmagan, bolalar o‘tirmagan. Kichik kosmetik ta’mir qilingan (bamper).",
+			"propertyBarter": false,
+			"propertyNegotiable": false,
+			"memberId": {
+				"$oid": "32feac355c43eda8b50fe00d"
+			},
+			"createdAt": {
+				"$date": "2026-10-26T04:59:36.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-10-26T04:59:36.000Z"
+			},
+			"propertyImages": [
+				"uploads/property/32feac355c43eda8b50fe00d_e43d8236-1b00-3dc3-aebd-c6ca913e0050.webp",
+				"uploads/property/32feac355c43eda8b50fe00d_1e46ec43-a545-5445-88be-b63c0b6a844a.webp",
+				"uploads/property/32feac355c43eda8b50fe00d_4d7ef2c0-290b-09cf-8e3a-0c52c46ada3f.webp"
+			]
+		},
+		{
+			"_id": {
+				"$oid": "83df18f48d5762cb88328be7"
+			},
+			"propertyType": "SUV",
+			"propertyStatus": "PENDING",
+			"carCountry": "CHINA",
+			"propertyAddress": "Guanchjou, Xitoy",
+			"propertyTitle": "Haval Jolion 2017",
+			"propertyPrice": 8000,
+			"propertyPriceCurrency": "USD",
+			"propertyPriceOriginal": 8000,
+			"carBrand": "HAVAL",
+			"carModel": "Jolion",
+			"carYear": 2017,
+			"carMileage": 118700,
+			"carFuel": "PETROL",
+			"carTransmission": "ROBOT",
+			"carColor": "Kulrang",
+			"carEngine": 1.5,
+			"carTrim": "Elegant",
+			"carAccidentHistory": "NONE",
+			"carOwners": 1,
+			"carCustomsCleared": false,
+			"carDeliveryDays": 20,
+			"carDeliveryCost": 1756,
+			"propertyViews": 0,
+			"propertyLikes": 0,
+			"propertyComments": 0,
+			"propertyRank": 46,
+			"propertyDesc": "Ko‘rib, diagnostikadan o‘tkazishingiz mumkin. Kraska toza, faqat bamper polirovka qilingan.",
+			"propertyBarter": false,
+			"propertyNegotiable": true,
+			"memberId": {
+				"$oid": "8a77afcc37663022bd43179c"
+			},
+			"createdAt": {
+				"$date": "2026-08-01T12:38:18.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-08-01T12:38:18.000Z"
+			},
+			"propertyImages": [
+				"uploads/property/8a77afcc37663022bd43179c_0acf8139-8e2e-d64b-cf26-8e651cbf31bb.webp",
+				"uploads/property/8a77afcc37663022bd43179c_b988571c-ab8a-bb07-b323-7ea6a650b811.webp",
+				"uploads/property/8a77afcc37663022bd43179c_37c84ba0-c4ce-9f1e-9f4b-5579998d0cc0.webp"
+			]
+		},
+		{
+			"_id": {
+				"$oid": "41fec9231c2157c927aa1c8f"
+			},
+			"propertyType": "SUV",
+			"propertyStatus": "PENDING",
+			"carCountry": "UZBEKISTAN",
+			"propertyLocation": "SAMARKAND",
+			"propertyAddress": "Samarqand avtobozori",
+			"propertyTitle": "Honda CR-V 2025",
+			"propertyPrice": 30000,
+			"propertyPriceCurrency": "USD",
+			"propertyPriceOriginal": 30000,
+			"carBrand": "HONDA",
+			"carModel": "CR-V",
+			"carYear": 2025,
+			"carMileage": 10000,
+			"carFuel": "HYBRID",
+			"carTransmission": "CVT",
+			"carColor": "Yashil",
+			"carEngine": 2,
+			"carTrim": "Full",
+			"carVin": "D4E0A8F2C85830127",
+			"carAccidentHistory": "NONE",
+			"carOwners": 1,
+			"carCustomsCleared": true,
+			"propertyViews": 0,
+			"propertyLikes": 0,
+			"propertyComments": 0,
+			"propertyRank": 46,
+			"propertyDesc": "Salon toza, chekilmagan, bolalar o‘tirmagan. Shahar ichida yurilgan, trassaga kam chiqilgan. Kraska toza, faqat bamper polirovka qilingan.",
+			"propertyBarter": false,
+			"propertyNegotiable": false,
+			"memberId": {
+				"$oid": "1b2579ec4d20d629a740278a"
+			},
+			"createdAt": {
+				"$date": "2026-09-01T22:33:17.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-09-01T22:33:17.000Z"
+			},
+			"propertyImages": [
+				"uploads/property/1b2579ec4d20d629a740278a_8db83a74-2565-67c1-56a9-3d2e08aaec8c.webp",
+				"uploads/property/1b2579ec4d20d629a740278a_3e35f358-8a4a-7611-9774-26455f1a5669.webp",
+				"uploads/property/1b2579ec4d20d629a740278a_9e936185-c628-d3f3-8278-d37134bb9515.webp"
+			]
+		}
+	],
+	"boardArticles": [
+		{
+			"_id": {
+				"$oid": "e823b62dcbe8429ef931407f"
+			},
+			"articleCategory": "NEWS",
+			"articleStatus": "ACTIVE",
+			"articleTitle": "2026 yilda O‘zbekistonda eng ko‘p sotilgan mashinalar",
+			"articleContent": "<p>Yil boshidan buyon Cobalt, Gentra va Tracker yetakchilikni saqlab qolmoqda. Elektr mashinalar ulushi esa ikki baravar oshdi: BYD Song Plus va Chazor eng ko‘p qidirilgan modellar qatorida.</p>",
+			"articleImage": "uploads/article/431686bf999556a87db1fded_bb70ebc1-3978-31cc-c1cd-25f01c927037.webp",
+			"articleLikes": 4,
+			"articleViews": 1110,
+			"articleComments": 0,
+			"memberId": {
+				"$oid": "431686bf999556a87db1fded"
+			},
+			"createdAt": {
+				"$date": "2026-10-28T16:48:44.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-10-28T16:48:44.000Z"
+			}
+		},
+		{
+			"_id": {
+				"$oid": "b7900e4f1838ca2911ff71f1"
+			},
+			"articleCategory": "NEWS",
+			"articleStatus": "ACTIVE",
+			"articleTitle": "Elektromobillar uchun bojxona imtiyozlari uzaytirildi",
+			"articleContent": "<p>Elektr mashinalarni olib kirishda bojxona to‘lovlari bo‘yicha imtiyozlar yana bir yilga uzaytirildi. Bu Xitoydan olib kelinadigan BYD va boshqa modellar narxiga to‘g‘ridan-to‘g‘ri ta’sir qiladi.</p>",
+			"articleImage": "uploads/article/431686bf999556a87db1fded_66d0d884-15ec-9710-61ac-69788aa25398.webp",
+			"articleLikes": 53,
+			"articleViews": 1465,
+			"articleComments": 0,
+			"memberId": {
+				"$oid": "431686bf999556a87db1fded"
+			},
+			"createdAt": {
+				"$date": "2026-09-22T03:27:46.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-09-22T03:27:46.000Z"
+			}
+		},
+		{
+			"_id": {
+				"$oid": "bd4064e0ac079b1eca8664fb"
+			},
+			"articleCategory": "RECOMMEND",
+			"articleStatus": "ACTIVE",
+			"articleTitle": "Ikkilamchi mashina olishdan oldin 10 ta tekshiruv",
+			"articleContent": "<p>Kuzov qalinligini o‘lchang, VIN raqamni hujjat bilan solishtiring, dvigatelni sovuq holatda ishga tushirib ko‘ring, diagnostikadan o‘tkazing va servis tarixini so‘rang. Shoshilmang — yaxshi mashina kutadi.</p>",
+			"articleImage": "uploads/article/2c4a420fb5858ea22038a2c8_ae6cd28e-c736-0c9b-1fb3-9a1e1b1e1d72.webp",
+			"articleLikes": 9,
+			"articleViews": 376,
+			"articleComments": 0,
+			"memberId": {
+				"$oid": "2c4a420fb5858ea22038a2c8"
+			},
+			"createdAt": {
+				"$date": "2026-09-10T13:31:33.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-09-10T13:31:33.000Z"
+			}
+		},
+		{
+			"_id": {
+				"$oid": "6925dd36383b6e3a58d326c6"
+			},
+			"articleCategory": "RECOMMEND",
+			"articleStatus": "ACTIVE",
+			"articleTitle": "Koreyadan mashina olib kelish: qadam-baqadam",
+			"articleContent": "<p>Auksion hisobotini o‘qing, probegni tekshiring, yetkazib berish va rastamojka xarajatlarini oldindan hisoblang. Odatda Seuldan Toshkentgacha 25–35 kun ketadi.</p>",
+			"articleImage": "uploads/article/8a77afcc37663022bd43179c_88e9c832-08f5-47a2-e2ed-5eb69d31f3c5.webp",
+			"articleLikes": 16,
+			"articleViews": 1093,
+			"articleComments": 0,
+			"memberId": {
+				"$oid": "8a77afcc37663022bd43179c"
+			},
+			"createdAt": {
+				"$date": "2026-09-16T21:35:39.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-09-16T21:35:39.000Z"
+			}
+		},
+		{
+			"_id": {
+				"$oid": "0154696847cf6ef779bf1049"
+			},
+			"articleCategory": "SERVICE",
+			"articleStatus": "ACTIVE",
+			"articleTitle": "Qishga tayyorgarlik: antifriz, akkumulyator, shinalar",
+			"articleContent": "<p>Harorat 5°C dan tushishi bilan qishki shinaga o‘ting. Akkumulyator 4 yildan oshgan bo‘lsa, quvvatini tekshirtiring. Antifriz darajasi va muzlash nuqtasini ham unutmang.</p>",
+			"articleImage": "uploads/article/87df9d4110bbac51902b1163_a2a3a765-607b-6451-8356-074b5588a172.webp",
+			"articleLikes": 2,
+			"articleViews": 1053,
+			"articleComments": 0,
+			"memberId": {
+				"$oid": "87df9d4110bbac51902b1163"
+			},
+			"createdAt": {
+				"$date": "2026-09-22T19:16:22.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-09-22T19:16:22.000Z"
+			}
+		},
+		{
+			"_id": {
+				"$oid": "35f33e79196d60fb03a91f85"
+			},
+			"articleCategory": "SERVICE",
+			"articleStatus": "ACTIVE",
+			"articleTitle": "Metan yoki propan: qaysi biri arzonroq?",
+			"articleContent": "<p>Shaharda kuniga 60 km yuradigan haydovchi uchun metan yiliga sezilarli tejash beradi, lekin ballon bagajdan joy oladi. Propan esa o‘rnatishda arzonroq, ammo narxi qimmatroq.</p>",
+			"articleImage": "uploads/article/87df9d4110bbac51902b1163_05b67eb9-d59b-2334-9ff5-6f91689b97d4.webp",
+			"articleLikes": 45,
+			"articleViews": 1227,
+			"articleComments": 0,
+			"memberId": {
+				"$oid": "87df9d4110bbac51902b1163"
+			},
+			"createdAt": {
+				"$date": "2026-10-17T08:54:52.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-10-17T08:54:52.000Z"
+			}
+		},
+		{
+			"_id": {
+				"$oid": "2558cd7a97fdac58c08c4d37"
+			},
+			"articleCategory": "FREE",
+			"articleStatus": "ACTIVE",
+			"articleTitle": "Birinchi mashinam — Spark yoki Nexia 3?",
+			"articleContent": "<p>Byudjet 8 000 dollar atrofida. Shaharda ishga qatnash uchun kerak. Spark tejamkor, Nexia 3 esa kengroq. Tajribali haydovchilar nima maslahat beradi?</p>",
+			"articleImage": "uploads/article/429b50d04f256a772c09d333_c47e1c9b-47ac-c936-d459-e5365a990e16.webp",
+			"articleLikes": 56,
+			"articleViews": 1407,
+			"articleComments": 0,
+			"memberId": {
+				"$oid": "429b50d04f256a772c09d333"
+			},
+			"createdAt": {
+				"$date": "2026-09-29T03:41:35.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-09-29T03:41:35.000Z"
+			}
+		},
+		{
+			"_id": {
+				"$oid": "64c58ad9f7894b18e759a516"
+			},
+			"articleCategory": "FREE",
+			"articleStatus": "ACTIVE",
+			"articleTitle": "Toshkentda eng yaxshi avtoyuvish joylari",
+			"articleContent": "<p>Chilonzor va Yunusobodda o‘zim sinab ko‘rgan uchta joyni yozib qoldiraman. Siz ham o‘z tavsiyalaringizni izohlarda qoldiring.</p>",
+			"articleImage": "uploads/article/4d3564b868a59688de4651fc_ae5069a1-79ab-2920-be12-6595daf8f056.webp",
+			"articleLikes": 37,
+			"articleViews": 525,
+			"articleComments": 0,
+			"memberId": {
+				"$oid": "4d3564b868a59688de4651fc"
+			},
+			"createdAt": {
+				"$date": "2026-09-07T18:07:30.000Z"
+			},
+			"updatedAt": {
+				"$date": "2026-09-07T18:07:30.000Z"
+			}
+		}
+	]
+}

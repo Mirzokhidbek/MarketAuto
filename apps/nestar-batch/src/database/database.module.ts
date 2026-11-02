@@ -1,4 +1,5 @@
 import { Module, Logger } from '@nestjs/common';
+import { mongooseOptions } from '../../../nestar-api/src/libs/firebase-admin';
 import { InjectConnection, MongooseModule } from '@nestjs/mongoose';
 import { Connection, ConnectionStates } from 'mongoose';
 
@@ -7,9 +8,9 @@ const logger = new Logger('DatabaseModule');
 @Module({
 	imports: [
 		MongooseModule.forRootAsync({
-			useFactory: () => ({
-				uri: process.env.NODE_ENV === 'production' ? process.env.MONGO_PROD : process.env.MONGO_DEV,
-			}),
+			// MongoDB, or Firestore with MongoDB compatibility (see mongooseOptions)
+			useFactory: () =>
+				mongooseOptions(process.env.NODE_ENV === 'production' ? process.env.MONGO_PROD : process.env.MONGO_DEV),
 		}),
 	],
 	exports: [MongooseModule],

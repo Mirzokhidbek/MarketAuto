@@ -9,6 +9,8 @@ import * as path from 'path';
 import sharp from 'sharp';
 import { Message } from '../../libs/enums/common.enum';
 import { uploadTargets, idString } from '../../libs/config';
+import { getStorage } from 'firebase-admin/storage';
+import { firebaseAdminApp } from '../../libs/firebase-admin';
 
 // longest side after resizing: avatars are small, car photos keep enough detail for the gallery
 const MAX_SIZE: Record<string, number> = { member: 400, property: 1600, article: 1400, message: 1400 };
@@ -18,10 +20,15 @@ const FILE_NAME = /^[A-Za-z0-9_-][A-Za-z0-9._-]*$/;
 const OWNER_ID = /^[a-f0-9]{24}$/;
 const escapeRegex = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
+// a Firebase download URL: .../o/<target>%2F<file>?alt=media&token=<uuid>
+const DOWNLOAD_QUERY = /^alt=media&token=[0-9a-f-]{36}$/;
+
 /**
  * Saves uploaded images as compressed WebP.
- * Local disk (uploads/<target>/...) by default; S3 / any S3-compatible storage when S3_BUCKET is set:
- *   S3_BUCKET, S3_REGION, S3_ACCESS_KEY, S3_SECRET_KEY, optional S3_ENDPOINT, S3_PUBLIC_URL (CDN/base URL)
+ * Firebase Storage when FIREBASE_STORAGE_BUCKET is set (files are read through unguessable download-token URLs);
+ * otherwise S3 / any S3-compatible storage when S3_BUCKET is set:
+ *   S3_BUCKET, S3_REGION, S3_ACCESS_KEY, S3_SECRET_KEY, optional S3_ENDPOINT, S3_PUBLIC_URL (CDN/base URL);
+ * otherwise local disk (uploads/<target>/...).
  */
 @Injectable()
 export class StorageService {
@@ -36,6 +43,29 @@ export class StorageService {
 				credentials: { accessKeyId: settings.s3.accessKey, secretAccessKey: settings.s3.secretKey },
 			})
 		: null;
+
+	private readonly firebaseBucket = settings.firebase.storageBucket;
+
+	private bucket() {
+		return getStorage(firebaseAdminApp()).bucket(this.firebaseBucket);
+	}
+
+	/** "https://firebasestorage.googleapis.com/v0/b/<bucket>/o/" — objects follow, with "/" encoded as %2F */
+	private firebaseBase(): string {
+		return `https://firebasestorage.googleapis.com/v0/b/${this.firebaseBucket}/o/`;
+	}
+
+	/** the object key ("property/<owner>_<uuid>.webp") of one of our Firebase download URLs, else null */
+	private firebaseKey(image: string): string | null {
+		if (!this.firebaseBucket || !image.startsWith(this.firebaseBase())) return null;
+		const [encoded, query] = image.slice(this.firebaseBase().length).split('?');
+		if (!query || !DOWNLOAD_QUERY.test(query)) return null;
+		try {
+			return decodeURIComponent(encoded);
+		} catch {
+			return null;
+		}
+	}
 
 	private publicBase(): string {
 		return settings.s3.publicUrl.replace(/\/$/, '');
@@ -69,6 +99,21 @@ export class StorageService {
 		const owner = idString(ownerId);
 		if (!OWNER_ID.test(owner)) throw new BadRequestException(Message.UPLOAD_FAILED);
 		const key = `${target}/${owner}_${randomUUID()}.webp`;
+		if (this.firebaseBucket) {
+			const token = randomUUID();
+			await this.bucket()
+				.file(key)
+				.save(output, {
+					resumable: false,
+					contentType: 'image/webp',
+					metadata: {
+						cacheControl: 'public, max-age=31536000, immutable',
+						// the same token Firebase console uses for "download URL" links
+						metadata: { firebaseStorageDownloadTokens: token },
+					},
+				});
+			return `${this.firebaseBase()}${encodeURIComponent(key)}?alt=media&token=${token}`;
+		}
 		if (this.s3) {
 			await this.s3.send(
 				new PutObjectCommand({
@@ -97,6 +142,12 @@ export class StorageService {
 		if (typeof image !== 'string' || !uploadTargets.includes(target)) return false;
 		const owner = idString(ownerId);
 		if (!OWNER_ID.test(owner)) return false;
+		const key = this.firebaseKey(image);
+		if (key !== null) {
+			if (!key.startsWith(`${target}/`)) return false;
+			const file = key.slice(target.length + 1);
+			return FILE_NAME.test(file) && file.startsWith(`${owner}_`);
+		}
 		const local = `uploads/${target}/`;
 		const remote = this.s3 ? `${this.publicBase()}/${target}/` : null;
 		const base = image.startsWith(local) ? local : remote && image.startsWith(remote) ? remote : null;
@@ -131,6 +182,12 @@ export class StorageService {
 		if (!image) return;
 		try {
 			if (await this.isReferenced(image)) return;
+			const key = this.firebaseKey(image);
+			if (key !== null) {
+				if (uploadTargets.some((target) => key.startsWith(`${target}/`)))
+					await this.bucket().file(key).delete({ ignoreNotFound: true });
+				return;
+			}
 			if (this.s3 && image.startsWith(this.publicBase() + '/')) {
 				const key = image.slice(this.publicBase().length + 1);
 				await this.s3.send(new DeleteObjectCommand({ Bucket: settings.s3.bucket, Key: key }));
