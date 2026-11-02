@@ -31,6 +31,12 @@ export class Member {
 	// Firebase Authentication uid; server-side only, never exposed through GraphQL
 	memberFirebaseUid?: string;
 
+	// Telegram user id; server-side only, never exposed through GraphQL
+	memberTelegramId?: string;
+
+	@Field(() => String, { nullable: true })
+	memberTelegramUsername?: string;
+
 	@Field(() => Boolean)
 	memberPhoneVerified!: boolean;
 

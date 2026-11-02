@@ -2,7 +2,7 @@ import decodeJWT from 'jwt-decode';
 import { initializeApollo } from '../../apollo/client';
 import { userVar } from '../../apollo/store';
 import { CustomJwtPayload } from '../types/customJwtPayload';
-import { LOGIN, LOGIN_WITH_CODE, LOGIN_WITH_FIREBASE, RESET_PASSWORD, SIGN_UP, SIGN_UP_WITH_EMAIL, VERIFY_ADMIN_LOGIN } from '../../apollo/user/mutation';
+import { LOGIN, LOGIN_WITH_CODE, LOGIN_WITH_FIREBASE, LOGIN_WITH_TELEGRAM, RESET_PASSWORD, SIGN_UP, SIGN_UP_WITH_EMAIL, VERIFY_ADMIN_LOGIN } from '../../apollo/user/mutation';
 import type { User as FirebaseUser } from 'firebase/auth';
 import { GET_ME } from '../../apollo/user/query';
 
@@ -126,6 +126,21 @@ export const logInWithFirebase = async (user: FirebaseUser, memberType?: string)
 		// loaded on demand: the Firebase SDK stays out of the bundle every page loads
 		const [{ signOut }, { firebaseAuth }] = await Promise.all([import('firebase/auth'), import('../firebase')]);
 		await signOut(firebaseAuth()).catch(() => undefined);
+	}
+};
+
+/** inside the Telegram Mini App: Telegram's signed initData is the proof, the API creates the member on first use */
+export const logInWithTelegram = async (initData: string): Promise<void> => {
+	const apolloClient = await initializeApollo();
+	try {
+		const result = await apolloClient.mutate({
+			mutation: LOGIN_WITH_TELEGRAM,
+			variables: { input: { initData } },
+			fetchPolicy: 'network-only',
+		});
+		applySession(result?.data?.loginWithTelegram);
+	} catch (err: any) {
+		throw graphqlError(err);
 	}
 };
 

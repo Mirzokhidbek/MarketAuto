@@ -52,6 +52,15 @@ export class FirebaseLoginInput {
 	memberType?: MemberType;
 }
 
+/** the Telegram Mini App's window.Telegram.WebApp.initData, signed by Telegram with the bot token */
+@InputType()
+export class TelegramLoginInput {
+	@IsNotEmpty()
+	@Length(10, 4096)
+	@Field(() => String)
+	initData!: string;
+}
+
 @InputType()
 export class EmailSignupInput {
 	@IsNotEmpty()

@@ -7,6 +7,7 @@ import {
 	AgentsInquiry,
 	EmailSignupInput,
 	FirebaseLoginInput,
+	TelegramLoginInput,
 	LoginInput,
 	MemberInput,
 	MembersInquiry,
@@ -72,6 +73,12 @@ export class MemberResolver {
 	@Mutation(() => Member)
 	public async signupWithEmail(@Args('input') input: EmailSignupInput, @Context() context: any): Promise<Member> {
 		return await this.memberService.signupWithEmail(input, clientIp(context), context?.req?.headers?.['user-agent']);
+	}
+
+	/** sign-in inside the Telegram Mini App with the initData Telegram signs (creates the member on first use) */
+	@Mutation(() => Member)
+	public async loginWithTelegram(@Args('input') input: TelegramLoginInput, @Context() context: any): Promise<Member> {
+		return await this.memberService.loginWithTelegram(input, clientIp(context), context?.req?.headers?.['user-agent']);
 	}
 
 	/** sign-in with a Firebase Authentication ID token (email/password, Google or phone) */

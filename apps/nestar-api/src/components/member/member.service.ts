@@ -9,6 +9,7 @@ import {
 	NotFoundException,
 	ForbiddenException,
 	Logger,
+	ServiceUnavailableException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, ObjectId } from 'mongoose';
@@ -22,6 +23,7 @@ import {
 	MemberInput,
 	MembersInquiry,
 	PasswordInput,
+	TelegramLoginInput,
 } from '../../libs/dto/member/member.input';
 import {
 	ChangeEmailInput,
@@ -51,6 +53,7 @@ import { Follower, Following, MeFollowed } from '../../libs/dto/follow/follow';
 import { lookupAuthMemberLiked, searchRegex, idString } from '../../libs/config';
 import { SocketGateway } from '../../socket/socket.gateway';
 import { Cached } from '../../libs/cache';
+import { TelegramUser, telegramFullName, verifyInitData } from '../../libs/telegram';
 
 const logger = new Logger('MemberService');
 
@@ -216,6 +219,105 @@ export class MemberService {
 			logger.warn(`Error on Service.model: ${err instanceof Error ? err.message : String(err)}`);
 			throw new BadRequestException(Message.USED_MEMBER_NICK_OR_PHONE);
 		}
+	}
+
+	/** sign-in inside the Telegram Mini App: Telegram signs initData with the bot token, so no password is needed */
+	public async loginWithTelegram(input: TelegramLoginInput, ip: string, userAgent?: string): Promise<Member> {
+		const { botToken } = settings.telegram;
+		if (!botToken) throw new ServiceUnavailableException(Message.NOT_ALLOWED_REQUEST);
+		const user = verifyInitData(input.initData, botToken);
+		if (!user) throw new BadRequestException(Message.WRONG_LOGIN);
+		if (!(await this.memberModel.exists({ memberTelegramId: String(user.id) }))) limiters.signupIp.consume(ip);
+
+		const { member } = await this.telegramMember(user);
+		if (member.memberStatus === MemberStatus.DELETE) throw new BadRequestException(Message.WRONG_LOGIN);
+		if (member.memberStatus === MemberStatus.BLOCK) throw new ForbiddenException(blockedMessage(member));
+		// admins keep the password + SMS second step
+		if (member.memberType === MemberType.ADMIN) throw new BadRequestException(Message.NOT_ALLOWED_REQUEST);
+		return await this.startSession(member, userAgent);
+	}
+
+	/**
+	 * The member behind a Telegram account; the first contact (bot /start or Mini App) creates it with the
+	 * name and @username Telegram gives. The phone comes later, when the person shares it (setTelegramPhone).
+	 */
+	public async telegramMember(user: TelegramUser): Promise<{ member: Member; created: boolean }> {
+		const telegramId = String(user.id);
+		const existing = await this.memberModel.findOne({ memberTelegramId: telegramId }).exec();
+		if (existing) {
+			// the @username can change in Telegram; keep it current
+			if (user.username && user.username !== existing.memberTelegramUsername)
+				await this.memberModel.updateOne({ _id: existing._id }, { memberTelegramUsername: user.username }).exec();
+			return { member: existing, created: false };
+		}
+		const fullName = telegramFullName(user);
+		try {
+			const created = await this.memberModel.create({
+				memberNick: await this.freeNick(user.username || user.first_name || 'user'),
+				memberType: MemberType.USER,
+				memberAuthType: MemberAuthType.TELEGRAM,
+				memberTelegramId: telegramId,
+				...(user.username && { memberTelegramUsername: user.username }),
+				...(fullName && { memberFullName: fullName }),
+				// the account signs in through Telegram; a real password can be set later with "forgot password"
+				memberPassword: await this.authService.hashPassword(randomBytes(32).toString('hex')),
+			});
+			return { member: created, created: true };
+		} catch (err) {
+			// two updates from the same new person at once: the other one created the member
+			const raced = await this.memberModel.findOne({ memberTelegramId: telegramId }).exec();
+			if (raced) return { member: raced, created: false };
+			throw err;
+		}
+	}
+
+	/**
+	 * The phone the person shared with the bot's contact button (Telegram vouches it is their own number).
+	 * SAVED: stored on their member. LINKED: the number already had a CarPort account (e.g. signed up on the
+	 * website) with nothing tied to Telegram, so the Telegram account now signs in to that one and the empty
+	 * member made by /start is removed. TAKEN: the number belongs to an account that cannot be joined.
+	 */
+	public async setTelegramPhone(user: TelegramUser, rawPhone: string): Promise<'SAVED' | 'LINKED' | 'TAKEN' | 'INVALID'> {
+		const phone = normalizePhone(rawPhone);
+		if (!isValidPhone(phone)) return 'INVALID';
+		const { member } = await this.telegramMember(user);
+		const owner = await this.memberModel.findOne({ memberPhone: phone }).select('+memberTelegramId').exec();
+		if (!owner || String(owner._id) === String(member._id)) {
+			await this.memberModel.updateOne({ _id: member._id }, { memberPhone: phone, memberPhoneVerified: true }).exec();
+			return 'SAVED';
+		}
+		const emptyBotMember =
+			!member.memberPhone &&
+			!member.memberProperties &&
+			!member.memberArticles &&
+			!member.memberComments &&
+			!member.memberFollowings &&
+			!member.memberLikes;
+		const joinable =
+			!owner.memberTelegramId && owner.memberStatus === MemberStatus.ACTIVE && owner.memberType !== MemberType.ADMIN;
+		if (!emptyBotMember || !joinable) return 'TAKEN';
+
+		await this.authService.revokeAllSessions(member._id);
+		await this.memberModel.deleteOne({ _id: member._id, memberPhone: { $exists: false } }).exec();
+		await this.memberModel
+			.updateOne(
+				{ _id: owner._id },
+				{
+					memberTelegramId: String(user.id),
+					memberPhoneVerified: true,
+					...(user.username && { memberTelegramUsername: user.username }),
+				},
+			)
+			.exec();
+		return 'LINKED';
+	}
+
+	/** the Telegram profile photo becomes the avatar, unless the member already has one */
+	public async setAvatarIfEmpty(memberId: ObjectId, image: string): Promise<boolean> {
+		const result = await this.memberModel
+			.updateOne({ _id: memberId, memberImage: { $in: ['', null] } }, { memberImage: image })
+			.exec();
+		return result.modifiedCount > 0;
 	}
 
 	/** a free nickname (3-12 latin letters, digits, "_" or ".") built from the person's name or email */

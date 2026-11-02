@@ -544,6 +544,17 @@ export const LOGIN_WITH_FIREBASE = gql`
 	}
 `;
 
+export const LOGIN_WITH_TELEGRAM = gql`
+	mutation LoginWithTelegram($input: TelegramLoginInput!) {
+		loginWithTelegram(input: $input) {
+			_id
+			memberType
+			accessToken
+			refreshToken
+		}
+	}
+`;
+
 export const LOGIN_WITH_CODE = gql`
 	mutation LoginWithCode($input: CodeLoginInput!) {
 		loginWithCode(input: $input) {

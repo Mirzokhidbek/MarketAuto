@@ -42,6 +42,17 @@ const MemberSchema = new Schema(
 			index: { unique: true, sparse: true },
 		},
 
+		// Telegram user id (bot /start or Mini App sign-in); server-side only
+		memberTelegramId: {
+			type: String,
+			select: false,
+			index: { unique: true, sparse: true },
+		},
+
+		memberTelegramUsername: {
+			type: String,
+		},
+
 		memberEmailVerified: {
 			type: Boolean,
 			default: false,

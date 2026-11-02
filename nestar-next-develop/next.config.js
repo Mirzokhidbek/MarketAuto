@@ -1,11 +1,15 @@
 // sent with every page. No script-src policy here (Next.js and MUI inject inline scripts/styles);
 // these rules alone stop clickjacking, MIME sniffing, plugin content and <base>/form hijacking.
+// Framing is allowed only for Telegram Web, which opens the Mini App in an iframe (the phone and desktop apps use
+// a webview); X-Frame-Options cannot name an allowed site, so frame-ancestors alone guards against clickjacking.
 const securityHeaders = [
-	{ key: 'X-Frame-Options', value: 'DENY' },
 	{ key: 'X-Content-Type-Options', value: 'nosniff' },
 	{ key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
 	{ key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(), payment=()' },
-	{ key: 'Content-Security-Policy', value: "frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'" },
+	{
+		key: 'Content-Security-Policy',
+		value: "frame-ancestors https://web.telegram.org; object-src 'none'; base-uri 'self'; form-action 'self'",
+	},
 	// browsers apply HSTS only when it arrives over https, so it is harmless on local http
 	{ key: 'Strict-Transport-Security', value: 'max-age=31536000; includeSubDomains' },
 ];

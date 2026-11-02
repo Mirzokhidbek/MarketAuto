@@ -19,6 +19,7 @@ import { AdminLogModule } from './admin-log/admin-log.module';
 import { SettingModule } from './setting/setting.module';
 import { VerificationModule } from './verification/verification.module';
 import { ImportCostModule } from './import-cost/import-cost.module';
+import { TelegramModule } from './telegram/telegram.module';
 
 @Module({
 	imports: [
@@ -42,6 +43,7 @@ import { ImportCostModule } from './import-cost/import-cost.module';
 		AdminLogModule,
 		SettingModule,
 		ImportCostModule,
+		TelegramModule,
 	],
 })
 export class ComponentsModule {}

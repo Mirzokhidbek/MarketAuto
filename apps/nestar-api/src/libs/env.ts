@@ -103,6 +103,10 @@ export const settings = {
 	get firebase() {
 		return { projectId: env('FIREBASE_PROJECT_ID'), storageBucket: env('FIREBASE_STORAGE_BUCKET') };
 	},
+	// Telegram bot (sign-up with /start + contact) and Mini App login; the Mini App URL must be https
+	get telegram() {
+		return { botToken: env('TELEGRAM_BOT_TOKEN'), webAppUrl: env('TELEGRAM_WEBAPP_URL') };
+	},
 	get s3() {
 		const region = env('S3_REGION') ?? 'us-east-1';
 		const bucket = env('S3_BUCKET');

@@ -36,6 +36,7 @@ moment.updateLocale('uz-latn', {
 		yy: '%d yil',
 	},
 });
+import { useTelegramMiniApp } from '../libs/hooks/useTelegramMiniApp';
 import '../styles/index.scss';
 import '../styles/tailwind.css';
 
@@ -46,6 +47,8 @@ const App = ({ Component, pageProps }: AppProps) => {
 	// dates ("2 hours ago", month names) follow the site language; set before children render
 	const { locale } = useRouter();
 	moment.locale(locale === 'uz' ? 'uz-latn' : locale === 'ru' ? 'ru' : 'en');
+
+	useTelegramMiniApp();
 
 	// installable app + offline page; only in production builds (in development it would cache stale code)
 	useEffect(() => {
