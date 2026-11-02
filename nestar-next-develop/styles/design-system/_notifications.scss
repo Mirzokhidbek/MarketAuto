@@ -4,12 +4,12 @@
    an unread dot, and quick actions (mark read, delete) that appear on hover / always on touch screens. */
 
 $noti-tones: (
-	rose: #e11d48,
-	blue: $ma-primary,
-	violet: #7c3aed,
-	green: $ma-success,
-	red: $ma-danger,
-	amber: #d97706,
+	"rose": #e11d48,
+	"blue": $ma-primary,
+	"violet": #7c3aed,
+	"green": $ma-success,
+	"red": $ma-danger,
+	"amber": #d97706,
 );
 
 @keyframes ma-bell-ring {

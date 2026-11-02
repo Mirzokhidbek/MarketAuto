@@ -227,9 +227,9 @@ $adm-side: 248px;
 
 /* ---------------------------------------------------------------- admin bell: waiting work */
 $wait-tones: (
-	violet: #7c3aed,
-	red: #dc2626,
-	blue: $adm-accent,
+	"violet": #7c3aed,
+	"red": #dc2626,
+	"blue": $adm-accent,
 );
 
 .ma-adm-wait {
