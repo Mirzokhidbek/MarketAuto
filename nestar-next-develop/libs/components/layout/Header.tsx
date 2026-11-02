@@ -172,11 +172,6 @@ const Header = () => {
 						<Link href={'/agent'}>
 							<div> {t('Sellers')} </div>
 						</Link>
-						{user?._id && (
-							<Link href={'/mypage'}>
-								<div> {t('My Page')} </div>
-							</Link>
-						)}
 						{/* buying and selling first; articles are secondary */}
 						<Link href={'/community?articleCategory=FREE'}>
 							<div> {t('Community')} </div>
