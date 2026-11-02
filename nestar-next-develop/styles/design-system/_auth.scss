@@ -287,3 +287,60 @@
 		}
 	}
 }
+
+/* ---------- Firebase sign-in (Google, phone, email) ---------- */
+.ma-fb-auth {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	margin-bottom: 4px;
+	&__provider {
+		gap: 10px;
+		img {
+			flex-shrink: 0;
+		}
+		&.is-open {
+			border-color: $ma-primary;
+			color: $ma-primary;
+		}
+	}
+	&__panel {
+		display: flex;
+		flex-direction: column;
+		gap: 10px;
+		padding: 14px;
+		border: 1px solid $ma-border;
+		border-radius: $ma-radius;
+		background: $ma-bg;
+		.ma-input {
+			margin: 0;
+		}
+		.ma-link-btn {
+			align-self: center;
+		}
+	}
+	&__info {
+		margin: 0;
+		padding: 10px 12px;
+		border-radius: $ma-radius-sm;
+		background: $ma-primary-soft;
+		color: $ma-dark;
+		font-size: 14px;
+		line-height: 1.45;
+	}
+	&__divider {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+		margin: 6px 0 2px;
+		color: $ma-faint;
+		font-size: 13px;
+		&::before,
+		&::after {
+			content: '';
+			flex: 1;
+			height: 1px;
+			background: $ma-border;
+		}
+	}
+}

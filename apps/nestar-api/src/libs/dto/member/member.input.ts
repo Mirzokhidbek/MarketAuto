@@ -37,6 +37,21 @@ export class MemberInput {
 }
 
 /** registration with an email address instead of a phone number (code from requestEmailCode, purpose SIGNUP) */
+/** sign-in through Firebase Authentication (email/password, Google or phone); creates the account on first use */
+@InputType()
+export class FirebaseLoginInput {
+	@IsNotEmpty()
+	@Length(20, 4096)
+	@Field(() => String)
+	idToken!: string;
+
+	// only for a new account: a buyer (USER) or a seller (AGENT); never ADMIN
+	@IsOptional()
+	@IsIn([MemberType.USER, MemberType.AGENT])
+	@Field(() => MemberType, { nullable: true })
+	memberType?: MemberType;
+}
+
 @InputType()
 export class EmailSignupInput {
 	@IsNotEmpty()

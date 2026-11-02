@@ -1144,5 +1144,22 @@
 	"Sell": "Sell",
 	"Profile": "Profile",
 	"Favorites": "Favorites",
-	"Main navigation": "Main navigation"
+	"Main navigation": "Main navigation",
+	"Continue with Google": "Continue with Google",
+	"Continue with phone": "Continue with phone (SMS)",
+	"Continue with email": "Continue with email and password",
+	"or": "or",
+	"Phone number": "Phone number",
+	"Change number": "Change number",
+	"We sent a confirmation link to {{email}}. Open it, then log in here.": "We sent a confirmation link to {{email}}. Open it, then log in here.",
+	"Please confirm your email address first!": "Please confirm your email address first!",
+	"Wrong email or password": "Wrong email or password",
+	"This email is already registered": "This email is already registered",
+	"Too many attempts. Try again later.": "Too many attempts. Try again later.",
+	"Invalid phone number": "Invalid phone number",
+	"Wrong SMS code": "Wrong SMS code",
+	"Sign-in was cancelled": "Sign-in was cancelled",
+	"Phone sign-in is not available yet": "Phone sign-in is not available yet",
+	"Something went wrong. Try again.": "Something went wrong. Try again.",
+	"Accept the terms to continue": "Accept the terms to continue"
 }

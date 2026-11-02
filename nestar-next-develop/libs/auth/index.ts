@@ -2,7 +2,8 @@ import decodeJWT from 'jwt-decode';
 import { initializeApollo } from '../../apollo/client';
 import { userVar } from '../../apollo/store';
 import { CustomJwtPayload } from '../types/customJwtPayload';
-import { LOGIN, LOGIN_WITH_CODE, RESET_PASSWORD, SIGN_UP, SIGN_UP_WITH_EMAIL, VERIFY_ADMIN_LOGIN } from '../../apollo/user/mutation';
+import { LOGIN, LOGIN_WITH_CODE, LOGIN_WITH_FIREBASE, RESET_PASSWORD, SIGN_UP, SIGN_UP_WITH_EMAIL, VERIFY_ADMIN_LOGIN } from '../../apollo/user/mutation';
+import type { User as FirebaseUser } from 'firebase/auth';
 import { GET_ME } from '../../apollo/user/query';
 
 /**
@@ -101,6 +102,30 @@ export const logInWithCode = async (phone: string, code: string): Promise<void> 
 		applySession(result?.data?.loginWithCode);
 	} catch (err: any) {
 		throw graphqlError(err);
+	}
+};
+
+/**
+ * exchanges a Firebase sign-in (email/password, Google, phone) for a CarPort session.
+ * The API verifies the Firebase ID token, finds or creates the member and returns our own tokens;
+ * the Firebase session itself is closed right after, so CarPort's session is the only one.
+ */
+export const logInWithFirebase = async (user: FirebaseUser, memberType?: string): Promise<void> => {
+	const apolloClient = await initializeApollo();
+	try {
+		const idToken = await user.getIdToken();
+		const result = await apolloClient.mutate({
+			mutation: LOGIN_WITH_FIREBASE,
+			variables: { input: { idToken, ...(memberType && { memberType }) } },
+			fetchPolicy: 'network-only',
+		});
+		applySession(result?.data?.loginWithFirebase);
+	} catch (err: any) {
+		throw graphqlError(err);
+	} finally {
+		// loaded on demand: the Firebase SDK stays out of the bundle every page loads
+		const [{ signOut }, { firebaseAuth }] = await Promise.all([import('firebase/auth'), import('../firebase')]);
+		await signOut(firebaseAuth()).catch(() => undefined);
 	}
 };
 

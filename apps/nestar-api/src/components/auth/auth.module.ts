@@ -1,6 +1,7 @@
 import { settings } from '../../libs/env';
 import { Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
+import { FirebaseAuthService } from './firebase-auth.service';
 import { HttpModule } from '@nestjs/axios';
 import { JwtModule } from '@nestjs/jwt';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -23,7 +24,7 @@ import SessionSchema from '../../schemas/Session.model';
 			{ name: 'Session', schema: SessionSchema },
 		]),
 	],
-	providers: [AuthService],
-	exports: [AuthService],
+	providers: [AuthService, FirebaseAuthService],
+	exports: [AuthService, FirebaseAuthService],
 })
 export class AuthModule {}

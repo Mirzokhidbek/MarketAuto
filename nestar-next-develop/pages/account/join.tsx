@@ -12,6 +12,7 @@ import { useTranslation } from 'next-i18next';
 import PhoneCodeField from '../../libs/components/common/PhoneCodeField';
 import EmailCodeField, { EMAIL_PATTERN } from '../../libs/components/common/EmailCodeField';
 import PasswordRules from '../../libs/components/common/PasswordRules';
+import FirebaseAuthPanel from '../../libs/components/common/FirebaseAuthPanel';
 import { isStrongPassword, PASSWORD_MAX } from '../../libs/password';
 
 export const getStaticProps = async ({ locale }: any) => ({
@@ -163,6 +164,51 @@ const Join: NextPage = () => {
 					<h1>{t(titles[view][0])}</h1>
 					<p className={'ma-auth__lead'}>{t(titles[view][1])}</p>
 
+					{/* registration: account type and terms first, they apply to every sign-up method */}
+					{view === 'register' && (
+						<>
+							<span className={'ma-input__label'}>{t('Account type')}</span>
+							<div className={'ma-role'}>
+								<button type="button" className={input.type === 'USER' ? 'is-active' : ''} onClick={() => set('type', 'USER')}>
+									<strong>{t('Private seller')}</strong>
+									<span>{t('Buy, sell and follow sellers')}</span>
+								</button>
+								<button type="button" className={input.type === 'AGENT' ? 'is-active' : ''} onClick={() => set('type', 'AGENT')}>
+									<strong>{t('Dealer')}</strong>
+									<span>{t('Car dealership or showroom')}</span>
+								</button>
+							</div>
+							<label className={'ma-check ma-auth__terms'}>
+								<input type="checkbox" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} />
+								<span>
+									{t('I accept the')}{' '}
+									<Link href={'/terms'} target={'_blank'}>
+										{t('Terms of Use')}
+									</Link>
+									,{' '}
+									<Link href={'/offer'} target={'_blank'}>
+										{t('Public Offer')}
+									</Link>{' '}
+									{t('and')}{' '}
+									<Link href={'/privacy'} target={'_blank'}>
+										{t('Privacy Policy')}
+									</Link>
+									{t('terms_suffix')}
+								</span>
+							</label>
+						</>
+					)}
+
+					{/* Firebase: Google, phone and email sign-in; the classic nickname form follows below */}
+					{(view === 'login' || view === 'register') && (
+						<FirebaseAuthPanel
+							mode={view}
+							memberType={input.type}
+							canStart={view === 'login' || agreed}
+							onDone={goAfterAuth}
+						/>
+					)}
+
 					{(view === 'register' || view === 'reset') && (
 						<div className={'ma-auth__channel'} role={'tablist'} aria-label={t('Confirm with') as string}>
 							<button
@@ -282,40 +328,6 @@ const Join: NextPage = () => {
 								{t('Log in with password')}
 							</button>
 						</div>
-					)}
-
-					{view === 'register' && (
-						<>
-							<span className={'ma-input__label'}>{t('Account type')}</span>
-							<div className={'ma-role'}>
-								<button type="button" className={input.type === 'USER' ? 'is-active' : ''} onClick={() => set('type', 'USER')}>
-									<strong>{t('Private seller')}</strong>
-									<span>{t('Buy, sell and follow sellers')}</span>
-								</button>
-								<button type="button" className={input.type === 'AGENT' ? 'is-active' : ''} onClick={() => set('type', 'AGENT')}>
-									<strong>{t('Dealer')}</strong>
-									<span>{t('Car dealership or showroom')}</span>
-								</button>
-							</div>
-							<label className={'ma-check ma-auth__terms'}>
-								<input type="checkbox" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} />
-								<span>
-									{t('I accept the')}{' '}
-									<Link href={'/terms'} target={'_blank'}>
-										{t('Terms of Use')}
-									</Link>
-									,{' '}
-									<Link href={'/offer'} target={'_blank'}>
-										{t('Public Offer')}
-									</Link>{' '}
-									{t('and')}{' '}
-									<Link href={'/privacy'} target={'_blank'}>
-										{t('Privacy Policy')}
-									</Link>
-									{t('terms_suffix')}
-								</span>
-							</label>
-						</>
 					)}
 
 					{error && (

@@ -6,6 +6,7 @@ import {
 	AdminCodeInput,
 	AgentsInquiry,
 	EmailSignupInput,
+	FirebaseLoginInput,
 	LoginInput,
 	MemberInput,
 	MembersInquiry,
@@ -71,6 +72,12 @@ export class MemberResolver {
 	@Mutation(() => Member)
 	public async signupWithEmail(@Args('input') input: EmailSignupInput, @Context() context: any): Promise<Member> {
 		return await this.memberService.signupWithEmail(input, clientIp(context), context?.req?.headers?.['user-agent']);
+	}
+
+	/** sign-in with a Firebase Authentication ID token (email/password, Google or phone) */
+	@Mutation(() => Member)
+	public async loginWithFirebase(@Args('input') input: FirebaseLoginInput, @Context() context: any): Promise<Member> {
+		return await this.memberService.loginWithFirebase(input, clientIp(context), context?.req?.headers?.['user-agent']);
 	}
 
 	@Mutation(() => Member)

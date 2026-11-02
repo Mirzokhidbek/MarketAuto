@@ -1144,5 +1144,22 @@
 	"Sell": "Sotish",
 	"Profile": "Profil",
 	"Favorites": "Sevimlilar",
-	"Main navigation": "Asosiy navigatsiya"
+	"Main navigation": "Asosiy navigatsiya",
+	"Continue with Google": "Google orqali davom etish",
+	"Continue with phone": "Telefon raqam orqali (SMS)",
+	"Continue with email": "Email va parol orqali",
+	"or": "yoki",
+	"Phone number": "Telefon raqam",
+	"Change number": "Raqamni oʻzgartirish",
+	"We sent a confirmation link to {{email}}. Open it, then log in here.": "{{email}} manziliga tasdiqlash havolasini yubordik. Havolani oching, soʻng shu yerda kiring.",
+	"Please confirm your email address first!": "Avval email manzilingizni tasdiqlang!",
+	"Wrong email or password": "Email yoki parol notoʻgʻri",
+	"This email is already registered": "Bu email allaqachon roʻyxatdan oʻtgan",
+	"Too many attempts. Try again later.": "Urinishlar juda koʻp. Keyinroq qayta urinib koʻring.",
+	"Invalid phone number": "Telefon raqam notoʻgʻri",
+	"Wrong SMS code": "SMS kod notoʻgʻri",
+	"Sign-in was cancelled": "Kirish bekor qilindi",
+	"Phone sign-in is not available yet": "Telefon orqali kirish hali yoqilmagan",
+	"Something went wrong. Try again.": "Nimadir xato ketdi. Qayta urinib koʻring.",
+	"Accept the terms to continue": "Davom etish uchun shartlarni qabul qiling"
 }

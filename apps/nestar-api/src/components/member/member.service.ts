@@ -17,6 +17,7 @@ import {
 	AdminCodeInput,
 	AgentsInquiry,
 	EmailSignupInput,
+	FirebaseLoginInput,
 	LoginInput,
 	MemberInput,
 	MembersInquiry,
@@ -37,6 +38,8 @@ import { AdminRole, MemberAuthType, MemberStatus, MemberType, VerificationPurpos
 import { AdminLogService } from '../admin-log/admin-log.service';
 import { MemberAdminDetail } from '../../libs/dto/member/member-admin';
 import { AuthService } from '../auth/auth.service';
+import { FirebaseAuthService } from '../auth/firebase-auth.service';
+import { randomBytes, randomInt } from 'crypto';
 import { MemberUpdate } from '../../libs/dto/member/member.update';
 import { StatisticModifier, T } from '../../libs/types/common';
 import { ViewService } from '../view/view.service';
@@ -71,6 +74,7 @@ export class MemberService {
 		private adminLogService: AdminLogService,
 		private socketGateway: SocketGateway,
 		private mailService: MailService,
+		private firebaseAuthService: FirebaseAuthService,
 	) {}
 
 	/** new passwords: 8-64 characters, letters and digits, not common, not the nick or email */
@@ -153,6 +157,74 @@ export class MemberService {
 			logger.warn(`Error on Service.model: ${err instanceof Error ? err.message : String(err)}`);
 			throw new BadRequestException(Message.USED_MEMBER_NICK_OR_PHONE);
 		}
+	}
+
+	/**
+	 * sign-in through Firebase Authentication (email/password, Google, phone).
+	 * The account is found by Firebase uid, then by the verified email or phone (linking it), else created.
+	 */
+	public async loginWithFirebase(input: FirebaseLoginInput, ip: string, userAgent?: string): Promise<Member> {
+		const identity = await this.firebaseAuthService.verify(input.idToken);
+		// email/password accounts confirm the address first (Firebase sends the link)
+		if (identity.provider === 'password' && !identity.email) throw new BadRequestException(Message.EMAIL_NOT_VERIFIED);
+		const phone = identity.phone ? normalizePhone(identity.phone) : undefined;
+
+		let member = await this.memberModel.findOne({ memberFirebaseUid: identity.uid }).exec();
+		if (!member) {
+			const owned = [
+				...(identity.email ? [{ memberEmail: identity.email }] : []),
+				...(phone ? [{ memberPhone: phone }] : []),
+			];
+			member = owned.length ? await this.memberModel.findOne({ $or: owned }).exec() : null;
+			// an existing account: the verified email or phone proves it belongs to this Firebase user
+			if (member)
+				await this.memberModel
+					.updateOne({ _id: member._id, memberFirebaseUid: { $exists: false } }, { memberFirebaseUid: identity.uid })
+					.exec();
+		}
+
+		if (member) {
+			if (member.memberStatus === MemberStatus.DELETE) throw new BadRequestException(Message.WRONG_LOGIN);
+			if (member.memberStatus === MemberStatus.BLOCK) throw new ForbiddenException(blockedMessage(member));
+			// admins keep the password + SMS second step
+			if (member.memberType === MemberType.ADMIN) throw new BadRequestException(Message.NOT_ALLOWED_REQUEST);
+			return await this.startSession(member, userAgent);
+		}
+
+		limiters.signupIp.consume(ip);
+		const authType =
+			identity.provider === 'google.com'
+				? MemberAuthType.GOOGLE
+				: identity.provider === 'phone'
+					? MemberAuthType.PHONE
+					: MemberAuthType.EMAIL;
+		try {
+			const created = await this.memberModel.create({
+				memberNick: await this.freeNick(identity.name || identity.email?.split('@')[0] || 'user'),
+				memberType: input.memberType ?? MemberType.USER,
+				memberAuthType: authType,
+				memberFirebaseUid: identity.uid,
+				...(identity.email && { memberEmail: identity.email, memberEmailVerified: true }),
+				...(phone && { memberPhone: phone, memberPhoneVerified: true }),
+				...(identity.name && { memberFullName: identity.name.slice(0, 60) }),
+				// the account signs in through Firebase; a real password can be set later with "forgot password"
+				memberPassword: await this.authService.hashPassword(randomBytes(32).toString('hex')),
+			});
+			return await this.authService.issueTokens(created, userAgent);
+		} catch (err) {
+			logger.warn(`Error on Service.model: ${err instanceof Error ? err.message : String(err)}`);
+			throw new BadRequestException(Message.USED_MEMBER_NICK_OR_PHONE);
+		}
+	}
+
+	/** a free nickname (3-12 latin letters, digits, "_" or ".") built from the person's name or email */
+	private async freeNick(source: string): Promise<string> {
+		const base = (source.normalize('NFKD').replace(/[^a-zA-Z0-9_.]/g, '').slice(0, 7) || 'user').padEnd(3, '0');
+		for (let attempt = 0; attempt < 6; attempt++) {
+			const nick = `${base}${randomInt(1000, 99999)}`.slice(0, 12);
+			if (!(await this.memberModel.exists({ memberNick: nick }))) return nick;
+		}
+		return `u${randomInt(10 ** 9, 10 ** 10)}`.slice(0, 12);
 	}
 
 	public async login(input: LoginInput, ip: string, userAgent?: string): Promise<Member> {

@@ -28,6 +28,9 @@ export class Member {
 
 	memberPassword?: string;
 
+	// Firebase Authentication uid; server-side only, never exposed through GraphQL
+	memberFirebaseUid?: string;
+
 	@Field(() => Boolean)
 	memberPhoneVerified!: boolean;
 

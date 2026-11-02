@@ -1144,5 +1144,22 @@
 	"Sell": "Продать",
 	"Profile": "Профиль",
 	"Favorites": "Избранное",
-	"Main navigation": "Основная навигация"
+	"Main navigation": "Основная навигация",
+	"Continue with Google": "Продолжить с Google",
+	"Continue with phone": "По номеру телефона (SMS)",
+	"Continue with email": "По email и паролю",
+	"or": "или",
+	"Phone number": "Номер телефона",
+	"Change number": "Изменить номер",
+	"We sent a confirmation link to {{email}}. Open it, then log in here.": "Мы отправили ссылку для подтверждения на {{email}}. Откройте её, затем войдите здесь.",
+	"Please confirm your email address first!": "Сначала подтвердите адрес email!",
+	"Wrong email or password": "Неверный email или пароль",
+	"This email is already registered": "Этот email уже зарегистрирован",
+	"Too many attempts. Try again later.": "Слишком много попыток. Попробуйте позже.",
+	"Invalid phone number": "Неверный номер телефона",
+	"Wrong SMS code": "Неверный SMS-код",
+	"Sign-in was cancelled": "Вход отменён",
+	"Phone sign-in is not available yet": "Вход по телефону пока недоступен",
+	"Something went wrong. Try again.": "Что-то пошло не так. Попробуйте ещё раз.",
+	"Accept the terms to continue": "Примите условия, чтобы продолжить"
 }

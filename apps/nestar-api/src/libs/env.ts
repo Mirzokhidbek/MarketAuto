@@ -99,6 +99,10 @@ export const settings = {
 	get twilio() {
 		return { sid: env('TWILIO_SID'), token: env('TWILIO_TOKEN'), from: env('TWILIO_FROM') };
 	},
+	// Firebase Authentication: ID tokens from the web/mobile apps are verified against this project
+	get firebase() {
+		return { projectId: env('FIREBASE_PROJECT_ID') };
+	},
 	get s3() {
 		const region = env('S3_REGION') ?? 'us-east-1';
 		const bucket = env('S3_BUCKET');

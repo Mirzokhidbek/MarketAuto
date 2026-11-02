@@ -35,6 +35,13 @@ const MemberSchema = new Schema(
 			index: { unique: true, partialFilterExpression: { memberEmail: { $type: 'string' } } },
 		},
 
+		// Firebase Authentication user id (email/password, Google or phone sign-in through Firebase)
+		memberFirebaseUid: {
+			type: String,
+			select: false,
+			index: { unique: true, sparse: true },
+		},
+
 		memberEmailVerified: {
 			type: Boolean,
 			default: false,

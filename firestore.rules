@@ -1,0 +1,61 @@
+rules_version = '2';
+
+// ===============================================================
+// AutoMarket — Cloud Firestore Security Rules (prototype)
+// ===============================================================
+//
+// The database is intentionally locked down. AutoMarket still keeps its data
+// (cars, members, messages, ...) in MongoDB behind the NestJS API, and no client
+// code reads or writes Firestore yet. The API uses the Firebase Admin SDK, which
+// is not subject to these rules.
+//
+// When a collection moves to Firestore, add a `match` block for it with:
+//   - ownership checks (isOwner / uidUnchanged / uidNotModified),
+//   - a domain validator (e.g. isValidCar) called in BOTH create and update,
+//   - size limits on every string, list and map field.
+//
+// ===============================================================
+// Assumed Data Model
+// ===============================================================
+//
+// No collections are defined yet. Every read and write from client SDKs is denied.
+//
+// ===============================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===============================================================
+    // Helper Functions (for the collections that will be added later)
+    // ===============================================================
+
+    // the request comes from a signed-in Firebase user
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // the signed-in user is the owner of a user-keyed document
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // on create: a `uid` field, if present, must be the caller's own uid
+    function uidUnchanged() {
+      return !('uid' in request.resource.data) ||
+        request.resource.data.uid == request.auth.uid;
+    }
+
+    // on update: the `uid` field must keep its original value
+    function uidNotModified() {
+      return !('uid' in request.resource.data) ||
+        request.resource.data.uid == resource.data.uid;
+    }
+
+    // ===============================================================
+    // Default deny: nothing is readable or writable from clients
+    // ===============================================================
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

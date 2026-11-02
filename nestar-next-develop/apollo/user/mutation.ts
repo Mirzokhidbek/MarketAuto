@@ -533,6 +533,17 @@ export const SEND_MESSAGE = gql`
 	}
 `;
 
+export const LOGIN_WITH_FIREBASE = gql`
+	mutation LoginWithFirebase($input: FirebaseLoginInput!) {
+		loginWithFirebase(input: $input) {
+			_id
+			memberType
+			accessToken
+			refreshToken
+		}
+	}
+`;
+
 export const LOGIN_WITH_CODE = gql`
 	mutation LoginWithCode($input: CodeLoginInput!) {
 		loginWithCode(input: $input) {
