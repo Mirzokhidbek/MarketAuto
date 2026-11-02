@@ -18,8 +18,9 @@ const TEXT = {
 	taken: 'Bu raqam boshqa CarPort hisobiga bogʻlangan. Yordam uchun qoʻllab-quvvatlash xizmatiga yozing.',
 	invalid: 'Raqamni oʻqib boʻlmadi. Iltimos, tugma orqali qayta yuboring.',
 	ready: 'Siz roʻyxatdan oʻtgansiz.',
-	openApp: 'Ilovani ochish uchun pastdagi tugmani bosing.',
-	appButton: '🚗 CarPort’ni ochish',
+	openApp: 'Mashinalar bozoriga kirish uchun pastdagi tugmani bosing.',
+	appButton: '🚗 Bozorga kirish',
+	menuButton: 'Bozorga kirish',
 	blocked: 'Hisobingiz bloklangan. Yordam uchun qoʻllab-quvvatlash xizmatiga yozing.',
 	deleted: 'Bu Telegram hisobi bilan bogʻlangan CarPort hisobi oʻchirilgan.',
 	error: 'Xatolik yuz berdi. Birozdan keyin /start ni qayta bosing.',
@@ -74,7 +75,7 @@ export class TelegramBotService implements OnApplicationBootstrap, OnModuleDestr
 		try {
 			const { webAppUrl } = settings.telegram;
 			if (this.appUrl())
-				await bot.api.setChatMenuButton({ menu_button: { type: 'web_app', text: 'CarPort', web_app: { url: webAppUrl! } } });
+				await bot.api.setChatMenuButton({ menu_button: { type: 'web_app', text: TEXT.menuButton, web_app: { url: webAppUrl! } } });
 			await bot.start({
 				allowed_updates: ['message'],
 				onStart: (me) => this.logger.log(`@${me.username} is listening (long polling)`),
