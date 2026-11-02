@@ -34,6 +34,7 @@ import { propertyMileage, propertyYears } from '../../config';
 import { formatEnumLabel, formatMileage } from '../../utils';
 import CarOrigin from './CarOrigin';
 import SearchIcon from '@mui/icons-material/Search';
+import TuneIcon from '@mui/icons-material/Tune';
 import { useTranslation } from 'next-i18next';
 
 const MenuProps = {
@@ -504,7 +505,13 @@ const CarFilter = (props: FilterType) => {
 				</button>
 			</div>
 			<button className={'ma-btn ma-btn--outline ma-btn--block ma-filter__toggle'} onClick={() => setMobileOpen(!mobileOpen)}>
-				{mobileOpen ? t('Hide filters') : t('Show filters')}
+				{mobileOpen ? (
+					t('Hide filters')
+				) : (
+					<>
+						<TuneIcon /> {t('Filters')}
+					</>
+				)}
 				{activeFilters > 0 && <em className={'ma-filter__count'}>{activeFilters}</em>}
 			</button>
 

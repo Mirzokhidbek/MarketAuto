@@ -1,0 +1,319 @@
+/** phone layer: app-like navigation and denser lists. Loaded last. **/
+
+$ma-tabbar-height: 62px;
+
+/* ---------- bottom tab bar ---------- */
+.ma-tabbar {
+	display: none;
+}
+
+@media (max-width: 600px) {
+	.ma-tabbar {
+		position: fixed;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		z-index: 1100;
+		display: grid;
+		grid-template-columns: repeat(5, minmax(0, 1fr));
+		align-items: stretch;
+		height: calc(#{$ma-tabbar-height} + env(safe-area-inset-bottom));
+		padding: 0 4px env(safe-area-inset-bottom);
+		background: rgba(255, 255, 255, 0.96);
+		backdrop-filter: saturate(180%) blur(12px);
+		-webkit-backdrop-filter: saturate(180%) blur(12px);
+		border-top: 1px solid $ma-border;
+		font-family: $ma-font;
+		&__item {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			gap: 3px;
+			min-width: 0;
+			color: $ma-faint;
+			-webkit-tap-highlight-color: transparent;
+			&.is-active {
+				color: $ma-primary;
+				.ma-tabbar__label {
+					font-weight: 600;
+				}
+			}
+			&:active .ma-tabbar__icon {
+				transform: scale(0.92);
+			}
+		}
+		&__icon {
+			display: flex;
+			align-items: center;
+			height: 30px;
+			transition: transform 0.12s ease;
+			svg {
+				font-size: 24px;
+			}
+		}
+		&__label {
+			max-width: 100%;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+			font-size: 11px;
+			line-height: 1.2;
+		}
+		/* the "sell" action stands out as a filled round button */
+		&__item--primary {
+			color: $ma-dark;
+			.ma-tabbar__icon {
+				width: 40px;
+				height: 30px;
+				align-items: center;
+				justify-content: center;
+				border-radius: 10px;
+				background: $ma-primary;
+				color: $ma-white;
+				box-shadow: 0 4px 12px rgba(1, 93, 234, 0.32);
+				svg {
+					font-size: 22px;
+				}
+			}
+			&.is-active {
+				color: $ma-primary;
+			}
+		}
+	}
+
+	/* room for the bar under the last content */
+	#pc-wrap {
+		padding-bottom: calc(#{$ma-tabbar-height} + env(safe-area-inset-bottom));
+	}
+	/* the car page has its own call / write bar instead */
+	body:has(.ma-contact-bar) {
+		.ma-tabbar {
+			display: none;
+		}
+		#pc-wrap {
+			padding-bottom: 0;
+		}
+	}
+	/* the compare pill floats above the tab bar */
+	.ma-compare-bar {
+		bottom: calc(#{$ma-tabbar-height} + 12px + env(safe-area-inset-bottom));
+		max-width: calc(100% - 24px);
+	}
+	/* the bar carries "sell"; the burger menu does not need to repeat it */
+	.ma-burger-extras > a {
+		display: none;
+	}
+}
+
+/* ---------- compact car rows ---------- */
+@media (max-width: 600px) {
+	.ma-grid:has(> .ma-car-card) {
+		gap: 0;
+	}
+	.ma-car-card {
+		display: grid;
+		grid-template-columns: 132px minmax(0, 1fr);
+		gap: 12px;
+		padding: 12px 0;
+		border-bottom: 1px solid $ma-border;
+		&:first-child {
+			padding-top: 4px;
+		}
+		&:last-child {
+			border-bottom: none;
+		}
+		&__media {
+			aspect-ratio: 4 / 3;
+			align-self: start;
+			border-radius: 8px;
+		}
+		&__badges {
+			left: 6px;
+			right: 6px;
+			bottom: 6px;
+			flex-wrap: wrap;
+			gap: 4px;
+			.ma-badge {
+				max-width: 100%;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+				padding: 2px 6px;
+				font-size: 10px;
+			}
+			/* one badge fits a small photo; the second would cover the car */
+			.ma-badge:not(:first-child) {
+				display: none;
+			}
+		}
+		/* compare stays reachable from the car page; the heart is the quick action */
+		&__actions {
+			top: 6px;
+			right: 6px;
+		}
+		&__compare:not(.is-active) {
+			display: none;
+		}
+		&__like,
+		&__compare {
+			width: 30px;
+			height: 30px;
+			svg {
+				font-size: 16px;
+			}
+		}
+		&__body {
+			padding: 0;
+			min-width: 0;
+		}
+		&__title-row {
+			flex-wrap: wrap;
+			row-gap: 4px;
+			h3 {
+				font-size: 15px;
+				white-space: normal;
+				display: -webkit-box;
+				-webkit-line-clamp: 2;
+				-webkit-box-orient: vertical;
+			}
+			.ma-chip {
+				font-size: 11px;
+			}
+		}
+		&__specs {
+			margin: 4px 0 6px;
+			font-size: 12.5px;
+		}
+		&__footer {
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 2px;
+			font-size: 12.5px;
+		}
+		&__price {
+			font-size: 17px;
+		}
+		&:hover &__media img {
+			transform: none;
+		}
+	}
+}
+
+/* ---------- car search page ---------- */
+@media (max-width: 600px) {
+	#pc-wrap .header-basic {
+		padding: 76px 0 12px;
+		.container strong {
+			font-size: 22px !important;
+		}
+	}
+	/* folded filter: search field and a compact "Filters" button on one line */
+	.ma-filter:not(.is-open) {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) auto;
+		gap: 8px;
+		margin-bottom: 4px;
+		padding: 0;
+		border: none;
+		background: transparent;
+		> .ma-filter__head,
+		> .ma-filter__save {
+			display: none !important;
+		}
+		> .ma-filter__search {
+			order: 1;
+			margin: 0;
+		}
+		> .ma-filter__toggle {
+			order: 2;
+			width: auto;
+			margin: 0;
+			padding: 0 14px;
+		}
+	}
+	/* "Sotuvdagi mashinalar · 52" on the left, sort on the right */
+	.ma-results__bar {
+		flex-direction: row;
+		align-items: center;
+		gap: 12px;
+		h2 {
+			font-size: 18px;
+		}
+		.ma-sort {
+			margin-left: auto;
+			> span {
+				display: none;
+			}
+			select {
+				max-width: 150px;
+			}
+		}
+	}
+}
+
+/* ---------- burger menu ---------- */
+.ma-menu-backdrop {
+	display: none;
+}
+
+@media (max-width: 900px) {
+	.ma-menu-backdrop {
+		display: block;
+		position: fixed;
+		inset: 64px 0 0; // the header itself stays undimmed
+		z-index: -1;
+		background: rgba(15, 23, 42, 0.32);
+		animation: ma-fade-in 0.15s ease;
+	}
+	#pc-wrap #top .navbar .navbar-main .container .router-box {
+		z-index: 2;
+		a div {
+			font-size: 16px;
+			font-weight: 500;
+		}
+		a.is-active div {
+			background: $ma-primary-soft;
+			color: $ma-primary;
+			font-weight: 600;
+		}
+	}
+}
+
+@keyframes ma-fade-in {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+/* ---------- full-screen filter sheet ---------- */
+@media (max-width: 900px) {
+	// the desktop sidebar is transparent; as a sheet it needs its own surface
+	.ma-filter.is-open {
+		padding: 0 16px 96px;
+		border: none;
+		background: $ma-white;
+		> .ma-filter__head {
+			position: sticky;
+			top: 0;
+			z-index: 2;
+			margin: 0 -16px 12px;
+			padding: 14px 16px;
+			background: $ma-white;
+			border-bottom: 1px solid $ma-border;
+			strong {
+				font-size: 18px;
+			}
+		}
+		> .ma-filter__save {
+			margin-top: 16px;
+		}
+	}
+	/* the page under the sheet must not scroll along */
+	body:has(.ma-filter.is-open) {
+		overflow: hidden;
+	}
+}

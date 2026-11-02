@@ -92,6 +92,10 @@ const Header = () => {
 		setAnchorEl(null);
 	};
 
+	// the section the visitor is in is highlighted in the menu
+	const navClass = (path: string) =>
+		(path === '/' ? router.pathname === '/' : router.pathname.startsWith(path)) ? 'is-active' : undefined;
+
 	const handleHover = (event: any) => {
 		if (anchorEl !== event.currentTarget) {
 			setAnchorEl(event.currentTarget);
@@ -154,29 +158,32 @@ const Header = () => {
 					<button
 						className={'ma-burger'}
 						aria-label={t('Menu') as string}
+						aria-expanded={menuOpen}
 						onClick={() => setMenuOpen((prev) => !prev)}
 					>
 						{menuOpen ? <CloseIcon /> : <MenuIcon />}
 					</button>
+					{/* phones: dims the page under the open menu; a tap outside closes it */}
+					{menuOpen && <div className={'ma-menu-backdrop'} onClick={() => setMenuOpen(false)} />}
 					<Box
 						component={'div'}
 						className={`router-box ${menuOpen ? 'is-open' : ''}`}
 						onClick={() => setMenuOpen(false)}
 					>
-						<Link href={'/'}>
+						<Link href={'/'} className={navClass('/')}>
 							<div>{t('Home')}</div>
 						</Link>
-						<Link href={'/property'}>
+						<Link href={'/property'} className={navClass('/property')}>
 							<div>{t('Cars')}</div>
 						</Link>
-						<Link href={'/agent'}>
+						<Link href={'/agent'} className={navClass('/agent')}>
 							<div> {t('Sellers')} </div>
 						</Link>
 						{/* buying and selling first; articles are secondary */}
-						<Link href={'/community?articleCategory=FREE'}>
+						<Link href={'/community?articleCategory=FREE'} className={navClass('/community')}>
 							<div> {t('Community')} </div>
 						</Link>
-						<Link href={'/cs'}>
+						<Link href={'/cs'} className={navClass('/cs')}>
 							<div> {t('CS')} </div>
 						</Link>
 						{/* phones: actions that do not fit into the header bar */}
