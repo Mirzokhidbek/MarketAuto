@@ -234,6 +234,16 @@ const Header = () => {
 									>
 										{t('My Page')}
 									</MenuItem>
+									{user.memberType === 'ADMIN' && (
+										<MenuItem
+											onClick={() => {
+												setLogoutAnchor(null);
+												router.push('/_admin');
+											}}
+										>
+											{t('Admin panel')}
+										</MenuItem>
+									)}
 									<MenuItem onClick={() => logOut()}>
 										<Logout fontSize="small" style={{ color: '#015DEA', marginRight: '10px' }} />
 										{t('Logout')}

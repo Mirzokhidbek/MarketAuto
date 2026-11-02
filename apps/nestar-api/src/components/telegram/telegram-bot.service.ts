@@ -2,7 +2,8 @@ import { Injectable, Logger, OnApplicationBootstrap, OnModuleDestroy } from '@ne
 import { Bot, Context, InlineKeyboard, Keyboard } from 'grammy';
 import type { ObjectId } from 'mongoose';
 import { settings } from '../../libs/env';
-import { MemberStatus } from '../../libs/enums/member.enum';
+import { MemberStatus, MemberType } from '../../libs/enums/member.enum';
+import { Member } from '../../libs/dto/member/member';
 import { MemberService } from '../member/member.service';
 import { StorageService } from '../storage/storage.service';
 
@@ -21,6 +22,7 @@ const TEXT = {
 	openApp: 'Mashinalar bozoriga kirish uchun pastdagi tugmani bosing.',
 	appButton: '🚗 Bozorga kirish',
 	menuButton: 'Bozorga kirish',
+	adminButton: '🛠 Admin panel',
 	blocked: 'Hisobingiz bloklangan. Yordam uchun qoʻllab-quvvatlash xizmatiga yozing.',
 	deleted: 'Bu Telegram hisobi bilan bogʻlangan CarPort hisobi oʻchirilgan.',
 	error: 'Xatolik yuz berdi. Birozdan keyin /start ni qayta bosing.',
@@ -98,7 +100,7 @@ export class TelegramBotService implements OnApplicationBootstrap, OnModuleDestr
 			await ctx.reply(TEXT.welcome(from.first_name), { reply_markup: this.phoneKeyboard() });
 			return;
 		}
-		await this.replyReady(ctx, TEXT.ready);
+		await this.replyReady(ctx, TEXT.ready, member);
 	}
 
 	private async onContact(ctx: Context): Promise<void> {
@@ -116,7 +118,7 @@ export class TelegramBotService implements OnApplicationBootstrap, OnModuleDestr
 		const result = await this.memberService.setTelegramPhone(from, contact.phone_number);
 		if (result === 'INVALID') return void (await ctx.reply(TEXT.invalid, { reply_markup: this.phoneKeyboard() }));
 		if (result === 'TAKEN') return void (await ctx.reply(TEXT.taken, { reply_markup: { remove_keyboard: true } }));
-		await this.replyReady(ctx, result === 'LINKED' ? TEXT.linked : TEXT.saved);
+		await this.replyReady(ctx, result === 'LINKED' ? TEXT.linked : TEXT.saved, (await this.memberService.telegramMember(from)).member);
 	}
 
 	/** any other message: ask for the phone if it is still missing, else point to the app */
@@ -126,13 +128,18 @@ export class TelegramBotService implements OnApplicationBootstrap, OnModuleDestr
 		if (created) void this.saveAvatar(ctx, ctx.from.id, member._id);
 		if (member.memberStatus !== MemberStatus.ACTIVE) return;
 		if (!member.memberPhone) await ctx.reply(TEXT.askPhone, { reply_markup: this.phoneKeyboard() });
-		else await this.replyReady(ctx, TEXT.ready);
+		else await this.replyReady(ctx, TEXT.ready, member);
 	}
 
-	private async replyReady(ctx: Context, text: string): Promise<void> {
+	private async replyReady(ctx: Context, text: string, member: Member): Promise<void> {
 		await ctx.reply(text, { reply_markup: { remove_keyboard: true } });
 		const url = this.appUrl();
-		if (url) await ctx.reply(TEXT.openApp, { reply_markup: new InlineKeyboard().webApp(TEXT.appButton, url) });
+		if (!url) return;
+		const keyboard = new InlineKeyboard().webApp(TEXT.appButton, url);
+		// an admin whose Telegram id is allowed opens the admin panel straight from the bot
+		if (member.memberType === MemberType.ADMIN && ctx.from && this.memberService.isTelegramAdmin(ctx.from.id))
+			keyboard.row().webApp(TEXT.adminButton, `${url.replace(/\/$/, '')}/_admin`);
+		await ctx.reply(TEXT.openApp, { reply_markup: keyboard });
 	}
 
 	private phoneKeyboard(): Keyboard {

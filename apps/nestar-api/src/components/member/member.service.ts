@@ -232,9 +232,15 @@ export class MemberService {
 		const { member } = await this.telegramMember(user);
 		if (member.memberStatus === MemberStatus.DELETE) throw new BadRequestException(Message.WRONG_LOGIN);
 		if (member.memberStatus === MemberStatus.BLOCK) throw new ForbiddenException(blockedMessage(member));
-		// admins keep the password + SMS second step
-		if (member.memberType === MemberType.ADMIN) throw new BadRequestException(Message.NOT_ALLOWED_REQUEST);
+		// admins keep the password + SMS second step, unless their Telegram id is listed in ADMIN_TELEGRAM_IDS
+		if (member.memberType === MemberType.ADMIN && !this.isTelegramAdmin(user.id))
+			throw new BadRequestException(Message.NOT_ALLOWED_REQUEST);
 		return await this.startSession(member, userAgent);
+	}
+
+	/** a Telegram user allowed to use an admin account through the bot and the Mini App */
+	public isTelegramAdmin(telegramId: number | string): boolean {
+		return settings.telegram.adminIds.includes(String(telegramId));
 	}
 
 	/**

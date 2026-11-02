@@ -39,8 +39,10 @@ let signIn: Promise<boolean> | null = null;
 /**
  * Signs the Mini App user in with their Telegram account (the member made by the bot's /start), once per visit.
  * Resolves true when a session exists afterwards. Pages that need a member (e.g. the login page) await it.
+ * `fresh`: sign in again even with a session, e.g. when the saved token still shows an older role.
  */
-export const telegramSignIn = (): Promise<boolean> => {
+export const telegramSignIn = (fresh = false): Promise<boolean> => {
+	if (fresh) signIn = null;
 	signIn ??= (async () => {
 		if (!isInsideTelegram()) return hasSession();
 		await loadScript();
@@ -48,7 +50,7 @@ export const telegramSignIn = (): Promise<boolean> => {
 		if (!webApp?.initData) return hasSession();
 		webApp.ready();
 		webApp.expand();
-		if (!hasSession()) await logInWithTelegram(webApp.initData);
+		if (fresh || !hasSession()) await logInWithTelegram(webApp.initData);
 		return hasSession();
 	})().catch((err) => {
 		console.warn('Telegram Mini App:', err.message);

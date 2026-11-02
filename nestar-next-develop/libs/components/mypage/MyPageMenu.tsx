@@ -16,6 +16,7 @@ import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import NotificationsActiveOutlinedIcon from '@mui/icons-material/NotificationsActiveOutlined';
 import NotificationsNoneOutlinedIcon from '@mui/icons-material/NotificationsNoneOutlined';
 import LogoutIcon from '@mui/icons-material/Logout';
+import AdminPanelSettingsOutlinedIcon from '@mui/icons-material/AdminPanelSettingsOutlined';
 import Badge from '../ui/Badge';
 import { ButtonLink } from '../ui/Button';
 import { cx } from '../ui/classNames';
@@ -149,6 +150,13 @@ const MyPageMenu = () => {
 					})}
 				</nav>
 			))}
+
+			{user?.memberType === 'ADMIN' && (
+				<Link href={'/_admin'} className={cx(itemClasses, 'text-primary hover:bg-surface [&_svg]:text-primary')}>
+					<AdminPanelSettingsOutlinedIcon />
+					{t('Admin panel')}
+				</Link>
+			)}
 
 			<button
 				type={'button'}

@@ -105,7 +105,15 @@ export const settings = {
 	},
 	// Telegram bot (sign-up with /start + contact) and Mini App login; the Mini App URL must be https
 	get telegram() {
-		return { botToken: env('TELEGRAM_BOT_TOKEN'), webAppUrl: env('TELEGRAM_WEBAPP_URL') };
+		return {
+			botToken: env('TELEGRAM_BOT_TOKEN'),
+			webAppUrl: env('TELEGRAM_WEBAPP_URL'),
+			// Telegram user ids whose admin account may sign in through the Mini App (no password + SMS step)
+			adminIds: (env('ADMIN_TELEGRAM_IDS') ?? '')
+				.split(',')
+				.map((id) => id.trim())
+				.filter(Boolean),
+		};
 	},
 	get s3() {
 		const region = env('S3_REGION') ?? 'us-east-1';

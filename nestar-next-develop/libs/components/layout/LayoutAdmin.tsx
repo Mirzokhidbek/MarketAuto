@@ -17,6 +17,7 @@ import { getJwtToken, logOut, updateUserInfo } from '../../auth';
 import { userVar } from '../../../apollo/store';
 import { GET_ADMIN_BADGES } from '../../../apollo/admin/query';
 import { MemberType } from '../../enums/member.enum';
+import { isInsideTelegram, telegramSignIn } from '../../hooks/useTelegramMiniApp';
 
 /** quick tabs in the top bar: the pages used every day */
 const QUICK = [
@@ -84,12 +85,23 @@ const withAdminLayout = (Component: ComponentType) => {
 			setLoading(false);
 		}, []);
 
+		// inside the Telegram Mini App the saved token may predate the admin role: sign in with Telegram once more
+		const [telegramChecked, setTelegramChecked] = useState(false);
 		useEffect(() => {
 			if (loading || user.memberType === MemberType.ADMIN) return;
+			if (!telegramChecked && isInsideTelegram()) {
+				telegramSignIn(true)
+					.then((ok) => {
+						const jwt = getJwtToken();
+						if (ok && jwt) updateUserInfo(jwt);
+					})
+					.finally(() => setTelegramChecked(true));
+				return;
+			}
 			// not logged in: log in first and come back here; logged in but not an admin: home page
 			if (!getJwtToken()) router.replace(`/account/join?referrer=${encodeURIComponent(router.asPath)}`).then();
 			else router.replace('/').then();
-		}, [loading, user, router]);
+		}, [loading, user, router, telegramChecked]);
 
 		useEffect(() => {
 			if (forbidden) router.replace('/_admin').then();
