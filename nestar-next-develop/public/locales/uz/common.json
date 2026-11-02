@@ -1161,5 +1161,7 @@
 	"Sign-in was cancelled": "Kirish bekor qilindi",
 	"Phone sign-in is not available yet": "Telefon orqali kirish hali yoqilmagan",
 	"Something went wrong. Try again.": "Nimadir xato ketdi. Qayta urinib koʻring.",
-	"Accept the terms to continue": "Davom etish uchun shartlarni qabul qiling"
+	"Accept the terms to continue": "Davom etish uchun shartlarni qabul qiling",
+	"Signing in with Telegram…": "Telegram orqali kirilmoqda…",
+	"Could not sign in with Telegram. Open the bot and press /start, then try again.": "Telegram orqali kirib boʻlmadi. Botni oching va /start ni bosing, keyin qayta urinib koʻring."
 }

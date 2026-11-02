@@ -1,4 +1,4 @@
-import { imageUrl } from '../../utils';
+import { imageUrl, joinHref } from '../../utils';
 import React, { useCallback, useEffect, useRef } from 'react';
 import { useState } from 'react';
 import { useRouter, withRouter } from 'next/router';
@@ -188,14 +188,14 @@ const Header = () => {
 						</Link>
 						{/* phones: actions that do not fit into the header bar */}
 						<div className={'ma-burger-extras'} onClick={(e) => e.stopPropagation()}>
-							<Link href={user?._id ? '/mypage?category=addProperty' : '/account/join'}>
+							<Link href={user?._id ? '/mypage?category=addProperty' : joinHref('/mypage?category=addProperty')}>
 								<span className={'ma-btn ma-btn--primary ma-btn--block'}>{t('Sell a car')}</span>
 							</Link>
 							<CurrencySwitch />
 						</div>
 					</Box>
 					<Box component={'div'} className={'user-box'}>
-						<Link href={user?._id ? '/mypage?category=addProperty' : '/account/join'}>
+						<Link href={user?._id ? '/mypage?category=addProperty' : joinHref('/mypage?category=addProperty')}>
 							<span className={'ma-btn ma-btn--primary ma-nav-sell'}>{t('Sell a car')}</span>
 						</Link>
 						{user?._id ? (

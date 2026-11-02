@@ -5,6 +5,23 @@
 	justify-content: center;
 	min-height: calc(100vh - 72px);
 	padding: 112px 24px 64px;
+	/* Telegram Mini App: signing in with the Telegram account instead of the form */
+	&__telegram {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 16px;
+		color: $ma-muted;
+		font-size: 15px;
+	}
+	&__spinner {
+		width: 36px;
+		height: 36px;
+		border-radius: 50%;
+		border: 3px solid $ma-border;
+		border-top-color: $ma-primary;
+		animation: ma-auth-spin 0.8s linear infinite;
+	}
 	&__card {
 		display: grid;
 		grid-template-columns: 1fr 1fr;
@@ -342,5 +359,11 @@
 			height: 1px;
 			background: $ma-border;
 		}
+	}
+}
+
+@keyframes ma-auth-spin {
+	to {
+		transform: rotate(360deg);
 	}
 }

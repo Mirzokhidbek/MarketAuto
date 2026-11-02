@@ -23,6 +23,7 @@ import MemberFollowings from '../../libs/components/member/MemberFollowings';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { LIKE_TARGET_MEMBER, SUBSCRIBE, UNSUBSCRIBE } from '../../apollo/user/mutation';
 import { Messages } from '../../libs/config';
+import { joinHref } from '../../libs/utils';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {
@@ -43,7 +44,7 @@ const MyPage: NextPage = () => {
 	/** LIFECYCLES **/
 	useEffect(() => {
 		// user info is restored from the token by the layout; only redirect when there is no session at all
-		if (!getJwtToken()) router.push('/account/join').then();
+		if (!getJwtToken()) router.push(joinHref(router.asPath)).then();
 	}, []);
 
 	/** HANDLERS **/

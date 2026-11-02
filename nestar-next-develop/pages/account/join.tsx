@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { NextPage } from 'next';
 import Link from 'next/link';
 import withLayoutFull from '../../libs/components/layout/LayoutFull';
@@ -14,6 +14,7 @@ import EmailCodeField, { EMAIL_PATTERN } from '../../libs/components/common/Emai
 import PasswordRules from '../../libs/components/common/PasswordRules';
 import FirebaseAuthPanel from '../../libs/components/common/FirebaseAuthPanel';
 import { isStrongPassword, PASSWORD_MAX } from '../../libs/password';
+import { isInsideTelegram, telegramSignIn } from '../../libs/hooks/useTelegramMiniApp';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {
@@ -67,6 +68,19 @@ const Join: NextPage = () => {
 		const safeReferrer = referrer.startsWith('/') && !referrer.startsWith('//') ? referrer : '/';
 		await router.push(isAdmin ? (safeReferrer.startsWith('/_admin') ? safeReferrer : '/_admin') : safeReferrer);
 	};
+
+	// inside the Telegram Mini App the bot's /start already registered the person: sign in with Telegram, no form
+	const [telegram, setTelegram] = useState<'checking' | 'failed' | null>(null);
+	useEffect(() => {
+		// the referrer (where to go afterwards) is in router.query only once the router is ready
+		if (!router.isReady || !isInsideTelegram()) return;
+		setTelegram('checking');
+		telegramSignIn().then((ok) => {
+			if (ok) return goAfterAuth();
+			setTelegram('failed');
+			setError(t('Could not sign in with Telegram. Open the bot and press /start, then try again.') as string);
+		});
+	}, [router.isReady]);
 
 	const submitHandler = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -131,6 +145,16 @@ const Join: NextPage = () => {
 		],
 		admin2fa: ['Admin login confirmation', 'We sent a code to the phone number of the admin account.'],
 	};
+
+	if (telegram === 'checking')
+		return (
+			<div className={'ma-page ma-auth'}>
+				<div className={'ma-auth__telegram'}>
+					<span className={'ma-auth__spinner'} />
+					<p>{t('Signing in with Telegram…')}</p>
+				</div>
+			</div>
+		);
 
 	return (
 		<div className={'ma-page ma-auth'}>

@@ -11,6 +11,9 @@ const enumLabelExceptions: Record<string, string> = {
 type Translate = (key: string) => string;
 
 /** SUV -> SUV, TASHKENT_REGION -> Tashkent Region; pass `t` to get the localized label **/
+/** the login page, returning to `path` afterwards (inside the Telegram Mini App it signs in by itself) */
+export const joinHref = (path: string): string => `/account/join?referrer=${encodeURIComponent(path)}`;
+
 export const formatEnumLabel = (value: string | undefined, t?: Translate): string => {
 	if (!value) return '';
 	const label = enumLabelExceptions[value]

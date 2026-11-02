@@ -1161,5 +1161,7 @@
 	"Sign-in was cancelled": "Вход отменён",
 	"Phone sign-in is not available yet": "Вход по телефону пока недоступен",
 	"Something went wrong. Try again.": "Что-то пошло не так. Попробуйте ещё раз.",
-	"Accept the terms to continue": "Примите условия, чтобы продолжить"
+	"Accept the terms to continue": "Примите условия, чтобы продолжить",
+	"Signing in with Telegram…": "Вход через Telegram…",
+	"Could not sign in with Telegram. Open the bot and press /start, then try again.": "Не удалось войти через Telegram. Откройте бота, нажмите /start и попробуйте снова."
 }

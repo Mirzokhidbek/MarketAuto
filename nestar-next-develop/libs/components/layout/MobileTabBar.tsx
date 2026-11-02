@@ -9,6 +9,7 @@ import AddIcon from '@mui/icons-material/Add';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import { userVar } from '../../../apollo/store';
+import { joinHref } from '../../utils';
 
 /** phones only: app-style bottom navigation for the main destinations */
 const MobileTabBar = () => {
@@ -29,20 +30,20 @@ const MobileTabBar = () => {
 			active: router.pathname.startsWith('/property'),
 		},
 		{
-			href: signedIn ? '/mypage?category=addProperty' : '/account/join',
+			href: signedIn ? '/mypage?category=addProperty' : joinHref('/mypage?category=addProperty'),
 			label: t('Sell'),
 			icon: <AddIcon />,
 			active: onMyPage && category === 'addProperty',
 			primary: true,
 		},
 		{
-			href: signedIn ? '/mypage?category=myFavorites' : '/account/join',
+			href: signedIn ? '/mypage?category=myFavorites' : joinHref('/mypage?category=myFavorites'),
 			label: t('Favorites'),
 			icon: <FavoriteBorderIcon />,
 			active: onMyPage && category === 'myFavorites',
 		},
 		{
-			href: signedIn ? '/mypage' : '/account/join',
+			href: signedIn ? '/mypage' : joinHref('/mypage'),
 			label: t('Profile'),
 			icon: <PersonOutlineIcon />,
 			active:

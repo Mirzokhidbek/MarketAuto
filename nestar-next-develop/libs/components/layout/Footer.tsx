@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { useTranslation } from 'next-i18next';
 import { useSiteSettings } from '../../hooks/useSiteSettings';
 import MobileTabBar from './MobileTabBar';
+import { joinHref } from '../../utils';
 
 const Footer = () => {
 	const { t } = useTranslation('common');
@@ -46,7 +47,7 @@ const Footer = () => {
 					</div>
 					<div>
 						<strong>{t('FOR SELLERS')}</strong>
-						<Link href={'/account/join'}>{t('Sell a car')}</Link>
+						<Link href={joinHref('/mypage?category=addProperty')}>{t('Sell a car')}</Link>
 						<Link href={'/mypage'}>{t('My Page')}</Link>
 						<Link href={'/community?articleCategory=FREE'}>{t('Community')}</Link>
 					</div>

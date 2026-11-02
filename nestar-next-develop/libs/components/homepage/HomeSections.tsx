@@ -14,6 +14,7 @@ import { Direction } from '../../enums/common.enum';
 import SellerCard from '../seller/SellerCard';
 import { useSiteSettings } from '../../hooks/useSiteSettings';
 import CarOrigin from '../car/CarOrigin';
+import { joinHref } from '../../utils';
 
 const searchLink = (country: CarCountry) =>
 	`/property?input=${JSON.stringify({ page: 1, limit: 9, sort: 'createdAt', search: { countryList: [country] } })}`;
@@ -144,7 +145,7 @@ export const SellCta = () => {
 	const { t } = useTranslation('common');
 	const { phone: supportPhone } = useSiteSettings();
 	const user = useReactiveVar(userVar);
-	const sellHref = user?._id ? '/mypage?category=addProperty' : '/account/join';
+	const sellHref = user?._id ? '/mypage?category=addProperty' : joinHref('/mypage?category=addProperty');
 
 	return (
 		<section className={'ma-section'}>

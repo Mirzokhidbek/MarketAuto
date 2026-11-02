@@ -1161,5 +1161,7 @@
 	"Sign-in was cancelled": "Sign-in was cancelled",
 	"Phone sign-in is not available yet": "Phone sign-in is not available yet",
 	"Something went wrong. Try again.": "Something went wrong. Try again.",
-	"Accept the terms to continue": "Accept the terms to continue"
+	"Accept the terms to continue": "Accept the terms to continue",
+	"Signing in with Telegram…": "Signing in with Telegram…",
+	"Could not sign in with Telegram. Open the bot and press /start, then try again.": "Could not sign in with Telegram. Open the bot and press /start, then try again."
 }
