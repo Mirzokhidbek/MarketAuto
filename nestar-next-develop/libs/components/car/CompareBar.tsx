@@ -14,7 +14,7 @@ const CompareBar = () => {
 	const ids = useReactiveVar(compareVar);
 	if (!ids.length || router.pathname === '/compare') return null;
 	return (
-		<div className="fixed bottom-[calc(20px+env(safe-area-inset-bottom))] left-1/2 z-[1200] flex max-w-[calc(100%-24px)] -translate-x-1/2 items-center gap-3.5 rounded-[10px] bg-ink py-2.5 pr-3 pl-5 font-sans text-sm text-white shadow-float max-sm:bottom-[calc(74px+env(safe-area-inset-bottom))]">
+		<div className="fixed bottom-[calc(20px+env(safe-area-inset-bottom))] left-1/2 z-[1200] flex max-w-[calc(100%-24px)] -translate-x-1/2 items-center gap-3.5 rounded-[10px] bg-ink py-2.5 pr-3 pl-5 font-sans text-sm text-white shadow-float max-sm:bottom-[calc(74px+env(safe-area-inset-bottom))] max-sm:[body:has(.ma-contact-bar)_&]:bottom-[84px]">
 			<span>
 				{t('Cars to compare')}: <strong>{ids.length}/3</strong>
 			</span>

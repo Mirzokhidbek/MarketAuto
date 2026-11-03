@@ -12,6 +12,12 @@ import { usePrice } from '../libs/hooks/usePrice';
 import { formatCarPlace, formatCountry, formatEngine, formatEnumLabel, formatMileage, imageUrl } from '../libs/utils';
 import { Property } from '../libs/types/property/property';
 import { CarIcon as DirectionsCarFilledOutlinedIcon } from '../libs/components/ui/icons';
+import PageContainer from '../libs/components/ui/PageContainer';
+import { buttonClasses } from '../libs/components/ui/Button';
+import { cx } from '../libs/components/ui/classNames';
+
+const cell = 'border-b border-line px-4 py-3 text-left align-top text-sm';
+const head = `${cell} w-[180px] bg-[#f1f3f6] font-medium text-muted`;
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: { ...(await serverSideTranslations(locale, ['common'])) },
@@ -32,15 +38,15 @@ const ComparePage: NextPage = () => {
 
 	if (!ids.length) {
 		return (
-			<div className={'ma-page'}>
-				<div className={'ma-container'}>
-					<div className={'ma-empty ma-empty--cta'}>
-						<p>{t('Add up to 3 cars to compare them side by side.')}</p>
-						<Link href={'/property'}>
-							<span className={'ma-btn ma-btn--primary'}>{t('Browse cars')}</span>
+			<div className="pt-8 pb-20 font-sans">
+				<PageContainer>
+					<div className="flex flex-col items-center gap-3.5 border-y border-line px-6 py-14 text-center text-[15px] text-muted">
+						<p className="m-0">{t('Add up to 3 cars to compare them side by side.')}</p>
+						<Link href={'/property'} className={buttonClasses()}>
+							{t('Browse cars')}
 						</Link>
 					</div>
-				</div>
+				</PageContainer>
 			</div>
 		);
 	}
@@ -70,35 +76,40 @@ const ComparePage: NextPage = () => {
 	];
 
 	return (
-		<div className={'ma-page ma-list-page'}>
-			<div className={'ma-container'}>
-				<div className={'ma-results__bar'}>
-					<div>
-						<h2>{t('Compare cars')}</h2>
-						<span>{t('Best values are highlighted in green')}</span>
-					</div>
+		<div className="pt-8 pb-20 font-sans">
+			<PageContainer>
+				<div className="mb-5 border-b border-line pb-4">
+					<h2 className="m-0 mb-1 text-lg font-bold tracking-[-0.01em] text-ink sm:text-xl">{t('Compare cars')}</h2>
+					<span className="text-sm text-muted">{t('Best values are highlighted in green')}</span>
 				</div>
-				<div className={'ma-compare'}>
-					<table>
+				<div className="overflow-x-auto">
+					<table className="w-full min-w-[640px] table-fixed border-collapse overflow-hidden rounded-[14px] bg-white">
 						<thead>
 							<tr>
-								<th />
+								<th className={head} />
 								{cars.map((car) => (
-									<td key={car._id} style={{ width: `${Math.floor(100 / Math.max(cars.length, 1))}%` }}>
-										<div className={'ma-compare__car'}>
+									<td key={car._id} className={cell} style={{ width: `${Math.floor(100 / Math.max(cars.length, 1))}%` }}>
+										<div className="flex flex-col gap-2">
 											{car.propertyImages?.[0] && !failed.includes(car._id) ? (
 												<img
 													src={imageUrl(car.propertyImages[0])}
 													alt={car.propertyTitle}
+													className="h-[130px] w-full rounded-[10px] object-cover"
 													onError={() => setFailed((prev) => [...prev, car._id])}
 												/>
 											) : (
-												<div className={'ma-car-card__placeholder'}>
+												<div className="flex h-[130px] w-full items-center justify-center rounded-[10px] bg-surface text-5xl text-line-strong">
 													<DirectionsCarFilledOutlinedIcon />
 												</div>
 											)}
-											<Link href={`/property/detail?id=${car._id}`}>{car.propertyTitle}</Link>
-											<button className={'ma-link-btn'} onClick={() => toggleCompare(car._id)}>
+											<Link href={`/property/detail?id=${car._id}`} className="font-semibold text-ink hover:text-primary">
+												{car.propertyTitle}
+											</Link>
+											<button
+												type="button"
+												className="cursor-pointer self-start border-0 bg-transparent p-0 font-sans text-[13px] font-semibold text-primary hover:underline"
+												onClick={() => toggleCompare(car._id)}
+											>
 												{t('Remove')}
 											</button>
 										</div>
@@ -111,9 +122,12 @@ const ComparePage: NextPage = () => {
 								const target = row.raw ? best(cars.map(row.raw), !!row.lower) : undefined;
 								return (
 									<tr key={row.label}>
-										<th>{t(row.label)}</th>
+										<th className={head}>{t(row.label)}</th>
 										{cars.map((car) => (
-											<td key={car._id} className={target !== undefined && row.raw?.(car) === target ? 'is-best' : ''}>
+											<td
+												key={car._id}
+												className={cx(cell, target !== undefined && row.raw?.(car) === target ? 'font-semibold text-[#188038]' : 'text-text')}
+											>
 												{row.value(car)}
 											</td>
 										))}
@@ -123,7 +137,7 @@ const ComparePage: NextPage = () => {
 						</tbody>
 					</table>
 				</div>
-			</div>
+			</PageContainer>
 		</div>
 	);
 };

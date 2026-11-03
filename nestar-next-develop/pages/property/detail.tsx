@@ -7,13 +7,30 @@ import ReportButton from '../../libs/components/common/ReportButton';
 import { toggleCompare } from '../../libs/compare';
 import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
 import CarOrigin from '../../libs/components/car/CarOrigin';
-import { CircularProgress } from '@mui/material';
 import { usePrice } from '../../libs/hooks/usePrice';
 import Seo from '../../libs/components/common/Seo';
 import withLayoutFull from '../../libs/components/layout/LayoutFull';
 import { NextPage } from 'next';
 import CarCard from '../../libs/components/car/CarCard';
 import { useAppBar } from '../../libs/hooks/useAppBar';
+import PageContainer from '../../libs/components/ui/PageContainer';
+import Badge from '../../libs/components/ui/Badge';
+import { buttonClasses } from '../../libs/components/ui/Button';
+import { Spinner } from '../../libs/components/ui/Feedback';
+import { cx } from '../../libs/components/ui/classNames';
+import { CarRow } from '../../libs/components/car/CarGrid';
+
+const iconButton =
+	'inline-flex h-[38px] cursor-pointer items-center gap-1.5 rounded-md border border-line-strong bg-white px-3 font-sans text-sm font-medium text-text hover:border-ink hover:text-ink [&_svg]:text-xl';
+const appBarButton =
+	'inline-flex size-10 cursor-pointer items-center justify-center rounded-full border-0 bg-transparent p-0 text-ink [&_svg]:text-[22px]';
+const statusTone: Record<string, string> = {
+	ACTIVE: 'bg-[#dcfce7] text-[#15803d]',
+	SOLD: 'bg-[#f1f5f9] text-muted',
+	PENDING: 'bg-[#fef7e0] text-[#7a5200]',
+	REJECTED: 'bg-[#fce8e6] text-[#a50e0e]',
+	DELETE: 'bg-[#fee2e2] text-[#b91c1c]',
+};
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client/react';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next/pages';
@@ -225,11 +242,11 @@ const PropertyDetail: NextPage = ({ carSeo }: any) => {
 					title: property.propertyTitle,
 					actions: (
 						<>
-							<button className={'ma-appbar-btn'} aria-label={t('Share') as string} onClick={() => shareHandler()}>
+							<button className={appBarButton} aria-label={t('Share') as string} onClick={() => shareHandler()}>
 								<ShareOutlinedIcon />
 							</button>
 							<button
-								className={`ma-appbar-btn ${appBarLiked ? 'is-on' : ''}`}
+								className={cx(appBarButton, appBarLiked && 'text-danger')}
 								aria-label={t('Like') as string}
 								onClick={() => likePropertyHandler(user, property._id)}
 							>
@@ -244,20 +261,20 @@ const PropertyDetail: NextPage = ({ carSeo }: any) => {
 
 	if (getPropertyLoading && !property) {
 		return (
-			<div className={'ma-page ma-detail ma-detail--loading'}>
+			<div className="flex min-h-[80vh] items-center justify-center">
 				{seo}
-				<CircularProgress size={'3rem'} />
+				<Spinner size={48} />
 			</div>
 		);
 	}
 
 	if (!property) {
 		return (
-			<div className={'ma-page ma-detail'}>
+			<div className="pt-[92px] pb-20 font-sans">
 				{seo}
-				<div className={'ma-container'}>
-					<div className={'ma-empty'}>{t('Car not found')}</div>
-				</div>
+				<PageContainer>
+					<div className="border-y border-line px-6 py-14 text-center text-[15px] text-muted">{t('Car not found')}</div>
+				</PageContainer>
 			</div>
 		);
 	}
@@ -328,66 +345,74 @@ const PropertyDetail: NextPage = ({ carSeo }: any) => {
 	const inCompare = compareIds.includes(property._id);
 	const isOwner = user?._id === property.memberId;
 
+	const contactHref = user?._id ? `/mypage?category=messages&to=${seller?._id}&propertyId=${property._id}` : '/account/join';
+	const panel = 'border-line pt-8 max-md:order-6 [&+&]:mt-8 [&+&]:border-t';
+	const panelTitle = 'm-0 mb-4 text-lg font-bold tracking-[-0.01em] text-ink';
+	const note = 'mb-[18px] rounded-[10px] bg-[#fef7e0] px-4 py-3 text-sm text-[#7a5200] max-md:order-1';
+
 	return (
-		<div className={'ma-page ma-detail'}>
+		<div className="pt-[72px] pb-[72px] font-sans sm:pb-20 md:pt-[92px]">
 			{seo}
-			<div className={'ma-container'}>
-				<nav className={'ma-breadcrumb'}>
-					<Link href={'/'}>{t('Home')}</Link>
+			{/* phones / tablets: one column in the order photo, title + price, facts, seller, the rest */}
+			<PageContainer className="max-md:flex max-md:flex-col">
+				<nav className="mb-[18px] flex items-center gap-2 text-[13px] text-muted max-md:order-0 max-sm:hidden">
+					<Link href={'/'} className="text-muted hover:text-primary">
+						{t('Home')}
+					</Link>
 					<span>/</span>
-					<Link href={'/property'}>{t('Cars')}</Link>
+					<Link href={'/property'} className="text-muted hover:text-primary">
+						{t('Cars')}
+					</Link>
 					<span>/</span>
-					<em>{property.propertyTitle}</em>
+					<em className="overflow-hidden text-ellipsis whitespace-nowrap text-text not-italic">{property.propertyTitle}</em>
 				</nav>
 
 				{property.propertyStatus === 'REJECTED' && (
-					<div className={'ma-note ma-note--warn'}>
+					<div className={note}>
 						{t('This listing was rejected by moderation')}
-						{property.propertyRejectReason ? `: ${property.propertyRejectReason}` : ''}.{' '}
-						{t('Edit it and it goes back to review.')}
+						{property.propertyRejectReason ? `: ${property.propertyRejectReason}` : ''}. {t('Edit it and it goes back to review.')}
 					</div>
 				)}
 				{property.propertyStatus === 'PENDING' && (
-					<div className={'ma-note ma-note--warn'}>
-						{t('This listing is waiting for moderation. Only you can see it until it is approved.')}
-					</div>
+					<div className={note}>{t('This listing is waiting for moderation. Only you can see it until it is approved.')}</div>
 				)}
 
-				<header className={'ma-detail__head'}>
+				<header className="mb-5 flex flex-col items-start justify-between gap-6 max-md:order-3 md:flex-row">
 					<div>
-						<h1>{property.propertyTitle}</h1>
-						<div className={'ma-detail__meta'}>
+						<h1 className="m-0 mb-2 text-2xl leading-[1.15] font-bold tracking-[-0.025em] text-ink md:text-[30px]">{property.propertyTitle}</h1>
+						<div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm text-muted">
 							<CarOrigin country={property.carCountry} label={formatCarPlace(property, t)} />
 							<span>
 								{t('Posted')} {moment(property.createdAt).fromNow()}
 							</span>
-							<span title={t('Views') as string}>
-								<RemoveRedEyeIcon /> {property.propertyViews}
+							<span className="inline-flex items-center gap-1" title={t('Views') as string}>
+								<RemoveRedEyeIcon className="text-lg" /> {property.propertyViews}
 							</span>
 						</div>
-						{/* phones: the price card is far below, so the price is repeated under the title */}
-						<div className={'ma-detail__mprice'}>
-							<strong>{price(property)}</strong>
-							<span>≈ {otherPrice(property)}</span>
+						{/* phones / tablets: the price card is far below, so the price is repeated under the title */}
+						<div className="mt-2.5 flex items-baseline gap-2.5 md:hidden">
+							<strong className="text-[26px] font-extrabold tracking-[-0.02em] text-ink tabular-nums">{price(property)}</strong>
+							<span className="text-sm text-muted">≈ {otherPrice(property)}</span>
 						</div>
 					</div>
-					<div className={'ma-detail__actions'}>
+					<div className="flex gap-2.5 max-sm:w-full">
 						<button
-							className={`ma-icon-btn ${liked ? 'is-liked' : ''}`}
+							type="button"
+							className={cx(iconButton, 'max-sm:hidden', liked && '[&_svg]:text-danger')}
 							onClick={() => likePropertyHandler(user, property._id)}
 						>
 							{liked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
 							<span>{property.propertyLikes}</span>
 						</button>
-						<button className={'ma-icon-btn'} onClick={shareHandler}>
+						<button type="button" className={cx(iconButton, 'max-sm:hidden')} onClick={shareHandler}>
 							<ShareOutlinedIcon />
 							<span>{t('Share')}</span>
 						</button>
 						<button
-							className={`ma-icon-btn ${inCompare ? 'is-liked' : ''}`}
+							type="button"
+							className={cx(iconButton, 'max-sm:flex-1 max-sm:justify-center', inCompare && '[&_svg]:text-danger')}
 							onClick={() => {
-								if (!toggleCompare(property._id))
-									sweetMixinErrorAlert(t('You can compare up to 3 cars.') as string).then();
+								if (!toggleCompare(property._id)) sweetMixinErrorAlert(t('You can compare up to 3 cars.') as string).then();
 							}}
 						>
 							<CompareArrowsIcon />
@@ -396,31 +421,31 @@ const PropertyDetail: NextPage = ({ carSeo }: any) => {
 					</div>
 				</header>
 
-				<div className={'ma-detail__layout'}>
-					<div className={'ma-detail__main'}>
-						<div className={'ma-gallery'}>
+				<div className="grid grid-cols-[minmax(0,1fr)_300px] items-start gap-7 max-md:contents lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-10">
+					<div className="flex min-w-0 flex-col max-md:contents">
+						<div className="max-md:order-2 max-md:-mx-4 max-md:mb-4">
 							<div
-								className={'ma-gallery__main'}
+								className="relative aspect-[16/10] touch-pan-y overflow-hidden rounded-[10px] bg-surface max-md:rounded-none"
 								onTouchStart={(e) => (swipeStart.current = e.touches[0].clientX)}
 								onTouchEnd={(e) => swipeTo(e.changedTouches[0].clientX)}
 							>
 								{images.length > 1 && (
-									<span className={'ma-gallery__count'}>
+									<span className="absolute right-3 bottom-3 z-[2] rounded-full bg-ink/60 px-2.5 py-1 text-xs font-semibold text-white sm:hidden">
 										{slideIndex + 1}/{images.length}
 									</span>
 								)}
 								{slideImage && !failedImages.includes(slideImage) ? (
 									<img
 										ref={mainImageRef}
-										className={'ma-gallery__zoom'}
+										className="size-full cursor-zoom-in object-cover"
 										onClick={() => setLightbox(Math.max(0, property.propertyImages.indexOf(slideImage)))}
 										src={imageUrl(slideImage)}
 										alt={property.propertyTitle}
 										onError={() => setFailedImages((prev) => [...prev, slideImage])}
 									/>
 								) : (
-									<div className={'ma-car-card__placeholder'}>
-										<DirectionsCarFilledOutlinedIcon />
+									<div className="flex size-full flex-col items-center justify-center gap-1.5 text-[13px] text-faint">
+										<DirectionsCarFilledOutlinedIcon className="text-[56px] text-line-strong" />
 										<span>{t('No photo')}</span>
 									</div>
 								)}
@@ -434,60 +459,81 @@ const PropertyDetail: NextPage = ({ carSeo }: any) => {
 									alt={property.propertyTitle}
 								/>
 							)}
+							{/* phones swipe the big photo instead */}
 							{property.propertyImages.length > 1 && (
-								<div className={'ma-gallery__thumbs'}>
+								<div className="mt-3 flex gap-2.5 overflow-x-auto max-md:px-4 max-sm:hidden">
 									{property.propertyImages.map((image: string) => (
 										<button
 											key={image}
-											className={image === slideImage ? 'is-active' : ''}
+											type="button"
+											className={cx(
+												'h-16 w-24 shrink-0 cursor-pointer overflow-hidden rounded-md border-2 bg-surface-alt p-0',
+												image === slideImage ? 'border-ink' : 'border-transparent',
+											)}
 											onClick={() => changeImageHandler(image)}
 										>
-											<img src={imageUrl(image)} alt={''} />
+											<img src={imageUrl(image)} alt={''} className="size-full object-cover" />
 										</button>
 									))}
 								</div>
 							)}
 						</div>
 
-						<dl className={'ma-keyspecs'}>
-							{keySpecs.map((item) => (
-								<div key={item.label}>
-									<span className={'ma-keyspecs__icon'}>{item.icon}</span>
-									<dt>{t(item.label)}</dt>
-									<dd>{item.value}</dd>
+						{/* key facts: a row on large screens, a card of 3 × 2 tiles with icons on phones */}
+						<dl className="m-0 mt-6 grid grid-cols-3 border-y border-line max-md:order-4 max-sm:mt-4 max-sm:overflow-hidden max-sm:rounded-2xl max-sm:border lg:grid-cols-6">
+							{keySpecs.map((item, index) => (
+								<div
+									key={item.label}
+									className={cx(
+										'px-4 py-3.5 max-sm:grid max-sm:grid-cols-[auto_1fr] max-sm:items-center max-sm:gap-x-2 max-sm:px-2.5 max-sm:py-3',
+										index % 3 === 0 ? 'pl-0 max-sm:pl-2.5' : 'border-l border-line',
+										index >= 3 && 'max-lg:border-t max-lg:border-line',
+										index === 3 && 'lg:border-l lg:border-line lg:pl-4',
+									)}
+								>
+									<span className="row-span-2 hidden text-xl text-muted max-sm:flex">{item.icon}</span>
+									<dt className="text-[12.5px] text-muted max-sm:order-2 max-sm:text-[11px]">{t(item.label)}</dt>
+									<dd className="m-0 mt-0.5 overflow-hidden text-[15.5px] font-semibold text-ellipsis whitespace-nowrap text-ink tabular-nums max-sm:order-1 max-sm:mt-0 max-sm:text-xs">
+										{item.value}
+									</dd>
 								</div>
 							))}
 						</dl>
 
-						<section className={'ma-panel ma-panel--desc'}>
-							<h2>{t('Description')}</h2>
-							<p className={`ma-panel__text ma-desc ${descOpen ? 'is-open' : ''}`}>
+						<section className={cx(panel, 'max-sm:order-5')}>
+							<h2 className={panelTitle}>{t('Description')}</h2>
+							<p className={cx('m-0 text-[15px] leading-[1.7] whitespace-pre-line text-text', !descOpen && 'max-sm:line-clamp-3')}>
 								{property.propertyDesc || t('No description provided.')}
 							</p>
 							{(property.propertyDesc?.length ?? 0) > 140 && (
-								<button className={'ma-desc__more'} onClick={() => setDescOpen((open) => !open)}>
+								<button
+									type="button"
+									className="mt-1.5 hidden cursor-pointer border-0 bg-transparent p-0 font-sans text-sm font-semibold text-primary max-sm:inline-block"
+									onClick={() => setDescOpen((open) => !open)}
+								>
 									{descOpen ? t('Show less') : t('Read more')}
 								</button>
 							)}
 						</section>
 
-						<section className={'ma-panel'}>
-							<h2>{t('Specifications')}</h2>
-							<dl className={'ma-details'}>
+						<section className={cx(panel, 'max-sm:order-7')}>
+							<h2 className={panelTitle}>{t('Specifications')}</h2>
+							<dl className="m-0 grid grid-cols-1 gap-x-10 sm:grid-cols-2">
 								{filledDetails.map((item) => (
-									<div key={item.label}>
-										<dt>{t(item.label)}</dt>
-										<dd>{item.value}</dd>
+									<div key={item.label} className="flex justify-between gap-3 border-b border-line py-[11px]">
+										<dt className="text-sm text-muted">{t(item.label)}</dt>
+										<dd className="m-0 text-right text-sm font-semibold text-ink tabular-nums">{item.value}</dd>
 									</div>
 								))}
 							</dl>
 						</section>
 
-						<section className={'ma-panel'}>
-							<h2>{t('Location')}</h2>
+						<section className={cx(panel, 'max-sm:order-7')}>
+							<h2 className={panelTitle}>{t('Location')}</h2>
 							{property.carCountry === 'UZBEKISTAN' ? (
-								<div className={'ma-map'}>
+								<div className="h-80 overflow-hidden rounded-[10px] bg-surface-alt">
 									<iframe
+										className="size-full border-0"
 										src={`https://www.google.com/maps?q=${encodeURIComponent(formatCarPlace(property, t))}&output=embed`}
 										loading="lazy"
 										referrerPolicy="no-referrer-when-downgrade"
@@ -496,136 +542,131 @@ const PropertyDetail: NextPage = ({ carSeo }: any) => {
 								</div>
 							) : (
 								// abroad a street map tells little: show where the car is and how it gets here
-								<div className={'ma-abroad'}>
-									<div>
-										<span>{t('The car is in')}</span>
-										<strong>{formatCarPlace(property, t)}</strong>
-									</div>
-									<div>
-										<span>{t('Delivery to Uzbekistan')}</span>
-										<strong>
-											{property.carDeliveryDays ? `~${property.carDeliveryDays} ${t('days')}` : t('Ask the seller')}
-											{property.carDeliveryCost ? ` · $${formatterStr(property.carDeliveryCost)}` : ''}
-										</strong>
-									</div>
-									<div>
-										<span>{t('Customs cleared in Uzbekistan')}</span>
-										<strong>
-											{property.carCustomsCleared === undefined || property.carCustomsCleared === null
-												? t('Not specified')
-												: t(property.carCustomsCleared ? 'Yes' : 'No')}
-										</strong>
-									</div>
+								<div className="grid grid-cols-1 border-y border-line sm:grid-cols-3">
+									{[
+										{ label: t('The car is in'), value: formatCarPlace(property, t) },
+										{
+											label: t('Delivery to Uzbekistan'),
+											value: `${property.carDeliveryDays ? `~${property.carDeliveryDays} ${t('days')}` : t('Ask the seller')}${
+												property.carDeliveryCost ? ` · $${formatterStr(property.carDeliveryCost)}` : ''
+											}`,
+										},
+										{
+											label: t('Customs cleared in Uzbekistan'),
+											value:
+												property.carCustomsCleared === undefined || property.carCustomsCleared === null
+													? t('Not specified')
+													: t(property.carCustomsCleared ? 'Yes' : 'No'),
+										},
+									].map((item, index) => (
+										<div
+											key={index}
+											className={cx(
+												'flex flex-col gap-1 py-3 sm:px-4 sm:py-3.5',
+												index === 0 ? 'sm:pl-0' : 'max-sm:border-t sm:border-l border-line',
+											)}
+										>
+											<span className="text-[12.5px] text-muted">{item.label}</span>
+											<strong className="text-[15px] text-ink">{item.value}</strong>
+										</div>
+									))}
 								</div>
 							)}
 						</section>
 
-						<ImportCostCard propertyId={property._id} propertyPrice={property.propertyPrice} />
+						<div className="max-md:order-6 max-sm:order-7">
+							<ImportCostCard propertyId={property._id} propertyPrice={property.propertyPrice} />
+						</div>
 					</div>
 
-					<aside className={'ma-detail__side'}>
-						<div className={'ma-panel ma-price-card'}>
-							<span className={'ma-price-card__label'}>{t('Price')}</span>
-							<strong className={'ma-price-card__price'}>{price(property)}</strong>
-							<span className={'ma-price-card__other'}>≈ {otherPrice(property)}</span>
+					<aside className="flex flex-col gap-5 max-md:order-5 max-md:mt-6 max-sm:order-6 md:sticky md:top-24">
+						<div className="rounded-[10px] border border-line bg-white p-6">
+							{/* phones show the price under the title */}
+							<div className="max-sm:hidden">
+								<span className="text-[13px] text-muted">{t('Price')}</span>
+								<strong className="mt-1 mb-3 block text-[32px] font-extrabold tracking-[-0.025em] text-ink tabular-nums">{price(property)}</strong>
+								<span className="-mt-2 mb-3 block text-sm text-muted tabular-nums">≈ {otherPrice(property)}</span>
+							</div>
 							<PriceEstimate propertyId={property._id} />
 							<ImportCostLine propertyId={property._id} propertyPrice={property.propertyPrice} />
-							<div className={'ma-price-card__badges'}>
-								<span className={`ma-status ma-status--${property.propertyStatus.toLowerCase()}`}>
-									{t(
-										property.propertyStatus === 'SOLD'
-											? 'Sold'
-											: property.propertyStatus === 'PENDING'
-												? 'Under review'
-												: 'For sale',
-									)}
+							<div className="flex flex-wrap gap-1.5 border-b border-line pb-[18px]">
+								<span className={cx('inline-flex h-[22px] items-center rounded px-2 text-xs font-semibold', statusTone[property.propertyStatus] ?? statusTone.ACTIVE)}>
+									{t(property.propertyStatus === 'SOLD' ? 'Sold' : property.propertyStatus === 'PENDING' ? 'Under review' : 'For sale')}
 								</span>
-								{property.carCustomsCleared && (
-									<span className={'ma-badge ma-badge--primary'}>{t('Customs cleared')}</span>
-								)}
-								{property.carAccidentHistory === 'NONE' && (
-									<span className={'ma-badge ma-badge--primary'}>{t('No accidents')}</span>
-								)}
-								{property.propertyBarter && <span className={'ma-badge ma-badge--primary'}>{t('Barter')}</span>}
-								{property.propertyNegotiable && <span className={'ma-badge ma-badge--primary'}>{t('Negotiable')}</span>}
+								{property.carCustomsCleared && <Badge>{t('Customs cleared')}</Badge>}
+								{property.carAccidentHistory === 'NONE' && <Badge>{t('No accidents')}</Badge>}
+								{property.propertyBarter && <Badge>{t('Barter')}</Badge>}
+								{property.propertyNegotiable && <Badge>{t('Negotiable')}</Badge>}
 							</div>
 
-							<div className={'ma-seller'}>
+							<div className="mt-[18px] mb-2 flex items-center gap-3">
 								<img
 									src={seller?.memberImage ? imageUrl(seller.memberImage) : '/img/profile/defaultUser.svg'}
 									alt={seller?.memberNick}
+									className="size-12 rounded-full bg-surface-alt object-cover"
 								/>
 								<div>
 									<Link href={`/member?memberId=${seller?._id}`}>
-										<strong>{seller?.memberFullName || seller?.memberNick}</strong>
+										<strong className="block text-[15px] text-ink hover:text-primary">{seller?.memberFullName || seller?.memberNick}</strong>
 									</Link>
-									<span>{t(seller?.memberType === 'AGENT' ? 'Dealer' : 'Private seller')}</span>
+									<span className="text-[13px] text-muted">{t(seller?.memberType === 'AGENT' ? 'Dealer' : 'Private seller')}</span>
 								</div>
 							</div>
 							<SellerTrust member={seller} />
 
 							{showPhone ? (
-								<a className={'ma-btn ma-btn--primary ma-btn--block'} href={`tel:${formatPhone(seller?.memberPhone)}`}>
+								<a className={buttonClasses({ block: true, className: 'mt-2.5' })} href={`tel:${formatPhone(seller?.memberPhone)}`}>
 									<PhoneOutlinedIcon /> {formatPhone(seller?.memberPhone)}
 								</a>
 							) : (
-								<button className={'ma-btn ma-btn--primary ma-btn--block'} onClick={() => setShowPhone(true)}>
+								<button type="button" className={buttonClasses({ block: true, className: 'mt-2.5' })} onClick={() => setShowPhone(true)}>
 									<PhoneOutlinedIcon /> {t('Show phone number')}
 								</button>
 							)}
 							{!isOwner && (
-								<Link
-									href={
-										user?._id
-											? `/mypage?category=messages&to=${seller?._id}&propertyId=${property._id}`
-											: '/account/join'
-									}
-								>
-									<span className={'ma-btn ma-btn--outline ma-btn--block'}>
-										<ChatBubbleOutlineIcon /> {t('Write to seller')}
-									</span>
+								<Link href={contactHref} className={buttonClasses({ variant: 'outline', block: true, className: 'mt-2.5' })}>
+									<ChatBubbleOutlineIcon /> {t('Write to seller')}
 								</Link>
 							)}
-							<Link href={`/member?memberId=${seller?._id}`}>
-								<span className={'ma-btn ma-btn--outline ma-btn--block'}>{t("View seller's cars")}</span>
+							<Link href={`/member?memberId=${seller?._id}`} className={buttonClasses({ variant: 'outline', block: true, className: 'mt-2.5' })}>
+								{t("View seller's cars")}
 							</Link>
 							{!isOwner && <ReportButton propertyId={property._id} />}
 						</div>
 
-						<div className={'ma-panel ma-tips'}>
-							<h3>{t('Safety tips')}</h3>
-							<ul>
-								<li>{t('Inspect the car and its documents in person.')}</li>
-								<li>{t('Check the VIN and service history.')}</li>
-								<li>{t('Never send prepayment before seeing the car.')}</li>
+						<div className="px-1">
+							<h3 className="m-0 mb-3 text-sm font-semibold text-ink">{t('Safety tips')}</h3>
+							<ul className="m-0 pl-[18px]">
+								{['Inspect the car and its documents in person.', 'Check the VIN and service history.', 'Never send prepayment before seeing the car.'].map(
+									(tip) => (
+										<li key={tip} className="mb-1.5 list-disc text-[13.5px] leading-normal text-muted">
+											{t(tip)}
+										</li>
+									),
+								)}
 							</ul>
 						</div>
 					</aside>
 				</div>
 
-				{/* phones: contact buttons always within reach */}
+				{/* phones: contact buttons always within reach (the class also hides the tab bar) */}
 				{!isOwner && (
-					<div className={'ma-contact-bar'}>
-						<a className={'ma-btn ma-btn--primary'} href={`tel:${formatPhone(seller?.memberPhone)}`}>
-							<PhoneOutlinedIcon /> {t('Call')}
+					<div className="ma-contact-bar fixed inset-x-0 bottom-0 z-[1100] grid grid-cols-2 gap-2.5 border-t border-line bg-white px-4 pt-2.5 pb-[calc(10px+env(safe-area-inset-bottom))] shadow-[0_-6px_20px_rgba(15,23,42,0.08)] sm:hidden">
+						<a className={buttonClasses({ className: 'w-full' })} href={`tel:${formatPhone(seller?.memberPhone)}`}>
+							<PhoneOutlinedIcon className="text-lg" /> {t('Call')}
 						</a>
-						<Link
-							href={
-								user?._id ? `/mypage?category=messages&to=${seller?._id}&propertyId=${property._id}` : '/account/join'
-							}
-						>
-							<span className={'ma-btn ma-btn--outline'}>
-								<ChatBubbleOutlineIcon /> {t('Write')}
-							</span>
+						<Link href={contactHref} className={buttonClasses({ variant: 'outline', className: 'w-full' })}>
+							<ChatBubbleOutlineIcon className="text-lg" /> {t('Write')}
 						</Link>
 					</div>
 				)}
 
 				{similarCars.length > 0 && (
-					<section className={'ma-similar'}>
-						<div className={'ma-similar__head'}>
-							<h2 className={'ma-title'}>{t('Similar Cars')}</h2>
+					<section className="mt-16 border-t border-line pt-10 max-md:order-7 max-sm:order-8">
+						<div className="mb-6 flex items-baseline justify-between gap-3">
+							<h2 className="m-0 text-[22px] leading-[1.2] font-bold tracking-[-0.02em] text-ink">{t('Similar Cars')}</h2>
 							<Link
+								className="text-sm font-semibold whitespace-nowrap text-primary sm:hidden"
 								href={{
 									pathname: '/property',
 									query: { input: JSON.stringify({ page: 1, limit: 9, search: { brandList: [property.carBrand] } }) },
@@ -634,14 +675,14 @@ const PropertyDetail: NextPage = ({ carSeo }: any) => {
 								{t('See all')}
 							</Link>
 						</div>
-						<div className={'ma-grid ma-grid--3 ma-similar__list'}>
+						<CarRow>
 							{similarCars.map((car: Property) => (
-								<CarCard property={car} key={car._id} onLike={(id) => likePropertyHandler(user, id)} />
+								<CarCard property={car} key={car._id} onLike={(id) => likePropertyHandler(user, id)} layout="tile" />
 							))}
-						</div>
+						</CarRow>
 					</section>
 				)}
-			</div>
+			</PageContainer>
 		</div>
 	);
 };

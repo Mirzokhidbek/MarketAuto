@@ -25,6 +25,31 @@ const ITEM_LABELS: Record<string, string> = {
 	CLEARANCE: 'Clearance and registration',
 };
 
+/** one colour per part, shared by the bar and the table */
+const PART_COLORS: Record<string, string> = {
+	CAR: 'bg-ink',
+	SHIPPING: 'bg-[#64748b]',
+	DUTY: 'bg-primary',
+	EXCISE: 'bg-[#7c3aed]',
+	VAT: 'bg-[#0891b2]',
+	UTILIZATION: 'bg-[#f59e0b]',
+	CLEARANCE: 'bg-[#94a3b8]',
+};
+
+const COMPARE_TONES: Record<string, { box: string; title: string }> = {
+	CHEAPER: { box: 'bg-[#e6f4ea]', title: 'text-[#127a46]' },
+	MORE_EXPENSIVE: { box: 'bg-[#fef7e0]', title: 'text-[#a05a00]' },
+	SIMILAR: { box: 'bg-[#e6efff]', title: 'text-[#0049bd]' },
+};
+
+const cell = 'border-b border-line py-[9px] text-left font-normal text-text';
+const swatch = 'mr-2.5 inline-block size-2 rounded-[2px] align-[1px]';
+
+const summaryValue = 'm-0 mt-0.5 text-[15px] font-semibold text-ink tabular-nums';
+const basisCell = `${cell} px-3 text-xs text-muted max-[480px]:hidden`;
+const amountCell = `${cell} text-right font-semibold whitespace-nowrap text-ink tabular-nums`;
+const compareBox = 'flex flex-col gap-0.5 rounded-[10px] px-3.5 py-3 text-[13px] text-muted';
+
 const BASIS_LABELS: Record<string, string> = {
 	SELLER: 'from the seller',
 	TARIFF: 'typical for this country',
@@ -61,9 +86,12 @@ export const ImportCostLine = ({ propertyId, propertyPrice }: { propertyId: stri
 	const cost = useImportCost(propertyId, propertyPrice);
 	if (!cost?.applicable) return null;
 	return (
-		<a className={'ma-import-line'} href={'#import-cost'}>
+		<a
+			className="group mt-2 mb-3 flex flex-wrap items-baseline justify-between gap-x-2 gap-y-0.5 rounded-[10px] border border-line px-3 py-2.5 text-[13px] text-muted no-underline hover:border-primary"
+			href={'#import-cost'}
+		>
 			<span>{t('With customs in Uzbekistan')}</span>
-			<strong>≈ {price(cost.totalUsd)}</strong>
+			<strong className="ml-auto text-[15px] whitespace-nowrap text-ink group-hover:text-primary">≈ {price(cost.totalUsd)}</strong>
 		</a>
 	);
 };
@@ -79,87 +107,91 @@ const ImportCostCard = ({ propertyId, propertyPrice }: { propertyId: string; pro
 	const shares = [{ key: 'CAR', amountUsd: cost.carPriceUsd }, ...items].filter((item) => item.amountUsd > 0);
 	const comparison = cost.comparison;
 	const percent = (value: number) => `${numeral(value).format('0.[0]')}%`;
+	const tone = comparison ? COMPARE_TONES[comparison.verdict] : undefined;
 
 	return (
-		<section className={'ma-panel ma-import'} id={'import-cost'}>
-			<header className={'ma-import__head'}>
+		<section className="mt-8 border-t border-line pt-8 font-sans" id={'import-cost'}>
+			<header className="flex flex-col items-start justify-between gap-2 md:flex-row md:gap-4">
 				<div>
-					<h2>{t('Import cost to Uzbekistan')}</h2>
-					<p>{t("Calculated from this car's data, today's exchange rate and the current customs rates.")}</p>
+					<h2 className="m-0 mb-1 text-lg font-bold tracking-[-0.01em] text-ink">{t('Import cost to Uzbekistan')}</h2>
+					<p className="m-0 text-[13px] text-muted">{t("Calculated from this car's data, today's exchange rate and the current customs rates.")}</p>
 				</div>
-				<span className={'ma-import__live'} title={t('Refreshed every minute') as string}>
-					<i aria-hidden />
+				<span
+					className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-[#e6f4ea] px-2.5 py-1 text-xs font-semibold whitespace-nowrap text-[#127a46]"
+					title={t('Refreshed every minute') as string}
+				>
+					<i aria-hidden className="size-[7px] animate-pulse rounded-full bg-[#127a46] motion-reduce:animate-none" />
 					{t('Updated')} {moment(cost.calculatedAt).format('HH:mm')}
 				</span>
 			</header>
 
-			<div className={'ma-import__summary'}>
-				<div className={'ma-import__total'}>
-					<span>{t('Total, registered in Uzbekistan')}</span>
-					<strong>{price(cost.totalUsd)}</strong>
-					<em>≈ {other(cost.totalUsd)}</em>
+			<div className="mt-5 mb-4 grid grid-cols-1 items-center gap-3.5 md:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] md:gap-6">
+				<div className="flex flex-col gap-0.5">
+					<span className="text-xs text-muted">{t('Total, registered in Uzbekistan')}</span>
+					<strong className="text-2xl leading-[1.15] tracking-[-0.02em] text-ink tabular-nums min-[481px]:text-[28px]">{price(cost.totalUsd)}</strong>
+					<em className="text-[13px] text-muted not-italic">≈ {other(cost.totalUsd)}</em>
 				</div>
-				<dl>
+				<dl className="m-0 grid grid-cols-2 gap-3 min-[481px]:grid-cols-3">
 					<div>
-						<dt>{t('Car price')}</dt>
-						<dd>{price(cost.carPriceUsd)}</dd>
+						<dt className="text-xs text-muted">{t('Car price')}</dt>
+						<dd className={summaryValue}>{price(cost.carPriceUsd)}</dd>
 					</div>
 					<div>
-						<dt>{t('Extra costs')}</dt>
-						<dd className={'is-extra'}>
-							+{price(cost.extraUsd)} <small>(+{percent(cost.extraPercent)})</small>
+						<dt className="text-xs text-muted">{t('Extra costs')}</dt>
+						<dd className={`${summaryValue} text-[#a05a00]`}>
+							+{price(cost.extraUsd)} <small className="font-medium text-muted">(+{percent(cost.extraPercent)})</small>
 						</dd>
 					</div>
 					<div>
-						<dt>{t('Delivery time')}</dt>
-						<dd>{cost.deliveryDays ? `~${cost.deliveryDays} ${t('days')}` : '—'}</dd>
+						<dt className="text-xs text-muted">{t('Delivery time')}</dt>
+						<dd className={summaryValue}>{cost.deliveryDays ? `~${cost.deliveryDays} ${t('days')}` : '—'}</dd>
 					</div>
 				</dl>
 			</div>
 
 			{/* where the money goes: one bar, each part as wide as its share of the total */}
-			<div className={'ma-import__bar'} role={'img'} aria-label={t('Cost structure') as string}>
+			<div className="flex h-2.5 overflow-hidden rounded-full bg-surface" role={'img'} aria-label={t('Cost structure') as string}>
 				{shares.map((item) => (
 					<span
 						key={item.key}
-						className={`is-${item.key.toLowerCase()}`}
+						className={`min-w-[3px] [&+&]:border-l-2 [&+&]:border-white ${PART_COLORS[item.key] ?? 'bg-faint'}`}
 						style={{ width: `${(item.amountUsd / cost.totalUsd) * 100}%` }}
 						title={`${t(item.key === 'CAR' ? 'Car price' : ITEM_LABELS[item.key])}: ${price(item.amountUsd)}`}
 					/>
 				))}
 			</div>
 
-			<table className={'ma-import__table'}>
+			<table className="mt-3 w-full border-collapse text-sm">
 				<tbody>
 					<tr>
-						<th>
-							<i className={'is-car'} />
+						<th className={cell}>
+							<i className={`${swatch} ${PART_COLORS.CAR}`} />
 							{t('Car price')}
 						</th>
-						<td />
-						<td>{price(cost.carPriceUsd)}</td>
+						<td className={basisCell} />
+						<td className={amountCell}>{price(cost.carPriceUsd)}</td>
 					</tr>
 					{items.map((item) => (
 						<tr key={item.key}>
-							<th>
-								<i className={`is-${item.key.toLowerCase()}`} />
+							<th className={cell}>
+								<i className={`${swatch} ${PART_COLORS[item.key] ?? 'bg-faint'}`} />
 								{t(ITEM_LABELS[item.key] ?? item.key)}
 							</th>
-							<td>{BASIS_LABELS[item.basis] ? t(BASIS_LABELS[item.basis]) : item.basis}</td>
-							<td>{item.amountUsd ? price(item.amountUsd) : '—'}</td>
+							<td className={basisCell}>{BASIS_LABELS[item.basis] ? t(BASIS_LABELS[item.basis]) : item.basis}</td>
+							<td className={amountCell}>{item.amountUsd ? price(item.amountUsd) : '—'}</td>
 						</tr>
 					))}
 				</tbody>
 				<tfoot>
-					<tr>
-						<th>{t('Total')}</th>
-						<td />
-						<td>{price(cost.totalUsd)}</td>
+					<tr className="[&>*]:border-b-0 [&>*]:text-[15px] [&>*]:font-bold [&>*]:text-ink">
+						<th className={cell}>{t('Total')}</th>
+						<td className={basisCell} />
+						<td className={amountCell}>{price(cost.totalUsd)}</td>
 					</tr>
 				</tfoot>
 			</table>
 
-			<ul className={'ma-import__facts'}>
+			<ul className="mt-1 mb-4 flex list-none flex-wrap gap-x-5 gap-y-1.5 p-0 text-[13px] text-muted [&_b]:font-semibold [&_b]:text-ink">
 				<li>
 					{t('Age')}: <b>{cost.ageYears ? `${cost.ageYears} ${t('yrs')}` : t('new')}</b>
 				</li>
@@ -175,8 +207,8 @@ const ImportCostCard = ({ propertyId, propertyPrice }: { propertyId: string; pro
 			</ul>
 
 			{comparison ? (
-				<div className={`ma-import__compare is-${comparison.verdict.toLowerCase()}`}>
-					<strong>
+				<div className={`${compareBox} ${tone?.box ?? 'bg-surface'}`}>
+					<strong className={`text-[15px] ${tone?.title ?? 'text-ink'}`}>
 						{comparison.verdict === 'SIMILAR'
 							? t('About the same as buying in Uzbekistan')
 							: t(
@@ -194,23 +226,23 @@ const ImportCostCard = ({ propertyId, propertyPrice }: { propertyId: string; pro
 					</span>
 				</div>
 			) : (
-				<div className={'ma-import__compare'}>
+				<div className={`${compareBox} bg-surface`}>
 					<span>{t('Not enough similar cars in Uzbekistan to compare yet.')}</span>
 				</div>
 			)}
 
 			{cost.warnings.length > 0 && (
-				<ul className={'ma-import__warnings'}>
+				<ul className="mt-3.5 flex list-none flex-col gap-1.5 p-0">
 					{cost.warnings.map((code: string) => (
-						<li key={code}>
-							<InfoOutlinedIcon fontSize={'small'} />
+						<li key={code} className="flex gap-2 text-[13px] leading-normal text-text">
+							<InfoOutlinedIcon fontSize={'small'} className="mt-px shrink-0 text-[#a05a00]" />
 							{t(WARNINGS[code] ?? code, { cc: numeral(cost.engineCc).format('0,0').replace(/,/g, ' ') })}
 						</li>
 					))}
 				</ul>
 			)}
 
-			<footer className={'ma-import__foot'}>
+			<footer className="mt-4 flex flex-wrap gap-x-4 gap-y-1 border-t border-dashed border-[#cfd5df] pt-3 text-xs text-muted">
 				<span>
 					{t('Rate')}: 1 USD = {numeral(cost.usdToUzs).format('0,0.[00]').replace(/,/g, ' ')} {t("so'm")} (
 					{t(cost.rateSource === 'CBU' ? 'Central Bank' : 'last known rate')},{' '}
@@ -220,7 +252,7 @@ const ImportCostCard = ({ propertyId, propertyPrice }: { propertyId: string; pro
 					{t('Customs rates')}:{' '}
 					{cost.tariffUpdatedAt ? moment(cost.tariffUpdatedAt).format('DD.MM.YYYY') : t('starting values')}
 				</span>
-				<p>{t('This is an estimate. Confirm the exact amount with a customs broker before you buy.')}</p>
+				<p className="m-0 basis-full">{t('This is an estimate. Confirm the exact amount with a customs broker before you buy.')}</p>
 			</footer>
 		</section>
 	);

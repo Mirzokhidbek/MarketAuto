@@ -33,7 +33,7 @@ const Lightbox = ({ images, index, onIndex, onClose, alt }: LightboxProps) => {
 
 	return (
 		<div
-			className={'ma-lightbox'}
+			className="fixed inset-0 z-[2000] flex items-center justify-center bg-[rgba(2,6,23,0.94)]"
 			role={'dialog'}
 			aria-modal
 			onClick={onClose}
@@ -45,12 +45,12 @@ const Lightbox = ({ images, index, onIndex, onClose, alt }: LightboxProps) => {
 				touchX.current = null;
 			}}
 		>
-			<button className={'ma-lightbox__close'} onClick={onClose} aria-label={t('Close') as string}>
+			<button className="absolute inline-flex cursor-pointer items-center justify-center rounded-full border-0 bg-white/12 text-white hover:bg-white/24 top-[18px] right-[18px] size-11 [&_svg]:text-2xl" onClick={onClose} aria-label={t('Close') as string}>
 				<CloseIcon />
 			</button>
 			{images.length > 1 && (
 				<button
-					className={'ma-lightbox__nav ma-lightbox__nav--prev'}
+					className="absolute inline-flex cursor-pointer items-center justify-center rounded-full border-0 bg-white/12 text-white hover:bg-white/24 top-1/2 left-[18px] size-[52px] -translate-y-1/2 max-sm:hidden [&_svg]:text-[32px]"
 					onClick={(e) => {
 						e.stopPropagation();
 						go(-1);
@@ -60,10 +60,15 @@ const Lightbox = ({ images, index, onIndex, onClose, alt }: LightboxProps) => {
 					<ChevronLeftIcon />
 				</button>
 			)}
-			<img src={imageUrl(images[index])} alt={alt ?? ''} onClick={(e) => e.stopPropagation()} />
+			<img
+				src={imageUrl(images[index])}
+				alt={alt ?? ''}
+				className="max-h-[86vh] max-w-[92vw] rounded-lg object-contain select-none"
+				onClick={(e) => e.stopPropagation()}
+			/>
 			{images.length > 1 && (
 				<button
-					className={'ma-lightbox__nav ma-lightbox__nav--next'}
+					className="absolute inline-flex cursor-pointer items-center justify-center rounded-full border-0 bg-white/12 text-white hover:bg-white/24 top-1/2 right-[18px] size-[52px] -translate-y-1/2 max-sm:hidden [&_svg]:text-[32px]"
 					onClick={(e) => {
 						e.stopPropagation();
 						go(1);
@@ -73,7 +78,7 @@ const Lightbox = ({ images, index, onIndex, onClose, alt }: LightboxProps) => {
 					<ChevronRightIcon />
 				</button>
 			)}
-			<span className={'ma-lightbox__count'}>
+			<span className="absolute bottom-[22px] text-sm text-[#e2e8f0]">
 				{index + 1} / {images.length}
 			</span>
 		</div>

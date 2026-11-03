@@ -50,8 +50,12 @@ const ReportButton = ({ propertyId }: { propertyId: string }) => {
 	};
 
 	return (
-		<button className={'ma-link-btn ma-report-btn'} onClick={reportHandler}>
-			<FlagOutlinedIcon /> {t('Report listing')}
+		<button
+			type="button"
+			className="mt-1 inline-flex cursor-pointer items-center gap-1 self-center border-0 bg-transparent font-sans text-[13px] font-semibold text-muted hover:text-[#d93025] hover:underline"
+			onClick={reportHandler}
+		>
+			<FlagOutlinedIcon className="text-base" /> {t('Report listing')}
 		</button>
 	);
 };
