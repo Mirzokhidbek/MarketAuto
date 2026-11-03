@@ -7,7 +7,6 @@ import { useTranslation } from 'next-i18next/pages';
 import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
 import { useLazyQuery, useMutation, useQuery } from '@apollo/client/react';
 import { Alert, Avatar, Box, Button, Chip, MenuItem, Select, Stack, Typography } from '@mui/material';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import withAdminLayout from '../../../libs/components/layout/LayoutAdmin';
 import ReasonDialog from '../../../libs/components/admin/ReasonDialog';
 import { GET_CONVERSATIONS_BY_ADMIN, GET_MEMBER_ADMIN_DETAIL, GET_MESSAGES_BY_ADMIN } from '../../../apollo/admin/query';
@@ -16,6 +15,7 @@ import { AdminRole, MemberStatus, MemberType } from '../../../libs/enums/member.
 import { sweetConfirmAlert, sweetErrorHandling } from '../../../libs/sweetAlert';
 import { imageUrl } from '../../../libs/utils';
 import { T } from '../../../libs/types/common';
+import { ArrowBackIcon } from '../../../libs/components/ui/icons';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: { ...(await serverSideTranslations(locale, ['common'])) },

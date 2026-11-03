@@ -1,6 +1,3 @@
-import FacebookOutlinedIcon from '@mui/icons-material/FacebookOutlined';
-import InstagramIcon from '@mui/icons-material/Instagram';
-import TelegramIcon from '@mui/icons-material/Telegram';
 import { Stack, Box } from '@mui/material';
 import moment from 'moment';
 import Link from 'next/link';
@@ -8,6 +5,7 @@ import { useTranslation } from 'next-i18next/pages';
 import { useSiteSettings } from '../../hooks/useSiteSettings';
 import MobileTabBar from './MobileTabBar';
 import { joinHref } from '../../utils';
+import { FacebookIcon as FacebookOutlinedIcon, InstagramIcon, TelegramIcon } from '../ui/icons';
 
 const Footer = () => {
 	const { t } = useTranslation('common');

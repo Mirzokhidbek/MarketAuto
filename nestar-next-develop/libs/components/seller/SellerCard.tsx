@@ -1,14 +1,13 @@
 import React from 'react';
 import Link from 'next/link';
 import { useTranslation } from 'next-i18next/pages';
-import FavoriteIcon from '@mui/icons-material/Favorite';
-import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import SellerTrust from './SellerTrust';
 import Badge from '../ui/Badge';
 import { ButtonLink } from '../ui/Button';
 import { cx } from '../ui/classNames';
 import { imageUrl } from '../../utils';
 import { Member } from '../../types/member/member';
+import { FavoriteIcon, FavoriteBorderIcon } from '../ui/icons';
 
 interface SellerCardProps {
 	seller: Member;

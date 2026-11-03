@@ -1,15 +1,8 @@
 import React from 'react';
 import moment from 'moment';
-import FavoriteRoundedIcon from '@mui/icons-material/FavoriteRounded';
-import ChatBubbleRoundedIcon from '@mui/icons-material/ChatBubbleRounded';
-import PersonAddAlt1RoundedIcon from '@mui/icons-material/PersonAddAlt1Rounded';
-import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
-import ErrorRoundedIcon from '@mui/icons-material/ErrorRounded';
-import DirectionsCarFilledRoundedIcon from '@mui/icons-material/DirectionsCarFilledRounded';
-import TrendingDownRoundedIcon from '@mui/icons-material/TrendingDownRounded';
-import NotificationsRoundedIcon from '@mui/icons-material/NotificationsRounded';
 import { NotificationCategory } from '../../enums/notification.enum';
 import { T } from '../../types/common';
+import { FavoriteIcon as FavoriteRoundedIcon, ChatFilledIcon as ChatBubbleRoundedIcon, PersonAddIcon as PersonAddAlt1RoundedIcon, CheckCircleIcon as CheckCircleRoundedIcon, ErrorIcon as ErrorRoundedIcon, CarFilledIcon as DirectionsCarFilledRoundedIcon, TrendingDownIcon as TrendingDownRoundedIcon, BellFilledIcon as NotificationsRoundedIcon } from '../ui/icons';
 
 /** translation key per notification type + group; {{name}} is the member who triggered it */
 export const NOTIFICATION_MESSAGES: Record<string, string> = {

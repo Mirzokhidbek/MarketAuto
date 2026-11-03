@@ -7,10 +7,6 @@ import Link from 'next/link';
 import { useTranslation } from 'next-i18next/pages';
 import { useQuery, useReactiveVar } from '@apollo/client/react';
 import { Badge, Menu, MenuItem, Popover } from '@mui/material';
-import MenuIcon from '@mui/icons-material/Menu';
-import SearchIcon from '@mui/icons-material/Search';
-import NotificationsNoneRoundedIcon from '@mui/icons-material/NotificationsNoneRounded';
-import LightbulbOutlinedIcon from '@mui/icons-material/LightbulbOutlined';
 import MenuList, { isSuperOnlyPath } from '../admin/AdminMenuList';
 import AdminWaitingPanel from '../admin/AdminWaitingPanel';
 import { getJwtToken, logOut, updateUserInfo } from '../../auth';
@@ -18,6 +14,7 @@ import { userVar } from '../../../apollo/store';
 import { GET_ADMIN_BADGES } from '../../../apollo/admin/query';
 import { MemberType } from '../../enums/member.enum';
 import { isInsideTelegram, telegramSignIn } from '../../hooks/useTelegramMiniApp';
+import { MenuIcon, SearchIcon, BellIcon as NotificationsNoneRoundedIcon, LightbulbIcon as LightbulbOutlinedIcon } from '../ui/icons';
 
 /** quick tabs in the top bar: the pages used every day */
 const QUICK = [

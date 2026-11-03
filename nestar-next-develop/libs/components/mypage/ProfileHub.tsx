@@ -2,24 +2,12 @@ import React from 'react';
 import Link from 'next/link';
 import { useTranslation } from 'next-i18next/pages';
 import { useQuery, useReactiveVar } from '@apollo/client/react';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import VerifiedIcon from '@mui/icons-material/Verified';
-import DirectionsCarOutlinedIcon from '@mui/icons-material/DirectionsCarOutlined';
-import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
-import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
-import NotificationsNoneOutlinedIcon from '@mui/icons-material/NotificationsNoneOutlined';
-import NotificationsActiveOutlinedIcon from '@mui/icons-material/NotificationsActiveOutlined';
-import HistoryIcon from '@mui/icons-material/History';
-import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
-import AdminPanelSettingsOutlinedIcon from '@mui/icons-material/AdminPanelSettingsOutlined';
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
-import LogoutIcon from '@mui/icons-material/Logout';
 import { unreadMessagesVar, unreadNotificationsVar, userVar } from '../../../apollo/store';
 import { GET_FAVORITES } from '../../../apollo/user/query';
 import { logOut } from '../../auth';
 import { sweetConfirmAlert } from '../../sweetAlert';
 import { formatPhone, imageUrl } from '../../utils';
+import { ChevronRightIcon, VerifiedIcon, CarIcon as DirectionsCarOutlinedIcon, FavoriteBorderIcon, ChatIcon as ChatBubbleOutlineIcon, BellIcon as NotificationsNoneOutlinedIcon, BellRingIcon as NotificationsActiveOutlinedIcon, HistoryIcon, SettingsIcon as SettingsOutlinedIcon, AdminIcon as AdminPanelSettingsOutlinedIcon, HelpIcon as HelpOutlineIcon, InfoIcon as InfoOutlinedIcon, LogoutIcon } from '../ui/icons';
 
 interface HubItem {
 	href: string;

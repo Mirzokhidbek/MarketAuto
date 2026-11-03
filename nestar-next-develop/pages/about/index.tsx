@@ -3,12 +3,9 @@ import { NextPage } from 'next';
 import Link from 'next/link';
 import { useTranslation } from 'next-i18next/pages';
 import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
-import PublicOutlinedIcon from '@mui/icons-material/PublicOutlined';
-import ForumOutlinedIcon from '@mui/icons-material/ForumOutlined';
-import SellOutlinedIcon from '@mui/icons-material/SellOutlined';
-import VerifiedUserOutlinedIcon from '@mui/icons-material/VerifiedUserOutlined';
 import withLayoutBasic from '../../libs/components/layout/LayoutBasic';
 import { HowItWorks } from '../../libs/components/homepage/HomeSections';
+import { PublicIcon as PublicOutlinedIcon, ForumIcon as ForumOutlinedIcon, SellIcon as SellOutlinedIcon, VerifiedUserIcon as VerifiedUserOutlinedIcon } from '../../libs/components/ui/icons';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {

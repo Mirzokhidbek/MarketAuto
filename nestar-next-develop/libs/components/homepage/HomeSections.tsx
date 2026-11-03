@@ -2,8 +2,6 @@ import React from 'react';
 import Link from 'next/link';
 import { useTranslation } from 'next-i18next/pages';
 import { useQuery, useReactiveVar } from '@apollo/client/react';
-import SupportAgentOutlinedIcon from '@mui/icons-material/SupportAgentOutlined';
-import ExpandMoreRoundedIcon from '@mui/icons-material/ExpandMoreRounded';
 import { GET_AGENTS, GET_BOARD_ARTICLES } from '../../../apollo/user/query';
 import { BoardArticle } from '../../types/board-article/board-article';
 import ArticleCard from '../community/ArticleCard';
@@ -15,6 +13,7 @@ import SellerCard from '../seller/SellerCard';
 import { useSiteSettings } from '../../hooks/useSiteSettings';
 import CarOrigin from '../car/CarOrigin';
 import { joinHref } from '../../utils';
+import { SupportAgentIcon as SupportAgentOutlinedIcon, ChevronDownIcon as ExpandMoreRoundedIcon } from '../ui/icons';
 
 const searchLink = (country: CarCountry) =>
 	`/property?input=${JSON.stringify({ page: 1, limit: 9, sort: 'createdAt', search: { countryList: [country] } })}`;

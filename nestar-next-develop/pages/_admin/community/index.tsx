@@ -25,8 +25,6 @@ import {
 	TableRow,
 	Typography,
 } from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
-import DeleteIcon from '@mui/icons-material/Delete';
 import withAdminLayout from '../../../libs/components/layout/LayoutAdmin';
 import AdminPageHeader from '../../../libs/components/admin/AdminPageHeader';
 import { GET_ALL_BOARD_ARTICLES_BY_ADMIN } from '../../../apollo/admin/query';
@@ -37,6 +35,7 @@ import { sweetConfirmAlert, sweetErrorHandling } from '../../../libs/sweetAlert'
 import { articleCategoryLabels, imageUrl } from '../../../libs/utils';
 import { userVar } from '../../../apollo/store';
 import { T } from '../../../libs/types/common';
+import { SearchIcon, DeleteIcon } from '../../../libs/components/ui/icons';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: { ...(await serverSideTranslations(locale, ['common'])) },

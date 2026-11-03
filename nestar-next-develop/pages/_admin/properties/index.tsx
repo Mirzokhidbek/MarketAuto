@@ -20,7 +20,6 @@ import {
 	TablePagination,
 	Typography,
 } from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client/react';
 import ReasonDialog from '../../../libs/components/admin/ReasonDialog';
 import { userVar } from '../../../apollo/store';
@@ -38,6 +37,7 @@ import {
 } from '../../../apollo/admin/mutation';
 import { formatEnumLabel } from '../../../libs/utils';
 import { T } from '../../../libs/types/common';
+import { SearchIcon } from '../../../libs/components/ui/icons';
 
 // ready-made rejection reasons (translation keys), the admin can still edit the text
 const REJECT_PRESETS = [

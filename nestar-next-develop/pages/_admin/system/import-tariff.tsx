@@ -5,13 +5,12 @@ import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslation
 import { useMutation, useQuery } from '@apollo/client/react';
 import moment from 'moment';
 import { Box, Button, IconButton, MenuItem, TextField, Tooltip, Typography } from '@mui/material';
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
-import AddIcon from '@mui/icons-material/Add';
 import withAdminLayout from '../../../libs/components/layout/LayoutAdmin';
 import AdminPageHeader from '../../../libs/components/admin/AdminPageHeader';
 import { GET_IMPORT_TARIFF } from '../../../apollo/admin/query';
 import { UPDATE_IMPORT_TARIFF } from '../../../apollo/admin/mutation';
 import { sweetErrorHandling, sweetTopSmallSuccessAlert } from '../../../libs/sweetAlert';
+import { DeleteIcon as DeleteOutlineIcon, AddIcon } from '../../../libs/components/ui/icons';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: { ...(await serverSideTranslations(locale, ['common'])) },

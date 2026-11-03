@@ -3,11 +3,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next/pages';
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client/react';
-import CloudUploadOutlinedIcon from '@mui/icons-material/CloudUploadOutlined';
-import CloseIcon from '@mui/icons-material/Close';
 import { Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
 import CarCard from '../car/CarCard';
-import StarOutlineIcon from '@mui/icons-material/StarOutline';
 import {
 	CarAccidentHistory,
 	CarBrand,
@@ -35,6 +32,7 @@ import {
 	suggestTitle,
 } from './addCarForm.logic';
 import { GET_CAR_MODELS, GET_PROPERTY } from '../../../apollo/user/query';
+import { CloudUploadIcon as CloudUploadOutlinedIcon, CloseIcon, StarIcon as StarOutlineIcon } from '../ui/icons';
 
 const AddCarForm = () => {
 	const { t } = useTranslation('common');

@@ -8,22 +8,14 @@ import { print } from 'graphql';
 import withLayoutFull from '../../libs/components/layout/LayoutFull';
 import Seo from '../../libs/components/common/Seo';
 import { Pagination } from '@mui/material';
-import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
-import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client/react';
 import Moment from 'react-moment';
 import { userVar } from '../../apollo/store';
-import ThumbUpOffAltIcon from '@mui/icons-material/ThumbUpOffAlt';
-import ThumbUpAltIcon from '@mui/icons-material/ThumbUpAlt';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import ChatIcon from '@mui/icons-material/Chat';
-import ChatBubbleOutlineRoundedIcon from '@mui/icons-material/ChatBubbleOutlineRounded';
 import { CommentInput, CommentsInquiry } from '../../libs/types/comment/comment.input';
 import { Comment } from '../../libs/types/comment/comment';
 import dynamic from 'next/dynamic';
 import { CommentGroup, CommentStatus } from '../../libs/enums/comment.enum';
 import { T } from '../../libs/types/common';
-import EditIcon from '@mui/icons-material/Edit';
 import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
 import { BoardArticle } from '../../libs/types/board-article/board-article';
 import { CREATE_COMMENT, LIKE_TARGET_BOARD_ARTICLE, UPDATE_COMMENT } from '../../apollo/user/mutation';
@@ -37,6 +29,7 @@ import {
 } from '../../libs/sweetAlert';
 import { Messages } from '../../libs/config';
 import { CommentUpdate } from '../../libs/types/comment/comment.update';
+import { EyeIcon as RemoveRedEyeIcon, DeleteIcon as DeleteForeverIcon, ThumbUpIcon as ThumbUpOffAltIcon, ThumbUpFilledIcon as ThumbUpAltIcon, EyeIcon as VisibilityIcon, ChatIcon, ChatIcon as ChatBubbleOutlineRoundedIcon, EditIcon } from '../../libs/components/ui/icons';
 const ArticleViewer = dynamic(() => import('../../libs/components/community/ArticleViewer'), { ssr: false });
 
 /** the article is fetched on the server too, so search engines and link previews see its title and text */

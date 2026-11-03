@@ -1,6 +1,5 @@
 import Swal from 'sweetalert2';
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client/react';
-import NotificationsActiveOutlinedIcon from '@mui/icons-material/NotificationsActiveOutlined';
 import { currencyVar, usdRateVar, userVar } from '../../../apollo/store';
 import { GET_CAR_MODELS } from '../../../apollo/user/query';
 import { SAVE_SEARCH } from '../../../apollo/user/mutation';
@@ -29,13 +28,11 @@ import {
 } from '../../enums/property.enum';
 import { PropertiesInquiry } from '../../types/property/property.input';
 import { useRouter } from 'next/router';
-import CancelRoundedIcon from '@mui/icons-material/CancelRounded';
 import { propertyMileage, propertyYears } from '../../config';
 import { formatEnumLabel, formatMileage } from '../../utils';
 import CarOrigin from './CarOrigin';
-import SearchIcon from '@mui/icons-material/Search';
-import TuneIcon from '@mui/icons-material/Tune';
 import { useTranslation } from 'next-i18next/pages';
+import { BellRingIcon as NotificationsActiveOutlinedIcon, CancelIcon as CancelRoundedIcon, SearchIcon, TuneIcon } from '../ui/icons';
 
 const MenuProps = {
 	PaperProps: {

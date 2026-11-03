@@ -1,8 +1,8 @@
 import React from 'react';
 import { useTranslation } from 'next-i18next/pages';
-import CloseIcon from '@mui/icons-material/Close';
 import { countryName, formatEnumLabel, formatMileage } from '../../utils';
 import { usePrice } from '../../hooks/usePrice';
+import { CloseIcon } from '../ui/icons';
 
 interface CarFilterChipsProps {
 	search: Record<string, any>;

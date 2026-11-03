@@ -1,8 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'next-i18next/pages';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 import { passwordChecks } from '../../password';
+import { CheckCircleIcon, RadioUncheckedIcon as RadioButtonUncheckedIcon } from '../ui/icons';
 
 /** live checklist under a new-password field; common passwords are refused by the server */
 const PasswordRules = ({ password, nick, email }: { password: string; nick?: string; email?: string }) => {

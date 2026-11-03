@@ -3,12 +3,12 @@ import { GET_CAR_MODELS } from '../../../apollo/user/query';
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next/pages';
-import SearchIcon from '@mui/icons-material/Search';
 import { CarBrand, CarCountry } from '../../enums/property.enum';
 import { formatEnumLabel } from '../../utils';
 import Link from 'next/link';
 import CarOrigin from '../car/CarOrigin';
 import { PropertiesInquiry } from '../../types/property/property.input';
+import { SearchIcon } from '../ui/icons';
 
 const priceOptions = [
 	{ label: 'Any Price', range: null },

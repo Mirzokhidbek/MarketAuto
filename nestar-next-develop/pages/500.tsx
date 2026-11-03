@@ -2,8 +2,8 @@ import React from 'react';
 import Link from 'next/link';
 import { useTranslation } from 'next-i18next/pages';
 import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
-import ReportProblemOutlinedIcon from '@mui/icons-material/ReportProblemOutlined';
 import withLayoutFull from '../libs/components/layout/LayoutFull';
+import { ReportIcon as ReportProblemOutlinedIcon } from '../libs/components/ui/icons';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: { ...(await serverSideTranslations(locale ?? 'uz', ['common'])) },

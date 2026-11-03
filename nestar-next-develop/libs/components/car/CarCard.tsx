@@ -1,5 +1,4 @@
 import { useReactiveVar } from '@apollo/client/react';
-import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
 import { compareVar } from '../../../apollo/store';
 import { toggleCompare } from '../../compare';
 import { sweetMixinErrorAlert } from '../../sweetAlert';
@@ -7,13 +6,11 @@ import { usePrice } from '../../hooks/usePrice';
 import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next/pages';
-import FavoriteIcon from '@mui/icons-material/Favorite';
-import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
-import DirectionsCarFilledOutlinedIcon from '@mui/icons-material/DirectionsCarFilledOutlined';
 import { Property } from '../../types/property/property';
 import { formatEnumLabel, formatMileage, imageUrl } from '../../utils';
 import Link from 'next/link';
 import CarOrigin from './CarOrigin';
+import { CompareArrowsIcon, FavoriteIcon, FavoriteBorderIcon, CarIcon as DirectionsCarFilledOutlinedIcon } from '../ui/icons';
 
 interface CarCardProps {
 	property: Property;

@@ -4,15 +4,13 @@ import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next/pages';
 import { useReactiveVar } from '@apollo/client/react';
 import { Badge, CircularProgress, Popover } from '@mui/material';
-import NotificationsOutlinedIcon from '@mui/icons-material/NotificationsOutlined';
-import NotificationsNoneRoundedIcon from '@mui/icons-material/NotificationsNoneRounded';
-import DoneAllRoundedIcon from '@mui/icons-material/DoneAllRounded';
 import { notificationPingVar } from '../../../apollo/store';
 import { T } from '../../types/common';
 import { sweetErrorHandling } from '../../sweetAlert';
 import NotificationItem from '../notifications/NotificationItem';
 import { groupByDate, notificationHref } from '../notifications/notificationMeta';
 import { useNotifications } from '../notifications/useNotifications';
+import { BellIcon as NotificationsOutlinedIcon, BellIcon as NotificationsNoneRoundedIcon, DoneAllIcon as DoneAllRoundedIcon } from '../ui/icons';
 
 /** header bell: the latest notifications, newest first, split by day; the full list lives on My Page */
 const NotificationBell = () => {

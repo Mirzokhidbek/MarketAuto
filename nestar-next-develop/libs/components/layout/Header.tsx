@@ -9,20 +9,15 @@ import MenuItem from '@mui/material/MenuItem';
 import Button from '@mui/material/Button';
 import { alpha, styled } from '@mui/material/styles';
 import Menu, { MenuProps } from '@mui/material/Menu';
-import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
-import { CaretDown } from 'phosphor-react';
 import Link from 'next/link';
 import NotificationBell from '../common/NotificationBell';
 import { CurrencySwitch, MessagesLink, useGlobalSync } from '../common/HeaderExtras';
 import { useReactiveVar } from '@apollo/client/react';
 import { userVar } from '../../../apollo/store';
-import { Logout } from '@mui/icons-material';
 import { REACT_APP_API_URL } from '../../config';
-import MenuIcon from '@mui/icons-material/Menu';
-import CloseIcon from '@mui/icons-material/Close';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { appBarVar, defaultPageTitle } from '../../hooks/useAppBar';
 import { goBack, isRootPage } from '../../hooks/useBack';
+import { AccountCircleIcon as AccountCircleOutlinedIcon, MenuIcon, CloseIcon, ArrowBackIcon, LogoutIcon as Logout, ChevronDownIcon as CaretDown } from '../ui/icons';
 
 const Header = () => {
 	const user = useReactiveVar(userVar);
@@ -285,7 +280,7 @@ const Header = () => {
 								disableRipple
 								className="btn-lang"
 								onClick={langClick}
-								endIcon={<CaretDown size={14} color="#616161" weight="fill" />}
+								endIcon={<CaretDown size={14} color="#616161" />}
 							>
 								<Box component={'div'} className={'flag'}>
 									<img src={`/img/flag/lang${lang}.png`} alt={lang} />

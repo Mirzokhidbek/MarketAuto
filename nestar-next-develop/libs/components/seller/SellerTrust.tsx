@@ -1,12 +1,9 @@
 import React from 'react';
 import moment from 'moment';
 import { useTranslation } from 'next-i18next/pages';
-import VerifiedIcon from '@mui/icons-material/Verified';
-import StorefrontOutlinedIcon from '@mui/icons-material/StorefrontOutlined';
-import ScheduleOutlinedIcon from '@mui/icons-material/ScheduleOutlined';
-import EventAvailableOutlinedIcon from '@mui/icons-material/EventAvailableOutlined';
 import { Member } from '../../types/member/member';
 import { cx } from '../ui/classNames';
+import { VerifiedIcon, StorefrontIcon as StorefrontOutlinedIcon, ScheduleIcon as ScheduleOutlinedIcon, EventAvailableIcon as EventAvailableOutlinedIcon } from '../ui/icons';
 
 interface SellerTrustProps {
 	member?: Partial<Member> | null;

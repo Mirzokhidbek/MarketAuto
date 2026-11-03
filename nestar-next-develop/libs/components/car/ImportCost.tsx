@@ -3,9 +3,9 @@ import { useQuery } from '@apollo/client/react';
 import { useTranslation } from 'next-i18next/pages';
 import moment from 'moment';
 import numeral from 'numeral';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { GET_IMPORT_COST } from '../../../apollo/user/query';
 import { usePrice } from '../../hooks/usePrice';
+import { InfoIcon as InfoOutlinedIcon } from '../ui/icons';
 
 /** the estimate follows the Central Bank rate, the saved tariff and price edits: refreshed every minute */
 const REFRESH_MS = 60 * 1000;

@@ -2,9 +2,9 @@ import React from 'react';
 import { useQuery } from '@apollo/client/react';
 import { useTranslation } from 'next-i18next/pages';
 import moment from 'moment';
-import ExpandMoreRoundedIcon from '@mui/icons-material/ExpandMoreRounded';
 import { GET_NOTICES } from '../../../apollo/user/query';
 import { T } from '../../types/common';
+import { ChevronDownIcon as ExpandMoreRoundedIcon } from '../ui/icons';
 
 /** announcements published by admins (Admin > CS > Notice) */
 const NoticeList = () => {

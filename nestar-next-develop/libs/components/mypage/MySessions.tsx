@@ -2,11 +2,10 @@ import React from 'react';
 import { useMutation, useQuery } from '@apollo/client/react';
 import { useTranslation } from 'next-i18next/pages';
 import moment from 'moment';
-import ComputerOutlinedIcon from '@mui/icons-material/ComputerOutlined';
-import PhoneIphoneOutlinedIcon from '@mui/icons-material/PhoneIphoneOutlined';
 import { GET_MY_SESSIONS } from '../../../apollo/user/query';
 import { LOGOUT_OTHER_SESSIONS, REVOKE_MY_SESSION } from '../../../apollo/user/mutation';
 import { sweetConfirmAlert, sweetErrorHandling, sweetTopSmallSuccessAlert } from '../../sweetAlert';
+import { ComputerIcon as ComputerOutlinedIcon, SmartphoneIcon as PhoneIphoneOutlinedIcon } from '../ui/icons';
 
 interface Session {
 	_id: string;

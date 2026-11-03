@@ -2,10 +2,6 @@ import React from 'react';
 import Link from 'next/link';
 import { useTranslation } from 'next-i18next/pages';
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client/react';
-import VerifiedUserOutlinedIcon from '@mui/icons-material/VerifiedUserOutlined';
-import PublicOutlinedIcon from '@mui/icons-material/PublicOutlined';
-import ManageSearchOutlinedIcon from '@mui/icons-material/ManageSearchOutlined';
-import ForumOutlinedIcon from '@mui/icons-material/ForumOutlined';
 import { GET_PROPERTIES } from '../../../apollo/user/query';
 import { LIKE_TARGET_PROPERTY } from '../../../apollo/user/mutation';
 import { userVar } from '../../../apollo/store';
@@ -13,6 +9,7 @@ import { Direction, Message } from '../../enums/common.enum';
 import { Property } from '../../types/property/property';
 import { sweetMixinErrorAlert } from '../../sweetAlert';
 import CarCard from '../car/CarCard';
+import { VerifiedUserIcon as VerifiedUserOutlinedIcon, PublicIcon as PublicOutlinedIcon, ManageSearchIcon as ManageSearchOutlinedIcon, ForumIcon as ForumOutlinedIcon } from '../ui/icons';
 
 const REASONS = [
 	{ icon: <VerifiedUserOutlinedIcon />, title: 'Trusted sellers', text: 'Every seller confirms the phone number' },

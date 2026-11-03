@@ -2,9 +2,6 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next/pages';
 import { Switch } from '@mui/material';
-import DoneAllRoundedIcon from '@mui/icons-material/DoneAllRounded';
-import DeleteSweepOutlinedIcon from '@mui/icons-material/DeleteSweepOutlined';
-import NotificationsNoneRoundedIcon from '@mui/icons-material/NotificationsNoneRounded';
 import UnderlineTabs from '../ui/UnderlineTabs';
 import EmptyState from '../ui/EmptyState';
 import NotificationItem from '../notifications/NotificationItem';
@@ -13,6 +10,7 @@ import { useNotifications } from '../notifications/useNotifications';
 import { NotificationCategory } from '../../enums/notification.enum';
 import { sweetConfirmAlert, sweetErrorHandling } from '../../sweetAlert';
 import { T } from '../../types/common';
+import { DoneAllIcon as DoneAllRoundedIcon, DeleteSweepIcon as DeleteSweepOutlinedIcon, BellIcon as NotificationsNoneRoundedIcon } from '../ui/icons';
 
 type Tab = NotificationCategory | 'ALL';
 const PAGE = 20;

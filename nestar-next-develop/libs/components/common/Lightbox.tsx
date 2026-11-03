@@ -1,9 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { useTranslation } from 'next-i18next/pages';
-import CloseIcon from '@mui/icons-material/Close';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { imageUrl } from '../../utils';
+import { CloseIcon, ChevronLeftIcon, ChevronRightIcon } from '../ui/icons';
 
 interface LightboxProps {
 	images: string[];

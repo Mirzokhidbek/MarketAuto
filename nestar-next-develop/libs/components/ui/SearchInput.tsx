@@ -1,6 +1,6 @@
 import React from 'react';
-import SearchIcon from '@mui/icons-material/Search';
 import { cx } from './classNames';
+import { SearchIcon } from './icons';
 
 interface SearchInputProps {
 	value: string;

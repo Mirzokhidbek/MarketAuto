@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { useTranslation } from 'next-i18next/pages';
 import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
 import { useQuery, useReactiveVar } from '@apollo/client/react';
-import DirectionsCarFilledOutlinedIcon from '@mui/icons-material/DirectionsCarFilledOutlined';
 import withLayoutBasic from '../libs/components/layout/LayoutBasic';
 import { compareVar } from '../apollo/store';
 import { GET_PROPERTY } from '../apollo/user/query';
@@ -12,6 +11,7 @@ import { toggleCompare } from '../libs/compare';
 import { usePrice } from '../libs/hooks/usePrice';
 import { formatCarPlace, formatCountry, formatEngine, formatEnumLabel, formatMileage, imageUrl } from '../libs/utils';
 import { Property } from '../libs/types/property/property';
+import { CarIcon as DirectionsCarFilledOutlinedIcon } from '../libs/components/ui/icons';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: { ...(await serverSideTranslations(locale, ['common'])) },

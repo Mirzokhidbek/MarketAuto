@@ -4,11 +4,6 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next/pages';
 import { useQuery, useReactiveVar } from '@apollo/client/react';
-import DirectionsCarOutlinedIcon from '@mui/icons-material/DirectionsCarOutlined';
-import GroupOutlinedIcon from '@mui/icons-material/GroupOutlined';
-import PersonAddAltOutlinedIcon from '@mui/icons-material/PersonAddAltOutlined';
-import ArticleOutlinedIcon from '@mui/icons-material/ArticleOutlined';
-import RateReviewOutlinedIcon from '@mui/icons-material/RateReviewOutlined';
 import { Member } from '../../types/member/member';
 import { REACT_APP_API_URL } from '../../config';
 import { T } from '../../types/common';
@@ -16,6 +11,7 @@ import { GET_MEMBER } from '../../../apollo/user/query';
 import { userVar } from '../../../apollo/store';
 import { formatPhone, imageUrl } from '../../utils';
 import Seo from '../common/Seo';
+import { CarIcon as DirectionsCarOutlinedIcon, GroupIcon as GroupOutlinedIcon, PersonAddIcon as PersonAddAltOutlinedIcon, ArticleIcon as ArticleOutlinedIcon, RateReviewIcon as RateReviewOutlinedIcon } from '../ui/icons';
 
 interface MemberMenuProps {
 	subscribeHandler: any;

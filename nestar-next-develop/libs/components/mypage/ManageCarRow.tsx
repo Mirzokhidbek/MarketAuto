@@ -3,15 +3,11 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next/pages';
 import moment from 'moment';
-import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
-import RemoveRedEyeOutlinedIcon from '@mui/icons-material/RemoveRedEyeOutlined';
-import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
-import DirectionsCarFilledOutlinedIcon from '@mui/icons-material/DirectionsCarFilledOutlined';
 import { Property } from '../../types/property/property';
 import { PropertyStatus } from '../../enums/property.enum';
 import { REACT_APP_API_URL } from '../../config';
 import { formatCountry, formatEnumLabel, formatMileage, formatterStr, imageUrl } from '../../utils';
+import { EditIcon as EditOutlinedIcon, DeleteIcon as DeleteOutlineIcon, EyeIcon as RemoveRedEyeOutlinedIcon, FavoriteBorderIcon, CarIcon as DirectionsCarFilledOutlinedIcon } from '../ui/icons';
 
 interface ManageCarRowProps {
 	property: Property;

@@ -4,8 +4,6 @@ import ImportCostCard, { ImportCostLine } from '../../libs/components/car/Import
 import { fetchWithTimeout } from '../../libs/utils';
 import Lightbox from '../../libs/components/common/Lightbox';
 import ReportButton from '../../libs/components/common/ReportButton';
-import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
-import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import { toggleCompare } from '../../libs/compare';
 import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
 import CarOrigin from '../../libs/components/car/CarOrigin';
@@ -15,18 +13,6 @@ import Seo from '../../libs/components/common/Seo';
 import withLayoutFull from '../../libs/components/layout/LayoutFull';
 import { NextPage } from 'next';
 import CarCard from '../../libs/components/car/CarCard';
-import FavoriteIcon from '@mui/icons-material/Favorite';
-import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
-import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
-import ShareOutlinedIcon from '@mui/icons-material/ShareOutlined';
-import PhoneOutlinedIcon from '@mui/icons-material/PhoneOutlined';
-import DirectionsCarFilledOutlinedIcon from '@mui/icons-material/DirectionsCarFilledOutlined';
-import CalendarMonthOutlinedIcon from '@mui/icons-material/CalendarMonthOutlined';
-import SpeedOutlinedIcon from '@mui/icons-material/SpeedOutlined';
-import LocalGasStationOutlinedIcon from '@mui/icons-material/LocalGasStationOutlined';
-import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
-import DirectionsCarOutlinedIcon from '@mui/icons-material/DirectionsCarOutlined';
-import EngineeringOutlinedIcon from '@mui/icons-material/EngineeringOutlined';
 import { useAppBar } from '../../libs/hooks/useAppBar';
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client/react';
 import { useRouter } from 'next/router';
@@ -53,6 +39,7 @@ import { T } from '../../libs/types/common';
 import { Direction, Message } from '../../libs/enums/common.enum';
 import { sweetErrorHandling, sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../libs/sweetAlert';
 import { LIKE_TARGET_PROPERTY } from '../../apollo/user/mutation';
+import { CompareArrowsIcon, ChatIcon as ChatBubbleOutlineIcon, FavoriteIcon, FavoriteBorderIcon, EyeIcon as RemoveRedEyeIcon, ShareIcon as ShareOutlinedIcon, PhoneIcon as PhoneOutlinedIcon, CarIcon as DirectionsCarFilledOutlinedIcon, CalendarIcon as CalendarMonthOutlinedIcon, SpeedIcon as SpeedOutlinedIcon, FuelIcon as LocalGasStationOutlinedIcon, SettingsIcon as SettingsOutlinedIcon, CarIcon as DirectionsCarOutlinedIcon, EngineIcon as EngineeringOutlinedIcon } from '../../libs/components/ui/icons';
 
 /**
  * The car is fetched on the server too, so search engines and link previews (Telegram etc.) get the real page

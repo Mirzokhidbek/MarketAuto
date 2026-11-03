@@ -3,9 +3,9 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next/pages';
 import { useQuery, useReactiveVar } from '@apollo/client/react';
-import { ChartBar, Car, Flag, User, Article, Question, Megaphone, ChatCircleDots, ListChecks, GearSix, Calculator } from 'phosphor-react';
 import { GET_ADMIN_BADGES } from '../../../apollo/admin/query';
 import { userVar } from '../../../apollo/store';
+import { ChartIcon as ChartBar, CarIcon as Car, FlagIcon as Flag, PersonIcon as User, ArticleIcon as Article, HelpIcon as Question, MegaphoneIcon as Megaphone, ChatDotsIcon as ChatCircleDots, ListChecksIcon as ListChecks, SettingsIcon as GearSix, CalculatorIcon as Calculator } from '../ui/icons';
 
 interface MenuItem {
 	label: string;
@@ -16,7 +16,7 @@ interface MenuItem {
 	superOnly?: boolean;
 }
 
-const icon = (Icon: any) => <Icon size={20} weight="duotone" />;
+const icon = (Icon: any) => <Icon size={20} />;
 
 /** one click = one page; groups are plain headings, not folders to open */
 const SECTIONS: { title: string; items: MenuItem[] }[] = [

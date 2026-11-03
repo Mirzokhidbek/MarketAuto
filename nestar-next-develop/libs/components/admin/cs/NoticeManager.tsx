@@ -28,14 +28,13 @@ import {
 	TextField,
 	Typography,
 } from '@mui/material';
-import AddRoundedIcon from '@mui/icons-material/AddRounded';
-import SearchIcon from '@mui/icons-material/Search';
 import { GET_ALL_NOTICES_BY_ADMIN } from '../../../../apollo/admin/query';
 import { CREATE_NOTICE, REMOVE_NOTICE_BY_ADMIN, UPDATE_NOTICE_BY_ADMIN } from '../../../../apollo/admin/mutation';
 import { sweetConfirmAlert, sweetErrorHandling, sweetTopSmallSuccessAlert } from '../../../sweetAlert';
 import { REACT_APP_API_URL } from '../../../config';
 import AdminPageHeader from '../AdminPageHeader';
 import { T } from '../../../types/common';
+import { AddIcon as AddRoundedIcon, SearchIcon } from '../../ui/icons';
 
 /** pill colours, shared with the other admin lists */
 const statusClass: Record<string, string> = { ACTIVE: 'success', HOLD: 'warning', DELETE: 'error' };

@@ -1,4 +1,3 @@
-import AttachFileIcon from '@mui/icons-material/AttachFile';
 import { uploadImage } from '../../upload';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
@@ -6,8 +5,6 @@ import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next/pages';
 import moment from 'moment';
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client/react';
-import SendIcon from '@mui/icons-material/Send';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { GET_CONVERSATIONS, GET_MEMBER, GET_MESSAGES, GET_PROPERTY } from '../../../apollo/user/query';
 import { SEND_MESSAGE } from '../../../apollo/user/mutation';
 import { incomingMessageVar, unreadMessagesVar, userVar } from '../../../apollo/store';
@@ -16,6 +13,7 @@ import { imageUrl } from '../../utils';
 import { usePrice } from '../../hooks/usePrice';
 import EmptyState from '../ui/EmptyState';
 import { T } from '../../types/common';
+import { AttachFileIcon, SendIcon, ArrowBackIcon } from '../ui/icons';
 
 const avatar = (image?: string) => (image ? imageUrl(image) : '/img/profile/defaultUser.svg');
 

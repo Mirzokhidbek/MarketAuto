@@ -5,19 +5,13 @@ import type { NextPage } from 'next';
 import Link from 'next/link';
 import { useQuery, useReactiveVar } from '@apollo/client/react';
 import moment from 'moment';
-import DirectionsCarFilledOutlinedIcon from '@mui/icons-material/DirectionsCarFilledOutlined';
-import OutlinedFlagIcon from '@mui/icons-material/OutlinedFlag';
-import ForumOutlinedIcon from '@mui/icons-material/ForumOutlined';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import RemoveRedEyeOutlinedIcon from '@mui/icons-material/RemoveRedEyeOutlined';
-import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
-import ScheduleIcon from '@mui/icons-material/Schedule';
 import withAdminLayout from '../../libs/components/layout/LayoutAdmin';
 import TrendChart from '../../libs/components/admin/TrendChart';
 import { GET_ALL_PROPERTIES_BY_ADMIN, GET_DASHBOARD_STATS } from '../../apollo/admin/query';
 import { userVar } from '../../apollo/store';
 import { formatterStr, imageUrl } from '../../libs/utils';
 import { T } from '../../libs/types/common';
+import { CarIcon as DirectionsCarFilledOutlinedIcon, FlagIcon as OutlinedFlagIcon, ForumIcon as ForumOutlinedIcon, ChevronRightIcon, EyeIcon as RemoveRedEyeOutlinedIcon, FavoriteBorderIcon, ScheduleIcon } from '../../libs/components/ui/icons';
 
 // categorical slots 1 and 2 of the validated palette, always in this order
 const SERIES_COLORS = { cars: '#2a78d6', members: '#eb6834' };

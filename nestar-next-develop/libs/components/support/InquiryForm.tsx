@@ -3,12 +3,12 @@ import Link from 'next/link';
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client/react';
 import { useTranslation } from 'next-i18next/pages';
 import moment from 'moment';
-import ExpandMoreRoundedIcon from '@mui/icons-material/ExpandMoreRounded';
 import { userVar } from '../../../apollo/store';
 import { CREATE_INQUIRY } from '../../../apollo/user/mutation';
 import { GET_MY_INQUIRIES } from '../../../apollo/user/query';
 import { sweetErrorHandling, sweetMixinSuccessAlert } from '../../sweetAlert';
 import { T } from '../../types/common';
+import { ChevronDownIcon as ExpandMoreRoundedIcon } from '../ui/icons';
 
 /** 1:1 inquiry to the support team; admins answer in Admin > CS > Inquiry */
 const InquiryForm = () => {

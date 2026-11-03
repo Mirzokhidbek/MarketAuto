@@ -16,12 +16,11 @@ import {
 } from '@mui/material';
 import Avatar from '@mui/material/Avatar';
 import Tooltip from '@mui/material/Tooltip';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
-import LockResetRoundedIcon from '@mui/icons-material/LockResetRounded';
 import Typography from '@mui/material/Typography';
 import { Stack, Switch } from '@mui/material';
 import { Member } from '../../../types/member/member';
 import { MemberStatus, MemberType } from '../../../enums/member.enum';
+import { InfoIcon as InfoOutlinedIcon, LockResetIcon as LockResetRoundedIcon } from '../../ui/icons';
 
 interface Data {
 	id: string;

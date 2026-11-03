@@ -3,13 +3,9 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useReactiveVar } from '@apollo/client/react';
 import { useTranslation } from 'next-i18next/pages';
-import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
-import SearchIcon from '@mui/icons-material/Search';
-import AddIcon from '@mui/icons-material/Add';
-import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
-import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import { userVar } from '../../../apollo/store';
 import { joinHref } from '../../utils';
+import { HomeIcon as HomeOutlinedIcon, SearchIcon, AddIcon, FavoriteBorderIcon, PersonIcon as PersonOutlineIcon } from '../ui/icons';
 
 /** phones only: app-style bottom navigation for the main destinations */
 const MobileTabBar = () => {

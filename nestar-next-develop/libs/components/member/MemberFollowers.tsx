@@ -7,11 +7,10 @@ import { FollowInquiry } from '../../types/follow/follow.input';
 import { useQuery, useReactiveVar } from '@apollo/client/react';
 import { Follower } from '../../types/follow/follow';
 import { REACT_APP_API_URL } from '../../config';
-import FavoriteIcon from '@mui/icons-material/Favorite';
-import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import { userVar } from '../../../apollo/store';
 import { T } from '../../types/common';
 import { GET_MEMBER_FOLLOWERS } from '../../../apollo/user/query';
+import { FavoriteIcon, FavoriteBorderIcon } from '../ui/icons';
 
 interface MemberFollowsProps {
 	initialInput: FollowInquiry;

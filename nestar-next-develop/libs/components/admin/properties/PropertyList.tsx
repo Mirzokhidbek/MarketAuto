@@ -16,10 +16,10 @@ import {
 	TableRow,
 	Typography,
 } from '@mui/material';
-import DeleteIcon from '@mui/icons-material/Delete';
 import { Property } from '../../../types/property/property';
 import { PropertyStatus } from '../../../enums/property.enum';
 import { formatCarPlace, formatEnumLabel, formatterStr, imageUrl } from '../../../utils';
+import { DeleteIcon } from '../../ui/icons';
 
 interface PropertyPanelListType {
 	properties: Property[];

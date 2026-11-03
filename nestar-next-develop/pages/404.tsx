@@ -2,8 +2,8 @@ import React from 'react';
 import Link from 'next/link';
 import { useTranslation } from 'next-i18next/pages';
 import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
-import DirectionsCarFilledOutlinedIcon from '@mui/icons-material/DirectionsCarFilledOutlined';
 import withLayoutFull from '../libs/components/layout/LayoutFull';
+import { CarIcon as DirectionsCarFilledOutlinedIcon } from '../libs/components/ui/icons';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: { ...(await serverSideTranslations(locale ?? 'uz', ['common'])) },

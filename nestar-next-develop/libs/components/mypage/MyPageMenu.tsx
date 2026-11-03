@@ -3,20 +3,6 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next/pages';
 import { useReactiveVar } from '@apollo/client/react';
-import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
-import DirectionsCarOutlinedIcon from '@mui/icons-material/DirectionsCarOutlined';
-import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
-import HistoryIcon from '@mui/icons-material/History';
-import ArticleOutlinedIcon from '@mui/icons-material/ArticleOutlined';
-import EditNoteOutlinedIcon from '@mui/icons-material/EditNoteOutlined';
-import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
-import GroupOutlinedIcon from '@mui/icons-material/GroupOutlined';
-import PersonAddAltOutlinedIcon from '@mui/icons-material/PersonAddAltOutlined';
-import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
-import NotificationsActiveOutlinedIcon from '@mui/icons-material/NotificationsActiveOutlined';
-import NotificationsNoneOutlinedIcon from '@mui/icons-material/NotificationsNoneOutlined';
-import LogoutIcon from '@mui/icons-material/Logout';
-import AdminPanelSettingsOutlinedIcon from '@mui/icons-material/AdminPanelSettingsOutlined';
 import Badge from '../ui/Badge';
 import { ButtonLink } from '../ui/Button';
 import { cx } from '../ui/classNames';
@@ -24,6 +10,7 @@ import { unreadMessagesVar, unreadNotificationsVar, userVar } from '../../../apo
 import { logOut } from '../../auth';
 import { sweetConfirmAlert } from '../../sweetAlert';
 import { formatPhone, imageUrl } from '../../utils';
+import { AddCircleIcon as AddCircleOutlineIcon, CarIcon as DirectionsCarOutlinedIcon, FavoriteBorderIcon, HistoryIcon, ArticleIcon as ArticleOutlinedIcon, EditNoteIcon as EditNoteOutlinedIcon, PersonIcon as PersonOutlineIcon, GroupIcon as GroupOutlinedIcon, PersonAddIcon as PersonAddAltOutlinedIcon, ChatIcon as ChatBubbleOutlineIcon, BellRingIcon as NotificationsActiveOutlinedIcon, BellIcon as NotificationsNoneOutlinedIcon, LogoutIcon, AdminIcon as AdminPanelSettingsOutlinedIcon } from '../ui/icons';
 
 interface MenuItem {
 	key: string;

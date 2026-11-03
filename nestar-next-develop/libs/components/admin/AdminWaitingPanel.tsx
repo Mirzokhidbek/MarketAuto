@@ -4,13 +4,10 @@ import moment from 'moment';
 import { useTranslation } from 'next-i18next/pages';
 import { useQuery } from '@apollo/client/react';
 import { Skeleton } from '@mui/material';
-import DirectionsCarFilledRoundedIcon from '@mui/icons-material/DirectionsCarFilledRounded';
-import FlagRoundedIcon from '@mui/icons-material/FlagRounded';
-import QuestionAnswerRoundedIcon from '@mui/icons-material/QuestionAnswerRounded';
-import TaskAltRoundedIcon from '@mui/icons-material/TaskAltRounded';
 import { GET_ADMIN_WAITING } from '../../../apollo/admin/query';
 import { imageUrl } from '../../utils';
 import { T } from '../../types/common';
+import { CarFilledIcon as DirectionsCarFilledRoundedIcon, FlagIcon as FlagRoundedIcon, ForumIcon as QuestionAnswerRoundedIcon, CheckCircleIcon as TaskAltRoundedIcon } from '../ui/icons';
 
 interface AdminWaitingPanelProps {
 	counts: { carsPending?: number; reportsOpen?: number; inquiriesWaiting?: number };

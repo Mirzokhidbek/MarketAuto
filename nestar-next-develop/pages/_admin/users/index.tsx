@@ -14,7 +14,6 @@ import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import TablePagination from '@mui/material/TablePagination';
-import CancelRoundedIcon from '@mui/icons-material/CancelRounded';
 import { MembersInquiry } from '../../../libs/types/member/member.input';
 import { Member } from '../../../libs/types/member/member';
 import { MemberStatus, MemberType } from '../../../libs/enums/member.enum';
@@ -25,6 +24,7 @@ import { GET_ALL_MEMBERS_BY_ADMIN } from '../../../apollo/admin/query';
 import { useMutation, useQuery } from '@apollo/client/react';
 import ReasonDialog from '../../../libs/components/admin/ReasonDialog';
 import { T } from '../../../libs/types/common';
+import { CancelIcon as CancelRoundedIcon } from '../../../libs/components/ui/icons';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: { ...(await serverSideTranslations(locale, ['common'])) },

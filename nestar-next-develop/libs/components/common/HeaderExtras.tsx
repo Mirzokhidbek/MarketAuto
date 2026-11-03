@@ -3,10 +3,10 @@ import Link from 'next/link';
 import { useTranslation } from 'next-i18next/pages';
 import { useQuery, useReactiveVar } from '@apollo/client/react';
 import { Badge } from '@mui/material';
-import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import { GET_EXCHANGE_RATE, GET_UNREAD_MESSAGES_COUNT } from '../../../apollo/user/query';
 import { compareVar, Currency, currencyVar, unreadMessagesVar, usdRateVar, userVar } from '../../../apollo/store';
 import { connectSocket, disconnectSocket } from '../../socket';
+import { ChatIcon as ChatBubbleOutlineIcon } from '../ui/icons';
 
 /** app-wide state that every page needs: rate, chosen currency, compare list, live messages */
 export const useGlobalSync = () => {

@@ -3,14 +3,13 @@ import Link from 'next/link';
 import { useTranslation } from 'next-i18next/pages';
 import moment from 'moment';
 import { useMutation, useQuery } from '@apollo/client/react';
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
-import NotificationsActiveOutlinedIcon from '@mui/icons-material/NotificationsActiveOutlined';
 import { GET_SAVED_SEARCHES } from '../../../apollo/user/query';
 import { REMOVE_SAVED_SEARCH } from '../../../apollo/user/mutation';
 import { sweetConfirmAlert, sweetErrorHandling } from '../../sweetAlert';
 import { countryName, formatEnumLabel } from '../../utils';
 import EmptyState from '../ui/EmptyState';
 import { T } from '../../types/common';
+import { DeleteIcon as DeleteOutlineIcon, BellRingIcon as NotificationsActiveOutlinedIcon } from '../ui/icons';
 
 /** short human summary of the saved filters: "Kia, Hyundai · South Korea · 2020–2026" */
 const describe = (search: T, t: any): string => {

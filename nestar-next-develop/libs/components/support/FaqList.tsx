@@ -5,10 +5,9 @@ import MuiAccordionSummary, { AccordionSummaryProps } from '@mui/material/Accord
 import { useRouter } from 'next/router';
 import { styled } from '@mui/material/styles';
 import { useTranslation } from 'next-i18next/pages';
-import ExpandMoreRoundedIcon from '@mui/icons-material/ExpandMoreRounded';
 import { useQuery } from '@apollo/client/react';
 import { GET_NOTICES } from '../../../apollo/user/query';
-import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
+import { ChevronDownIcon as ExpandMoreRoundedIcon, ChevronDownIcon as KeyboardArrowDownRoundedIcon } from '../ui/icons';
 
 const Accordion = styled((props: AccordionProps) => <MuiAccordion disableGutters elevation={0} square {...props} />)(
 	({ theme }) => ({

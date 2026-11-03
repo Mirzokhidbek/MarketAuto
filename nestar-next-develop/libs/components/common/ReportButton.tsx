@@ -3,11 +3,11 @@ import Swal from 'sweetalert2';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next/pages';
 import { useMutation, useReactiveVar } from '@apollo/client/react';
-import FlagOutlinedIcon from '@mui/icons-material/FlagOutlined';
 import { REPORT_PROPERTY } from '../../../apollo/user/mutation';
 import { userVar } from '../../../apollo/store';
 import { ReportReason } from '../../enums/property.enum';
 import { sweetErrorHandling, sweetTopSmallSuccessAlert } from '../../sweetAlert';
+import { FlagIcon as FlagOutlinedIcon } from '../ui/icons';
 
 /** "Report listing": reason + optional comment, reviewed by admins in Admin > Reports */
 const ReportButton = ({ propertyId }: { propertyId: string }) => {
