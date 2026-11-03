@@ -9,6 +9,7 @@ import { Direction, Message } from '../../enums/common.enum';
 import { Property } from '../../types/property/property';
 import { sweetMixinErrorAlert } from '../../sweetAlert';
 import CarCard from '../car/CarCard';
+import { CarRow } from '../car/CarGrid';
 import { VerifiedUserIcon as VerifiedUserOutlinedIcon, PublicIcon as PublicOutlinedIcon, ManageSearchIcon as ManageSearchOutlinedIcon, ForumIcon as ForumOutlinedIcon } from '../ui/icons';
 
 const REASONS = [
@@ -22,14 +23,14 @@ const REASONS = [
 export const WhyCarPort = () => {
 	const { t } = useTranslation('common');
 	return (
-		<section className={'ma-why'}>
-			<h2 className={'ma-why__title'}>{t('Why CarPort?')}</h2>
-			<div className={'ma-why__grid'}>
+		<section className="px-4 pt-6 pb-1 font-sans">
+			<h2 className="m-0 mb-3 text-xl font-bold text-ink">{t('Why CarPort?')}</h2>
+			<div className="grid grid-cols-4 gap-2">
 				{REASONS.map((item) => (
-					<div className={'ma-why__item'} key={item.title}>
+					<div className="flex flex-col gap-1.5 rounded-[14px] border border-line bg-white px-2 py-3 [&_svg]:text-2xl [&_svg]:text-primary" key={item.title}>
 						{item.icon}
-						<strong>{t(item.title)}</strong>
-						<span>{t(item.text)}</span>
+						<strong className="text-xs leading-tight text-ink">{t(item.title)}</strong>
+						<span className="text-[10.5px] leading-[1.35] text-muted">{t(item.text)}</span>
 					</div>
 				))}
 			</div>
@@ -59,16 +60,18 @@ export const LatestCars = () => {
 
 	if (!cars.length) return null;
 	return (
-		<section className={'ma-latest'}>
-			<div className={'ma-latest__head'}>
-				<h2>{t('New listings')}</h2>
-				<Link href={'/property'}>{t('See all')}</Link>
+		<section className="px-4 pt-6 pb-2 font-sans">
+			<div className="mb-3 flex items-baseline justify-between">
+				<h2 className="m-0 text-xl font-bold text-ink">{t('New listings')}</h2>
+				<Link href={'/property'} className="text-sm font-semibold text-primary">
+					{t('See all')}
+				</Link>
 			</div>
-			<div className={'ma-hscroll'}>
+			<CarRow>
 				{cars.map((car) => (
-					<CarCard key={car._id} property={car} onLike={likeHandler} />
+					<CarCard key={car._id} property={car} onLike={likeHandler} layout="tile" />
 				))}
-			</div>
+			</CarRow>
 		</section>
 	);
 };

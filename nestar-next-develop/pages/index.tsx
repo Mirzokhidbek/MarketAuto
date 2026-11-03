@@ -1,6 +1,5 @@
 import { NextPage } from 'next';
 import withLayoutMain from '../libs/components/layout/LayoutHome';
-import { Stack } from '@mui/material';
 import HomeHero from '../libs/components/homepage/HomeHero';
 import CountryHub from '../libs/components/homepage/CountryHub';
 import {
@@ -22,27 +21,27 @@ export const getStaticProps = async ({ locale }: any) => ({
 
 const Home: NextPage = () => {
 	return (
-		<Stack className={'home-page ma-page'}>
+		<div className={'home-page'}>
 			<HomeHero />
 			{/* phones: an app home — reasons, newest cars; the longer sections are for larger screens */}
-			<div className={'ma-phone-only'}>
+			<div className={'sm:hidden'}>
 				<WhyCarPort />
 				<LatestCars />
 			</div>
-			<div className={'ma-phone-hide'}>
+			<div className={'max-sm:hidden'}>
 				<CountryHub />
 				<CountrySpotlight />
 				<HowItWorks />
 			</div>
 			<TopDealers />
-			<div className={'ma-phone-hide'}>
+			<div className={'max-sm:hidden'}>
 				<SellCta />
 			</div>
 			<LatestArticles />
-			<div className={'ma-phone-hide'}>
+			<div className={'max-sm:hidden'}>
 				<HomeFaq />
 			</div>
-		</Stack>
+		</div>
 	);
 };
 

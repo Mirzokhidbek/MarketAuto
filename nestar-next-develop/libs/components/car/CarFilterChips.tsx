@@ -62,15 +62,21 @@ const CarFilterChips = ({ search, defaults, onChange }: CarFilterChipsProps) => 
 
 	if (!chips.length) return null;
 	return (
-		<div className={'ma-chips'}>
+		<div className="-mt-1.5 mb-[18px] flex flex-wrap items-center gap-2 font-sans">
 			{chips.map((chip) => (
-				<button key={chip.key} className={'ma-chip-filter'} onClick={chip.remove} aria-label={`${t('Remove')}: ${chip.label}`}>
+				<button
+					key={chip.key}
+					type="button"
+					className="inline-flex cursor-pointer items-center gap-1 rounded-full border border-[#bfdbfe] bg-[#eff6ff] py-1.5 pr-2 pl-3 text-[13px] font-medium text-primary hover:bg-[#dbeafe]"
+					onClick={chip.remove}
+					aria-label={`${t('Remove')}: ${chip.label}`}
+				>
 					{chip.label}
-					<CloseIcon />
+					<CloseIcon className="text-[15px]" />
 				</button>
 			))}
 			{chips.length > 1 && (
-				<button className={'ma-link-btn'} onClick={() => onChange({ ...defaults })}>
+				<button type="button" className="cursor-pointer border-0 bg-transparent text-[13px] font-semibold text-primary hover:underline" onClick={() => onChange({ ...defaults })}>
 					{t('Clear all')}
 				</button>
 			)}

@@ -1,7 +1,10 @@
 import { fetchWithTimeout } from '../../libs/utils';
-import React, { ChangeEvent, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { NextPage } from 'next';
-import { Pagination } from '@mui/material';
+import Pagination from '../../libs/components/ui/Pagination';
+import CarGrid from '../../libs/components/car/CarGrid';
+import PageContainer from '../../libs/components/ui/PageContainer';
+import { buttonClasses } from '../../libs/components/ui/Button';
 import CarCard from '../../libs/components/car/CarCard';
 import withLayoutBasic from '../../libs/components/layout/LayoutBasic';
 import CarFilter from '../../libs/components/car/CarFilter';
@@ -113,7 +116,7 @@ const PropertyList: NextPage = ({ initialList = [], initialTotal = 0 }: any) => 
 	}, [router]);
 
 	/** HANDLERS **/
-	const handlePaginationChange = async (event: ChangeEvent<unknown>, value: number) => {
+	const handlePaginationChange = async (value: number) => {
 		searchFilter.page = value;
 		await router.push(
 			`/property?input=${JSON.stringify(searchFilter)}`,
@@ -166,27 +169,25 @@ const PropertyList: NextPage = ({ initialList = [], initialTotal = 0 }: any) => 
 	};
 
 	return (
-		<div id="property-list-page" className={'ma-page ma-list-page'}>
-			<div className={'ma-container ma-list-layout'}>
-				{/* @ts-ignore */}
-				<CarFilter
-					searchFilter={searchFilter}
-					setSearchFilter={setSearchFilter}
-					initialInput={initialInput}
-					total={total}
-				/>
+		<div id="property-list-page" className="pt-8 pb-20 font-sans">
+			<PageContainer className="grid grid-cols-1 items-start gap-5 md:grid-cols-[240px_minmax(0,1fr)] md:gap-7 lg:grid-cols-[264px_minmax(0,1fr)] lg:gap-10">
+				<CarFilter searchFilter={searchFilter} setSearchFilter={setSearchFilter} initialInput={initialInput} total={total} />
 
-				<section className={'ma-results'}>
-					<div className={'ma-results__bar'}>
+				<section className="min-w-0">
+					<div className="mb-5 flex items-center justify-between gap-3 border-b border-line pb-4 max-md:max-sm:flex-row md:items-end">
 						<div>
-							<h2>{t('Cars for sale')}</h2>
-							<span>
+							<h2 className="m-0 mb-1 text-lg font-bold tracking-[-0.01em] text-ink sm:text-xl">{t('Cars for sale')}</h2>
+							<span className="text-sm text-muted">
 								{total || 0} {t('cars found')}
 							</span>
 						</div>
-						<label className={'ma-sort'}>
-							<span>{t('Sort by')}</span>
-							<select value={currentSort} onChange={(e) => sortingHandler(e.target.value)}>
+						<label className="ml-auto flex items-center gap-2.5">
+							<span className="text-sm whitespace-nowrap text-muted max-sm:hidden">{t('Sort by')}</span>
+							<select
+								className="h-[38px] cursor-pointer rounded-md border border-line-strong bg-white px-3 font-sans text-sm text-text outline-none max-sm:max-w-[150px]"
+								value={currentSort}
+								onChange={(e) => sortingHandler(e.target.value)}
+							>
 								{sortOptions.map((item) => (
 									<option value={item.id} key={item.id}>
 										{t(item.label)}
@@ -207,40 +208,32 @@ const PropertyList: NextPage = ({ initialList = [], initialTotal = 0 }: any) => 
 					{getPropertiesLoading && !properties?.length ? (
 						<CarGridSkeleton count={6} />
 					) : properties?.length === 0 ? (
-						<div className={'ma-empty ma-empty--cta'}>
-							<strong>{t('No cars found')}</strong>
-							<p>
-								{t(
-									'Try changing or clearing your filters, or save this search to get an alert when such a car appears.',
-								)}
+						<div className="flex flex-col items-center gap-3.5 border-y border-line px-6 py-14 text-center text-[15px] text-muted">
+							<strong className="block text-[17px] text-ink">{t('No cars found')}</strong>
+							<p className="m-0">
+								{t('Try changing or clearing your filters, or save this search to get an alert when such a car appears.')}
 							</p>
 							<button
-								className={'ma-btn ma-btn--outline'}
+								type="button"
+								className={buttonClasses({ variant: 'outline' })}
 								onClick={() => router.replace(`/property?input=${JSON.stringify(defaultInput)}`)}
 							>
 								{t('Clear all')}
 							</button>
 						</div>
 					) : (
-						<div className={'ma-grid ma-grid--3'}>
+						<CarGrid>
 							{properties.map((property: Property) => (
 								<CarCard property={property} key={property?._id} onLike={(id) => likePropertyHandler(user, id)} />
 							))}
-						</div>
+						</CarGrid>
 					)}
 
-					{properties.length !== 0 && total > searchFilter.limit && (
-						<div className={'ma-pagination'}>
-							<Pagination
-								page={currentPage}
-								count={Math.ceil(total / searchFilter.limit)}
-								onChange={handlePaginationChange}
-								shape="rounded"
-							/>
-						</div>
+					{properties.length !== 0 && (
+						<Pagination page={currentPage} total={total} pageSize={searchFilter.limit} onChange={handlePaginationChange} />
 					)}
 				</section>
-			</div>
+			</PageContainer>
 		</div>
 	);
 };

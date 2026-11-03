@@ -9,6 +9,9 @@ import Link from 'next/link';
 import CarOrigin from '../car/CarOrigin';
 import { PropertiesInquiry } from '../../types/property/property.input';
 import { SearchIcon } from '../ui/icons';
+import PageContainer from '../ui/PageContainer';
+import { buttonClasses } from '../ui/Button';
+import { cx } from '../ui/classNames';
 
 const priceOptions = [
 	{ label: 'Any Price', range: null },
@@ -60,27 +63,34 @@ const HomeHero = () => {
 		await router.push(searchHref(search));
 	};
 
+	const field = 'flex min-w-0 flex-col gap-0.5 border-line px-3.5 pt-2.5 pb-2 text-left focus-within:bg-surface';
+	const label = 'font-sans text-xs font-semibold text-muted';
+	const control = 'h-[26px] min-w-0 cursor-pointer border-0 bg-transparent p-0 font-sans text-[15px] font-medium text-text outline-none';
+
 	return (
-		<section className={'ma-hero'}>
-			<div className={'ma-hero__inner'}>
-				<h1>{t('Cars from around the world — for Uzbekistan.')}</h1>
-				<p className={'ma-hero__lead'}>
+		<section className="relative border-b border-line bg-white pt-[88px] pb-7 font-sans sm:pt-24 sm:pb-8 md:pt-28 md:pb-10 max-sm:[.is-telegram_&]:pt-20">
+			<PageContainer>
+				<h1 className="mt-3 mb-3 max-w-[760px] text-[28px] leading-[1.08] font-extrabold tracking-[-0.03em] text-ink sm:text-4xl md:text-[44px] md:tracking-[-0.035em] max-sm:[.is-telegram_&]:mb-3.5 max-sm:[.is-telegram_&]:text-2xl">
+					{t('Cars from around the world — for Uzbekistan.')}
+				</h1>
+				{/* the Mini App opens on the search: no marketing paragraph there */}
+				<p className="mt-0 mb-5 max-w-[640px] text-[15px] leading-[1.55] text-muted sm:mb-7 sm:text-base max-sm:[.is-telegram_&]:hidden">
 					{t(
 						'Find new and used cars from trusted sellers in Uzbekistan, South Korea, China, Japan, the US, Germany and the UAE — and contact them directly.',
 					)}
 				</p>
 
 				<form
-					className={'ma-search'}
+					className="grid w-full grid-cols-2 items-stretch overflow-hidden rounded-[10px] border border-line-strong bg-white sm:grid-cols-[repeat(2,minmax(0,1fr))_auto] lg:grid-cols-[1.1fr_1.1fr_1fr_1fr_auto]"
 					role={'search'}
 					onSubmit={(e) => {
 						e.preventDefault();
 						searchHandler();
 					}}
 				>
-					<label className={'ma-field'}>
-						<span>{t('Make')}</span>
-						<select value={brand} onChange={(e) => setBrand(e.target.value)}>
+					<label className={cx(field, 'border-r border-b lg:border-b-0')}>
+						<span className={label}>{t('Make')}</span>
+						<select className={control} value={brand} onChange={(e) => setBrand(e.target.value)}>
 							<option value={''}>{t('Any Make')}</option>
 							{Object.values(CarBrand).map((item) => (
 								<option value={item} key={item}>
@@ -89,9 +99,10 @@ const HomeHero = () => {
 							))}
 						</select>
 					</label>
-					<label className={'ma-field'}>
-						<span>{t('Model')}</span>
+					<label className={cx(field, 'border-b sm:col-span-2 lg:col-span-1 lg:border-r lg:border-b-0')}>
+						<span className={label}>{t('Model')}</span>
 						<input
+							className={cx(control, 'cursor-text')}
 							type="text"
 							list={'ma-hero-models'}
 							value={model}
@@ -104,9 +115,9 @@ const HomeHero = () => {
 							))}
 						</datalist>
 					</label>
-					<label className={'ma-field'}>
-						<span>{t('Price Range')}</span>
-						<select value={price} onChange={(e) => setPrice(Number(e.target.value))}>
+					<label className={cx(field, 'border-r')}>
+						<span className={label}>{t('Price Range')}</span>
+						<select className={control} value={price} onChange={(e) => setPrice(Number(e.target.value))}>
 							{priceOptions.map((item, index) => (
 								<option value={index} key={item.label}>
 									{t(item.label)}
@@ -114,9 +125,9 @@ const HomeHero = () => {
 							))}
 						</select>
 					</label>
-					<label className={'ma-field'}>
-						<span>{t('Year')}</span>
-						<select value={year} onChange={(e) => setYear(Number(e.target.value))}>
+					<label className={cx(field, 'sm:border-r')}>
+						<span className={label}>{t('Year')}</span>
+						<select className={control} value={year} onChange={(e) => setYear(Number(e.target.value))}>
 							{yearOptions.map((item, index) => (
 								<option value={index} key={item.label}>
 									{t(item.label)}
@@ -124,23 +135,36 @@ const HomeHero = () => {
 							))}
 						</select>
 					</label>
-					<button type={'submit'} className={'ma-btn ma-btn--primary ma-search__btn'}>
+					<button
+						type={'submit'}
+						className={buttonClasses({
+							className: 'col-span-full m-0 min-h-12 rounded-none sm:col-span-1 sm:m-1.5 sm:min-h-[58px] sm:rounded-md sm:px-6',
+						})}
+					>
 						<SearchIcon /> {t('Search')}
 					</button>
 				</form>
 
-				<nav className={'ma-hero__origins'} aria-label={t('Cars from') as string}>
-					<span>{t('Cars from')}:</span>
+				{/* phones: wrapped pills; larger screens: one line of plate badges */}
+				<nav
+					className="mt-[18px] flex flex-wrap items-center gap-2 font-sans text-[13px] text-muted sm:gap-x-[18px] sm:gap-y-1.5"
+					aria-label={t('Cars from') as string}
+				>
+					<span className="max-sm:basis-full">{t('Cars from')}:</span>
 					{origins.map((country) => (
-						<Link href={searchHref({ countryList: [country] })} key={country}>
-							<CarOrigin country={country} />
+						<Link
+							href={searchHref({ countryList: [country] })}
+							key={country}
+							className="group inline-flex max-sm:rounded-full max-sm:border max-sm:border-line max-sm:bg-white max-sm:px-2.5 max-sm:py-1.5"
+						>
+							<CarOrigin country={country} className="text-text group-hover:text-primary" />
 						</Link>
 					))}
-					<Link href={'/property'} className={'ma-search__more'}>
+					<Link href={'/property'} className="ml-auto inline-block font-semibold text-primary underline-offset-[3px] hover:underline max-sm:hidden">
 						{t('More filters')} →
 					</Link>
 				</nav>
-			</div>
+			</PageContainer>
 		</section>
 	);
 };

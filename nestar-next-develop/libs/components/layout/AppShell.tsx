@@ -39,7 +39,7 @@ const AppShell = ({ children, pageHeader, className }: AppShellProps) => {
 			>
 				<Header />
 				{pageHeader}
-				<main id="main" className="flex flex-1 flex-col">
+				<main id="main" className="flex flex-1 flex-col bg-white">
 					{children}
 				</main>
 				<CompareBar />

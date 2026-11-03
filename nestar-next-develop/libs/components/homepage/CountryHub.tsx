@@ -12,6 +12,11 @@ import { PropertiesInquiry } from '../../types/property/property.input';
 import { countryName } from '../../utils';
 import { sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../sweetAlert';
 import CarCard from '../car/CarCard';
+import CarGrid from '../car/CarGrid';
+import PageContainer from '../ui/PageContainer';
+import { buttonClasses } from '../ui/Button';
+import { cx } from '../ui/classNames';
+import SectionHead from './SectionHead';
 
 const hubCountries = [
 	CarCountry.UZBEKISTAN,
@@ -58,45 +63,44 @@ const CountryHub = () => {
 	const seeAllInput = JSON.stringify({ ...buildInput(country), limit: 9 });
 
 	return (
-		<section className={'ma-section'}>
-			<div className={'ma-container'}>
-				<div className={'ma-hub__head'}>
-					<div>
-						<h2 className={'ma-title'}>{t('Explore by Country')}</h2>
-						<p className={'ma-subtitle'}>{t('Cars listed by sellers in Uzbekistan and abroad')}</p>
-					</div>
-					<div className={'ma-tabs'}>
-						<button className={`ma-tab ${country === null ? 'is-active' : ''}`} onClick={() => setCountry(null)}>
-							{t('All')}
-						</button>
-						{hubCountries.map((item) => (
+		<section className="py-14 md:py-16">
+			<PageContainer>
+				<SectionHead title={t('Explore by Country')} subtitle={t('Cars listed by sellers in Uzbekistan and abroad')}>
+					<div className="flex max-w-full gap-x-5 gap-y-1 overflow-x-auto [scrollbar-width:none] md:flex-wrap [&::-webkit-scrollbar]:hidden">
+						{[null, ...hubCountries].map((item) => (
 							<button
-								key={item}
-								className={`ma-tab ${country === item ? 'is-active' : ''}`}
+								key={item ?? 'all'}
+								type="button"
+								className={cx(
+									'h-[34px] shrink-0 cursor-pointer border-0 border-b-2 bg-transparent p-0 font-sans text-sm font-semibold transition-colors hover:text-ink',
+									country === item ? 'border-ink text-ink' : 'border-transparent text-muted',
+								)}
 								onClick={() => setCountry(item)}
 							>
-								{countryName(item, t)}
+								{item ? countryName(item, t) : t('All')}
 							</button>
 						))}
 					</div>
-				</div>
+				</SectionHead>
 
 				{cars.length ? (
-					<div className={'ma-grid ma-grid--3'}>
+					<CarGrid>
 						{cars.map((car) => (
 							<CarCard key={car._id} property={car} onLike={likeHandler} />
 						))}
-					</div>
+					</CarGrid>
 				) : (
-					<div className={'ma-empty'}>{loading ? t('Loading...') : t('No cars from this country yet.')}</div>
+					<div className="border-y border-line px-6 py-14 text-center font-sans text-[15px] text-muted">
+						{loading ? t('Loading...') : t('No cars from this country yet.')}
+					</div>
 				)}
 
-				<div className={'ma-center'}>
-					<Link href={`/property?input=${seeAllInput}`}>
-						<span className={'ma-btn ma-btn--outline'}>{t('See All Cars')} →</span>
+				<div className="mt-8 flex justify-center">
+					<Link href={`/property?input=${seeAllInput}`} className={buttonClasses({ variant: 'outline' })}>
+						{t('See All Cars')} →
 					</Link>
 				</div>
-			</div>
+			</PageContainer>
 		</section>
 	);
 };
