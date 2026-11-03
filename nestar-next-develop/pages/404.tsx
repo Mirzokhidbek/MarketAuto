@@ -4,6 +4,8 @@ import { useTranslation } from 'next-i18next/pages';
 import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
 import withLayoutFull from '../libs/components/layout/LayoutFull';
 import { CarIcon as DirectionsCarFilledOutlinedIcon } from '../libs/components/ui/icons';
+import { buttonClasses } from '../libs/components/ui/Button';
+import PageContainer from '../libs/components/ui/PageContainer';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: { ...(await serverSideTranslations(locale ?? 'uz', ['common'])) },
@@ -13,20 +15,20 @@ export const getStaticProps = async ({ locale }: any) => ({
 const NotFound = () => {
 	const { t } = useTranslation('common');
 	return (
-		<div className={'ma-page'}>
-			<div className={'ma-container ma-404'}>
-				<DirectionsCarFilledOutlinedIcon />
-				<h1>404</h1>
-				<p>{t('This page does not exist or the listing was removed.')}</p>
-				<div className={'ma-404__actions'}>
-					<Link href={'/property'}>
-						<span className={'ma-btn ma-btn--primary'}>{t('Browse cars')}</span>
+		<div className="pt-[88px] font-sans md:pt-[104px]">
+			<PageContainer className="flex flex-col items-center gap-2 pt-[90px] pb-[110px] text-center">
+				<DirectionsCarFilledOutlinedIcon className="text-[72px] text-[#cbd5e1]" />
+				<h1 className="m-0 text-[64px] text-ink">404</h1>
+				<p className="m-0 mb-3.5 text-muted">{t('This page does not exist or the listing was removed.')}</p>
+				<div className="flex gap-3">
+					<Link href={'/property'} className={buttonClasses()}>
+						{t('Browse cars')}
 					</Link>
-					<Link href={'/'}>
-						<span className={'ma-btn ma-btn--outline'}>{t('Home')}</span>
+					<Link href={'/'} className={buttonClasses({ variant: 'outline' })}>
+						{t('Home')}
 					</Link>
 				</div>
-			</div>
+			</PageContainer>
 		</div>
 	);
 };

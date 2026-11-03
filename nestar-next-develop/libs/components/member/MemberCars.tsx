@@ -1,7 +1,6 @@
 import EmptyState from '../ui/EmptyState';
 import React, { useEffect, useState } from 'react';
 import { NextPage } from 'next';
-import { Pagination } from '@mui/material';
 import { useTranslation } from 'next-i18next/pages';
 import CarCard from '../car/CarCard';
 import { Property } from '../../types/property/property';
@@ -10,6 +9,8 @@ import { T } from '../../types/common';
 import { useRouter } from 'next/router';
 import { useQuery } from '@apollo/client/react';
 import { GET_PROPERTIES } from '../../../apollo/user/query';
+import { accountPanel, accountPanelHead } from '../ui/styles';
+import Pagination from '../ui/Pagination';
 
 const MyCars: NextPage = ({ initialInput = defaultProps.initialInput, ...props }: any) => {
 	const { t } = useTranslation('common');
@@ -50,13 +51,13 @@ const MyCars: NextPage = ({ initialInput = defaultProps.initialInput, ...props }
 	}, [memberId]);
 
 	/** HANDLERS **/
-	const paginationHandler = (e: T, value: number) => {
+	const paginationHandler = (value: number) => {
 		setSearchFilter({ ...searchFilter, page: value });
 	};
 
 	return (
-		<div className={'ma-account-panel'}>
-			<div className={'ma-account-panel__head'}>
+		<div className={accountPanel}>
+			<div className={accountPanelHead}>
 				<div>
 					<h1>{t('Cars')}</h1>
 					<p>
@@ -65,7 +66,7 @@ const MyCars: NextPage = ({ initialInput = defaultProps.initialInput, ...props }
 				</div>
 			</div>
 			{agentProperties?.length ? (
-				<div className={'ma-grid ma-grid--2'}>
+				<div className="grid grid-cols-1 gap-y-8 max-sm:gap-y-0 sm:grid-cols-2 sm:gap-x-6">
 					{agentProperties.map((item: any) => (
 						<CarCard property={item} key={item._id} />
 					))}
@@ -74,14 +75,7 @@ const MyCars: NextPage = ({ initialInput = defaultProps.initialInput, ...props }
 				<EmptyState loading={getPropertiesLoading} text={t('No cars listed yet.')} />
 			)}
 			{total > searchFilter.limit && (
-				<div className={'ma-pagination'}>
-					<Pagination
-						count={Math.ceil(total / searchFilter.limit)}
-						page={searchFilter.page}
-						shape="rounded"
-						onChange={paginationHandler}
-					/>
-				</div>
+				<Pagination page={searchFilter.page} total={total} pageSize={searchFilter.limit} onChange={paginationHandler} />
 			)}
 		</div>
 	);

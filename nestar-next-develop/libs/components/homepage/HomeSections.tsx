@@ -167,7 +167,7 @@ export const SellCta = () => {
 							<Link href={sellHref} className={buttonClasses()}>
 								{t('Sell a car')}
 							</Link>
-							<Link href={'/cs'} className={buttonClasses({ className: 'border-white/35! bg-transparent! text-white! hover:border-white!' })}>
+							<Link href={'/cs'} className={buttonClasses({ variant: 'ghost' })}>
 								{t('Read FAQ')}
 							</Link>
 						</div>

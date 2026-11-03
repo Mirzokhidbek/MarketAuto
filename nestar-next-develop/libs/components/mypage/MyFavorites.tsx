@@ -3,7 +3,6 @@ import EmptyState from '../ui/EmptyState';
 import React, { useState, useEffect } from 'react';
 import { NextPage } from 'next';
 import { useTranslation } from 'next-i18next/pages';
-import { Pagination } from '@mui/material';
 import CarCard from '../car/CarCard';
 import { Property } from '../../types/property/property';
 import { T } from '../../types/common';
@@ -13,6 +12,8 @@ import { useMutation, useQuery, useReactiveVar } from '@apollo/client/react';
 import { userVar } from '../../../apollo/store';
 import { Messages } from '../../config';
 import { sweetMixinErrorAlert } from '../../sweetAlert';
+import { accountPanel, accountPanelHead } from '../ui/styles';
+import Pagination from '../ui/Pagination';
 
 const MyFavorites: NextPage = () => {
 	const { t } = useTranslation('common');
@@ -45,7 +46,7 @@ const MyFavorites: NextPage = () => {
 	}, [getFavoritesData]);
 
 	/** HANDLERS **/
-	const paginationHandler = (e: T, value: number) => {
+	const paginationHandler = (value: number) => {
 		setSearchFavorites({ ...searchFavorites, page: value });
 	};
 
@@ -66,22 +67,24 @@ const MyFavorites: NextPage = () => {
 	};
 
 	return (
-		<div className={'ma-account-panel'}>
-			<div className={'ma-account-panel__head'}>
+		<div className={accountPanel}>
+			<div className={accountPanelHead}>
 				<div>
 					<h1>{t('My Favorites')}</h1>
 					<p>{t('Cars you saved with the heart button.')}</p>
 				</div>
 			</div>
 			{/* phones: saved cars and followed sellers side by side, as in the app */}
-			<nav className={'ma-segtabs ma-phone-only'}>
-				<span className={'is-active'}>
+			<nav className="mb-3 flex gap-5 border-b border-line font-sans text-sm sm:hidden">
+				<span className="py-2.5 font-semibold text-primary shadow-[inset_0_-2px_0_var(--color-primary)]">
 					{t('Cars')} ({total})
 				</span>
-				<Link href={{ pathname: '/mypage', query: { category: 'followings' } }}>{t('Sellers')}</Link>
+				<Link href={{ pathname: '/mypage', query: { category: 'followings' } }} className="py-2.5 text-muted">
+					{t('Sellers')}
+				</Link>
 			</nav>
 			{myFavorites?.length ? (
-				<div className={'ma-grid ma-grid--2'}>
+				<div className="grid grid-cols-1 gap-y-8 max-sm:gap-y-0 sm:grid-cols-2 sm:gap-x-6">
 					{myFavorites.map((property: Property) => (
 						// every car here is a favorite: the heart shows filled (the list does not carry meLiked)
 						<CarCard
@@ -105,14 +108,7 @@ const MyFavorites: NextPage = () => {
 				/>
 			)}
 			{total > searchFavorites.limit && (
-				<div className={'ma-pagination'}>
-					<Pagination
-						count={Math.ceil(total / searchFavorites.limit)}
-						page={searchFavorites.page}
-						shape="rounded"
-						onChange={paginationHandler}
-					/>
-				</div>
+				<Pagination page={searchFavorites.page} total={total} pageSize={searchFavorites.limit} onChange={paginationHandler} />
 			)}
 		</div>
 	);

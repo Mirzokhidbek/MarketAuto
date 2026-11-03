@@ -3,6 +3,8 @@ import { useTranslation } from 'next-i18next/pages';
 import { useMutation } from '@apollo/client/react';
 import { REQUEST_PHONE_CODE } from '../../../apollo/user/mutation';
 import { sweetErrorHandling } from '../../sweetAlert';
+import { codeRow, field, fieldHint } from '../ui/styles';
+import { buttonClasses } from '../ui/Button';
 
 type Purpose = 'SIGNUP' | 'RESET_PASSWORD' | 'CHANGE_PHONE' | 'LOGIN';
 
@@ -50,9 +52,9 @@ const PhoneCodeField = ({ purpose, phone, code, onPhoneChange, onCodeChange, pho
 
 	return (
 		<>
-			<label className={'ma-input'}>
+			<label className={field}>
 				<span>{phoneLabel ?? t('Phone')}</span>
-				<div className={'ma-code-row'}>
+				<div className={codeRow}>
 					<input
 						type="tel"
 						autoComplete="tel"
@@ -60,14 +62,14 @@ const PhoneCodeField = ({ purpose, phone, code, onPhoneChange, onCodeChange, pho
 						value={phone}
 						onChange={(e) => onPhoneChange(e.target.value)}
 					/>
-					<button type="button" className={'ma-btn ma-btn--outline'} disabled={!canSend} onClick={sendHandler}>
+					<button type="button" className={buttonClasses({ variant: 'outline' })} disabled={!canSend} onClick={sendHandler}>
 						{cooldown > 0 ? `${cooldown}s` : sent ? t('Resend code') : t('Send code')}
 					</button>
 				</div>
-				<em className={'ma-input__hint'}>{t('With country code: 998 for Uzbekistan, 82 for Korea, 86 for China...')}</em>
+				<em className={fieldHint}>{t('With country code: 998 for Uzbekistan, 82 for Korea, 86 for China...')}</em>
 			</label>
 			{sent && (
-				<label className={'ma-input'}>
+				<label className={field}>
 					<span>{t('SMS code')}</span>
 					<input
 						type="text"
@@ -79,7 +81,7 @@ const PhoneCodeField = ({ purpose, phone, code, onPhoneChange, onCodeChange, pho
 						onChange={(e) => onCodeChange(e.target.value.replace(/\D/g, ''))}
 					/>
 					{/* only in development without an SMS provider */}
-					{devCode && <em className={'ma-input__hint'}>{t('Test mode code')}: {devCode}</em>}
+					{devCode && <em className={fieldHint}>{t('Test mode code')}: {devCode}</em>}
 				</label>
 			)}
 		</>

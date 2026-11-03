@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next/pages';
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client/react';
-import { Pagination } from '@mui/material';
+import Pagination from '../ui/Pagination';
 import { GET_COMMENTS } from '../../../apollo/user/query';
 import { CREATE_COMMENT } from '../../../apollo/user/mutation';
 import { userVar } from '../../../apollo/store';
@@ -10,6 +10,8 @@ import { CommentGroup } from '../../enums/comment.enum';
 import { Comment } from '../../types/comment/comment';
 import { sweetErrorHandling } from '../../sweetAlert';
 import ReviewItem from './ReviewItem';
+import { accountPanel, accountPanelHead, emptyBox, inputClass } from '../ui/styles';
+import { buttonClasses } from '../ui/Button';
 
 const LIMIT = 5;
 
@@ -51,8 +53,8 @@ const MemberReviews = () => {
 	};
 
 	return (
-		<div className={'ma-account-panel'}>
-			<div className={'ma-account-panel__head'}>
+		<div className={accountPanel}>
+			<div className={accountPanelHead}>
 				<div>
 					<h1>{t('Reviews')}</h1>
 					<p>
@@ -61,15 +63,16 @@ const MemberReviews = () => {
 				</div>
 			</div>
 			{!isOwnProfile && (
-				<div className={'ma-comment-form'}>
+				<div className="mb-5 flex flex-col items-end gap-2.5">
 					<textarea
+						className={`${inputClass} h-auto! min-h-24 w-full resize-y py-3`}
 						maxLength={1000}
 						placeholder={t('Share your experience with this seller...') as string}
 						value={content}
 						onChange={({ target: { value } }) => setContent(value)}
 					/>
 					<button
-						className={'ma-btn ma-btn--primary'}
+						className={buttonClasses()}
 						disabled={!!user?._id && (!content.trim() || sending)}
 						onClick={submitHandler}
 					>
@@ -80,17 +83,10 @@ const MemberReviews = () => {
 			{reviews.length ? (
 				reviews.map((comment) => <ReviewItem comment={comment} key={comment._id} onRemoved={refetch} />)
 			) : (
-				<div className={'ma-empty'}>{t('No reviews yet.')}</div>
+				<div className={emptyBox}>{t('No reviews yet.')}</div>
 			)}
 			{total > LIMIT && (
-				<div className={'ma-pagination'}>
-					<Pagination
-						page={page}
-						count={Math.ceil(total / LIMIT)}
-						onChange={(e: unknown, value: number) => setPage(value)}
-						shape="rounded"
-					/>
-				</div>
+				<Pagination page={page} total={total} pageSize={LIMIT} onChange={setPage} />
 			)}
 		</div>
 	);

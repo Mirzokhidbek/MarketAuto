@@ -6,6 +6,8 @@ import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslation
 import withLayoutBasic from '../../libs/components/layout/LayoutBasic';
 import { HowItWorks } from '../../libs/components/homepage/HomeSections';
 import { PublicIcon as PublicOutlinedIcon, ForumIcon as ForumOutlinedIcon, SellIcon as SellOutlinedIcon, VerifiedUserIcon as VerifiedUserOutlinedIcon } from '../../libs/components/ui/icons';
+import { buttonClasses } from '../../libs/components/ui/Button';
+import PageContainer from '../../libs/components/ui/PageContainer';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {
@@ -40,14 +42,16 @@ const About: NextPage = () => {
 	const { t } = useTranslation('common');
 
 	return (
-		<div className={'ma-page'}>
-			<section className={'ma-section'}>
-				<div className={'ma-container ma-about'}>
-					<div className={'ma-about__intro'}>
-						<span className={'ma-eyebrow'}>{t('ABOUT CARPORT')}</span>
-						<h1>{t("We're on a Mission to Make Buying and Selling Cars Simple.")}</h1>
+		<div className="font-sans">
+			<section className="py-14 md:py-16">
+				<PageContainer className="grid grid-cols-1 items-start gap-6 md:grid-cols-2 md:gap-14">
+					<div>
+						<span className="mb-2 block text-[13px] font-semibold text-muted">{t('ABOUT CARPORT')}</span>
+						<h1 className="m-0 text-[28px] leading-[1.2] tracking-[-0.02em] text-ink sm:text-[38px]">
+							{t("We're on a Mission to Make Buying and Selling Cars Simple.")}
+						</h1>
 					</div>
-					<div className={'ma-about__text'}>
+					<div className="[&_p]:m-0 [&_p]:mb-4 [&_p]:text-base [&_p]:leading-[1.75] [&_p]:text-text">
 						<p>
 							{t(
 								'CarPort connects car buyers with trusted dealers and private sellers across Uzbekistan and abroad. Every listing shows the details that matter — brand, model, year, mileage, fuel and transmission — so you can compare cars quickly and honestly.',
@@ -59,48 +63,51 @@ const About: NextPage = () => {
 							)}
 						</p>
 					</div>
-				</div>
-				<figure className={'ma-container ma-about-brand'}>
+				</PageContainer>
+				<PageContainer className="mt-10">
 					<img
 						src={'/img/brand/brand.webp'}
 						alt={t('CarPort — car import from abroad to Uzbekistan') as string}
 						width={872}
 						height={492}
+						className="block h-auto w-full rounded-[14px] border border-line"
 					/>
-				</figure>
+				</PageContainer>
 			</section>
 
-			<section className={'ma-section ma-section--alt'}>
-				<div className={'ma-container ma-grid ma-grid--4'}>
+			<section className="border-t border-line bg-white py-14 md:py-16">
+				<PageContainer className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
 					{values.map((item) => (
-						<div className={'ma-feature'} key={item.title}>
-							<div className={'ma-feature__icon'}>{item.icon}</div>
-							<h3>{t(item.title)}</h3>
-							<p>{t(item.text)}</p>
+						<div className="border-t border-line pt-6" key={item.title}>
+							<div className="mb-3 text-ink [&_svg]:text-[22px]">{item.icon}</div>
+							<h3 className="m-0 mb-1.5 text-base font-semibold text-ink">{t(item.title)}</h3>
+							<p className="m-0 text-sm leading-relaxed text-muted">{t(item.text)}</p>
 						</div>
 					))}
-				</div>
+				</PageContainer>
 			</section>
 
 			<HowItWorks />
 
-			<section className={'ma-section ma-section--tight'}>
-				<div className={'ma-container'}>
-					<div className={'ma-cta'}>
-						<div className={'ma-cta__text'}>
-							<h2>{t('Need help? Talk to our team.')}</h2>
-							<p>{t('Ask a question in the Support Center — the answer appears in your account.')}</p>
-							<div className={'ma-cta__actions'}>
-								<Link href={'/cs'}>
-									<span className={'ma-btn ma-btn--primary'}>{t('Support Center')}</span>
+			<section className="pb-14 md:pb-16">
+				<PageContainer>
+					<div className="rounded-[14px] bg-ink px-6 py-8 text-white md:p-12">
+						<div className="max-w-[600px]">
+							<h2 className="m-0 mb-3 text-[23px] leading-[1.2] font-bold tracking-[-0.02em] sm:text-[28px]">{t('Need help? Talk to our team.')}</h2>
+							<p className="m-0 mb-6 text-[15.5px] leading-relaxed text-white/70">
+								{t('Ask a question in the Support Center — the answer appears in your account.')}
+							</p>
+							<div className="flex flex-wrap gap-3">
+								<Link href={'/cs'} className={buttonClasses()}>
+									{t('Support Center')}
 								</Link>
-								<Link href={'/property'}>
-									<span className={'ma-btn ma-btn--ghost'}>{t('Browse Cars')}</span>
+								<Link href={'/property'} className={buttonClasses({ variant: 'ghost' })}>
+									{t('Browse Cars')}
 								</Link>
 							</div>
 						</div>
 					</div>
-				</div>
+				</PageContainer>
 			</section>
 		</div>
 	);

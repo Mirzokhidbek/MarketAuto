@@ -136,10 +136,10 @@ const MyPage: NextPage = () => {
 		panels[category] ?? panels.myProfile
 	) : (
 		<>
-			<div className={'ma-phone-only'}>
+			<div className="sm:hidden">
 				<ProfileHub />
 			</div>
-			<div className={'ma-phone-hide'}>{panels.myProfile}</div>
+			<div className="max-sm:hidden">{panels.myProfile}</div>
 		</>
 	);
 

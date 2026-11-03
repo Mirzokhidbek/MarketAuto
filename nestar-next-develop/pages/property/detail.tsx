@@ -19,18 +19,12 @@ import { buttonClasses } from '../../libs/components/ui/Button';
 import { Spinner } from '../../libs/components/ui/Feedback';
 import { cx } from '../../libs/components/ui/classNames';
 import { CarRow } from '../../libs/components/car/CarGrid';
+import { statusPill, statusTone } from '../../libs/components/ui/styles';
 
 const iconButton =
 	'inline-flex h-[38px] cursor-pointer items-center gap-1.5 rounded-md border border-line-strong bg-white px-3 font-sans text-sm font-medium text-text hover:border-ink hover:text-ink [&_svg]:text-xl';
 const appBarButton =
 	'inline-flex size-10 cursor-pointer items-center justify-center rounded-full border-0 bg-transparent p-0 text-ink [&_svg]:text-[22px]';
-const statusTone: Record<string, string> = {
-	ACTIVE: 'bg-[#dcfce7] text-[#15803d]',
-	SOLD: 'bg-[#f1f5f9] text-muted',
-	PENDING: 'bg-[#fef7e0] text-[#7a5200]',
-	REJECTED: 'bg-[#fce8e6] text-[#a50e0e]',
-	DELETE: 'bg-[#fee2e2] text-[#b91c1c]',
-};
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client/react';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next/pages';
@@ -590,7 +584,7 @@ const PropertyDetail: NextPage = ({ carSeo }: any) => {
 							<PriceEstimate propertyId={property._id} />
 							<ImportCostLine propertyId={property._id} propertyPrice={property.propertyPrice} />
 							<div className="flex flex-wrap gap-1.5 border-b border-line pb-[18px]">
-								<span className={cx('inline-flex h-[22px] items-center rounded px-2 text-xs font-semibold', statusTone[property.propertyStatus] ?? statusTone.ACTIVE)}>
+								<span className={cx(statusPill, statusTone[property.propertyStatus] ?? statusTone.ACTIVE)}>
 									{t(property.propertyStatus === 'SOLD' ? 'Sold' : property.propertyStatus === 'PENDING' ? 'Under review' : 'For sale')}
 								</span>
 								{property.carCustomsCleared && <Badge>{t('Customs cleared')}</Badge>}

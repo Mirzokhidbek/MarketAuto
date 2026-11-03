@@ -80,8 +80,7 @@ const MyPageMenu = () => {
 	return (
 		<aside
 			className={cx(
-				// ma-mypage-menu: hidden on phones, where the profile hub lists the sections
-				'ma-mypage-menu flex items-center gap-1.5 overflow-x-auto rounded-md border border-line bg-white p-2 font-sans [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
+				'flex items-center max-sm:hidden gap-1.5 overflow-x-auto rounded-md border border-line bg-white p-2 font-sans [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
 				'md:sticky md:top-24 md:block md:overflow-visible md:p-[18px]',
 			)}
 		>

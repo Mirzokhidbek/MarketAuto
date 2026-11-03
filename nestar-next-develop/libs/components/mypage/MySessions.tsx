@@ -6,6 +6,8 @@ import { GET_MY_SESSIONS } from '../../../apollo/user/query';
 import { LOGOUT_OTHER_SESSIONS, REVOKE_MY_SESSION } from '../../../apollo/user/mutation';
 import { sweetConfirmAlert, sweetErrorHandling, sweetTopSmallSuccessAlert } from '../../sweetAlert';
 import { ComputerIcon as ComputerOutlinedIcon, SmartphoneIcon as PhoneIphoneOutlinedIcon } from '../ui/icons';
+import { linkButton } from '../ui/styles';
+import { buttonClasses } from '../ui/Button';
 
 interface Session {
 	_id: string;
@@ -75,40 +77,40 @@ const MySessions = () => {
 	};
 
 	return (
-		<section className={'ma-form-section ma-sessions'}>
-			<div className={'ma-sessions__head'}>
+		<section className="border-t border-line py-[22px] font-sans">
+			<div className="mb-2 flex items-start justify-between gap-4 max-sm:flex-col">
 				<div>
-					<h2>{t('Devices')}</h2>
-					<p>
+					<h2 className="m-0 mb-1 text-base font-bold text-ink">{t('Devices')}</h2>
+					<p className="m-0 text-[13px] text-muted">
 						{t('Where your account is logged in. Log out of any device you do not recognise and change your password.')}
 					</p>
 				</div>
 				{others > 0 && (
-					<button type="button" className={'ma-btn ma-btn--outline'} disabled={loading} onClick={revokeOthers}>
+					<button type="button" className={buttonClasses({ variant: 'outline', className: 'shrink-0' })} disabled={loading} onClick={revokeOthers}>
 						{t('Log out on other devices')}
 					</button>
 				)}
 			</div>
-			<ul>
+			<ul className="m-0 list-none p-0">
 				{sessions.map((session) => {
 					const device = describeDevice(session.userAgent);
 					return (
-						<li key={session._id} className={session.current ? 'is-current' : ''}>
-							<span className={'ma-sessions__icon'}>
+						<li key={session._id} className="flex items-center gap-3 border-b border-line py-3 last:border-b-0">
+							<span className="grid size-10 shrink-0 place-items-center rounded-[10px] bg-surface text-muted">
 								{device.mobile ? <PhoneIphoneOutlinedIcon /> : <ComputerOutlinedIcon />}
 							</span>
-							<div className={'ma-sessions__body'}>
-								<strong>
+							<div className="flex min-w-0 flex-1 flex-col gap-0.5">
+								<strong className="flex flex-wrap items-center gap-2 text-sm text-ink">
 									{device.name || t('Unknown browser')}
-									{session.current && <em>{t('This device')}</em>}
+									{session.current && <em className="rounded-full bg-[#e6f4ea] px-2 py-px text-[11px] font-semibold text-[#127a46] not-italic">{t('This device')}</em>}
 								</strong>
-								<span>
+								<span className="text-xs text-muted">
 									{t('Logged in')} {moment(session.startedAt).format('DD.MM.YYYY')} · {t('Active')}{' '}
 									{moment(session.lastActiveAt).fromNow()}
 								</span>
 							</div>
 							{!session.current && (
-								<button type="button" className={'ma-link-btn'} onClick={() => revoke(session)}>
+								<button type="button" className={linkButton} onClick={() => revoke(session)}>
 									{t('Log out')}
 								</button>
 							)}

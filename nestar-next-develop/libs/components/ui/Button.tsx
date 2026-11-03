@@ -2,7 +2,7 @@ import React from 'react';
 import Link, { LinkProps } from 'next/link';
 import { cx } from './classNames';
 
-type ButtonVariant = 'primary' | 'outline' | 'dark';
+type ButtonVariant = 'primary' | 'outline' | 'dark' | 'ghost';
 type ButtonSize = 'md' | 'sm';
 
 const base =
@@ -12,6 +12,8 @@ const variants: Record<ButtonVariant, string> = {
 	primary: 'border-transparent bg-primary text-white hover:bg-primary-dark',
 	dark: 'border-transparent bg-ink text-white hover:bg-text',
 	outline: 'border-line-strong bg-white text-text hover:border-ink',
+	/** on dark backgrounds */
+	ghost: 'border-white/35 bg-transparent text-white hover:border-white',
 };
 
 const sizes: Record<ButtonSize, string> = {

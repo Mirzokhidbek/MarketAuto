@@ -4,7 +4,7 @@ import AppShell from './AppShell';
 /** the home page */
 const withLayoutMain = (Component: any) => {
 	const LayoutHome = (props: any) => (
-		<AppShell className={'ma-home'}>
+		<AppShell>
 			<Component {...props} />
 		</AppShell>
 	);

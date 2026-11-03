@@ -1,6 +1,5 @@
 import { imageUrl } from '../../utils';
 import React from 'react';
-import { Stack, Typography } from '@mui/material';
 import { Comment } from '../../types/comment/comment';
 import { REACT_APP_API_URL } from '../../config';
 import Moment from 'react-moment';
@@ -28,21 +27,21 @@ const ReviewItem = (props: ReviewItemProps) => {
 		router.push(`/member?memberId=${id}`);
 	};
 	return (
-		<div className={'ma-comment'}>
-			<img src={imagePath} alt="" onClick={() => goMemberPage(comment?.memberData?._id as string)} />
+		<div className="flex gap-3.5 border-t border-line py-4 font-sans">
+			<img src={imagePath} alt="" className="size-10 shrink-0 cursor-pointer rounded-full object-cover" onClick={() => goMemberPage(comment?.memberData?._id as string)} />
 			<div>
-				<div className={'ma-comment__head'}>
-					<strong onClick={() => goMemberPage(comment?.memberData?._id as string)}>{comment.memberData?.memberNick}</strong>
-					<span>
+				<div className="mb-1 flex items-center gap-2.5">
+					<strong className="cursor-pointer text-sm text-ink" onClick={() => goMemberPage(comment?.memberData?._id as string)}>{comment.memberData?.memberNick}</strong>
+					<span className="text-xs text-muted">
 						<Moment format={'DD MMM YYYY'}>{comment.createdAt}</Moment>
 					</span>
 					{onRemoved && (
-						<span className={'ma-comment__actions'}>
+						<span className="ml-auto inline-flex gap-2.5">
 							<AdminRemoveComment commentId={comment._id} onRemoved={onRemoved} />
 						</span>
 					)}
 				</div>
-				<p>{comment.commentContent}</p>
+				<p className="m-0 text-sm leading-[1.6] text-text">{comment.commentContent}</p>
 			</div>
 		</div>
 	);

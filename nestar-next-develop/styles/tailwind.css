@@ -45,6 +45,30 @@
 	--breakpoint-sm: 600px;
 	--breakpoint-md: 900px;
 	--breakpoint-lg: 1100px;
+
+	/* the bell shakes when a new notification arrives */
+	--animate-bell-ring: bell-ring 1s ease;
+	@keyframes bell-ring {
+		0%,
+		100% {
+			transform: rotate(0);
+		}
+		15% {
+			transform: rotate(14deg);
+		}
+		30% {
+			transform: rotate(-12deg);
+		}
+		45% {
+			transform: rotate(9deg);
+		}
+		60% {
+			transform: rotate(-6deg);
+		}
+		75% {
+			transform: rotate(3deg);
+		}
+	}
 }
 
 /* page basics that MUI's CssBaseline used to set; :where() keeps them weaker than any page style */

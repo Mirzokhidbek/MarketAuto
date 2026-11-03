@@ -1,42 +1,14 @@
-import React, { SyntheticEvent, useState } from 'react';
-import MuiAccordion, { AccordionProps } from '@mui/material/Accordion';
-import { AccordionDetails, Box, Stack, Typography } from '@mui/material';
-import MuiAccordionSummary, { AccordionSummaryProps } from '@mui/material/AccordionSummary';
-import { useRouter } from 'next/router';
-import { styled } from '@mui/material/styles';
+import React, { useState } from 'react';
 import { useTranslation } from 'next-i18next/pages';
 import { useQuery } from '@apollo/client/react';
 import { GET_NOTICES } from '../../../apollo/user/query';
-import { ChevronDownIcon as ExpandMoreRoundedIcon, ChevronDownIcon as KeyboardArrowDownRoundedIcon } from '../ui/icons';
-
-const Accordion = styled((props: AccordionProps) => <MuiAccordion disableGutters elevation={0} square {...props} />)(
-	({ theme }) => ({
-		border: `1px solid ${theme.palette.divider}`,
-		'&:not(:last-child)': {
-			borderBottom: 0,
-		},
-		'&:before': {
-			display: 'none',
-		},
-	}),
-);
-const AccordionSummary = styled((props: AccordionSummaryProps) => (
-	<MuiAccordionSummary expandIcon={<KeyboardArrowDownRoundedIcon sx={{ fontSize: '1.4rem' }} />} {...props} />
-))(({ theme }) => ({
-	backgroundColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, .05)' : '#fff',
-	'& .MuiAccordionSummary-expandIconWrapper.Mui-expanded': {
-		transform: 'rotate(180deg)',
-	},
-	'& .MuiAccordionSummary-content': {
-		marginLeft: theme.spacing(1),
-	},
-}));
+import { ChevronDownIcon as ExpandMoreRoundedIcon } from '../ui/icons';
+import UnderlineTabs from '../ui/UnderlineTabs';
+import { faqBody, faqItem, faqSummary } from '../ui/styles';
 
 const FaqList = () => {
 	const { t } = useTranslation('common');
-	const router = useRouter();
 	const [category, setCategory] = useState<string>('property');
-	const [expanded, setExpanded] = useState<string | false>('panel1');
 
 	/** APOLLO REQUESTS **/
 	// questions added by admins (Admin > CS > FAQ) are shown under their own tab
@@ -55,9 +27,6 @@ const FaqList = () => {
 		setCategory(category);
 	};
 
-	const handleChange = (panel: string) => (event: SyntheticEvent, newExpanded: boolean) => {
-		setExpanded(newExpanded ? panel : false);
-	};
 
 	const data: any = {
 		property: [
@@ -251,26 +220,21 @@ const FaqList = () => {
 	data.support = supportFaqs;
 
 	return (
-		<div className={'ma-faq-block'}>
-			<div className={'ma-tabs'}>
-				{categories.map((item) => (
-					<button
-						key={item.key}
-						className={`ma-tab ${category === item.key ? 'is-active' : ''}`}
-						onClick={() => changeCategoryHandler(item.key)}
-					>
-						{t(item.label)}
-					</button>
-				))}
-			</div>
-			<div className={'ma-faq-list'}>
+		<div>
+			<UnderlineTabs
+				className="mb-[18px]"
+				items={categories.map((item) => ({ value: item.key, label: t(item.label) }))}
+				value={category}
+				onChange={changeCategoryHandler}
+			/>
+			<div className="flex flex-col">
 				{data[category]?.map((item: any) => (
-					<details className={'ma-faq'} key={item.id}>
-						<summary>
+					<details className={faqItem} key={item.id}>
+						<summary className={`${faqSummary} justify-between font-semibold`}>
 							{t(item.subject)}
 							<ExpandMoreRoundedIcon />
 						</summary>
-						<p>{t(item.content)}</p>
+						<p className={faqBody}>{t(item.content)}</p>
 					</details>
 				))}
 			</div>

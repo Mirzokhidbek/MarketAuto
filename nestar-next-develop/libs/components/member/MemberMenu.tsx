@@ -12,6 +12,9 @@ import { userVar } from '../../../apollo/store';
 import { formatPhone, imageUrl } from '../../utils';
 import Seo from '../common/Seo';
 import { CarIcon as DirectionsCarOutlinedIcon, GroupIcon as GroupOutlinedIcon, PersonAddIcon as PersonAddAltOutlinedIcon, ArticleIcon as ArticleOutlinedIcon, RateReviewIcon as RateReviewOutlinedIcon } from '../ui/icons';
+import { buttonClasses } from '../ui/Button';
+import Badge from '../ui/Badge';
+import { cx } from '../ui/classNames';
 
 interface MemberMenuProps {
 	subscribeHandler: any;
@@ -54,7 +57,7 @@ const MemberMenu = (props: MemberMenuProps) => {
 	];
 
 	return (
-		<aside className={'ma-side-menu'}>
+		<aside className="rounded-[10px] border border-line bg-white p-[18px] font-sans shadow-[0_1px_2px_rgba(15,23,42,0.04)] md:sticky md:top-24">
 			{member && (
 				<Seo
 					title={member.memberFullName || member.memberNick}
@@ -62,41 +65,42 @@ const MemberMenu = (props: MemberMenuProps) => {
 					image={member.memberImage ? imageUrl(member.memberImage) : undefined}
 				/>
 			)}
-			<div className={'ma-side-menu__profile'}>
+			<div className="flex flex-col items-center gap-1.5 border-b border-line pb-4 text-center [&>a]:mt-1 [&>a]:w-full [&>button]:mt-1 [&>button]:w-full">
 				<img
 					src={member?.memberImage ? imageUrl(member?.memberImage) : '/img/profile/defaultUser.svg'}
 					alt={member?.memberNick}
+					className="mb-1.5 size-[88px] rounded-full bg-[#f1f3f6] object-cover"
 				/>
-				<strong>{member?.memberFullName || member?.memberNick}</strong>
-				<span className={'ma-badge ma-badge--primary'}>
+				<strong className="text-[17px] text-ink">{member?.memberFullName || member?.memberNick}</strong>
+				<Badge>
 					{t(member?.memberType === 'AGENT' ? 'Dealer' : 'Private seller')}
-				</span>
-				{member?.memberPhone && <span className={'ma-side-menu__phone'}>{formatPhone(member?.memberPhone)}</span>}
+				</Badge>
+				{member?.memberPhone && <span className="text-[13px] text-muted">{formatPhone(member?.memberPhone)}</span>}
 				<SellerTrust member={member} />
-				{member?.memberDesc && <p>{member.memberDesc}</p>}
+				{member?.memberDesc && <p className="m-0 mt-1 text-[13px] leading-normal text-muted">{member.memberDesc}</p>}
 				{user?._id && user?._id === member?._id && (
 					<>
-						<Link href={'/mypage?category=addProperty'}>
-							<span className={'ma-btn ma-btn--block ma-btn--primary'}>{t('Add Car')}</span>
+						<Link href={'/mypage?category=addProperty'} className={buttonClasses({ block: true, className: 'mt-2.5' })}>
+							{t('Add Car')}
 						</Link>
-						<Link href={'/mypage?category=myProfile'}>
-							<span className={'ma-btn ma-btn--block ma-btn--outline'}>{t('Edit profile')}</span>
+						<Link href={'/mypage?category=myProfile'} className={buttonClasses({ variant: 'outline', block: true, className: 'mt-2.5' })}>
+							{t('Edit profile')}
 						</Link>
 					</>
 				)}
 				{!user?._id && (
-					<button className={'ma-btn ma-btn--block ma-btn--primary'} onClick={() => router.push('/account/join')}>
+					<button className={buttonClasses({ block: true, className: 'mt-2.5' })} onClick={() => router.push('/account/join')}>
 						{t('Follow')}
 					</button>
 				)}
 				{user?._id && member?._id && user?._id !== member?._id && (
-					<Link href={`/mypage?category=messages&to=${member._id}`}>
-						<span className={'ma-btn ma-btn--block ma-btn--outline'}>{t('Write a message')}</span>
+					<Link href={`/mypage?category=messages&to=${member._id}`} className={buttonClasses({ variant: 'outline', block: true, className: 'mt-2.5' })}>
+						{t('Write a message')}
 					</Link>
 				)}
 				{user?._id && user?._id !== member?._id && (
 					<button
-						className={`ma-btn ma-btn--block ${following ? 'ma-btn--outline' : 'ma-btn--primary'}`}
+						className={buttonClasses({ variant: following ? 'outline' : 'primary', block: true, className: 'mt-2.5' })}
 						onClick={() =>
 							following
 								? unsubscribeHandler(member?._id, getMemberRefetch, memberId)
@@ -107,17 +111,22 @@ const MemberMenu = (props: MemberMenuProps) => {
 					</button>
 				)}
 			</div>
-			<nav className={'ma-side-menu__group'}>
+			<nav className="flex flex-col py-2.5">
 				{items.map((item) => (
 					<Link
 						href={{ pathname: router.pathname, query: { ...router.query, category: item.key } }}
 						scroll={false}
 						key={item.key}
 					>
-						<span className={`ma-side-menu__item ${category === item.key ? 'is-active' : ''}`}>
+						<span
+							className={cx(
+								'flex w-full items-center gap-2.5 rounded-[10px] p-2.5 text-sm font-medium transition-colors [&_svg]:text-xl',
+								category === item.key ? 'bg-[#eff6ff] text-primary [&_svg]:text-primary' : 'text-text hover:bg-surface [&_svg]:text-muted',
+							)}
+						>
 							{item.icon}
 							{t(item.label)}
-							<em className={'ma-side-menu__count'}>{item.count ?? 0}</em>
+							<em className="ml-auto text-xs text-muted not-italic">{item.count ?? 0}</em>
 						</span>
 					</Link>
 				))}

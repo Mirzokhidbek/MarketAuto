@@ -2,12 +2,13 @@ import EmptyState from '../ui/EmptyState';
 import React, { useState, useEffect } from 'react';
 import { NextPage } from 'next';
 import { useTranslation } from 'next-i18next/pages';
-import { Pagination } from '@mui/material';
 import CarCard from '../car/CarCard';
 import { Property } from '../../types/property/property';
 import { T } from '../../types/common';
 import { GET_VISITED } from '../../../apollo/user/query';
 import { useQuery } from '@apollo/client/react';
+import { accountPanel, accountPanelHead } from '../ui/styles';
+import Pagination from '../ui/Pagination';
 
 const RecentlyVisited: NextPage = () => {
 	const { t } = useTranslation('common');
@@ -36,20 +37,20 @@ const RecentlyVisited: NextPage = () => {
 	}, [getVisitedData]);
 
 	/** HANDLERS **/
-	const paginationHandler = (e: T, value: number) => {
+	const paginationHandler = (value: number) => {
 		setSearchVisited({ ...searchVisited, page: value });
 	};
 
 	return (
-		<div className={'ma-account-panel'}>
-			<div className={'ma-account-panel__head'}>
+		<div className={accountPanel}>
+			<div className={accountPanelHead}>
 				<div>
 					<h1>{t('Recently Visited')}</h1>
 					<p>{t('Cars you viewed recently.')}</p>
 				</div>
 			</div>
 			{recentlyVisited?.length ? (
-				<div className={'ma-grid ma-grid--2'}>
+				<div className="grid grid-cols-1 gap-y-8 max-sm:gap-y-0 sm:grid-cols-2 sm:gap-x-6">
 					{recentlyVisited.map((property: Property) => (
 						<CarCard property={property} key={property._id} />
 					))}
@@ -63,14 +64,7 @@ const RecentlyVisited: NextPage = () => {
 				/>
 			)}
 			{total > searchVisited.limit && (
-				<div className={'ma-pagination'}>
-					<Pagination
-						count={Math.ceil(total / searchVisited.limit)}
-						page={searchVisited.page}
-						shape="rounded"
-						onChange={paginationHandler}
-					/>
-				</div>
+				<Pagination page={searchVisited.page} total={total} pageSize={searchVisited.limit} onChange={paginationHandler} />
 			)}
 		</div>
 	);

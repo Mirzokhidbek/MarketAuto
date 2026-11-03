@@ -1,7 +1,6 @@
 import EmptyState from '../ui/EmptyState';
 import React, { useEffect, useState } from 'react';
 import { NextPage } from 'next';
-import { Pagination } from '@mui/material';
 import { useTranslation } from 'next-i18next/pages';
 import ManageCarRow from './ManageCarRow';
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client/react';
@@ -14,6 +13,10 @@ import { useRouter } from 'next/router';
 import { GET_AGENT_PROPERTIES } from '../../../apollo/user/query';
 import { UPDATE_PROPERTY } from '../../../apollo/user/mutation';
 import { sweetConfirmAlert, sweetErrorHandling } from '../../sweetAlert';
+import { accountPanel, accountPanelHead } from '../ui/styles';
+import { buttonClasses } from '../ui/Button';
+import Pagination from '../ui/Pagination';
+import UnderlineTabs from '../ui/UnderlineTabs';
 
 const MyCars: NextPage = ({ initialInput = defaultProps.initialInput, ...props }: any) => {
 	const { t } = useTranslation('common');
@@ -52,7 +55,7 @@ const MyCars: NextPage = ({ initialInput = defaultProps.initialInput, ...props }
 	}, [router.query.status]);
 
 	/** HANDLERS **/
-	const paginationHandler = (e: T, value: number) => {
+	const paginationHandler = (value: number) => {
 		setSearchFilter({ ...searchFilter, page: value });
 	};
 
@@ -106,46 +109,30 @@ const MyCars: NextPage = ({ initialInput = defaultProps.initialInput, ...props }
 	const status = searchFilter.search.propertyStatus;
 
 	return (
-		<div className={'ma-account-panel'}>
-			<div className={'ma-account-panel__head'}>
+		<div className={accountPanel}>
+			<div className={accountPanelHead}>
 				<div>
 					<h1>{t('My Cars')}</h1>
 					<p>{t('Manage your listings, mark cars as sold or edit details.')}</p>
 				</div>
-				<button className={'ma-btn ma-btn--primary'} onClick={() => router.push('/mypage?category=addProperty')}>
+				<button className={buttonClasses()} onClick={() => router.push('/mypage?category=addProperty')}>
 					+ {t('Add Car')}
 				</button>
 			</div>
 
-			<div className={'ma-tabs ma-tabs--underline'}>
-				<button
-					className={`ma-tab ${status === PropertyStatus.ACTIVE ? 'is-active' : ''}`}
-					onClick={() => changeStatusHandler(PropertyStatus.ACTIVE)}
-				>
-					{t('For sale')}
-				</button>
-				<button
-					className={`ma-tab ${status === PropertyStatus.PENDING ? 'is-active' : ''}`}
-					onClick={() => changeStatusHandler(PropertyStatus.PENDING)}
-				>
-					{t('Under review')}
-				</button>
-				<button
-					className={`ma-tab ${status === PropertyStatus.REJECTED ? 'is-active' : ''}`}
-					onClick={() => changeStatusHandler(PropertyStatus.REJECTED)}
-				>
-					{t('Rejected')}
-				</button>
-				<button
-					className={`ma-tab ${status === PropertyStatus.SOLD ? 'is-active' : ''}`}
-					onClick={() => changeStatusHandler(PropertyStatus.SOLD)}
-				>
-					{t('Sold')}
-				</button>
-			</div>
+			<UnderlineTabs
+				items={[
+					{ value: PropertyStatus.ACTIVE, label: t('For sale') },
+					{ value: PropertyStatus.PENDING, label: t('Under review') },
+					{ value: PropertyStatus.REJECTED, label: t('Rejected') },
+					{ value: PropertyStatus.SOLD, label: t('Sold') },
+				]}
+				value={status ?? PropertyStatus.ACTIVE}
+				onChange={changeStatusHandler}
+			/>
 
 			{agentProperties?.length ? (
-				<div className={'ma-manage-list'}>
+				<div className="flex flex-col gap-3">
 					{agentProperties.map((property: Property) => (
 						<ManageCarRow
 							property={property}
@@ -165,14 +152,7 @@ const MyCars: NextPage = ({ initialInput = defaultProps.initialInput, ...props }
 			)}
 
 			{total > searchFilter.limit && (
-				<div className={'ma-pagination'}>
-					<Pagination
-						count={Math.ceil(total / searchFilter.limit)}
-						page={searchFilter.page}
-						shape="rounded"
-						onChange={paginationHandler}
-					/>
-				</div>
+				<Pagination page={searchFilter.page} total={total} pageSize={searchFilter.limit} onChange={paginationHandler} />
 			)}
 		</div>
 	);

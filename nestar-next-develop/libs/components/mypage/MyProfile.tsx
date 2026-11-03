@@ -15,6 +15,10 @@ import PasswordRules from '../common/PasswordRules';
 import MySessions from './MySessions';
 import { isStrongPassword, PASSWORD_MAX } from '../../password';
 import { formatPhone, imageUrl } from '../../utils';
+import { accountPanel, accountPanelHead, codeRow, field, fieldError, fieldHint, formActions, formGrid } from '../ui/styles';
+
+const phoneChangeBox = 'mb-5 flex flex-col gap-3 rounded-[10px] border border-line bg-white p-[18px] shadow-[0_1px_2px_rgba(15,23,42,0.04)]';
+import { buttonClasses } from '../ui/Button';
 
 const MyProfile: NextPage = ({ initialValues = defaultProps.initialValues, ...props }: any) => {
 	const { t } = useTranslation('common');
@@ -146,30 +150,31 @@ const MyProfile: NextPage = ({ initialValues = defaultProps.initialValues, ...pr
 	};
 
 	return (
-		<div className={'ma-account-panel'}>
-			<div className={'ma-account-panel__head'}>
+		<div className={accountPanel}>
+			<div className={accountPanelHead}>
 				<div>
 					<h1>{t('My Profile')}</h1>
 					<p>{t('This information is shown on your public seller profile.')}</p>
 				</div>
 			</div>
 
-			<div className={'ma-avatar-upload'}>
+			<div className="mb-6 flex items-center gap-[18px]">
 				<img
 					src={updateData?.memberImage ? imageUrl(updateData?.memberImage) : '/img/profile/defaultUser.svg'}
 					alt={''}
+					className="size-[88px] rounded-full bg-[#f1f3f6] object-cover"
 				/>
-				<div>
-					<label className={'ma-btn ma-btn--outline'}>
+				<div className="flex flex-col items-start gap-1.5">
+					<label className={buttonClasses({ variant: 'outline' })}>
 						{t('Upload photo')}
 						<input type="file" hidden onChange={uploadImage} accept="image/jpg, image/jpeg, image/png" />
 					</label>
-					<span>{t('JPG or PNG, square image works best.')}</span>
+					<span className="text-xs text-muted">{t('JPG or PNG, square image works best.')}</span>
 				</div>
 			</div>
 
 			{phoneEdit && (
-				<div className={'ma-panel ma-phone-change'}>
+				<div className={phoneChangeBox}>
 					<PhoneCodeField
 						purpose={'CHANGE_PHONE'}
 						phoneLabel={t('New phone number') as string}
@@ -179,7 +184,7 @@ const MyProfile: NextPage = ({ initialValues = defaultProps.initialValues, ...pr
 						onCodeChange={(code) => setNewPhone({ ...newPhone, code })}
 					/>
 					<button
-						className={'ma-btn ma-btn--primary'}
+						className={buttonClasses({ className: 'self-start' })}
 						disabled={newPhone.code.length !== 6}
 						onClick={changePhoneHandler}
 					>
@@ -189,7 +194,7 @@ const MyProfile: NextPage = ({ initialValues = defaultProps.initialValues, ...pr
 			)}
 
 			{emailEdit && (
-				<div className={'ma-panel ma-phone-change'}>
+				<div className={phoneChangeBox}>
 					<EmailCodeField
 						purpose={'VERIFY_EMAIL'}
 						emailLabel={(user.memberEmail ? t('New email') : t('Email')) as string}
@@ -199,7 +204,7 @@ const MyProfile: NextPage = ({ initialValues = defaultProps.initialValues, ...pr
 						onCodeChange={(code) => setNewEmail({ ...newEmail, code })}
 					/>
 					<button
-						className={'ma-btn ma-btn--primary'}
+						className={buttonClasses({ className: 'self-start' })}
 						disabled={newEmail.code.length !== 6}
 						onClick={changeEmailHandler}
 					>
@@ -208,8 +213,8 @@ const MyProfile: NextPage = ({ initialValues = defaultProps.initialValues, ...pr
 				</div>
 			)}
 
-			<div className={'ma-form-grid'}>
-				<label className={'ma-input'}>
+			<div className={formGrid}>
+				<label className={field}>
 					<span>{t('Nickname')}</span>
 					<input
 						type="text"
@@ -218,7 +223,7 @@ const MyProfile: NextPage = ({ initialValues = defaultProps.initialValues, ...pr
 						onChange={({ target: { value } }) => setUpdateData({ ...updateData, memberNick: value })}
 					/>
 				</label>
-				<label className={'ma-input'}>
+				<label className={field}>
 					<span>{t('Full name')}</span>
 					<input
 						type="text"
@@ -227,42 +232,42 @@ const MyProfile: NextPage = ({ initialValues = defaultProps.initialValues, ...pr
 						onChange={({ target: { value } }) => setUpdateData({ ...updateData, memberFullName: value })}
 					/>
 				</label>
-				<label className={'ma-input'}>
+				<label className={field}>
 					<span>{t('Phone')}</span>
 					{/* the phone is changed only with an SMS code to the new number */}
-					<div className={'ma-code-row'}>
+					<div className={codeRow}>
 						<input
 							type="tel"
 							value={user.memberPhone ? formatPhone(user.memberPhone) : ''}
 							placeholder={t('Not added') as string}
 							readOnly
 						/>
-						<button type="button" className={'ma-btn ma-btn--outline'} onClick={() => setPhoneEdit(!phoneEdit)}>
+						<button type="button" className={buttonClasses({ variant: 'outline' })} onClick={() => setPhoneEdit(!phoneEdit)}>
 							{phoneEdit ? t('Cancel') : user.memberPhone ? t('Change') : t('Add')}
 						</button>
 					</div>
-					<em className={'ma-input__hint'}>
+					<em className={fieldHint}>
 						{user.memberPhone && user.memberPhoneVerified
 							? `✓ ${t('Phone confirmed')}`
 							: t('A confirmed phone is needed to list a car.')}
 					</em>
 				</label>
-				<label className={'ma-input'}>
+				<label className={field}>
 					<span>{t('Email')}</span>
 					{/* changed only with the code sent to the new address; never shown to other members */}
-					<div className={'ma-code-row'}>
+					<div className={codeRow}>
 						<input type="email" value={user.memberEmail ?? ''} placeholder={t('Not added') as string} readOnly />
-						<button type="button" className={'ma-btn ma-btn--outline'} onClick={() => setEmailEdit(!emailEdit)}>
+						<button type="button" className={buttonClasses({ variant: 'outline' })} onClick={() => setEmailEdit(!emailEdit)}>
 							{emailEdit ? t('Cancel') : user.memberEmail ? t('Change') : t('Add')}
 						</button>
 					</div>
-					<em className={'ma-input__hint'}>
+					<em className={fieldHint}>
 						{user.memberEmail && user.memberEmailVerified
 							? `✓ ${t('Email confirmed')} · ${t('only you can see it')}`
 							: t('Used to log in, reset the password and receive security alerts.')}
 					</em>
 				</label>
-				<label className={'ma-input'}>
+				<label className={field}>
 					<span>{t('Address')}</span>
 					<input
 						type="text"
@@ -272,7 +277,7 @@ const MyProfile: NextPage = ({ initialValues = defaultProps.initialValues, ...pr
 					/>
 				</label>
 			</div>
-			<label className={'ma-input'}>
+			<label className={field}>
 				<span>{t('About')}</span>
 				<textarea
 					placeholder={t('Tell buyers about you or your dealership') as string}
@@ -280,16 +285,16 @@ const MyProfile: NextPage = ({ initialValues = defaultProps.initialValues, ...pr
 					onChange={({ target: { value } }) => setUpdateData({ ...updateData, memberDesc: value })}
 				></textarea>
 			</label>
-			<div className={'ma-form-actions'}>
-				<button className={'ma-btn ma-btn--primary'} onClick={updatePropertyHandler} disabled={doDisabledCheck()}>
+			<div className={formActions}>
+				<button className={buttonClasses()} onClick={updatePropertyHandler} disabled={doDisabledCheck()}>
 					{t('Save changes')}
 				</button>
 			</div>
 
-			<section className={'ma-form-section ma-password'}>
-				<h2>{t('Change password')}</h2>
-				<div className={'ma-form-grid'}>
-					<label className={'ma-input'}>
+			<section className="mt-7 border-t border-line pt-6">
+				<h2 className="m-0 mb-4 text-base font-bold text-ink">{t('Change password')}</h2>
+				<div className={formGrid}>
+					<label className={field}>
 						<span>{t('Current password')}</span>
 						<input
 							type="password"
@@ -298,7 +303,7 @@ const MyProfile: NextPage = ({ initialValues = defaultProps.initialValues, ...pr
 							onChange={({ target: { value } }) => setPasswords({ ...passwords, currentPassword: value })}
 						/>
 					</label>
-					<label className={'ma-input'}>
+					<label className={field}>
 						<span>{t('New password')}</span>
 						<input
 							type="password"
@@ -310,7 +315,7 @@ const MyProfile: NextPage = ({ initialValues = defaultProps.initialValues, ...pr
 						/>
 						<PasswordRules password={passwords.newPassword} nick={user.memberNick} email={user.memberEmail} />
 					</label>
-					<label className={'ma-input'}>
+					<label className={field}>
 						<span>{t('Confirm new password')}</span>
 						<input
 							type="password"
@@ -319,15 +324,15 @@ const MyProfile: NextPage = ({ initialValues = defaultProps.initialValues, ...pr
 							value={passwords.confirmPassword}
 							onChange={({ target: { value } }) => setPasswords({ ...passwords, confirmPassword: value })}
 						/>
-						{passwordMismatch && <em className={'ma-input__error'}>{t('Passwords do not match')}</em>}
+						{passwordMismatch && <em className={fieldError}>{t('Passwords do not match')}</em>}
 					</label>
 				</div>
-				<div className={'ma-form-actions'}>
-					<button className={'ma-btn ma-btn--primary'} onClick={changePasswordHandler} disabled={!canChangePassword}>
+				<div className={formActions}>
+					<button className={buttonClasses()} onClick={changePasswordHandler} disabled={!canChangePassword}>
 						{t('Change password')}
 					</button>
 				</div>
-				<p className={'ma-input__hint'}>{t('After a password change you are logged out on every other device.')}</p>
+				<p className={fieldHint}>{t('After a password change you are logged out on every other device.')}</p>
 			</section>
 
 			<MySessions />

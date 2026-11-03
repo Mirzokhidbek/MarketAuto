@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { NextPage } from 'next';
-import { Pagination } from '@mui/material';
 import { useTranslation } from 'next-i18next/pages';
 import { useRouter } from 'next/router';
 import ArticleCard from '../community/ArticleCard';
@@ -10,6 +9,8 @@ import { BoardArticlesInquiry } from '../../types/board-article/board-article.in
 import { GET_BOARD_ARTICLES } from '../../../apollo/user/query';
 import { useQuery } from '@apollo/client/react';
 import { useLikeArticle } from '../../hooks/useLike';
+import { accountPanel, accountPanelHead, emptyBox } from '../ui/styles';
+import Pagination from '../ui/Pagination';
 
 const MemberArticles: NextPage = ({ initialInput = defaultProps.initialInput, ...props }: any) => {
 	const { t } = useTranslation('common');
@@ -46,15 +47,15 @@ const MemberArticles: NextPage = ({ initialInput = defaultProps.initialInput, ..
 	}, [memberId]);
 
 	/** HANDLERS **/
-	const paginationHandler = (e: T, value: number) => {
+	const paginationHandler = (value: number) => {
 		setSearchFilter({ ...searchFilter, page: value });
 	};
 
 	const likeArticle = useLikeArticle(() => boardArticlesRefetch({ input: searchFilter }));
 
 	return (
-		<div className={'ma-account-panel'}>
-			<div className={'ma-account-panel__head'}>
+		<div className={accountPanel}>
+			<div className={accountPanelHead}>
 				<div>
 					<h1>{t('Articles')}</h1>
 					<p>
@@ -63,23 +64,16 @@ const MemberArticles: NextPage = ({ initialInput = defaultProps.initialInput, ..
 				</div>
 			</div>
 			{memberBoArticles?.length ? (
-				<div className={'ma-grid ma-grid--3'}>
+				<div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
 					{memberBoArticles.map((item: any) => (
 						<ArticleCard article={item} key={item._id} onLike={likeArticle} />
 					))}
 				</div>
 			) : (
-				<div className={'ma-empty'}>{boardArticlesLoading ? t('Loading...') : t('No articles yet.')}</div>
+				<div className={emptyBox}>{boardArticlesLoading ? t('Loading...') : t('No articles yet.')}</div>
 			)}
 			{total > searchFilter.limit && (
-				<div className={'ma-pagination'}>
-					<Pagination
-						count={Math.ceil(total / searchFilter.limit)}
-						page={searchFilter.page}
-						shape="rounded"
-						onChange={paginationHandler}
-					/>
-				</div>
+				<Pagination page={searchFilter.page} total={total} pageSize={searchFilter.limit} onChange={paginationHandler} />
 			)}
 		</div>
 	);

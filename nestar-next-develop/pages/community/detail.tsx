@@ -7,7 +7,6 @@ import { articleCategoryLabels, fetchWithTimeout, imageUrl } from '../../libs/ut
 import { print } from 'graphql';
 import withLayoutFull from '../../libs/components/layout/LayoutFull';
 import Seo from '../../libs/components/common/Seo';
-import { Pagination } from '@mui/material';
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client/react';
 import Moment from 'react-moment';
 import { userVar } from '../../apollo/store';
@@ -30,6 +29,15 @@ import {
 import { Messages } from '../../libs/config';
 import { CommentUpdate } from '../../libs/types/comment/comment.update';
 import { EyeIcon as RemoveRedEyeIcon, DeleteIcon as DeleteForeverIcon, ThumbUpIcon as ThumbUpOffAltIcon, ThumbUpFilledIcon as ThumbUpAltIcon, EyeIcon as VisibilityIcon, ChatIcon, ChatIcon as ChatBubbleOutlineRoundedIcon, EditIcon } from '../../libs/components/ui/icons';
+import { iconButton, inputClass, linkButton, linkButtonDanger } from '../../libs/components/ui/styles';
+import { buttonClasses } from '../../libs/components/ui/Button';
+import Pagination from '../../libs/components/ui/Pagination';
+import PageContainer from '../../libs/components/ui/PageContainer';
+import Badge from '../../libs/components/ui/Badge';
+
+const panelBox = 'rounded-[10px] border border-line bg-white p-[18px] shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:p-6';
+const commentForm = 'mb-5 flex flex-col items-end gap-2.5';
+const commentFoot = 'flex w-full items-center justify-between [&>span]:text-xs [&>span]:text-muted';
 const ArticleViewer = dynamic(() => import('../../libs/components/community/ArticleViewer'), { ssr: false });
 
 /** the article is fetched on the server too, so search engines and link previews see its title and text */
@@ -274,14 +282,14 @@ const CommunityDetail: NextPage = ({ initialInput = defaultProps.initialInput, i
 		setUpdatedComment(value);
 	};
 
-	const paginationHandler = (e: T, value: number) => {
+	const paginationHandler = (value: number) => {
 		setSearchFilter({ ...searchFilter, page: value });
 	};
 
 	const liked = !!(boardArticle?.meLiked && boardArticle?.meLiked[0]?.myFavorite);
 
 	return (
-		<div id="community-detail-page" className={'ma-page ma-detail'}>
+		<div id="community-detail-page" className="pt-[72px] pb-20 font-sans md:pt-[92px]">
 			{boardArticle?.articleTitle && (
 				<Seo
 					title={boardArticle.articleTitle}
@@ -289,31 +297,31 @@ const CommunityDetail: NextPage = ({ initialInput = defaultProps.initialInput, i
 					image={boardArticle.articleImage ? imageUrl(boardArticle.articleImage) : undefined}
 				/>
 			)}
-			<div className={'ma-container ma-container--narrow'}>
-				<nav className={'ma-breadcrumb'}>
-					<Link href={'/'}>{t('Home')}</Link>
+			<PageContainer className="w-[860px]!">
+				<nav className="mb-[18px] flex items-center gap-2 text-[13px] text-muted max-sm:hidden">
+					<Link href={'/'} className="text-muted hover:text-primary">{t('Home')}</Link>
 					<span>/</span>
-					<Link href={`/community?articleCategory=${articleCategory ?? 'FREE'}`}>{t('Community')}</Link>
+					<Link href={`/community?articleCategory=${articleCategory ?? 'FREE'}`} className="text-muted hover:text-primary">{t('Community')}</Link>
 					<span>/</span>
-					<em>{boardArticle?.articleTitle}</em>
+					<em className="overflow-hidden text-ellipsis whitespace-nowrap text-text not-italic">{boardArticle?.articleTitle}</em>
 				</nav>
 
-				<article className={'ma-panel ma-article'}>
-					<span className={'ma-badge ma-badge--primary'}>
+				<article className={`${panelBox} mb-6`}>
+					<Badge>
 						{t(articleCategoryLabels[boardArticle?.articleCategory as string] ?? '')}
-					</span>
-					<h1>{boardArticle?.articleTitle}</h1>
-					<div className={'ma-article__author'}>
-						<img src={memberImage} alt={''} onClick={() => goMemberPage(boardArticle?.memberData?._id)} />
+					</Badge>
+					<h1 className="m-0 mt-3.5 mb-[18px] text-2xl leading-[1.25] font-bold tracking-[-0.02em] text-ink sm:text-[32px]">{boardArticle?.articleTitle}</h1>
+					<div className="flex items-center gap-3 border-b border-line pb-5 max-sm:flex-wrap">
+						<img src={memberImage} alt={''} className="size-11 cursor-pointer rounded-full object-cover" onClick={() => goMemberPage(boardArticle?.memberData?._id)} />
 						<div>
-							<strong onClick={() => goMemberPage(boardArticle?.memberData?._id)}>
+							<strong className="block cursor-pointer text-[15px] text-ink" onClick={() => goMemberPage(boardArticle?.memberData?._id)}>
 								{boardArticle?.memberData?.memberNick}
 							</strong>
-							<span>
+							<span className="text-[13px] text-muted">
 								{boardArticle?.createdAt && <Moment format={'DD MMM YYYY, HH:mm'}>{boardArticle.createdAt}</Moment>}
 							</span>
 						</div>
-						<div className={'ma-article__stats'}>
+						<div className="flex items-center gap-4 text-muted max-sm:w-full sm:ml-auto [&>span]:inline-flex [&>span]:items-center [&>span]:gap-1 [&_svg]:text-lg">
 							<span>
 								<RemoveRedEyeIcon /> {boardArticle?.articleViews}
 							</span>
@@ -321,7 +329,7 @@ const CommunityDetail: NextPage = ({ initialInput = defaultProps.initialInput, i
 								<ChatBubbleOutlineRoundedIcon /> {boardArticle?.articleComments}
 							</span>
 							<button
-								className={`ma-icon-btn ${liked ? 'is-liked' : ''}`}
+								className={`${iconButton} ${liked ? '[&_svg]:text-primary' : ''}`}
 								disabled={likeLoading}
 								onClick={() => likeBoArticleHandler(user, boardArticle?._id)}
 							>
@@ -329,17 +337,18 @@ const CommunityDetail: NextPage = ({ initialInput = defaultProps.initialInput, i
 							</button>
 						</div>
 					</div>
-					<div className={'ma-article__content'}>
+					<div className="pt-[22px] text-base leading-[1.75] text-text [&_img]:max-w-full [&_img]:rounded-xl">
 						<ArticleViewer markdown={boardArticle?.articleContent} className={'ytb_play'} />
 					</div>
 				</article>
 
-				<section className={'ma-panel ma-profile-section'}>
-					<h2>
-						{t('Comments')} <small>({total})</small>
+				<section className={`${panelBox} mb-8`}>
+					<h2 className="m-0 mb-4 text-[19px] font-bold text-ink">
+						{t('Comments')} <small className="text-[15px] font-medium text-muted">({total})</small>
 					</h2>
-					<div className={'ma-comment-form'}>
+					<div className={commentForm}>
 						<textarea
+							className={`${inputClass} h-auto! min-h-24 w-full resize-y py-3`}
 							placeholder={t('Write a comment...') as string}
 							value={comment}
 							maxLength={100}
@@ -348,10 +357,10 @@ const CommunityDetail: NextPage = ({ initialInput = defaultProps.initialInput, i
 								setComment(e.target.value);
 							}}
 						></textarea>
-						<div className={'ma-comment-form__foot'}>
+						<div className={commentFoot}>
 							<span>{wordsCnt}/100</span>
 							<button
-								className={'ma-btn ma-btn--primary'}
+								className={buttonClasses()}
 								disabled={!comment || !user?._id}
 								onClick={creteCommentHandler}
 							>
@@ -364,24 +373,25 @@ const CommunityDetail: NextPage = ({ initialInput = defaultProps.initialInput, i
 						const isMine = commentData?.memberId === user?._id;
 						const editing = updatedCommentId === commentData?._id && openBackdrop;
 						return (
-							<div className={'ma-comment'} key={commentData?._id}>
+							<div className="flex gap-3.5 border-t border-line py-4" key={commentData?._id}>
 								<img
+									className="size-10 shrink-0 cursor-pointer rounded-full object-cover"
 									src={getCommentMemberImage(commentData?.memberData?.memberImage)}
 									alt={''}
 									onClick={() => goMemberPage(commentData?.memberData?._id as string)}
 								/>
-								<div style={{ flex: 1 }}>
-									<div className={'ma-comment__head'}>
-										<strong onClick={() => goMemberPage(commentData?.memberData?._id as string)}>
+								<div className="min-w-0 flex-1">
+									<div className="mb-1 flex items-center gap-2.5">
+										<strong className="cursor-pointer text-sm text-ink" onClick={() => goMemberPage(commentData?.memberData?._id as string)}>
 											{commentData?.memberData?.memberNick}
 										</strong>
-										<span>
+										<span className="text-xs text-muted">
 											<Moment format={'DD MMM YYYY, HH:mm'}>{commentData?.createdAt}</Moment>
 										</span>
 										{isMine && !editing && (
-											<span className={'ma-comment__actions'}>
+											<span className="ml-auto inline-flex gap-2.5">
 												<button
-													className={'ma-link-btn'}
+													className={linkButton}
 													onClick={() => {
 														setUpdatedComment(commentData?.commentContent);
 														setUpdatedCommentWordsCnt(commentData?.commentContent?.length);
@@ -392,7 +402,7 @@ const CommunityDetail: NextPage = ({ initialInput = defaultProps.initialInput, i
 													{t('Edit')}
 												</button>
 												<button
-													className={'ma-link-btn ma-link-btn--danger'}
+													className={linkButtonDanger}
 													onClick={() => updateButtonHandler(commentData?._id, CommentStatus.DELETE)}
 												>
 													{t('Delete')}
@@ -400,7 +410,7 @@ const CommunityDetail: NextPage = ({ initialInput = defaultProps.initialInput, i
 											</span>
 										)}
 										{!isMine && (
-											<span className={'ma-comment__actions'}>
+											<span className="ml-auto inline-flex gap-2.5">
 												<AdminRemoveComment
 													commentId={commentData?._id}
 													onRemoved={() => getCommentsRefetch({ input: searchFilter })}
@@ -409,19 +419,20 @@ const CommunityDetail: NextPage = ({ initialInput = defaultProps.initialInput, i
 										)}
 									</div>
 									{editing ? (
-										<div className={'ma-comment-form'}>
+										<div className={commentForm}>
 											<textarea
+												className={`${inputClass} h-auto! min-h-24 w-full resize-y py-3`}
 												value={updatedComment}
 												onChange={(e) => updateCommentInputHandler(e.target.value)}
 											></textarea>
-											<div className={'ma-comment-form__foot'}>
+											<div className={commentFoot}>
 												<span>{updatedCommentWordsCnt}/100</span>
 												<div>
-													<button className={'ma-btn ma-btn--outline'} onClick={cancelButtonHandler}>
+													<button className={buttonClasses({ variant: 'outline' })} onClick={cancelButtonHandler}>
 														{t('Cancel')}
 													</button>{' '}
 													<button
-														className={'ma-btn ma-btn--primary'}
+														className={buttonClasses()}
 														onClick={() => updateButtonHandler(updatedCommentId, undefined)}
 													>
 														{t('Save')}
@@ -430,7 +441,7 @@ const CommunityDetail: NextPage = ({ initialInput = defaultProps.initialInput, i
 											</div>
 										</div>
 									) : (
-										<p>{commentData?.commentContent}</p>
+										<p className="m-0 text-sm leading-[1.6] text-text">{commentData?.commentContent}</p>
 									)}
 								</div>
 							</div>
@@ -438,17 +449,10 @@ const CommunityDetail: NextPage = ({ initialInput = defaultProps.initialInput, i
 					})}
 
 					{total > searchFilter.limit && (
-						<div className={'ma-pagination'}>
-							<Pagination
-								count={Math.ceil(total / searchFilter.limit)}
-								page={searchFilter.page}
-								shape="rounded"
-								onChange={paginationHandler}
-							/>
-						</div>
+						<Pagination page={searchFilter.page} total={total} pageSize={searchFilter.limit} onChange={paginationHandler} />
 					)}
 				</section>
-			</div>
+			</PageContainer>
 		</div>
 	);
 };

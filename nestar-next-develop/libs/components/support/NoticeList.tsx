@@ -5,6 +5,7 @@ import moment from 'moment';
 import { GET_NOTICES } from '../../../apollo/user/query';
 import { T } from '../../types/common';
 import { ChevronDownIcon as ExpandMoreRoundedIcon } from '../ui/icons';
+import { emptyBox, faqBody, faqItem, faqSummary } from '../ui/styles';
 
 /** announcements published by admins (Admin > CS > Notice) */
 const NoticeList = () => {
@@ -16,19 +17,19 @@ const NoticeList = () => {
 	const notices: T[] = data?.getNotices?.list ?? [];
 
 	if (!notices.length)
-		return <div className={'ma-empty'}>{loading ? t('Loading...') : t('No announcements yet.')}</div>;
+		return <div className={emptyBox}>{loading ? t('Loading...') : t('No announcements yet.')}</div>;
 
 	return (
-		<div className={'ma-notice-list'}>
+		<div className="flex flex-col font-sans">
 			{notices.map((item, index) => (
-				<details className={'ma-faq ma-notice-item'} key={item._id}>
-					<summary>
-						<span className={'ma-notice__no'}>{index + 1}</span>
-						<strong>{item.noticeTitle}</strong>
-						<span className={'ma-notice__date'}>{moment(item.createdAt).format('DD.MM.YYYY')}</span>
+				<details className={faqItem} key={item._id}>
+					<summary className={faqSummary}>
+						<span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-[#eff6ff] text-sm font-bold text-primary">{index + 1}</span>
+						<strong className="flex-1 font-medium">{item.noticeTitle}</strong>
+						<span className="text-[13px] text-muted">{moment(item.createdAt).format('DD.MM.YYYY')}</span>
 						<ExpandMoreRoundedIcon />
 					</summary>
-					<p>{item.noticeContent}</p>
+					<p className={faqBody}>{item.noticeContent}</p>
 				</details>
 			))}
 		</div>

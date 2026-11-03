@@ -13,9 +13,9 @@ const PasswordRules = ({ password, nick, email }: { password: string; nick?: str
 		[checks.notPersonal || !password, 'Not your nickname or email'],
 	];
 	return (
-		<ul className={'ma-pass-rules'} aria-live={'polite'}>
+		<ul className="m-0 mt-1.5 flex list-none flex-wrap gap-x-3.5 gap-y-1 p-0" aria-live={'polite'}>
 			{rules.map(([ok, label]) => (
-				<li key={label} className={ok && password ? 'is-ok' : ''}>
+				<li key={label} className={`inline-flex items-center gap-1 text-xs [&_svg]:text-sm ${ok && password ? 'text-[#127a46]' : 'text-muted'}`}>
 					{ok && password ? (
 						<CheckCircleIcon fontSize={'inherit'} />
 					) : (

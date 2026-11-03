@@ -16,6 +16,13 @@ import { logInWithFirebase } from '../../auth';
 import { EMAIL_PATTERN } from './EmailCodeField';
 import PasswordRules from './PasswordRules';
 import { isStrongPassword, PASSWORD_MAX } from '../../password';
+import { field, formError, linkButton } from '../ui/styles';
+import { buttonClasses } from '../ui/Button';
+
+/** "Continue with Google / phone / email"; the open one is outlined in blue */
+const provider = (open: boolean) =>
+	buttonClasses({ variant: 'outline', block: true, className: open ? 'mt-2.5 gap-2.5 border-primary! text-primary!' : 'mt-2.5 gap-2.5' });
+const methodPanel = 'flex flex-col gap-2.5 rounded-[10px] border border-line bg-surface p-3.5';
 
 type Method = 'email' | 'phone' | null;
 
@@ -183,25 +190,25 @@ const FirebaseAuthPanel = ({ mode, memberType, canStart, onDone }: FirebaseAuthP
 	const phoneReady = form.phone.replace(/\D/g, '').length >= 9;
 
 	return (
-		<div className={'ma-fb-auth'}>
-			<button type="button" className={'ma-btn ma-btn--outline ma-btn--block ma-fb-auth__provider'} onClick={googleHandler} disabled={busy}>
+		<div className="mb-1 flex flex-col gap-2.5 font-sans">
+			<button type="button" className={provider(false)} onClick={googleHandler} disabled={busy}>
 				<img src={'/img/icons/google.svg'} alt={''} width={18} height={18} />
 				{t('Continue with Google')}
 			</button>
 
 			<button
 				type="button"
-				className={`ma-btn ma-btn--outline ma-btn--block ma-fb-auth__provider ${method === 'phone' ? 'is-open' : ''}`}
+				className={provider(method === 'phone')}
 				aria-expanded={method === 'phone'}
 				onClick={() => choose('phone')}
 			>
 				{t('Continue with phone')}
 			</button>
 			{method === 'phone' && (
-				<div className={'ma-fb-auth__panel'}>
+				<div className={methodPanel}>
 					{!confirmation ? (
 						<>
-							<label className={'ma-input'}>
+							<label className={`${field} mb-0!`}>
 								<span>{t('Phone number')}</span>
 								<input
 									type="tel"
@@ -215,7 +222,7 @@ const FirebaseAuthPanel = ({ mode, memberType, canStart, onDone }: FirebaseAuthP
 							</label>
 							<button
 								type="button"
-								className={'ma-btn ma-btn--primary ma-btn--block'}
+								className={buttonClasses({ block: true, className: 'mt-2.5' })}
 								onClick={sendCodeHandler}
 								disabled={!phoneReady || busy}
 							>
@@ -224,7 +231,7 @@ const FirebaseAuthPanel = ({ mode, memberType, canStart, onDone }: FirebaseAuthP
 						</>
 					) : (
 						<>
-							<label className={'ma-input'}>
+							<label className={`${field} mb-0!`}>
 								<span>{t('SMS code')}</span>
 								<input
 									type="text"
@@ -240,13 +247,13 @@ const FirebaseAuthPanel = ({ mode, memberType, canStart, onDone }: FirebaseAuthP
 							</label>
 							<button
 								type="button"
-								className={'ma-btn ma-btn--primary ma-btn--block'}
+								className={buttonClasses({ block: true, className: 'mt-2.5' })}
 								onClick={confirmCodeHandler}
 								disabled={form.code.length !== 6 || busy}
 							>
 								{t('Confirm')}
 							</button>
-							<button type="button" className={'ma-link-btn'} onClick={() => setConfirmation(null)}>
+							<button type="button" className={`${linkButton} self-center`} onClick={() => setConfirmation(null)}>
 								{t('Change number')}
 							</button>
 						</>
@@ -256,15 +263,15 @@ const FirebaseAuthPanel = ({ mode, memberType, canStart, onDone }: FirebaseAuthP
 
 			<button
 				type="button"
-				className={`ma-btn ma-btn--outline ma-btn--block ma-fb-auth__provider ${method === 'email' ? 'is-open' : ''}`}
+				className={provider(method === 'email')}
 				aria-expanded={method === 'email'}
 				onClick={() => choose('email')}
 			>
 				{t('Continue with email')}
 			</button>
 			{method === 'email' && (
-				<div className={'ma-fb-auth__panel'}>
-					<label className={'ma-input'}>
+				<div className={methodPanel}>
+					<label className={`${field} mb-0!`}>
 						<span>{t('Email')}</span>
 						<input
 							type="email"
@@ -274,7 +281,7 @@ const FirebaseAuthPanel = ({ mode, memberType, canStart, onDone }: FirebaseAuthP
 							onChange={(e) => set('email', e.target.value)}
 						/>
 					</label>
-					<label className={'ma-input'}>
+					<label className={`${field} mb-0!`}>
 						<span>{t('Password')}</span>
 						<input
 							type="password"
@@ -287,26 +294,26 @@ const FirebaseAuthPanel = ({ mode, memberType, canStart, onDone }: FirebaseAuthP
 						/>
 						{mode === 'register' && <PasswordRules password={form.password} email={form.email} />}
 					</label>
-					<button type="button" className={'ma-btn ma-btn--primary ma-btn--block'} onClick={emailHandler} disabled={!emailReady || busy}>
+					<button type="button" className={buttonClasses({ block: true, className: 'mt-2.5' })} onClick={emailHandler} disabled={!emailReady || busy}>
 						{mode === 'login' ? t('Login') : t('Create account')}
 					</button>
 				</div>
 			)}
 
 			{info && (
-				<p className={'ma-fb-auth__info'} role={'status'}>
+				<p className="m-0 rounded-md bg-[#e6efff] px-3 py-2.5 text-sm leading-[1.45] text-ink" role={'status'}>
 					{info}
 				</p>
 			)}
 			{error && (
-				<p className={'ma-field-error'} role={'alert'}>
+				<p className={formError} role={'alert'}>
 					{t(error)}
 				</p>
 			)}
 			{/* the invisible reCAPTCHA Firebase needs before sending an SMS */}
 			<div id={'ma-firebase-recaptcha'} />
 
-			<div className={'ma-fb-auth__divider'}>
+			<div className="mt-1.5 mb-0.5 flex items-center gap-3 text-[13px] text-faint before:h-px before:flex-1 before:bg-line before:content-[''] after:h-px after:flex-1 after:bg-line after:content-['']">
 				<span>{t('or')}</span>
 			</div>
 		</div>

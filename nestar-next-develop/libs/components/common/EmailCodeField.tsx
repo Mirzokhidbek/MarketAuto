@@ -3,6 +3,8 @@ import { useTranslation } from 'next-i18next/pages';
 import { useMutation } from '@apollo/client/react';
 import { REQUEST_EMAIL_CODE } from '../../../apollo/user/mutation';
 import { sweetErrorHandling } from '../../sweetAlert';
+import { codeRow, field, fieldHint } from '../ui/styles';
+import { buttonClasses } from '../ui/Button';
 
 type Purpose = 'SIGNUP' | 'RESET_PASSWORD' | 'VERIFY_EMAIL';
 
@@ -48,9 +50,9 @@ const EmailCodeField = ({ purpose, email, code, onEmailChange, onCodeChange, ema
 
 	return (
 		<>
-			<label className={'ma-input'}>
+			<label className={field}>
 				<span>{emailLabel ?? t('Email')}</span>
-				<div className={'ma-code-row'}>
+				<div className={codeRow}>
 					<input
 						type="email"
 						autoComplete="email"
@@ -59,18 +61,18 @@ const EmailCodeField = ({ purpose, email, code, onEmailChange, onCodeChange, ema
 						value={email}
 						onChange={(e) => onEmailChange(e.target.value.trim())}
 					/>
-					<button type="button" className={'ma-btn ma-btn--outline'} disabled={!canSend} onClick={sendHandler}>
+					<button type="button" className={buttonClasses({ variant: 'outline' })} disabled={!canSend} onClick={sendHandler}>
 						{cooldown > 0 ? `${cooldown}s` : sent ? t('Resend code') : t('Send code')}
 					</button>
 				</div>
-				<em className={'ma-input__hint'}>
+				<em className={fieldHint}>
 					{sent
 						? t('We sent a 6-digit code. Check the Spam folder too.')
 						: t('We will send a 6-digit code to this address.')}
 				</em>
 			</label>
 			{sent && (
-				<label className={'ma-input'}>
+				<label className={field}>
 					<span>{t('Code from the email')}</span>
 					<input
 						type="text"
@@ -83,7 +85,7 @@ const EmailCodeField = ({ purpose, email, code, onEmailChange, onCodeChange, ema
 					/>
 					{/* only in development without an SMTP server */}
 					{devCode && (
-						<em className={'ma-input__hint'}>
+						<em className={fieldHint}>
 							{t('Test mode code')}: {devCode}
 						</em>
 					)}

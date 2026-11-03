@@ -15,6 +15,22 @@ import PasswordRules from '../../libs/components/common/PasswordRules';
 import FirebaseAuthPanel from '../../libs/components/common/FirebaseAuthPanel';
 import { isStrongPassword, PASSWORD_MAX } from '../../libs/password';
 import { isInsideTelegram, telegramSignIn } from '../../libs/hooks/useTelegramMiniApp';
+import { field, fieldHint, fieldLabel, formError, linkButton, segmentButton, segmented } from '../../libs/components/ui/styles';
+import { buttonClasses } from '../../libs/components/ui/Button';
+import { Spinner } from '../../libs/components/ui/Feedback';
+import { cx } from '../../libs/components/ui/classNames';
+
+const authPage = 'flex min-h-[calc(100vh-72px)] items-center justify-center px-4 pt-24 pb-12 font-sans sm:px-6 sm:pt-28 sm:pb-16';
+const roleCard = (active: boolean) =>
+	cx(
+		'flex cursor-pointer flex-col items-start gap-1 rounded-xl border-[1.5px] p-3.5 text-left font-sans',
+		active ? 'border-primary bg-[#eff6ff]' : 'border-line bg-white',
+	);
+const channelTab = (active: boolean) =>
+	cx(
+		'-mb-px cursor-pointer border-0 border-b-2 bg-transparent py-2 font-sans text-sm font-semibold',
+		active ? 'border-primary text-ink' : 'border-transparent text-muted',
+	);
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {
@@ -148,62 +164,62 @@ const Join: NextPage = () => {
 
 	if (telegram === 'checking')
 		return (
-			<div className={'ma-page ma-auth'}>
-				<div className={'ma-auth__telegram'}>
-					<span className={'ma-auth__spinner'} />
+			<div className={authPage}>
+				<div className="flex flex-col items-center gap-4 text-[15px] text-muted">
+					<Spinner size={36} />
 					<p>{t('Signing in with Telegram…')}</p>
 				</div>
 			</div>
 		);
 
 	return (
-		<div className={'ma-page ma-auth'}>
-			<div className={'ma-auth__card'}>
-				<div className={'ma-auth__brand'}>
-					<img src="/img/logo/logo-white.png" alt="CarPort" />
-					<h2>{t('Buy and sell cars with confidence')}</h2>
-					<ul>
+		<div className={authPage}>
+			<div className="grid w-[1000px] max-w-full grid-cols-1 overflow-hidden rounded-[14px] border border-line bg-white font-sans md:grid-cols-2">
+				<div className="hidden flex-col justify-center bg-ink p-12 text-white md:flex">
+					<img src="/img/logo/logo-white.png" alt="CarPort" className="mb-10 w-60" />
+					<h2 className="m-0 mb-6 text-[30px] leading-[1.25] font-bold">{t('Buy and sell cars with confidence')}</h2>
+					<ul className="m-0 list-none p-0 [&>li]:relative [&>li]:mb-3.5 [&>li]:pl-[30px] [&>li]:text-[15px] [&>li]:text-white/80 [&>li]:before:absolute [&>li]:before:top-[-1px] [&>li]:before:left-0 [&>li]:before:flex [&>li]:before:size-5 [&>li]:before:items-center [&>li]:before:justify-center [&>li]:before:rounded-full [&>li]:before:bg-white/15 [&>li]:before:text-xs [&>li]:before:content-['✓']">
 						<li>{t('Cars from Uzbekistan and abroad in one place')}</li>
 						<li>{t('Every seller confirms the phone number')}</li>
 						<li>{t('List your car for free in a few minutes')}</li>
 					</ul>
 				</div>
 
-				<form className={'ma-auth__form'} onSubmit={submitHandler}>
+				<form className="flex min-w-0 flex-col px-[22px] py-7 sm:px-12 sm:py-11" onSubmit={submitHandler}>
 					{view !== 'reset' && view !== 'admin2fa' && (
-						<div className={'ma-segmented'}>
+						<div className={segmented}>
 							<button
 								type="button"
-								className={view === 'login' || view === 'code' ? 'is-active' : ''}
+								className={segmentButton(view === 'login' || view === 'code')}
 								onClick={() => switchView('login')}
 							>
 								{t('Login')}
 							</button>
-							<button type="button" className={view === 'register' ? 'is-active' : ''} onClick={() => switchView('register')}>
+							<button type="button" className={segmentButton(view === 'register')} onClick={() => switchView('register')}>
 								{t('Register')}
 							</button>
 						</div>
 					)}
 
-					<h1>{t(titles[view][0])}</h1>
-					<p className={'ma-auth__lead'}>{t(titles[view][1])}</p>
+					<h1 className="m-0 mt-7 mb-1.5 text-[26px] font-bold text-ink">{t(titles[view][0])}</h1>
+					<p className="m-0 mb-6 text-sm text-muted">{t(titles[view][1])}</p>
 
 					{/* registration: account type and terms first, they apply to every sign-up method */}
 					{view === 'register' && (
 						<>
-							<span className={'ma-input__label'}>{t('Account type')}</span>
-							<div className={'ma-role'}>
-								<button type="button" className={input.type === 'USER' ? 'is-active' : ''} onClick={() => set('type', 'USER')}>
-									<strong>{t('Private seller')}</strong>
-									<span>{t('Buy, sell and follow sellers')}</span>
+							<span className={fieldLabel}>{t('Account type')}</span>
+							<div className="mb-4 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+								<button type="button" className={roleCard(input.type === 'USER')} onClick={() => set('type', 'USER')}>
+									<strong className="text-sm text-ink">{t('Private seller')}</strong>
+									<span className="text-xs text-muted">{t('Buy, sell and follow sellers')}</span>
 								</button>
-								<button type="button" className={input.type === 'AGENT' ? 'is-active' : ''} onClick={() => set('type', 'AGENT')}>
-									<strong>{t('Dealer')}</strong>
-									<span>{t('Car dealership or showroom')}</span>
+								<button type="button" className={roleCard(input.type === 'AGENT')} onClick={() => set('type', 'AGENT')}>
+									<strong className="text-sm text-ink">{t('Dealer')}</strong>
+									<span className="text-xs text-muted">{t('Car dealership or showroom')}</span>
 								</button>
 							</div>
-							<label className={'ma-check ma-auth__terms'}>
-								<input type="checkbox" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} />
+							<label className="mt-3 flex cursor-pointer items-start gap-2.5 rounded-md px-1 py-1.5 text-[13px] leading-normal text-text hover:bg-surface [&_a]:text-primary [&_a]:underline">
+								<input type="checkbox" className="size-4 shrink-0 cursor-pointer accent-primary" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} />
 								<span>
 									{t('I accept the')}{' '}
 									<Link href={'/terms'} target={'_blank'}>
@@ -234,12 +250,12 @@ const Join: NextPage = () => {
 					)}
 
 					{(view === 'register' || view === 'reset') && (
-						<div className={'ma-auth__channel'} role={'tablist'} aria-label={t('Confirm with') as string}>
+						<div className="mb-[18px] flex gap-5 border-b border-line" role={'tablist'} aria-label={t('Confirm with') as string}>
 							<button
 								type="button"
 								role={'tab'}
 								aria-selected={channel === 'phone'}
-								className={channel === 'phone' ? 'is-active' : ''}
+								className={channelTab(channel === 'phone')}
 								onClick={() => switchChannel('phone')}
 							>
 								{t('With phone')}
@@ -248,7 +264,7 @@ const Join: NextPage = () => {
 								type="button"
 								role={'tab'}
 								aria-selected={channel === 'email'}
-								className={channel === 'email' ? 'is-active' : ''}
+								className={channelTab(channel === 'email')}
 								onClick={() => switchChannel('email')}
 							>
 								{t('With email')}
@@ -257,7 +273,7 @@ const Join: NextPage = () => {
 					)}
 
 					{(view === 'login' || view === 'register') && (
-						<label className={'ma-input'}>
+						<label className={field}>
 							<span>{view === 'login' ? t('Phone, email or nickname') : t('Nickname')}</span>
 							<input
 								type="text"
@@ -267,13 +283,13 @@ const Join: NextPage = () => {
 								onChange={(e) => set('nick', view === 'login' ? e.target.value : e.target.value.trim())}
 							/>
 							{view === 'register' && (
-								<em className={'ma-input__hint'}>{t('3-12 latin letters, digits, "_" or "."')}</em>
+								<em className={fieldHint}>{t('3-12 latin letters, digits, "_" or "."')}</em>
 							)}
 						</label>
 					)}
 
 					{view === 'admin2fa' && (
-						<label className={'ma-input'}>
+						<label className={field}>
 							<span>{t('SMS code')}</span>
 							<input
 								type="text"
@@ -287,7 +303,7 @@ const Join: NextPage = () => {
 							/>
 							{/* only in development without an SMS provider */}
 							{admin.devCode && (
-								<em className={'ma-input__hint'}>
+								<em className={fieldHint}>
 									{t('Test mode code')}: {admin.devCode}
 								</em>
 							)}
@@ -316,7 +332,7 @@ const Join: NextPage = () => {
 					)}
 
 					{view !== 'code' && view !== 'admin2fa' && (
-					<label className={'ma-input'}>
+					<label className={field}>
 						<span>{view === 'reset' ? t('New password') : t('Password')}</span>
 						<input
 							type="password"
@@ -337,30 +353,30 @@ const Join: NextPage = () => {
 					)}
 
 					{view === 'login' && (
-						<div className={'ma-auth__links'}>
-							<button type="button" className={'ma-link-btn'} onClick={() => switchView('code')}>
+						<div className="-mt-1 mb-2 flex justify-between gap-3">
+							<button type="button" className={linkButton} onClick={() => switchView('code')}>
 								{t('Log in with SMS code')}
 							</button>
-							<button type="button" className={'ma-link-btn'} onClick={() => switchView('reset')}>
+							<button type="button" className={linkButton} onClick={() => switchView('reset')}>
 								{t('Forgot password?')}
 							</button>
 						</div>
 					)}
 					{view === 'code' && (
-						<div className={'ma-auth__links'}>
-							<button type="button" className={'ma-link-btn'} onClick={() => switchView('login')}>
+						<div className="-mt-1 mb-2 flex justify-between gap-3">
+							<button type="button" className={linkButton} onClick={() => switchView('login')}>
 								{t('Log in with password')}
 							</button>
 						</div>
 					)}
 
 					{error && (
-						<p className={'ma-field-error ma-auth__error'} role={'alert'}>
+						<p className={`${formError} rounded-[10px] bg-[#fce8e6] px-3 py-2.5`} role={'alert'}>
 							{errorText(error)}
 						</p>
 					)}
 
-					<button type="submit" className={'ma-btn ma-btn--primary ma-btn--block ma-auth__submit'} disabled={!canSubmit}>
+					<button type="submit" className={buttonClasses({ block: true, className: 'mt-2 h-12!' })} disabled={!canSubmit}>
 						{view === 'admin2fa'
 							? t('Confirm')
 							: view === 'login' || view === 'code'
@@ -370,9 +386,9 @@ const Join: NextPage = () => {
 							: t('Save new password')}
 					</button>
 
-					<p className={'ma-auth__switch'}>
+					<p className="m-0 mt-5 text-center text-sm text-muted [&_button]:text-sm">
 						{view === 'reset' || view === 'admin2fa' ? (
-							<button type="button" className={'ma-link-btn'} onClick={() => switchView('login')}>
+							<button type="button" className={linkButton} onClick={() => switchView('login')}>
 								← {t('Back to login')}
 							</button>
 						) : (
@@ -380,7 +396,7 @@ const Join: NextPage = () => {
 								{view === 'register' ? t('Already have an account?') : t("Don't have an account?")}{' '}
 								<button
 									type="button"
-									className={'ma-link-btn'}
+									className={linkButton}
 									onClick={() => switchView(view === 'register' ? 'login' : 'register')}
 								>
 									{view === 'register' ? t('Login') : t('Register')}

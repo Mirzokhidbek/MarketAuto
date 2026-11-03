@@ -3,7 +3,10 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next/pages';
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client/react';
-import { Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
+import Dialog from '../ui/Dialog';
+import Badge from '../ui/Badge';
+import { switchInput } from '../ui/Switch';
+import { cx } from '../ui/classNames';
 import CarCard from '../car/CarCard';
 import {
 	CarAccidentHistory,
@@ -33,6 +36,20 @@ import {
 } from './addCarForm.logic';
 import { GET_CAR_MODELS, GET_PROPERTY } from '../../../apollo/user/query';
 import { CloudUploadIcon as CloudUploadOutlinedIcon, CloseIcon, StarIcon as StarOutlineIcon } from '../ui/icons';
+import { accountPanel, accountPanelHead, codeRow, field, fieldHint, formError, formSection, formSubtitle, linkButton } from '../ui/styles';
+
+/** the form keeps two columns on phones (short fields: year, mileage, fuel...) */
+const phoneGrid2 = 'grid grid-cols-2 gap-x-3 sm:gap-x-4';
+const phoneGrid3 = 'grid grid-cols-2 gap-x-3 sm:grid-cols-3 sm:gap-x-4';
+/** on phones the buttons stay above the tab bar while the form scrolls */
+const stickyActions = cx(
+	'mt-2 flex flex-wrap justify-end gap-3 border-t border-line pt-5',
+	'max-sm:sticky max-sm:bottom-[calc(62px+env(safe-area-inset-bottom))] max-sm:z-[5] max-sm:mt-4 max-sm:gap-2.5 max-sm:bg-white max-sm:py-3',
+	'max-sm:[&>button]:min-h-12 max-sm:[&>button]:flex-1 max-sm:[&:has(>button:nth-of-type(3))>button:last-child]:order-1 max-sm:[&:has(>button:nth-of-type(3))>button:last-child]:basis-full',
+);
+const thumbButton =
+	'absolute top-1.5 inline-flex size-7 cursor-pointer items-center justify-center rounded-full border-0 bg-ink/70 text-white [&_svg]:text-base';
+import { buttonClasses } from '../ui/Button';
 
 const AddCarForm = () => {
 	const { t } = useTranslation('common');
@@ -219,8 +236,8 @@ const AddCarForm = () => {
 	};
 
 	return (
-		<div id="add-property-page" className={'ma-account-panel'}>
-			<div className={'ma-account-panel__head'}>
+		<div id="add-property-page" className={accountPanel}>
+			<div className={accountPanelHead}>
 				<div>
 					<h1>{editId ? t('Edit Car') : t('Add New Car')}</h1>
 					<p>{t('Fill in the details buyers care about most. Fields marked * are required.')}</p>
@@ -229,28 +246,43 @@ const AddCarForm = () => {
 
 			{/* buyers call sellers: an account made with an email confirms a phone before listing */}
 			{!editId && user._id && !(user.memberPhone && user.memberPhoneVerified) && (
-				<div className={'ma-note ma-note--warn'} role={'status'}>
+				<div className="mb-[18px] rounded-[10px] bg-[#fef7e0] px-4 py-3 text-sm text-[#7a5200]" role={'status'}>
 					{t('Confirm your phone number in your profile before listing a car.')}{' '}
-					<Link href={{ pathname: '/mypage', query: { category: 'myProfile' } }} className={'ma-link-btn'}>
+					<Link href={{ pathname: '/mypage', query: { category: 'myProfile' } }} className={linkButton}>
 						{t('Add phone')}
 					</Link>
 				</div>
 			)}
 
 			{draftRestored && (
-				<div className={'ma-note'}>
+				<div className="mb-[18px] rounded-[10px] bg-[#eff6ff] px-4 py-3 text-sm text-ink">
 					{t('We restored your unfinished listing.')}{' '}
-					<button className={'ma-link-btn'} onClick={discardDraft}>
+					<button className={linkButton} onClick={discardDraft}>
 						{t('Start over')}
 					</button>
 				</div>
 			)}
 
-			<ol className={'ma-steps'} ref={stepsRef}>
+			<ol className="m-0 mb-[22px] flex list-none gap-2 p-0" ref={stepsRef}>
 				{STEPS.map((label, index) => (
-					<li key={label} className={index === step ? 'is-active' : index < step ? 'is-done' : ''}>
-						<button disabled={index > step && !stepValid.slice(0, index).every(Boolean)} onClick={() => setStep(index)}>
-							<span>{index + 1}</span>
+					<li key={label} className="flex-1">
+						<button
+							className={cx(
+								'flex w-full cursor-pointer items-center gap-2.5 rounded-xl border bg-white px-3.5 py-3 font-sans text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-60',
+								'max-sm:flex-col max-sm:gap-1 max-sm:px-1.5 max-sm:py-2.5 max-sm:text-center max-sm:text-xs',
+								index === step ? 'border-primary text-primary' : 'border-line text-muted',
+							)}
+							disabled={index > step && !stepValid.slice(0, index).every(Boolean)}
+							onClick={() => setStep(index)}
+						>
+							<span
+								className={cx(
+									'inline-flex size-[26px] items-center justify-center rounded-full text-[13px]',
+									index === step ? 'bg-primary text-white' : index < step ? 'bg-[#e6f4ea] text-[#188038]' : 'bg-[#f1f3f6]',
+								)}
+							>
+								{index + 1}
+							</span>
 							{t(label)}
 						</button>
 					</li>
@@ -258,13 +290,13 @@ const AddCarForm = () => {
 			</ol>
 
 			{step === 0 && (
-				<section className={'ma-form-section'}>
-					<div className={'ma-form-grid'}>
-						<label className={'ma-input'}>
+				<section className={formSection}>
+					<div className={phoneGrid2}>
+						<label className={field}>
 							<span>{t('Brand *')}</span>
 							{select('carBrand', Object.values(CarBrand))}
 						</label>
-						<label className={'ma-input'}>
+						<label className={field}>
 							<span>{t('Model *')}</span>
 							<input
 								type="text"
@@ -279,7 +311,7 @@ const AddCarForm = () => {
 								))}
 							</datalist>
 						</label>
-						<label className={'ma-input'}>
+						<label className={field}>
 							<span>{t('Year *')}</span>
 							<select value={car.carYear || ''} onChange={({ target: { value } }) => set('carYear', parseInt(value))}>
 								<option value={''} disabled>
@@ -292,11 +324,11 @@ const AddCarForm = () => {
 								))}
 							</select>
 						</label>
-						<label className={'ma-input'}>
+						<label className={field}>
 							<span>{t('Body type *')}</span>
 							{select('propertyType', Object.values(PropertyType))}
 						</label>
-						<label className={'ma-input'}>
+						<label className={field}>
 							<span>{t('Mileage (km) *')}</span>
 							<input
 								type="number"
@@ -306,7 +338,7 @@ const AddCarForm = () => {
 								onChange={({ target: { value } }) => set('carMileage', parseInt(value) || 0)}
 							/>
 						</label>
-						<label className={'ma-input'}>
+						<label className={field}>
 							<span>{t('Trim')}</span>
 							<input
 								type="text"
@@ -316,16 +348,16 @@ const AddCarForm = () => {
 							/>
 						</label>
 					</div>
-					<div className={'ma-form-grid ma-form-grid--3'}>
-						<label className={'ma-input'}>
+					<div className={phoneGrid3}>
+						<label className={field}>
 							<span>{t('Fuel *')}</span>
 							{select('carFuel', Object.values(CarFuel))}
 						</label>
-						<label className={'ma-input'}>
+						<label className={field}>
 							<span>{t('Transmission *')}</span>
 							{select('carTransmission', Object.values(CarTransmission))}
 						</label>
-						<label className={'ma-input'}>
+						<label className={field}>
 							<span>{t('Engine (L)')}</span>
 							<input
 								type="number"
@@ -335,11 +367,11 @@ const AddCarForm = () => {
 								onChange={({ target: { value } }) => set('carEngine', number(value, true))}
 							/>
 						</label>
-						<label className={'ma-input'}>
+						<label className={field}>
 							<span>{t('Color')}</span>
 							<input type="text" placeholder={t('e.g. White') as string} value={car.carColor ?? ''} onChange={({ target: { value } }) => set('carColor', value)} />
 						</label>
-						<label className={'ma-input ma-input--wide'}>
+						<label className={`${field} col-span-2`}>
 							<span>{t('VIN (17 characters)')}</span>
 							<input
 								type="text"
@@ -348,26 +380,26 @@ const AddCarForm = () => {
 								value={car.carVin ?? ''}
 								onChange={({ target: { value } }) => set('carVin', value.toUpperCase().replace(/[^A-Z0-9]/g, ''))}
 							/>
-							<em className={'ma-input__hint'}>{t('Listings with a VIN get more trust from buyers.')}</em>
+							<em className={fieldHint}>{t('Listings with a VIN get more trust from buyers.')}</em>
 						</label>
 					</div>
 				</section>
 			)}
 
 			{step === 1 && (
-				<section className={'ma-form-section'}>
-					<div className={'ma-form-grid'}>
-						<label className={'ma-input'}>
+				<section className={formSection}>
+					<div className={phoneGrid2}>
+						<label className={field}>
 							<span>{t('Country *')}</span>
 							{select('carCountry', Object.values(CarCountry), (item) => formatCountry(item, t))}
 						</label>
 						{isUzbekistan && (
-							<label className={'ma-input'}>
+							<label className={field}>
 								<span>{t('City *')}</span>
 								{select('propertyLocation', Object.values(PropertyLocation))}
 							</label>
 						)}
-						<label className={'ma-input'}>
+						<label className={field}>
 							<span>{isUzbekistan ? t('District / street') : t('City abroad')} *</span>
 							<input
 								type="text"
@@ -378,13 +410,13 @@ const AddCarForm = () => {
 						</label>
 					</div>
 
-					<h3 className={'ma-form-subtitle'}>{t('History')}</h3>
-					<div className={'ma-form-grid ma-form-grid--3'}>
-						<label className={'ma-input'}>
+					<h3 className={formSubtitle}>{t('History')}</h3>
+					<div className={phoneGrid3}>
+						<label className={field}>
 							<span>{t('Accidents')}</span>
 							{select('carAccidentHistory', Object.values(CarAccidentHistory), (item) => t(`accident_${item}`))}
 						</label>
-						<label className={'ma-input'}>
+						<label className={field}>
 							<span>{t('Owners')}</span>
 							<input
 								type="number"
@@ -395,7 +427,7 @@ const AddCarForm = () => {
 								onChange={({ target: { value } }) => set('carOwners', number(value))}
 							/>
 						</label>
-						<label className={'ma-input'}>
+						<label className={field}>
 							<span>{t('Customs cleared in Uzbekistan')}</span>
 							<select
 								value={car.carCustomsCleared === undefined ? '' : String(car.carCustomsCleared)}
@@ -410,9 +442,9 @@ const AddCarForm = () => {
 
 					{abroad && (
 						<>
-							<h3 className={'ma-form-subtitle'}>{t('Delivery to Uzbekistan')}</h3>
-							<div className={'ma-form-grid'}>
-								<label className={'ma-input'}>
+							<h3 className={formSubtitle}>{t('Delivery to Uzbekistan')}</h3>
+							<div className={phoneGrid2}>
+								<label className={field}>
 									<span>{t('Delivery time (days)')}</span>
 									<input
 										type="number"
@@ -422,7 +454,7 @@ const AddCarForm = () => {
 										onChange={({ target: { value } }) => set('carDeliveryDays', number(value))}
 									/>
 								</label>
-								<label className={'ma-input'}>
+								<label className={field}>
 									<span>{t('Delivery cost ($)')}</span>
 									<input
 										type="number"
@@ -436,7 +468,7 @@ const AddCarForm = () => {
 						</>
 					)}
 
-					<label className={'ma-input'}>
+					<label className={field}>
 						<span>{t('Description')} *</span>
 						<textarea
 							maxLength={500}
@@ -444,11 +476,11 @@ const AddCarForm = () => {
 							value={car.propertyDesc}
 							onChange={({ target: { value } }) => set('propertyDesc', value)}
 						></textarea>
-						<em className={'ma-input__hint'}>{(car.propertyDesc ?? '').length}/500</em>
+						<em className={fieldHint}>{(car.propertyDesc ?? '').length}/500</em>
 					</label>
-					<div className={'ma-switch-row'}>
-						<label className={'ma-switch'}>
-							<input type="checkbox" checked={!!car.propertyBarter} onChange={({ target: { checked } }) => set('propertyBarter', checked)} />
+					<div className="flex gap-6 max-sm:flex-col max-sm:gap-3">
+						<label className="inline-flex cursor-pointer items-center gap-2.5 text-sm text-text">
+							<input type="checkbox" role="switch" className={switchInput} checked={!!car.propertyBarter} onChange={({ target: { checked } }) => set('propertyBarter', checked)} />
 							<span>{t('Open to barter')}</span>
 						</label>
 					</div>
@@ -456,19 +488,24 @@ const AddCarForm = () => {
 			)}
 
 			{step === 2 && (
-				<section className={'ma-form-section'}>
-					<h3 className={'ma-form-subtitle'}>
+				<section className={formSection}>
+					<h3 className={formSubtitle}>
 						{t('Photos')} * <small>({car.propertyImages.length}/{MAX_PHOTOS})</small>
 					</h3>
 					{car.propertyImages.length > 0 && car.propertyImages.length < MIN_PHOTOS && (
-						<p className={'ma-field-error'}>{t('Add at least {{count}} more photo(s).', { count: MIN_PHOTOS - car.propertyImages.length })}</p>
+						<p className={formError}>{t('Add at least {{count}} more photo(s).', { count: MIN_PHOTOS - car.propertyImages.length })}</p>
 					)}
-					{car.propertyImages.length > 1 && <p className={'ma-input__hint'}>{t('Drag photos to change the order. The first one is the cover.')}</p>}
+					{car.propertyImages.length > 1 && <p className={fieldHint}>{t('Drag photos to change the order. The first one is the cover.')}</p>}
 					{car.propertyImages.length < MAX_PHOTOS && (
-						<div className={`ma-upload ${uploading ? 'is-busy' : ''}`} onClick={() => !uploading && inputRef.current?.click()}>
+						<div
+							className={cx(
+								'flex cursor-pointer flex-col items-center gap-1.5 rounded-[14px] border-2 border-dashed border-[#cbd5e1] bg-surface p-8 text-center transition-colors hover:border-primary hover:bg-[#eff6ff] [&_svg]:text-[40px] [&_svg]:text-primary',
+								uploading && 'cursor-progress opacity-60',
+							)}
+							onClick={() => !uploading && inputRef.current?.click()}>
 							<CloudUploadOutlinedIcon />
-							<strong>{uploading ? t('Uploading...') : t('Click to upload photos')}</strong>
-							<span>{t('At least 3 photos (front, back, interior), up to 10. JPG, PNG or WEBP.')}</span>
+							<strong className="text-[15px] text-ink">{uploading ? t('Uploading...') : t('Click to upload photos')}</strong>
+							<span className="text-[13px] text-muted">{t('At least 3 photos (front, back, interior), up to 10. JPG, PNG or WEBP.')}</span>
 							<input
 								ref={inputRef}
 								type="file"
@@ -480,10 +517,10 @@ const AddCarForm = () => {
 						</div>
 					)}
 					{car.propertyImages.length > 0 && (
-						<div className={'ma-upload__gallery'}>
+						<div className="mt-3.5 grid grid-cols-3 gap-2.5 sm:grid-cols-5">
 							{car.propertyImages.map((image: string, index: number) => (
 								<div
-									className={`ma-upload__thumb ${dragIndex === index ? 'is-dragging' : ''}`}
+									className={cx('relative h-[90px] cursor-grab overflow-hidden rounded-[10px] bg-[#f1f3f6]', dragIndex === index && 'opacity-40')}
 									key={image}
 									draggable
 									onDragStart={() => setDragIndex(index)}
@@ -494,18 +531,18 @@ const AddCarForm = () => {
 									}}
 									onDragEnd={() => setDragIndex(null)}
 								>
-									<img src={imageUrl(image)} alt={''} />
+									<img src={imageUrl(image)} alt={''} className="size-full object-cover" />
 									{index === 0 ? (
-										<span className={'ma-badge ma-badge--primary'}>{t('Cover')}</span>
+										<Badge className="absolute bottom-1.5 left-1.5 h-5 text-[11px]">{t('Cover')}</Badge>
 									) : (
-										<button className={'ma-upload__cover'} title={t('Make cover') as string} onClick={() => makeCover(image)}>
+										<button className={cx(thumbButton, 'left-1.5')} title={t('Make cover') as string} onClick={() => makeCover(image)}>
 											<StarOutlineIcon />
 										</button>
 									)}
-									<button className={'ma-upload__remove'} title={t('Delete') as string} onClick={() => removeImage(image)}>
+									<button className={cx(thumbButton, 'right-1.5')} title={t('Delete') as string} onClick={() => removeImage(image)}>
 										<CloseIcon />
 									</button>
-									<div className={'ma-upload__move'}>
+									<div className="absolute right-1.5 bottom-1.5 flex gap-1 [&>button]:size-[26px] [&>button]:cursor-pointer [&>button]:rounded-full [&>button]:border-0 [&>button]:bg-ink/70 [&>button]:text-base [&>button]:leading-none [&>button]:text-white [&>button:disabled]:cursor-default [&>button:disabled]:opacity-30">
 										<button aria-label={t('Move left') as string} disabled={index === 0} onClick={() => moveImage(index, index - 1)}>
 											‹
 										</button>
@@ -522,11 +559,11 @@ const AddCarForm = () => {
 						</div>
 					)}
 
-					<h3 className={'ma-form-subtitle'}>{t('Price')}</h3>
-					<div className={'ma-form-grid'}>
-						<label className={'ma-input'}>
+					<h3 className={formSubtitle}>{t('Price')}</h3>
+					<div className={phoneGrid2}>
+						<label className={field}>
 							<span>{t('Price')} *</span>
-							<div className={'ma-code-row'}>
+							<div className={codeRow}>
 								<input
 									type="number"
 									min={0}
@@ -544,12 +581,12 @@ const AddCarForm = () => {
 								</select>
 							</div>
 							{priceCurrency === 'UZS' && car.propertyPrice > 0 && (
-								<em className={'ma-input__hint'}>
+								<em className={fieldHint}>
 									≈ ${usdValue.toLocaleString('en-US')} · {t('buyers see exactly the amount you typed')}
 								</em>
 							)}
 						</label>
-						<label className={'ma-input'}>
+						<label className={field}>
 							<span>{t('Title')}</span>
 							<input
 								type="text"
@@ -558,13 +595,15 @@ const AddCarForm = () => {
 								value={car.propertyTitle}
 								onChange={({ target: { value } }) => set('propertyTitle', value)}
 							/>
-							<em className={'ma-input__hint'}>{t('Leave empty to use the year, brand and model.')}</em>
+							<em className={fieldHint}>{t('Leave empty to use the year, brand and model.')}</em>
 						</label>
 					</div>
-					<div className={'ma-switch-row'}>
-						<label className={'ma-switch'}>
+					<div className="flex gap-6 max-sm:flex-col max-sm:gap-3">
+						<label className="inline-flex cursor-pointer items-center gap-2.5 text-sm text-text">
 							<input
 								type="checkbox"
+								role="switch"
+								className={switchInput}
 								checked={!!car.propertyNegotiable}
 								onChange={({ target: { checked } }) => set('propertyNegotiable', checked)}
 							/>
@@ -574,30 +613,30 @@ const AddCarForm = () => {
 				</section>
 			)}
 
-			<div className={'ma-form-actions'}>
+			<div className={stickyActions}>
 				{/* inside the button bar: on phones the bar stays on screen, so what is missing does too */}
 				{tried && !stepValid[step] && missing[step].length > 0 && (
-					<p className={'ma-field-error ma-form-note'}>
+					<p className="m-0 basis-full text-right text-[13px] text-[#d93025] max-sm:text-left">
 						{t('Please fill in')}: {missing[step].map((label) => t(label)).join(', ')}
 					</p>
 				)}
 				{step > 0 ? (
-					<button className={'ma-btn ma-btn--outline'} onClick={() => setStep(step - 1)}>
+					<button className={buttonClasses({ variant: 'outline' })} onClick={() => setStep(step - 1)}>
 						← {t('Back')}
 					</button>
 				) : (
-					<button className={'ma-btn ma-btn--outline'} onClick={() => router.push('/mypage?category=myProperties')}>
+					<button className={buttonClasses({ variant: 'outline' })} onClick={() => router.push('/mypage?category=myProperties')}>
 						{t('Cancel')}
 					</button>
 				)}
 				{step === STEPS.length - 1 && (
-					<button className={'ma-btn ma-btn--outline'} disabled={!stepValid[2]} onClick={() => setPreviewOpen(true)}>
+					<button className={buttonClasses({ variant: 'outline' })} disabled={!stepValid[2]} onClick={() => setPreviewOpen(true)}>
 						{t('Preview')}
 					</button>
 				)}
 				{step < STEPS.length - 1 ? (
 					<button
-						className={'ma-btn ma-btn--primary'}
+						className={buttonClasses()}
 						onClick={() => {
 							if (!stepValid[step]) return setTried(true);
 							setTried(false);
@@ -608,7 +647,7 @@ const AddCarForm = () => {
 					</button>
 				) : (
 					<button
-						className={'ma-btn ma-btn--primary'}
+						className={buttonClasses()}
 						disabled={creating || updating || uploading}
 						onClick={() => (stepValid.every(Boolean) ? submitHandler() : setTried(true))}
 					>
@@ -617,33 +656,37 @@ const AddCarForm = () => {
 				)}
 			</div>
 			{step === STEPS.length - 1 && !editId && !user?.memberTrusted && (
-				<p className={'ma-input__hint ma-form-note'}>
+				<p className={`${fieldHint} mt-2.5 text-right`}>
 					{t('Your first listing is checked by our team, usually within 2 hours. After that you publish instantly.')}
 				</p>
 			)}
 
-			<Dialog open={previewOpen} onClose={() => setPreviewOpen(false)} maxWidth="xs" fullWidth>
-				<DialogTitle>{t('This is how buyers will see your car')}</DialogTitle>
-				<DialogContent>
-					<div className={'ma-preview'} aria-hidden>
-						<CarCard property={previewCar} />
-					</div>
-				</DialogContent>
-				<DialogActions>
-					<button className={'ma-btn ma-btn--outline'} onClick={() => setPreviewOpen(false)}>
-						{t('Edit')}
-					</button>
-					<button
-						className={'ma-btn ma-btn--primary'}
-						disabled={creating || updating}
-						onClick={() => {
-							setPreviewOpen(false);
-							submitHandler();
-						}}
-					>
-						{editId ? t('Save changes') : t('Publish listing')}
-					</button>
-				</DialogActions>
+			<Dialog
+				open={previewOpen}
+				onClose={() => setPreviewOpen(false)}
+				size="sm"
+				title={t('This is how buyers will see your car')}
+				actions={
+					<>
+								<button className={buttonClasses({ variant: 'outline' })} onClick={() => setPreviewOpen(false)}>
+								{t('Edit')}
+							</button>
+							<button
+								className={buttonClasses()}
+								disabled={creating || updating}
+								onClick={() => {
+									setPreviewOpen(false);
+									submitHandler();
+								}}
+							>
+								{editId ? t('Save changes') : t('Publish listing')}
+							</button>
+					</>
+				}
+			>
+				<div className="pointer-events-none" aria-hidden>
+					<CarCard property={previewCar} />
+				</div>
 			</Dialog>
 		</div>
 	);

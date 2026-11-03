@@ -1,6 +1,5 @@
 import { imageUrl } from '../../utils';
-import React, { ChangeEvent, useEffect, useState } from 'react';
-import { Pagination } from '@mui/material';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'next-i18next/pages';
 import { useRouter } from 'next/router';
 import { FollowInquiry } from '../../types/follow/follow.input';
@@ -11,6 +10,9 @@ import { userVar } from '../../../apollo/store';
 import { T } from '../../types/common';
 import { GET_MEMBER_FOLLOWINGS } from '../../../apollo/user/query';
 import { FavoriteIcon, FavoriteBorderIcon } from '../ui/icons';
+import { buttonClasses } from '../ui/Button';
+import { accountPanel, accountPanelHead, emptyBox, iconButton } from '../ui/styles';
+import Pagination from '../ui/Pagination';
 
 interface MemberFollowingsProps {
 	initialInput: FollowInquiry;
@@ -58,14 +60,14 @@ const MemberFollowings = (props: MemberFollowingsProps) => {
 	}, [router]);
 
 	/** HANDLERS **/
-	const paginationHandler = async (event: ChangeEvent<unknown>, value: number) => {
+	const paginationHandler = async (value: number) => {
 		followInquiry.page = value;
 		setFollowInquiry({ ...followInquiry });
 	};
 
 	return (
-		<div id="member-follows-page" className={'ma-account-panel'}>
-			<div className={'ma-account-panel__head'}>
+		<div id="member-follows-page" className={accountPanel}>
+			<div className={accountPanelHead}>
 				<div>
 					<h1>{t('Followings')}</h1>
 					<p>
@@ -74,33 +76,34 @@ const MemberFollowings = (props: MemberFollowingsProps) => {
 				</div>
 			</div>
 			{memberFollowings?.length ? (
-				<div className={'ma-people'}>
+				<div className="flex flex-col gap-2.5">
 					{memberFollowings.map((following: any) => {
 						const person = following?.followingData;
 						const liked = !!(following?.meLiked && following?.meLiked[0]?.myFavorite);
 						const isFollowing = !!(following?.meFollowed && following?.meFollowed[0]?.myFollowing);
 						return (
-							<div className={'ma-person'} key={following._id}>
+							<div className="flex items-center gap-3.5 rounded-xl border border-line px-3.5 py-3 max-sm:flex-wrap" key={following._id}>
 								<img
 									src={person?.memberImage ? imageUrl(person?.memberImage) : '/img/profile/defaultUser.svg'}
 									alt={person?.memberNick}
+									className="size-12 cursor-pointer rounded-full object-cover"
 									onClick={() => redirectToMemberPageHandler(person?._id)}
 								/>
-								<div className={'ma-person__info'} onClick={() => redirectToMemberPageHandler(person?._id)}>
-									<strong>{person?.memberNick}</strong>
-									<span>
+								<div className="flex-1 cursor-pointer" onClick={() => redirectToMemberPageHandler(person?._id)}>
+									<strong className="block text-[15px] text-ink">{person?.memberNick}</strong>
+									<span className="text-[13px] text-muted">
 										{person?.memberFollowers} {t('followers')} · {person?.memberFollowings} {t('followings')}
 									</span>
 								</div>
 								<button
-									className={`ma-icon-btn ${liked ? 'is-liked' : ''}`}
+									className={`${iconButton} ${liked ? '[&_svg]:text-[#c62828]' : ''}`}
 									onClick={() => likeMemberHandler(person?._id, getMemberFollowingsRefetch, followInquiry)}
 								>
 									{liked ? <FavoriteIcon /> : <FavoriteBorderIcon />} {person?.memberLikes}
 								</button>
 								{user?._id && user?._id !== following?.followingId && (
 									<button
-										className={`ma-btn ${isFollowing ? 'ma-btn--outline' : 'ma-btn--primary'}`}
+										className={buttonClasses({ variant: isFollowing ? 'outline' : 'primary' })}
 										onClick={() =>
 											isFollowing
 												? unsubscribeHandler(person?._id, getMemberFollowingsRefetch, followInquiry)
@@ -115,17 +118,10 @@ const MemberFollowings = (props: MemberFollowingsProps) => {
 					})}
 				</div>
 			) : (
-				<div className={'ma-empty'}>{t('Not following anyone yet.')}</div>
+				<div className={emptyBox}>{t('Not following anyone yet.')}</div>
 			)}
 			{total > followInquiry.limit && (
-				<div className={'ma-pagination'}>
-					<Pagination
-						page={followInquiry.page}
-						count={Math.ceil(total / followInquiry.limit)}
-						onChange={paginationHandler}
-						shape="rounded"
-					/>
-				</div>
+				<Pagination page={followInquiry.page} total={total} pageSize={followInquiry.limit} onChange={paginationHandler} />
 			)}
 		</div>
 	);

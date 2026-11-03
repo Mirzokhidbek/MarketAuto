@@ -52,26 +52,29 @@ const ProfileHub = () => {
 	};
 
 	return (
-		<div className={'ma-hub'}>
-			<Link href={mypage('myProfile')} className={'ma-hub__card'}>
+		<div className="font-sans">
+			<Link
+				href={mypage('myProfile')}
+				className="relative -mx-4 -mt-6 flex items-center gap-3.5 rounded-b-3xl bg-[radial-gradient(360px_200px_at_100%_0%,rgba(255,255,255,0.18),transparent_70%),linear-gradient(150deg,#0b4fd6,#2f7bff)] px-5 pt-7 pb-[52px] text-white"
+			>
 				<img
-					className={'ma-hub__avatar'}
+					className="size-16 shrink-0 rounded-full border-[3px] border-white/90 bg-white object-cover"
 					src={user?.memberImage ? imageUrl(user.memberImage) : '/img/profile/defaultUser.svg'}
 					alt={user?.memberNick}
 				/>
-				<div className={'ma-hub__who'}>
-					<strong>{user?.memberFullName || user?.memberNick}</strong>
-					{user?.memberPhone && <span>{formatPhone(user.memberPhone)}</span>}
+				<div className="flex min-w-0 flex-1 flex-col gap-[3px]">
+					<strong className="overflow-hidden text-lg font-bold text-ellipsis whitespace-nowrap">{user?.memberFullName || user?.memberNick}</strong>
+					{user?.memberPhone && <span className="text-sm opacity-90">{formatPhone(user.memberPhone)}</span>}
 					{user?.memberPhoneVerified && (
-						<em>
-							<VerifiedIcon /> {t('Verified user')}
+						<em className="mt-1 inline-flex items-center gap-1 text-xs not-italic opacity-95">
+							<VerifiedIcon className="text-base" /> {t('Verified user')}
 						</em>
 					)}
 				</div>
-				<ChevronRightIcon className={'ma-hub__chevron'} />
+				<ChevronRightIcon className="text-white opacity-90" />
 			</Link>
 
-			<div className={'ma-hub__stats'}>
+			<div className="relative mx-1 -mt-8 mb-4 grid grid-cols-3 rounded-2xl bg-white py-3.5 shadow-[0_8px_24px_rgba(15,23,42,0.1)] [&>a]:flex [&>a]:flex-col [&>a]:items-center [&>a]:gap-1 [&>a]:text-ink [&>a:not(:first-child)]:border-l [&>a:not(:first-child)]:border-line [&_span]:text-xs [&_span]:text-muted [&_strong]:text-[17px] [&_strong]:font-bold">
 				<Link href={mypage('myProperties')}>
 					<span>{t('My listings')}</span>
 					<strong>{user?.memberProperties ?? 0}</strong>
@@ -86,18 +89,18 @@ const ProfileHub = () => {
 				</Link>
 			</div>
 
-			<nav className={'ma-hub__list'}>
+			<nav className="flex flex-col overflow-hidden rounded-2xl border border-line bg-white">
 				{items.map((item) => (
-					<Link key={item.href} href={item.href.startsWith('/') ? item.href : mypage(item.href)} className={'ma-hub__item'}>
+					<Link key={item.href} href={item.href.startsWith('/') ? item.href : mypage(item.href)} className="flex min-h-[54px] items-center gap-3.5 pr-3.5 pl-4 text-[15px] text-ink [-webkit-tap-highlight-color:transparent] not-last:border-b not-last:border-line active:bg-[#f1f3f6] [&>svg:first-child]:text-[22px] [&>svg:first-child]:text-muted">
 						{item.icon}
-						<span>{t(item.label)}</span>
-						{!!item.badge && <em className={'ma-hub__badge'}>{item.badge}</em>}
-						<ChevronRightIcon className={'ma-hub__chevron'} />
+						<span className="flex-1">{t(item.label)}</span>
+						{!!item.badge && <em className="min-w-[22px] rounded-full bg-[#c62828] px-[7px] py-0.5 text-center text-xs font-semibold text-white not-italic">{item.badge}</em>}
+						<ChevronRightIcon className="text-faint" />
 					</Link>
 				))}
 			</nav>
 
-			<button type={'button'} className={'ma-hub__logout'} onClick={logoutHandler}>
+			<button type={'button'} className="mt-4 flex h-[50px] w-full cursor-pointer items-center justify-center gap-2 rounded-[14px] border-0 bg-[#fef2f2] font-sans text-[15px] font-semibold text-[#c62828] [&_svg]:text-xl" onClick={logoutHandler}>
 				<LogoutIcon /> {t('Logout')}
 			</button>
 		</div>
