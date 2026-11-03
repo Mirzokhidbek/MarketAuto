@@ -169,13 +169,15 @@ export const lookupFollowerData = {
 	},
 };
 
+// The seller of a favorite / visited car goes to a top-level "memberData" and is attached to the car in code:
+// Firestore with MongoDB compatibility does not write $lookup results into a nested path ("car.memberData").
 export const lookupFavorite = {
 	$lookup: {
 		from: 'members',
 		localField: 'favoriteProperty.memberId',
 		foreignField: '_id',
 		pipeline: publicMemberFields,
-		as: 'favoriteProperty.memberData',
+		as: 'memberData',
 	},
 };
 
@@ -185,7 +187,7 @@ export const lookupVisit = {
 		localField: 'visitedProperty.memberId',
 		foreignField: '_id',
 		pipeline: publicMemberFields,
-		as: 'visitedProperty.memberData',
+		as: 'memberData',
 	},
 };
 

@@ -70,7 +70,7 @@ export class LikeService {
 							{ $skip: (page - 1) * limit },
 							{ $limit: limit },
 							lookupFavorite,
-							{ $unwind: '$favoriteProperty.memberData' },
+							{ $unwind: '$memberData' },
 						],
 						metaCounter: [{ $count: 'total' }],
 					},
@@ -79,7 +79,10 @@ export class LikeService {
 			.exec();
 
 		const result: Properties = { list: [], metaCounter: data[0].metaCounter };
-		result.list = data[0].list.map((ele: { favoriteProperty: Property }) => ele.favoriteProperty);
+		result.list = data[0].list.map((ele: { favoriteProperty: Property; memberData: Property['memberData'] }) => ({
+			...ele.favoriteProperty,
+			memberData: ele.memberData,
+		}));
 
 		return result;
 	}
