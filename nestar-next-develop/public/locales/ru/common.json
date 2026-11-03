@@ -1163,5 +1163,20 @@
 	"Something went wrong. Try again.": "Что-то пошло не так. Попробуйте ещё раз.",
 	"Accept the terms to continue": "Примите условия, чтобы продолжить",
 	"Signing in with Telegram…": "Вход через Telegram…",
-	"Could not sign in with Telegram. Open the bot and press /start, then try again.": "Не удалось войти через Telegram. Откройте бота, нажмите /start и попробуйте снова."
+	"Could not sign in with Telegram. Open the bot and press /start, then try again.": "Не удалось войти через Telegram. Откройте бота, нажмите /start и попробуйте снова.",
+	"Verified user": "Подтверждённый пользователь",
+	"Profile settings": "Настройки профиля",
+	"Help and support": "Помощь и поддержка",
+	"About the app": "О приложении",
+	"Read more": "Подробнее",
+	"Show less": "Свернуть",
+	"Why CarPort?": "Почему CarPort?",
+	"Trusted sellers": "Надёжные продавцы",
+	"Global market": "Международный рынок",
+	"Korea, Japan, Europe and the US in one place": "Корея, Япония, Европа и США в одном месте",
+	"Easy search": "Удобный поиск",
+	"Filters find the right car fast": "Фильтры быстро находят нужную машину",
+	"Direct contact": "Прямая связь",
+	"Call or write to the seller, no middlemen": "Звоните или пишите продавцу без посредников",
+	"New listings": "Новые объявления"
 }

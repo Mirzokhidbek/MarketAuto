@@ -13,6 +13,7 @@ import MyArticles from '../../libs/components/mypage/MyArticles';
 import { useMutation, useReactiveVar } from '@apollo/client';
 import { userVar } from '../../apollo/store';
 import MyPageMenu from '../../libs/components/mypage/MyPageMenu';
+import ProfileHub from '../../libs/components/mypage/ProfileHub';
 import MessagesPanel from '../../libs/components/mypage/MessagesPanel';
 import SavedSearches from '../../libs/components/mypage/SavedSearches';
 import NotificationsCenter from '../../libs/components/mypage/NotificationsCenter';
@@ -130,7 +131,19 @@ const MyPage: NextPage = () => {
 		followings: <MemberFollowings {...followProps} />,
 	};
 
-	return <SidebarLayout sidebar={<MyPageMenu />}>{panels[category] ?? panels.myProfile}</SidebarLayout>;
+	// phones open "Profile" as a hub listing every section; larger screens show the profile next to the menu
+	const content = router.query?.category ? (
+		panels[category] ?? panels.myProfile
+	) : (
+		<>
+			<div className={'ma-phone-only'}>
+				<ProfileHub />
+			</div>
+			<div className={'ma-phone-hide'}>{panels.myProfile}</div>
+		</>
+	);
+
+	return <SidebarLayout sidebar={<MyPageMenu />}>{content}</SidebarLayout>;
 };
 
 export default withLayoutFull(MyPage);

@@ -171,7 +171,7 @@
 // five key facts in one ruled row, read left to right
 .ma-keyspecs {
 	display: grid;
-	grid-template-columns: repeat(5, minmax(0, 1fr));
+	grid-template-columns: repeat(6, minmax(0, 1fr));
 	margin: 24px 0 0;
 	border-top: 1px solid $ma-border;
 	border-bottom: 1px solid $ma-border;

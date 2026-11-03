@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import EmptyState from '../ui/EmptyState';
 import React, { useState } from 'react';
 import { NextPage } from 'next';
@@ -69,10 +70,22 @@ const MyFavorites: NextPage = () => {
 					<p>{t('Cars you saved with the heart button.')}</p>
 				</div>
 			</div>
+			{/* phones: saved cars and followed sellers side by side, as in the app */}
+			<nav className={'ma-segtabs ma-phone-only'}>
+				<span className={'is-active'}>
+					{t('Cars')} ({total})
+				</span>
+				<Link href={{ pathname: '/mypage', query: { category: 'followings' } }}>{t('Sellers')}</Link>
+			</nav>
 			{myFavorites?.length ? (
 				<div className={'ma-grid ma-grid--2'}>
 					{myFavorites.map((property: Property) => (
-						<CarCard property={property} key={property._id} onLike={(id) => likePropertyHandler(user, id)} />
+						// every car here is a favorite: the heart shows filled (the list does not carry meLiked)
+						<CarCard
+							property={{ ...property, meLiked: [{ memberId: user._id, likeRefId: property._id, myFavorite: true }] } as Property}
+							key={property._id}
+							onLike={(id) => likePropertyHandler(user, id)}
+						/>
 					))}
 				</div>
 			) : (

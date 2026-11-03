@@ -20,7 +20,8 @@ import { Logout } from '@mui/icons-material';
 import { REACT_APP_API_URL } from '../../config';
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
-import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { appBarVar, defaultPageTitle } from '../../hooks/useAppBar';
 import { goBack, isRootPage } from '../../hooks/useBack';
 
 const Header = () => {
@@ -38,6 +39,9 @@ const Header = () => {
 	const [bgColor, setBgColor] = useState<boolean>(false);
 	const [logoutAnchor, setLogoutAnchor] = React.useState<null | HTMLElement>(null);
 	const logoutOpen = Boolean(logoutAnchor);
+	const appBar = useReactiveVar(appBarVar);
+	const category = typeof router.query.category === 'string' ? router.query.category : undefined;
+	const appBarTitle = appBar.title ?? t(defaultPageTitle(router.pathname, category));
 	useGlobalSync();
 
 	/** LIFECYCLES **/
@@ -151,13 +155,17 @@ const Header = () => {
 	return (
 		<Stack className={'navbar'}>
 			<Stack className={`navbar-main ${colorChange ? 'transparent' : ''} ${bgColor ? 'transparent' : ''}`}>
-				<Stack className={'container'}>
-					{/* phones: back to the previous page (inside Telegram its own back button does this) */}
-					{!isRootPage(router.pathname) && (
-						<button type="button" className={'ma-back-btn'} aria-label={t('Back') as string} onClick={goBack}>
-							<ArrowBackIosNewIcon />
+				{/* phones, inner pages: an app bar "← Title  actions" instead of the logo bar */}
+				{!isRootPage(router.pathname) && (
+					<div className={'ma-appbar'}>
+						<button type="button" className={'ma-appbar__back'} aria-label={t('Back') as string} onClick={goBack}>
+							<ArrowBackIcon />
 						</button>
-					)}
+						<h1 className={'ma-appbar__title'}>{appBarTitle}</h1>
+						{appBar.actions && <div className={'ma-appbar__actions'}>{appBar.actions}</div>}
+					</div>
+				)}
+				<Stack className={'container'}>
 					<Box component={'div'} className={'logo-box'}>
 						<Link href={'/'}>
 							<img src="/img/logo/logo.png" alt="CarPort" />

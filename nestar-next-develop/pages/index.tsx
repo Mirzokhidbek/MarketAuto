@@ -11,6 +11,7 @@ import {
 	LatestArticles,
 	TopDealers,
 } from '../libs/components/homepage/HomeSections';
+import { LatestCars, WhyCarPort } from '../libs/components/homepage/PhoneHome';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 
 export const getStaticProps = async ({ locale }: any) => ({
@@ -23,13 +24,24 @@ const Home: NextPage = () => {
 	return (
 		<Stack className={'home-page ma-page'}>
 			<HomeHero />
-			<CountryHub />
-			<CountrySpotlight />
-			<HowItWorks />
+			{/* phones: an app home — reasons, newest cars; the longer sections are for larger screens */}
+			<div className={'ma-phone-only'}>
+				<WhyCarPort />
+				<LatestCars />
+			</div>
+			<div className={'ma-phone-hide'}>
+				<CountryHub />
+				<CountrySpotlight />
+				<HowItWorks />
+			</div>
 			<TopDealers />
-			<SellCta />
+			<div className={'ma-phone-hide'}>
+				<SellCta />
+			</div>
 			<LatestArticles />
-			<HomeFaq />
+			<div className={'ma-phone-hide'}>
+				<HomeFaq />
+			</div>
 		</Stack>
 	);
 };

@@ -21,6 +21,13 @@ import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import ShareOutlinedIcon from '@mui/icons-material/ShareOutlined';
 import PhoneOutlinedIcon from '@mui/icons-material/PhoneOutlined';
 import DirectionsCarFilledOutlinedIcon from '@mui/icons-material/DirectionsCarFilledOutlined';
+import CalendarMonthOutlinedIcon from '@mui/icons-material/CalendarMonthOutlined';
+import SpeedOutlinedIcon from '@mui/icons-material/SpeedOutlined';
+import LocalGasStationOutlinedIcon from '@mui/icons-material/LocalGasStationOutlined';
+import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
+import DirectionsCarOutlinedIcon from '@mui/icons-material/DirectionsCarOutlined';
+import EngineeringOutlinedIcon from '@mui/icons-material/EngineeringOutlined';
+import { useAppBar } from '../../libs/hooks/useAppBar';
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
@@ -102,6 +109,9 @@ const PropertyDetail: NextPage = ({ carSeo }: any) => {
 		return () => img.removeEventListener('error', fail);
 	}, [slideImage, property?._id]);
 	const [showPhone, setShowPhone] = useState<boolean>(false);
+	// phones: the description starts as 3 lines with "read more"
+	const [descOpen, setDescOpen] = useState<boolean>(false);
+	const swipeStart = useRef<number | null>(null);
 	const [destinationProperties, setDestinationProperties] = useState<Property[]>([]);
 
 	/** APOLLO REQUESTS **/
@@ -214,6 +224,31 @@ const PropertyDetail: NextPage = ({ carSeo }: any) => {
 		/>
 	) : null;
 
+	// phones: "← car name   share  like" in the app bar (hooks run before the early returns below)
+	const appBarLiked = !!property?.meLiked?.[0]?.myFavorite;
+	useAppBar(
+		property
+			? {
+					title: property.propertyTitle,
+					actions: (
+						<>
+							<button className={'ma-appbar-btn'} aria-label={t('Share') as string} onClick={() => shareHandler()}>
+								<ShareOutlinedIcon />
+							</button>
+							<button
+								className={`ma-appbar-btn ${appBarLiked ? 'is-on' : ''}`}
+								aria-label={t('Like') as string}
+								onClick={() => likePropertyHandler(user, property._id)}
+							>
+								{appBarLiked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
+							</button>
+						</>
+					),
+			  }
+			: {},
+		[property?._id, property?.propertyTitle, appBarLiked, user?._id],
+	);
+
 	if (getPropertyLoading && !property) {
 		return (
 			<div className={'ma-page ma-detail ma-detail--loading'}>
@@ -239,12 +274,24 @@ const PropertyDetail: NextPage = ({ carSeo }: any) => {
 	const similarCars = destinationProperties.filter((item) => item._id !== property._id).slice(0, 3);
 	// the five facts a buyer scans first; the full table follows below
 	const keySpecs = [
-		{ label: 'Year', value: property.carYear },
-		{ label: 'Mileage', value: formatMileage(property.carMileage) },
-		{ label: 'Engine', value: formatEngine(property.carEngine) || formatEnumLabel(property.carFuel, t) },
-		{ label: 'Transmission', value: formatEnumLabel(property.carTransmission, t) },
-		{ label: 'Body type', value: formatEnumLabel(property.propertyType, t) },
+		{ label: 'Year', value: property.carYear, icon: <CalendarMonthOutlinedIcon /> },
+		{ label: 'Mileage', value: formatMileage(property.carMileage), icon: <SpeedOutlinedIcon /> },
+		{ label: 'Fuel', value: formatEnumLabel(property.carFuel, t), icon: <LocalGasStationOutlinedIcon /> },
+		{ label: 'Transmission', value: formatEnumLabel(property.carTransmission, t), icon: <SettingsOutlinedIcon /> },
+		{ label: 'Body type', value: formatEnumLabel(property.propertyType, t), icon: <DirectionsCarOutlinedIcon /> },
+		{ label: 'Engine', value: formatEngine(property.carEngine) || '—', icon: <EngineeringOutlinedIcon /> },
 	];
+	const images = property.propertyImages ?? [];
+	const slideIndex = Math.max(0, images.indexOf(slideImage));
+	// phones: swipe the big photo left / right
+	const swipeTo = (endX: number) => {
+		if (swipeStart.current === null || images.length < 2) return;
+		const dx = endX - swipeStart.current;
+		swipeStart.current = null;
+		if (Math.abs(dx) < 40) return;
+		const next = (slideIndex + (dx < 0 ? 1 : -1) + images.length) % images.length;
+		setSlideImage(images[next]);
+	};
 	const details = [
 		{ label: 'Country', value: formatCountry(property.carCountry, t) },
 		{ label: 'Location', value: formatCarPlace(property, t) },
@@ -349,7 +396,16 @@ const PropertyDetail: NextPage = ({ carSeo }: any) => {
 				<div className={'ma-detail__layout'}>
 					<div className={'ma-detail__main'}>
 						<div className={'ma-gallery'}>
-							<div className={'ma-gallery__main'}>
+							<div
+								className={'ma-gallery__main'}
+								onTouchStart={(e) => (swipeStart.current = e.touches[0].clientX)}
+								onTouchEnd={(e) => swipeTo(e.changedTouches[0].clientX)}
+							>
+								{images.length > 1 && (
+									<span className={'ma-gallery__count'}>
+										{slideIndex + 1}/{images.length}
+									</span>
+								)}
 								{slideImage && !failedImages.includes(slideImage) ? (
 									<img
 										ref={mainImageRef}
@@ -393,15 +449,23 @@ const PropertyDetail: NextPage = ({ carSeo }: any) => {
 						<dl className={'ma-keyspecs'}>
 							{keySpecs.map((item) => (
 								<div key={item.label}>
+									<span className={'ma-keyspecs__icon'}>{item.icon}</span>
 									<dt>{t(item.label)}</dt>
 									<dd>{item.value}</dd>
 								</div>
 							))}
 						</dl>
 
-						<section className={'ma-panel'}>
+						<section className={'ma-panel ma-panel--desc'}>
 							<h2>{t('Description')}</h2>
-							<p className={'ma-panel__text'}>{property.propertyDesc || t('No description provided.')}</p>
+							<p className={`ma-panel__text ma-desc ${descOpen ? 'is-open' : ''}`}>
+								{property.propertyDesc || t('No description provided.')}
+							</p>
+							{(property.propertyDesc?.length ?? 0) > 140 && (
+								<button className={'ma-desc__more'} onClick={() => setDescOpen((open) => !open)}>
+									{descOpen ? t('Show less') : t('Read more')}
+								</button>
+							)}
 						</section>
 
 						<section className={'ma-panel'}>
@@ -550,8 +614,13 @@ const PropertyDetail: NextPage = ({ carSeo }: any) => {
 
 				{similarCars.length > 0 && (
 					<section className={'ma-similar'}>
-						<h2 className={'ma-title'}>{t('Similar Cars')}</h2>
-						<div className={'ma-grid ma-grid--3'}>
+						<div className={'ma-similar__head'}>
+							<h2 className={'ma-title'}>{t('Similar Cars')}</h2>
+							<Link href={{ pathname: '/property', query: { input: JSON.stringify({ page: 1, limit: 9, search: { brandList: [property.carBrand] } }) } }}>
+								{t('See all')}
+							</Link>
+						</div>
+						<div className={'ma-grid ma-grid--3 ma-similar__list'}>
 							{similarCars.map((car: Property) => (
 								<CarCard property={car} key={car._id} onLike={(id) => likePropertyHandler(user, id)} />
 							))}

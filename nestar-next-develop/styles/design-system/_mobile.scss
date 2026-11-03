@@ -318,38 +318,92 @@ $ma-tabbar-height: 62px;
 	}
 }
 
-/* ---------- back button and the add / edit car form on phones ---------- */
-.ma-back-btn {
+/* ---------- app bar of inner pages, and the add / edit car form on phones ---------- */
+.ma-appbar {
 	display: none;
 }
 
 @media (max-width: 600px) {
-	.ma-back-btn {
+	/* inner pages: "← Title  actions" replaces the logo bar (same 64px height, so page offsets stay) */
+	#pc-wrap #top .navbar .navbar-main:has(.ma-appbar) > .container {
+		display: none;
+	}
+	.ma-appbar {
+		display: flex;
+		align-items: center;
+		gap: 4px;
+		height: 100%;
+		padding: 0 8px 0 6px;
+		font-family: $ma-font;
+		&__back {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			flex-shrink: 0;
+			width: 44px;
+			height: 44px;
+			padding: 0;
+			border: 0;
+			border-radius: 12px;
+			background: transparent;
+			color: $ma-dark;
+			cursor: pointer;
+			-webkit-tap-highlight-color: transparent;
+			svg {
+				font-size: 24px;
+			}
+			&:active {
+				background: $ma-bg-alt;
+			}
+		}
+		&__title {
+			flex: 1;
+			min-width: 0;
+			margin: 0;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+			font-size: 17px;
+			font-weight: 600;
+			color: $ma-dark;
+		}
+		&__actions {
+			display: flex;
+			align-items: center;
+			flex-shrink: 0;
+			gap: 2px;
+		}
+	}
+	/* round icon buttons a page puts into the app bar (share, like) */
+	.ma-appbar-btn {
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
-		flex-shrink: 0;
 		width: 40px;
 		height: 40px;
-		margin: 0 2px 0 -10px;
 		padding: 0;
 		border: 0;
-		border-radius: 12px;
+		border-radius: 50%;
 		background: transparent;
 		color: $ma-dark;
 		cursor: pointer;
-		-webkit-tap-highlight-color: transparent;
 		svg {
-			font-size: 20px;
+			font-size: 22px;
 		}
-		&:active {
-			background: $ma-bg-alt;
+		&.is-on {
+			color: $ma-danger;
 		}
 	}
-	/* with the back button the logo gets smaller, so the account icons keep their room */
-	#pc-wrap #top .navbar .navbar-main .container .ma-back-btn + .logo-box img {
-		width: 108px;
-		height: auto;
+	/* the app bar already shows the page title: the title block only keeps the room under the fixed bar */
+	#pc-wrap .header-basic {
+		padding: 64px 0 0;
+		border-bottom: 0;
+		> .container {
+			display: none;
+		}
+	}
+	.ma-breadcrumb {
+		display: none !important;
 	}
 
 	/* iPhone zooms into any field with text under 16px when it is tapped */
@@ -392,10 +446,6 @@ $ma-tabbar-height: 62px;
 
 /* ---------- Telegram Mini App ---------- */
 .is-telegram {
-	/* Telegram shows its own back button in the top bar */
-	.ma-back-btn {
-		display: none;
-	}
 	/* an app, not a web page: the bottom tab bar is the menu */
 	.ma-footer {
 		display: none;
@@ -413,5 +463,462 @@ $ma-tabbar-height: 62px;
 		&__lead {
 			display: none;
 		}
+	}
+}
+
+/* ---------- helpers: phone-only / not on phones ---------- */
+.ma-phone-only {
+	display: none;
+}
+@media (max-width: 600px) {
+	.ma-phone-only {
+		display: block;
+	}
+	.ma-phone-hide,
+	.ma-mypage-menu {
+		display: none !important;
+	}
+}
+
+/* ---------- profile hub (phones: the "Profile" tab) ---------- */
+.ma-hub {
+	font-family: $ma-font;
+	&__card {
+		position: relative;
+		display: flex;
+		align-items: center;
+		gap: 14px;
+		margin: -24px -16px 0;
+		padding: 28px 20px 52px;
+		border-radius: 0 0 24px 24px;
+		background: radial-gradient(360px 200px at 100% 0%, rgba(255, 255, 255, 0.18), transparent 70%),
+			linear-gradient(150deg, #0b4fd6, #2f7bff);
+		color: $ma-white;
+	}
+	&__avatar {
+		width: 64px;
+		height: 64px;
+		flex-shrink: 0;
+		border-radius: 50%;
+		border: 3px solid rgba(255, 255, 255, 0.9);
+		background: $ma-white;
+		object-fit: cover;
+	}
+	&__who {
+		flex: 1;
+		min-width: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 3px;
+		strong {
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+			font-size: 18px;
+			font-weight: 700;
+		}
+		span {
+			font-size: 14px;
+			opacity: 0.9;
+		}
+		em {
+			display: inline-flex;
+			align-items: center;
+			gap: 4px;
+			margin-top: 4px;
+			font-size: 12px;
+			font-style: normal;
+			opacity: 0.95;
+			svg {
+				font-size: 16px;
+			}
+		}
+	}
+	&__card &__chevron {
+		color: $ma-white;
+		opacity: 0.9;
+	}
+	&__stats {
+		position: relative;
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		margin: -32px 4px 16px;
+		padding: 14px 0;
+		border-radius: 16px;
+		background: $ma-white;
+		box-shadow: 0 8px 24px rgba(15, 23, 42, 0.1);
+		a {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			gap: 4px;
+			color: $ma-dark;
+			&:not(:first-child) {
+				border-left: 1px solid $ma-border;
+			}
+		}
+		span {
+			font-size: 12px;
+			color: $ma-muted;
+		}
+		strong {
+			font-size: 17px;
+			font-weight: 700;
+		}
+	}
+	&__list {
+		display: flex;
+		flex-direction: column;
+		border-radius: 16px;
+		border: 1px solid $ma-border;
+		background: $ma-white;
+		overflow: hidden;
+	}
+	&__item {
+		display: flex;
+		align-items: center;
+		gap: 14px;
+		min-height: 54px;
+		padding: 0 14px 0 16px;
+		color: $ma-dark;
+		font-size: 15px;
+		-webkit-tap-highlight-color: transparent;
+		&:not(:last-child) {
+			border-bottom: 1px solid $ma-border;
+		}
+		&:active {
+			background: $ma-bg-alt;
+		}
+		> svg:first-child {
+			font-size: 22px;
+			color: $ma-muted;
+		}
+		span {
+			flex: 1;
+		}
+	}
+	&__chevron {
+		color: $ma-faint;
+	}
+	&__badge {
+		min-width: 22px;
+		padding: 2px 7px;
+		border-radius: 999px;
+		background: $ma-danger;
+		color: $ma-white;
+		font-size: 12px;
+		font-style: normal;
+		font-weight: 600;
+		text-align: center;
+	}
+	&__logout {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 8px;
+		width: 100%;
+		height: 50px;
+		margin-top: 16px;
+		border: 0;
+		border-radius: 14px;
+		background: #fef2f2;
+		color: $ma-danger;
+		font-family: $ma-font;
+		font-size: 15px;
+		font-weight: 600;
+		cursor: pointer;
+		svg {
+			font-size: 20px;
+		}
+	}
+}
+
+/* ---------- car page ---------- */
+/* the icons of the key facts and the photo counter are a phone layout */
+.ma-keyspecs__icon,
+.ma-gallery__count {
+	display: none;
+}
+.ma-desc__more {
+	display: none;
+}
+.ma-similar__head {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 12px;
+	a {
+		display: none;
+	}
+}
+
+@media (max-width: 600px) {
+	.ma-gallery__main {
+		position: relative;
+		touch-action: pan-y;
+	}
+	.ma-gallery__count {
+		display: block;
+		position: absolute;
+		right: 12px;
+		bottom: 12px;
+		z-index: 2;
+		padding: 4px 10px;
+		border-radius: 999px;
+		background: rgba(15, 23, 42, 0.62);
+		color: $ma-white;
+		font-family: $ma-font;
+		font-size: 12px;
+		font-weight: 600;
+	}
+	/* swiping replaces the thumbnail strip */
+	.ma-gallery__thumbs {
+		display: none !important;
+	}
+	/* like and share live in the app bar; compare stays here */
+	.ma-detail__actions .ma-icon-btn:not(:last-child) {
+		display: none;
+	}
+	/* key facts: a card of 3 × 2 tiles with icons */
+	.ma-keyspecs {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: 0;
+		margin-top: 16px;
+		border: 1px solid $ma-border;
+		border-radius: 16px;
+		overflow: hidden;
+		div {
+			display: grid;
+			grid-template-columns: auto 1fr;
+			grid-template-areas: 'icon value' 'icon label';
+			column-gap: 8px;
+			align-items: center;
+			padding: 12px 10px !important;
+			border: 0 !important;
+			&:nth-child(n + 4) {
+				border-top: 1px solid $ma-border !important;
+			}
+			&:not(:nth-child(3n + 1)) {
+				border-left: 1px solid $ma-border !important;
+			}
+		}
+		dd {
+			grid-area: value;
+			margin: 0;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+			font-size: 13px;
+			font-weight: 600;
+			color: $ma-dark;
+		}
+		dt {
+			grid-area: label;
+			margin: 0;
+			font-size: 11px;
+			color: $ma-muted;
+		}
+	}
+	.ma-keyspecs__icon {
+		grid-area: icon;
+		display: flex;
+		color: $ma-muted;
+		svg {
+			font-size: 20px;
+		}
+	}
+	/* order as in the app: photo, title + price, key facts, description, seller, the rest */
+	.ma-detail {
+		.ma-panel--desc {
+			order: 5;
+		}
+		.ma-detail__side {
+			order: 6;
+		}
+		.ma-detail__main .ma-panel:not(.ma-panel--desc) {
+			order: 7;
+		}
+		.ma-similar {
+			order: 8;
+		}
+	}
+	/* the price is already under the title */
+	.ma-price-card__label,
+	.ma-price-card__price,
+	.ma-price-card__other {
+		display: none !important;
+	}
+	.ma-keyspecs dd {
+		font-size: 12px;
+	}
+
+	/* description: 3 lines, then "read more" */
+	.ma-desc:not(.is-open) {
+		display: -webkit-box;
+		-webkit-line-clamp: 3;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+	}
+	.ma-desc__more {
+		display: inline-block;
+		margin-top: 6px;
+		padding: 0;
+		border: 0;
+		background: none;
+		color: $ma-primary;
+		font-family: $ma-font;
+		font-size: 14px;
+		font-weight: 600;
+		cursor: pointer;
+	}
+	/* similar cars: a sideways row of photo cards */
+	.ma-similar__head a {
+		display: inline;
+		color: $ma-primary;
+		font-size: 14px;
+		font-weight: 600;
+		white-space: nowrap;
+	}
+	.ma-similar__list.ma-grid,
+	.ma-hscroll {
+		display: flex;
+		gap: 12px;
+		margin: 0 -16px;
+		padding: 0 16px 4px;
+		overflow-x: auto;
+		scroll-snap-type: x mandatory;
+		/* snapping keeps the same 16px inset as the page */
+		scroll-padding: 0 16px;
+		scrollbar-width: none;
+		&::-webkit-scrollbar {
+			display: none;
+		}
+		> .ma-car-card {
+			display: block;
+			flex: 0 0 62%;
+			padding: 0;
+			border: 0;
+			scroll-snap-align: start;
+		}
+	}
+}
+
+/* ---------- home on phones ---------- */
+@media (max-width: 600px) {
+	/* "cars from": wrapped pills instead of a sideways row */
+	.ma-hero__origins {
+		flex-wrap: wrap !important;
+		gap: 8px !important;
+		overflow: visible !important;
+		> span {
+			flex-basis: 100%;
+		}
+		> a:not(.ma-search__more) {
+			padding: 6px 10px;
+			border: 1px solid $ma-border;
+			border-radius: 999px;
+			background: $ma-white;
+			font-size: 13px;
+		}
+		.ma-search__more {
+			display: none;
+		}
+	}
+	.ma-why {
+		padding: 24px 16px 4px;
+		font-family: $ma-font;
+		&__title {
+			margin: 0 0 12px;
+			font-size: 20px;
+			font-weight: 700;
+			color: $ma-dark;
+		}
+		&__grid {
+			display: grid;
+			grid-template-columns: repeat(4, minmax(0, 1fr));
+			gap: 8px;
+		}
+		&__item {
+			display: flex;
+			flex-direction: column;
+			gap: 6px;
+			padding: 12px 8px;
+			border: 1px solid $ma-border;
+			border-radius: 14px;
+			background: $ma-white;
+			svg {
+				font-size: 24px;
+				color: $ma-primary;
+			}
+			strong {
+				font-size: 12px;
+				line-height: 1.25;
+				color: $ma-dark;
+			}
+			span {
+				font-size: 10.5px;
+				line-height: 1.35;
+				color: $ma-muted;
+			}
+		}
+	}
+	.ma-latest {
+		padding: 24px 16px 8px;
+		font-family: $ma-font;
+		&__head {
+			display: flex;
+			align-items: baseline;
+			justify-content: space-between;
+			margin-bottom: 12px;
+			h2 {
+				margin: 0;
+				font-size: 20px;
+				font-weight: 700;
+				color: $ma-dark;
+			}
+			a {
+				color: $ma-primary;
+				font-size: 14px;
+				font-weight: 600;
+			}
+		}
+	}
+}
+
+/* ---------- favorites tabs, add / edit car fields on phones ---------- */
+@media (max-width: 600px) {
+	.ma-segtabs.ma-phone-only {
+		display: flex;
+		gap: 20px;
+		margin: 0 0 12px;
+		border-bottom: 1px solid $ma-border;
+		font-family: $ma-font;
+		font-size: 14px;
+		> * {
+			padding: 10px 0;
+			color: $ma-muted;
+		}
+		.is-active {
+			color: $ma-primary;
+			font-weight: 600;
+			box-shadow: inset 0 -2px 0 $ma-primary;
+		}
+	}
+	/* short fields two in a row, like the app form */
+	#add-property-page .ma-form-grid,
+	#add-property-page .ma-form-grid--3 {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		column-gap: 12px;
+	}
+	/* my page sections: no card frame, and no second title (the app bar shows it) */
+	.ma-account-panel {
+		padding: 4px 0 0 !important;
+		border: 0 !important;
+		box-shadow: none !important;
+		background: transparent !important;
+	}
+	.ma-account-panel__head > div:first-child > h1,
+	.ma-account-panel__head > div:first-child > p {
+		display: none;
 	}
 }

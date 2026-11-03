@@ -1163,5 +1163,20 @@
 	"Something went wrong. Try again.": "Nimadir xato ketdi. Qayta urinib koʻring.",
 	"Accept the terms to continue": "Davom etish uchun shartlarni qabul qiling",
 	"Signing in with Telegram…": "Telegram orqali kirilmoqda…",
-	"Could not sign in with Telegram. Open the bot and press /start, then try again.": "Telegram orqali kirib boʻlmadi. Botni oching va /start ni bosing, keyin qayta urinib koʻring."
+	"Could not sign in with Telegram. Open the bot and press /start, then try again.": "Telegram orqali kirib boʻlmadi. Botni oching va /start ni bosing, keyin qayta urinib koʻring.",
+	"Verified user": "Tasdiqlangan foydalanuvchi",
+	"Profile settings": "Profil sozlamalari",
+	"Help and support": "Yordam va qoʻllab-quvvatlash",
+	"About the app": "Ilova haqida",
+	"Read more": "Batafsil",
+	"Show less": "Yopish",
+	"Why CarPort?": "Nega CarPort?",
+	"Trusted sellers": "Ishonchli sotuvchilar",
+	"Global market": "Xalqaro bozor",
+	"Korea, Japan, Europe and the US in one place": "Koreya, Yaponiya, Yevropa va AQSh bir joyda",
+	"Easy search": "Qulay qidiruv",
+	"Filters find the right car fast": "Filtrlar kerakli mashinani tez topadi",
+	"Direct contact": "Toʻgʻridan-toʻgʻri aloqa",
+	"Call or write to the seller, no middlemen": "Sotuvchiga qoʻngʻiroq qiling yoki yozing, vositachisiz",
+	"New listings": "Yangi eʼlonlar"
 }
