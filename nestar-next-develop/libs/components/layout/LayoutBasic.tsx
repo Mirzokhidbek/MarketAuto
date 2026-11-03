@@ -1,22 +1,13 @@
 import Link from 'next/link';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { useRouter } from 'next/router';
-import Seo from '../common/Seo';
-import Header from './Header';
-import Footer from './Footer';
-import CompareBar from '../car/CompareBar';
-import { Stack } from '@mui/material';
-import { getJwtToken, updateUserInfo } from '../../auth';
-import { useReactiveVar } from '@apollo/client/react';
-import { userVar } from '../../../apollo/store';
+import AppShell from './AppShell';
 import { useTranslation } from 'next-i18next/pages';
 
 const withLayoutBasic = (Component: any) => {
-	return (props: any) => {
+	const LayoutBasic = (props: any) => {
 		const router = useRouter();
-		const { t, i18n } = useTranslation('common');
-		const [authHeader, setAuthHeader] = useState<boolean>(false);
-		const user = useReactiveVar(userVar);
+		const { t } = useTranslation('common');
 
 		const memoizedValues = useMemo(() => {
 			let title = '',
@@ -67,7 +58,6 @@ const withLayoutBasic = (Component: any) => {
 					title = 'Login / Register';
 					desc = 'Authentication Process';
 					bgImage = '/img/banner/header2.svg';
-					setAuthHeader(true);
 					break;
 				case '/compare':
 					title = 'Compare cars';
@@ -101,60 +91,37 @@ const withLayoutBasic = (Component: any) => {
 			return { title, desc, bgImage };
 		}, [router.pathname]);
 
-		/** LIFECYCLES **/
-		useEffect(() => {
-			const jwt = getJwtToken();
-			if (jwt) updateUserInfo(jwt);
-		}, []);
-
-		/** HANDLERS **/
+		const breadcrumb = memoizedValues.desc.startsWith('Home / ');
 
 		return (
-			<>
-				<Seo />
-				<Stack id="pc-wrap">
-					<Stack id={'top'}>
-						<Header />
-					</Stack>
-
-					{/* page title on white; "Home / X" descriptions are shown as a real breadcrumb above it */}
-					<Stack className={`header-basic ${authHeader && 'auth'}`}>
-						<Stack className={'container'}>
-							{memoizedValues.desc.startsWith('Home / ') ? (
-								<>
-									<nav className={'ma-breadcrumb'} aria-label={'breadcrumb'}>
-										<Link href={'/'}>{t('Home')}</Link>
-										<span>/</span>
-										<em>{t(memoizedValues.title)}</em>
-									</nav>
-									<strong role={'heading'} aria-level={1}>
-										{t(memoizedValues.title)}
-									</strong>
-								</>
-							) : (
-								<>
-									<strong role={'heading'} aria-level={1}>
-										{t(memoizedValues.title)}
-									</strong>
-									<span>{t(memoizedValues.desc)}</span>
-								</>
+			<AppShell
+				pageHeader={
+					// page title on white; "Home / X" descriptions are shown as a real breadcrumb above it.
+					// Phones show the title in the app bar, so only the room under the fixed header remains.
+					<div className={'border-b border-line bg-white pt-[84px] pb-5 font-sans sm:pt-[104px] sm:pb-7 max-sm:border-0 max-sm:pt-16 max-sm:pb-0'}>
+						<div className={'mx-auto w-[1240px] max-w-[calc(100%-32px)] max-sm:hidden sm:max-w-[calc(100%-48px)]'}>
+							{breadcrumb && (
+								<nav className={'mb-2 flex items-center gap-2 text-[13px] text-muted'} aria-label={'breadcrumb'}>
+									<Link href={'/'} className={'text-muted hover:text-primary'}>
+										{t('Home')}
+									</Link>
+									<span>/</span>
+									<em className={'overflow-hidden text-ellipsis whitespace-nowrap text-text not-italic'}>{t(memoizedValues.title)}</em>
+								</nav>
 							)}
-						</Stack>
-					</Stack>
-
-					<Stack id={'main'}>
-						<Component {...props} />
-					</Stack>
-
-					<CompareBar />
-
-					<Stack id={'footer'}>
-						<Footer />
-					</Stack>
-				</Stack>
-			</>
+							<h1 className={'m-0 text-2xl leading-tight font-bold tracking-[-0.02em] text-ink sm:text-[28px]'}>
+								{t(memoizedValues.title)}
+							</h1>
+							{!breadcrumb && <p className={'mt-1 text-sm text-muted sm:text-[15px]'}>{t(memoizedValues.desc)}</p>}
+						</div>
+					</div>
+				}
+			>
+				<Component {...props} />
+			</AppShell>
 		);
 	};
+	return LayoutBasic;
 };
 
 export default withLayoutBasic;

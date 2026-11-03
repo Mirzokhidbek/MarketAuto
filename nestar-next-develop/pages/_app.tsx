@@ -1,9 +1,6 @@
 import type { AppProps } from 'next/app';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
-import { CssBaseline } from '@mui/material';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import Head from 'next/head';
-import { light } from '../styles/mui-theme';
 import { ApolloProvider } from '@apollo/client/react';
 import { useApollo } from '../apollo/client';
 import { appWithTranslation } from 'next-i18next/pages';
@@ -42,8 +39,6 @@ import '../styles/index.scss';
 import '../styles/tailwind.css';
 
 const App = ({ Component, pageProps }: AppProps) => {
-	// @ts-ignore
-	const [theme, setTheme] = useState(createTheme(light));
 	const client = useApollo(pageProps.initialApolloState);
 	// dates ("2 hours ago", month names) follow the site language; set before children render
 	const { locale } = useRouter();
@@ -64,10 +59,7 @@ const App = ({ Component, pageProps }: AppProps) => {
 				{/* viewport-fit=cover: content may use the full screen; fixed bars add the safe-area insets themselves */}
 				<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 			</Head>
-			<ThemeProvider theme={theme}>
-				<CssBaseline />
-				<Component {...pageProps} />
-			</ThemeProvider>
+			<Component {...pageProps} />
 		</ApolloProvider>
 	);
 };

@@ -2,11 +2,12 @@ import React, { useEffect } from 'react';
 import Link from 'next/link';
 import { useTranslation } from 'next-i18next/pages';
 import { useQuery, useReactiveVar } from '@apollo/client/react';
-import { Badge } from '@mui/material';
 import { GET_EXCHANGE_RATE, GET_UNREAD_MESSAGES_COUNT } from '../../../apollo/user/query';
 import { compareVar, Currency, currencyVar, unreadMessagesVar, usdRateVar, userVar } from '../../../apollo/store';
 import { connectSocket, disconnectSocket } from '../../socket';
-import { ChatIcon as ChatBubbleOutlineIcon } from '../ui/icons';
+import { CountBadge } from '../ui/Feedback';
+import { cx } from '../ui/classNames';
+import { ChatIcon } from '../ui/icons';
 
 /** app-wide state that every page needs: rate, chosen currency, compare list, live messages */
 export const useGlobalSync = () => {
@@ -24,7 +25,7 @@ export const useGlobalSync = () => {
 		try {
 			const ids = JSON.parse(localStorage.getItem('compare') ?? '[]');
 			if (Array.isArray(ids)) compareVar(ids.slice(0, 3));
-		} catch (err) {
+		} catch {
 			// broken value: start with an empty list
 		}
 	}, []);
@@ -44,19 +45,26 @@ export const useGlobalSync = () => {
 	}, [user?._id]);
 };
 
+/** header icon with the number of unread messages */
 export const MessagesLink = () => {
 	const { t } = useTranslation('common');
 	const unread = useReactiveVar(unreadMessagesVar);
 	return (
-		<Link href={'/mypage?category=messages'} className={'ma-bell'} aria-label={t('Messages') as string} title={t('Messages') as string}>
-			<Badge badgeContent={unread} color="error" max={99}>
-				<ChatBubbleOutlineIcon className={'notification-icon'} />
-			</Badge>
+		<Link
+			href={'/mypage?category=messages'}
+			className="inline-flex size-9 items-center justify-center rounded-full text-text hover:bg-surface-alt sm:size-10"
+			aria-label={t('Messages') as string}
+			title={t('Messages') as string}
+		>
+			<CountBadge count={unread}>
+				<ChatIcon />
+			</CountBadge>
 		</Link>
 	);
 };
 
-export const CurrencySwitch = () => {
+/** prices in dollars or so'm, remembered on this device */
+export const CurrencySwitch = ({ className }: { className?: string }) => {
 	const { t } = useTranslation('common');
 	const currency = useReactiveVar(currencyVar);
 	const choose = (value: Currency) => {
@@ -64,11 +72,20 @@ export const CurrencySwitch = () => {
 		localStorage.setItem('currency', value);
 	};
 	return (
-		<div className={'ma-currency'} role={'group'} aria-label={t('Show prices in') as string} title={t('Show prices in') as string}>
+		<div
+			className={cx('inline-flex rounded-full bg-surface-alt p-[3px]', className)}
+			role={'group'}
+			aria-label={t('Show prices in') as string}
+			title={t('Show prices in') as string}
+		>
 			{(['USD', 'UZS'] as Currency[]).map((value) => (
 				<button
 					key={value}
-					className={currency === value ? 'is-active' : ''}
+					type="button"
+					className={cx(
+						'cursor-pointer rounded-full border-0 px-2.5 py-1 font-sans text-xs font-semibold',
+						currency === value ? 'bg-white text-primary shadow-[0_1px_3px_rgba(15,23,42,0.12)]' : 'bg-transparent text-muted',
+					)}
 					aria-pressed={currency === value}
 					onClick={() => choose(value)}
 				>

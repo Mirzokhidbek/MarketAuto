@@ -47,9 +47,24 @@
 	--breakpoint-lg: 1100px;
 }
 
+/* page basics that MUI's CssBaseline used to set; :where() keeps them weaker than any page style */
+:where(*, *::before, *::after) {
+	box-sizing: border-box;
+}
+:where(html) {
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+:where(body) {
+	margin: 0;
+	background: #f8fafc;
+	color: var(--color-text);
+	line-height: 1.5;
+}
+
 /* icons (libs/components/ui/icons.tsx): 1em boxes sized by font-size, like the old MUI icons;
    one class only, so any "parent svg { font-size }" rule still wins */
-.ma-icon {
+:where(.ma-icon) {
 	display: inline-block;
 	flex-shrink: 0;
 	font-size: 1.5rem;

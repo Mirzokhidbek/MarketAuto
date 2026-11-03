@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'next-i18next/pages';
-import { Skeleton } from '@mui/material';
+import { Skeleton } from './Feedback';
 import { ButtonLink } from './Button';
 import { cx } from './classNames';
 
@@ -19,7 +19,7 @@ const EmptyState = ({ text, loading, actionLabel, actionHref, className }: Empty
 		return (
 			<div className={cx('flex flex-col gap-3', className)} aria-label={t('Loading...') as string} aria-busy={true}>
 				{[0, 1, 2].map((item) => (
-					<Skeleton key={item} variant="rounded" height={86} animation="wave" />
+					<Skeleton key={item} className="h-[86px] rounded-[10px]" />
 				))}
 			</div>
 		);

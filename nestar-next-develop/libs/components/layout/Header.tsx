@@ -1,42 +1,41 @@
-import { imageUrl, joinHref } from '../../utils';
-import React, { useCallback, useEffect, useRef } from 'react';
-import { useState } from 'react';
-import { useRouter, withRouter } from 'next/router';
-import { useTranslation } from 'next-i18next/pages';
-import { getJwtToken, logOut, updateUserInfo } from '../../auth/index';
-import { Stack, Box } from '@mui/material';
-import MenuItem from '@mui/material/MenuItem';
-import Button from '@mui/material/Button';
-import { alpha, styled } from '@mui/material/styles';
-import Menu, { MenuProps } from '@mui/material/Menu';
+import React, { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
+import { useTranslation } from 'next-i18next/pages';
+import { useReactiveVar } from '@apollo/client/react';
+import { imageUrl, joinHref } from '../../utils';
+import { getJwtToken, logOut, updateUserInfo } from '../../auth/index';
 import NotificationBell from '../common/NotificationBell';
 import { CurrencySwitch, MessagesLink, useGlobalSync } from '../common/HeaderExtras';
-import { useReactiveVar } from '@apollo/client/react';
 import { userVar } from '../../../apollo/store';
-import { REACT_APP_API_URL } from '../../config';
 import { appBarVar, defaultPageTitle } from '../../hooks/useAppBar';
 import { goBack, isRootPage } from '../../hooks/useBack';
-import { AccountCircleIcon as AccountCircleOutlinedIcon, MenuIcon, CloseIcon, ArrowBackIcon, LogoutIcon as Logout, ChevronDownIcon as CaretDown } from '../ui/icons';
+import Dropdown, { DropdownItem } from '../ui/Dropdown';
+import { buttonClasses } from '../ui/Button';
+import { cx } from '../ui/classNames';
+import { AccountCircleIcon, MenuIcon, CloseIcon, ArrowBackIcon, LogoutIcon, ChevronDownIcon } from '../ui/icons';
+
+const LANGUAGES = [
+	{ code: 'uz', label: 'Uzbek' },
+	{ code: 'ru', label: 'Russian' },
+	{ code: 'en', label: 'English' },
+];
+
+const iconButton =
+	'inline-flex size-10 cursor-pointer items-center justify-center rounded-full border-0 bg-transparent text-text hover:bg-surface-alt';
 
 const Header = () => {
 	const user = useReactiveVar(userVar);
-	const { t, i18n } = useTranslation('common');
+	const { t } = useTranslation('common');
 	const router = useRouter();
-	const [anchorEl2, setAnchorEl2] = useState<null | HTMLElement>(null);
-	// the flag always matches the language of the page being shown
-	const lang = router.locale ?? 'en';
-	const drop = Boolean(anchorEl2);
-	const [colorChange, setColorChange] = useState(false);
 	const [menuOpen, setMenuOpen] = useState(false);
-	const [anchorEl, setAnchorEl] = React.useState<any | HTMLElement>(null);
-	let open = Boolean(anchorEl);
-	const [bgColor, setBgColor] = useState<boolean>(false);
-	const [logoutAnchor, setLogoutAnchor] = React.useState<null | HTMLElement>(null);
-	const logoutOpen = Boolean(logoutAnchor);
 	const appBar = useReactiveVar(appBarVar);
 	const category = typeof router.query.category === 'string' ? router.query.category : undefined;
 	const appBarTitle = appBar.title ?? t(defaultPageTitle(router.pathname, category));
+	// the flag always matches the language of the page being shown
+	const lang = router.locale ?? 'uz';
+	const inner = !isRootPage(router.pathname);
+	const sellHref = user?._id ? '/mypage?category=addProperty' : joinHref('/mypage?category=addProperty');
 	useGlobalSync();
 
 	/** LIFECYCLES **/
@@ -46,267 +45,207 @@ const Header = () => {
 		if (saved && saved !== router.locale && router.locale === router.defaultLocale && router.locales?.includes(saved)) {
 			router.replace(router.asPath, router.asPath, { locale: saved }).then();
 		}
+		// once, on the first page of the visit
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
-
-	useEffect(() => {
-		switch (router.pathname) {
-			case '/property/detail':
-				setBgColor(true);
-				break;
-			default:
-				break;
-		}
-	}, [router]);
 
 	useEffect(() => {
 		const jwt = getJwtToken();
 		if (jwt) updateUserInfo(jwt);
 	}, []);
 
+	// the burger menu closes when a page opens
+	useEffect(() => {
+		const close = () => setMenuOpen(false);
+		router.events.on('routeChangeStart', close);
+		return () => router.events.off('routeChangeStart', close);
+	}, [router.events]);
+
 	/** HANDLERS **/
-	const langClick = (e: any) => {
-		setAnchorEl2(e.currentTarget);
-	};
-
-	const langClose = () => {
-		setAnchorEl2(null);
-	};
-
-	const langChoice = useCallback(
+	const chooseLanguage = useCallback(
 		async (locale: string) => {
 			localStorage.setItem('locale', locale);
-			setAnchorEl2(null);
 			await router.push(router.asPath, router.asPath, { locale });
 		},
 		[router],
 	);
 
-	const changeNavbarColor = () => {
-		if (window.scrollY >= 50) {
-			setColorChange(true);
-		} else {
-			setColorChange(false);
-		}
-	};
-
-	const handleClose = () => {
-		setAnchorEl(null);
-	};
-
 	// the section the visitor is in is highlighted in the menu
-	const navClass = (path: string) =>
-		(path === '/' ? router.pathname === '/' : router.pathname.startsWith(path)) ? 'is-active' : undefined;
-
-	const handleHover = (event: any) => {
-		if (anchorEl !== event.currentTarget) {
-			setAnchorEl(event.currentTarget);
-		} else {
-			setAnchorEl(null);
-		}
-	};
-
-	const StyledMenu = styled((props: MenuProps) => (
-		<Menu
-			elevation={0}
-			anchorOrigin={{
-				vertical: 'bottom',
-				horizontal: 'right',
-			}}
-			transformOrigin={{
-				vertical: 'top',
-				horizontal: 'right',
-			}}
-			{...props}
-		/>
-	))(({ theme }) => ({
-		'& .MuiPaper-root': {
-			top: '109px',
-			borderRadius: 6,
-			marginTop: theme.spacing(1),
-			minWidth: 160,
-			color: theme.palette.mode === 'light' ? 'rgb(55, 65, 81)' : theme.palette.grey[300],
-			boxShadow:
-				'rgb(255, 255, 255) 0px 0px 0px 0px, rgba(0, 0, 0, 0.05) 0px 0px 0px 1px, rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px',
-			'& .MuiMenu-list': {
-				padding: '4px 0',
-			},
-			'& .MuiMenuItem-root': {
-				'& .MuiSvgIcon-root': {
-					fontSize: 18,
-					color: theme.palette.text.secondary,
-					marginRight: theme.spacing(1.5),
-				},
-				'&:active': {
-					backgroundColor: alpha(theme.palette.primary.main, theme.palette.action.selectedOpacity),
-				},
-			},
-		},
-	}));
-
-	if (typeof window !== 'undefined') {
-		window.addEventListener('scroll', changeNavbarColor);
-	}
+	const isActive = (path: string) => (path === '/' ? router.pathname === '/' : router.pathname.startsWith(path));
+	const links = [
+		{ href: '/', path: '/', label: 'Home' },
+		{ href: '/property', path: '/property', label: 'Cars' },
+		{ href: '/agent', path: '/agent', label: 'Sellers' },
+		// buying and selling first; articles are secondary
+		{ href: '/community?articleCategory=FREE', path: '/community', label: 'Community' },
+		{ href: '/cs', path: '/cs', label: 'CS' },
+	];
 
 	return (
-		<Stack className={'navbar'}>
-			<Stack className={`navbar-main ${colorChange ? 'transparent' : ''} ${bgColor ? 'transparent' : ''}`}>
-				{/* phones, inner pages: an app bar "← Title  actions" instead of the logo bar */}
-				{!isRootPage(router.pathname) && (
-					<div className={'ma-appbar'}>
-						<button type="button" className={'ma-appbar__back'} aria-label={t('Back') as string} onClick={goBack}>
-							<ArrowBackIcon />
-						</button>
-						<h1 className={'ma-appbar__title'}>{appBarTitle}</h1>
-						{appBar.actions && <div className={'ma-appbar__actions'}>{appBar.actions}</div>}
-					</div>
+		<header className="fixed inset-x-0 top-0 z-[1000] h-16 border-b border-line bg-white font-sans">
+			{/* phones, inner pages: an app bar "← Title  actions" instead of the logo bar */}
+			{inner && (
+				<div className="flex h-full items-center gap-1 pr-2 pl-1.5 sm:hidden">
+					<button type="button" className={cx(iconButton, 'size-11 rounded-xl text-ink')} aria-label={t('Back') as string} onClick={goBack}>
+						<ArrowBackIcon />
+					</button>
+					<h1 className="m-0 min-w-0 flex-1 overflow-hidden text-[17px] font-semibold text-ellipsis whitespace-nowrap text-ink">
+						{appBarTitle}
+					</h1>
+					{appBar.actions && <div className="flex shrink-0 items-center gap-0.5">{appBar.actions}</div>}
+				</div>
+			)}
+
+			<div
+				className={cx(
+					'mx-auto flex h-full w-[1240px] max-w-[calc(100%-32px)] items-center gap-2 sm:max-w-[calc(100%-48px)]',
+					inner && 'max-sm:hidden',
 				)}
-				<Stack className={'container'}>
-					<Box component={'div'} className={'logo-box'}>
-						<Link href={'/'}>
-							<img src="/img/logo/logo.png" alt="CarPort" />
+			>
+				<Link href={'/'} className="shrink-0">
+					<img src="/img/logo/logo.png" alt="CarPort" className="block w-[140px] sm:w-[170px] lg:w-[190px]" />
+				</Link>
+
+				{/* larger screens: the main menu in the bar */}
+				<nav className="mx-3 hidden items-center gap-4 md:flex lg:mx-8 lg:gap-6">
+					{links.map((link) => (
+						<Link
+							key={link.path}
+							href={link.href}
+							className={cx(
+								'text-[14.5px] font-medium transition-colors hover:text-primary',
+								isActive(link.path) ? 'text-primary' : 'text-text',
+							)}
+						>
+							{t(link.label)}
 						</Link>
-					</Box>
+					))}
+				</nav>
+
+				<div className="ml-auto flex items-center gap-0.5 sm:gap-2 lg:gap-3">
+					<Link href={sellHref} className={buttonClasses({ size: 'sm', className: 'max-sm:hidden' })}>
+						{t('Sell a car')}
+					</Link>
+
+					{user?._id ? (
+						<Dropdown
+							trigger={({ toggle, open, id }) => (
+								<button
+									type="button"
+									className="flex cursor-pointer rounded-full border-0 bg-transparent p-0"
+									aria-haspopup="menu"
+									aria-expanded={open}
+									aria-controls={id}
+									aria-label={t('My Page') as string}
+									onClick={toggle}
+								>
+									<img
+										src={user?.memberImage ? imageUrl(user.memberImage) : '/img/profile/defaultUser.svg'}
+										alt=""
+										className="size-8 rounded-full object-cover sm:size-[38px]"
+									/>
+								</button>
+							)}
+						>
+							{(close) => (
+								<>
+									<DropdownItem onClick={() => (close(), router.push(`/member?memberId=${user._id}`))}>
+										{t('My public profile')}
+									</DropdownItem>
+									<DropdownItem onClick={() => (close(), router.push('/mypage'))}>{t('My Page')}</DropdownItem>
+									{user.memberType === 'ADMIN' && (
+										<DropdownItem onClick={() => (close(), router.push('/_admin'))}>{t('Admin panel')}</DropdownItem>
+									)}
+									<DropdownItem className="text-primary" onClick={() => logOut()}>
+										<LogoutIcon /> {t('Logout')}
+									</DropdownItem>
+								</>
+							)}
+						</Dropdown>
+					) : (
+						<Link
+							href={'/account/join'}
+							className="flex h-[38px] items-center gap-2 rounded-md border border-line-strong px-2.5 text-sm font-medium text-text hover:border-ink md:px-3.5"
+						>
+							<AccountCircleIcon />
+							<span className="hidden md:inline">
+								{t('Login')} / {t('Register')}
+							</span>
+						</Link>
+					)}
+
+					{/* 900–1100px: the bar is full with the menu; the switch returns on wider screens */}
+					<CurrencySwitch className="max-sm:hidden md:max-lg:hidden" />
+					{user?._id && <MessagesLink />}
+					{user?._id && <NotificationBell />}
+
+					<Dropdown
+						trigger={({ toggle, open, id }) => (
+							<button
+								type="button"
+								className="flex h-10 cursor-pointer items-center gap-1 rounded-md border-0 bg-transparent px-1 hover:bg-surface-alt sm:px-1.5"
+								aria-haspopup="menu"
+								aria-expanded={open}
+								aria-controls={id}
+								aria-label={t('Language') as string}
+								onClick={toggle}
+							>
+								<img src={`/img/flag/lang${lang}.png`} alt={lang} className="h-[17px] w-6 rounded-[2px]" />
+								<ChevronDownIcon className="text-faint max-sm:hidden" fontSize="small" />
+							</button>
+						)}
+					>
+						{(close) =>
+							LANGUAGES.map((item) => (
+								<DropdownItem key={item.code} onClick={() => (close(), chooseLanguage(item.code))}>
+									<img src={`/img/flag/lang${item.code}.png`} alt="" className="h-[17px] w-6 rounded-[2px]" />
+									{t(item.label)}
+								</DropdownItem>
+							))
+						}
+					</Dropdown>
+
 					<button
-						className={'ma-burger'}
+						type="button"
+						className="ml-1 inline-flex size-10 cursor-pointer items-center justify-center rounded-[10px] border border-line bg-white text-ink sm:size-[42px] md:hidden"
 						aria-label={t('Menu') as string}
 						aria-expanded={menuOpen}
-						onClick={() => setMenuOpen((prev) => !prev)}
+						onClick={() => setMenuOpen((open) => !open)}
 					>
 						{menuOpen ? <CloseIcon /> : <MenuIcon />}
 					</button>
-					{/* phones: dims the page under the open menu; a tap outside closes it */}
-					{menuOpen && <div className={'ma-menu-backdrop'} onClick={() => setMenuOpen(false)} />}
-					<Box
-						component={'div'}
-						className={`router-box ${menuOpen ? 'is-open' : ''}`}
-						onClick={() => setMenuOpen(false)}
-					>
-						<Link href={'/'} className={navClass('/')}>
-							<div>{t('Home')}</div>
-						</Link>
-						<Link href={'/property'} className={navClass('/property')}>
-							<div>{t('Cars')}</div>
-						</Link>
-						<Link href={'/agent'} className={navClass('/agent')}>
-							<div> {t('Sellers')} </div>
-						</Link>
-						{/* buying and selling first; articles are secondary */}
-						<Link href={'/community?articleCategory=FREE'} className={navClass('/community')}>
-							<div> {t('Community')} </div>
-						</Link>
-						<Link href={'/cs'} className={navClass('/cs')}>
-							<div> {t('CS')} </div>
-						</Link>
-						{/* phones: actions that do not fit into the header bar */}
-						<div className={'ma-burger-extras'} onClick={(e) => e.stopPropagation()}>
-							<Link href={user?._id ? '/mypage?category=addProperty' : joinHref('/mypage?category=addProperty')}>
-								<span className={'ma-btn ma-btn--primary ma-btn--block'}>{t('Sell a car')}</span>
-							</Link>
-							<CurrencySwitch />
-						</div>
-					</Box>
-					<Box component={'div'} className={'user-box'}>
-						<Link href={user?._id ? '/mypage?category=addProperty' : joinHref('/mypage?category=addProperty')}>
-							<span className={'ma-btn ma-btn--primary ma-nav-sell'}>{t('Sell a car')}</span>
-						</Link>
-						{user?._id ? (
-							<>
-								<div className={'login-user'} onClick={(event: any) => setLogoutAnchor(event.currentTarget)}>
-									<img
-										src={
-											user?.memberImage ? imageUrl(user?.memberImage) : '/img/profile/defaultUser.svg'
-										}
-										alt=""
-									/>
-								</div>
+				</div>
+			</div>
 
-								<Menu
-									id="basic-menu"
-									anchorEl={logoutAnchor}
-									open={logoutOpen}
-									onClose={() => {
-										setLogoutAnchor(null);
-									}}
-									sx={{ mt: '5px' }}
-								>
-									<MenuItem
-										onClick={() => {
-											setLogoutAnchor(null);
-											router.push(`/member?memberId=${user._id}`);
-										}}
-									>
-										{t('My public profile')}
-									</MenuItem>
-									<MenuItem
-										onClick={() => {
-											setLogoutAnchor(null);
-											router.push('/mypage');
-										}}
-									>
-										{t('My Page')}
-									</MenuItem>
-									{user.memberType === 'ADMIN' && (
-										<MenuItem
-											onClick={() => {
-												setLogoutAnchor(null);
-												router.push('/_admin');
-											}}
-										>
-											{t('Admin panel')}
-										</MenuItem>
-									)}
-									<MenuItem onClick={() => logOut()}>
-										<Logout fontSize="small" style={{ color: '#015DEA', marginRight: '10px' }} />
-										{t('Logout')}
-									</MenuItem>
-								</Menu>
-							</>
-						) : (
-							<Link href={'/account/join'}>
-								<div className={'join-box'}>
-									<AccountCircleOutlinedIcon />
-									<span>
-										{t('Login')} / {t('Register')}
-									</span>
-								</div>
-							</Link>
-						)}
-
-						<div className={'lan-box'}>
-							<CurrencySwitch />
-							{user?._id && <MessagesLink />}
-							{user?._id && <NotificationBell />}
-							<Button
-								disableRipple
-								className="btn-lang"
-								onClick={langClick}
-								endIcon={<CaretDown size={14} color="#616161" />}
+			{/* phones and tablets: the burger menu, under the bar, over a dimmed page */}
+			{menuOpen && (
+				<>
+					<div className="fixed inset-x-0 top-16 bottom-0 bg-ink/30 md:hidden" onClick={() => setMenuOpen(false)} />
+					<nav className="absolute inset-x-2 top-[68px] flex flex-col rounded-[14px] border border-line bg-white p-2 shadow-float md:hidden">
+						{links.map((link) => (
+							<Link
+								key={link.path}
+								href={link.href}
+								className={cx(
+									'rounded-[10px] px-3.5 py-3 text-base font-medium hover:bg-surface',
+									isActive(link.path) ? 'bg-primary-soft font-semibold text-primary' : 'text-text',
+								)}
 							>
-								<Box component={'div'} className={'flag'}>
-									<img src={`/img/flag/lang${lang}.png`} alt={lang} />
-								</Box>
-							</Button>
-
-							<StyledMenu anchorEl={anchorEl2} open={drop} onClose={langClose} sx={{ position: 'absolute' }}>
-								<MenuItem disableRipple onClick={() => langChoice('en')}>
-									<img className="img-flag" src={'/img/flag/langen.png'} alt={''} />
-									{t('English')}
-								</MenuItem>
-								<MenuItem disableRipple onClick={() => langChoice('uz')}>
-									<img className="img-flag" src={'/img/flag/languz.png'} alt={''} />
-									{t('Uzbek')}
-								</MenuItem>
-								<MenuItem disableRipple onClick={() => langChoice('ru')}>
-									<img className="img-flag" src={'/img/flag/langru.png'} alt={''} />
-									{t('Russian')}
-								</MenuItem>
-							</StyledMenu>
+								{t(link.label)}
+							</Link>
+						))}
+						{/* phones: actions that do not fit into the header bar */}
+						<div className="mt-2 flex items-center gap-3 border-t border-line px-1.5 pt-3 pb-1 sm:hidden">
+							<Link href={sellHref} className={buttonClasses({ className: 'flex-1' })}>
+								{t('Sell a car')}
+							</Link>
+							<CurrencySwitch />
 						</div>
-					</Box>
-				</Stack>
-			</Stack>
-		</Stack>
+					</nav>
+				</>
+			)}
+		</header>
 	);
 };
 
-export default withRouter(Header);
+export default Header;
