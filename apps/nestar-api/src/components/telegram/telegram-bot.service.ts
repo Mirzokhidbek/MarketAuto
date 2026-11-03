@@ -59,7 +59,9 @@ export class TelegramBotService implements OnApplicationBootstrap, OnModuleDestr
 		const bot = new Bot(token);
 		bot.use(async (ctx, next) => {
 			const kind = ctx.message?.contact ? 'contact' : (ctx.message?.text?.split(' ')[0] ?? 'update');
-			this.logger.log(`Update ${ctx.update.update_id}: ${kind} from ${ctx.from?.id ?? '?'} (${ctx.chat?.type ?? '?'} chat)`);
+			this.logger.log(
+				`Update ${ctx.update.update_id}: ${kind} from ${ctx.from?.id ?? '?'} (${ctx.chat?.type ?? '?'} chat)`,
+			);
 			await next();
 		});
 		const pm = bot.chatType('private');
@@ -77,7 +79,9 @@ export class TelegramBotService implements OnApplicationBootstrap, OnModuleDestr
 		try {
 			const { webAppUrl } = settings.telegram;
 			if (this.appUrl())
-				await bot.api.setChatMenuButton({ menu_button: { type: 'web_app', text: TEXT.menuButton, web_app: { url: webAppUrl! } } });
+				await bot.api.setChatMenuButton({
+					menu_button: { type: 'web_app', text: TEXT.menuButton, web_app: { url: webAppUrl! } },
+				});
 			await bot.start({
 				allowed_updates: ['message'],
 				onStart: (me) => this.logger.log(`@${me.username} is listening (long polling)`),
@@ -118,7 +122,11 @@ export class TelegramBotService implements OnApplicationBootstrap, OnModuleDestr
 		const result = await this.memberService.setTelegramPhone(from, contact.phone_number);
 		if (result === 'INVALID') return void (await ctx.reply(TEXT.invalid, { reply_markup: this.phoneKeyboard() }));
 		if (result === 'TAKEN') return void (await ctx.reply(TEXT.taken, { reply_markup: { remove_keyboard: true } }));
-		await this.replyReady(ctx, result === 'LINKED' ? TEXT.linked : TEXT.saved, (await this.memberService.telegramMember(from)).member);
+		await this.replyReady(
+			ctx,
+			result === 'LINKED' ? TEXT.linked : TEXT.saved,
+			(await this.memberService.telegramMember(from)).member,
+		);
 	}
 
 	/** any other message: ask for the phone if it is still missing, else point to the app */

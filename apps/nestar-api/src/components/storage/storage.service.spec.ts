@@ -33,10 +33,16 @@ describe('StorageService', () => {
 		expect(firebase.isOwnPath(`${base}property%2F${OWNER}_3f2c-9a.webp?${token}`, 'property', OWNER)).toBe(true);
 		expect(firebase.isOwnPath(`${base}property%2F${OTHER}_3f2c-9a.webp?${token}`, 'property', OWNER)).toBe(false);
 		expect(firebase.isOwnPath(`${base}member%2F${OWNER}_3f2c-9a.webp?${token}`, 'property', OWNER)).toBe(false);
-		expect(firebase.isOwnPath(`${base}property%2F..%2Fmember%2F${OWNER}_x.webp?${token}`, 'property', OWNER)).toBe(false);
+		expect(firebase.isOwnPath(`${base}property%2F..%2Fmember%2F${OWNER}_x.webp?${token}`, 'property', OWNER)).toBe(
+			false,
+		);
 		expect(firebase.isOwnPath(`${base}property%2F${OWNER}_x.webp`, 'property', OWNER)).toBe(false); // no token
 		expect(
-			firebase.isOwnPath(`https://firebasestorage.googleapis.com/v0/b/other/o/property%2F${OWNER}_x.webp?${token}`, 'property', OWNER),
+			firebase.isOwnPath(
+				`https://firebasestorage.googleapis.com/v0/b/other/o/property%2F${OWNER}_x.webp?${token}`,
+				'property',
+				OWNER,
+			),
 		).toBe(false);
 	});
 

@@ -42,7 +42,8 @@ export const mongooseOptions = (uri?: string): MongooseModuleOptions => {
 			ALLOWED_HOSTS: ['*.firestore.goog'],
 			OIDC_CALLBACK: async () => {
 				const { token } = await (await auth.getClient()).getAccessToken();
-				if (!token) throw new Error('No Google access token for Firestore (run: gcloud auth application-default login)');
+				if (!token)
+					throw new Error('No Google access token for Firestore (run: gcloud auth application-default login)');
 				// Google access tokens live one hour; the driver asks again before this runs out
 				return { accessToken: token, expiresInSeconds: 50 * 60 };
 			},

@@ -66,12 +66,7 @@ export class LikeService {
 				{ $unwind: '$favoriteProperty' },
 				{
 					$facet: {
-						list: [
-							{ $skip: (page - 1) * limit },
-							{ $limit: limit },
-							lookupFavorite,
-							{ $unwind: '$memberData' },
-						],
+						list: [{ $skip: (page - 1) * limit }, { $limit: limit }, lookupFavorite, { $unwind: '$memberData' }],
 						metaCounter: [{ $count: 'total' }],
 					},
 				},

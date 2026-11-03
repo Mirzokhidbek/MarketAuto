@@ -283,12 +283,15 @@ export class MemberService {
 	 * website) with nothing tied to Telegram, so the Telegram account now signs in to that one and the empty
 	 * member made by /start is removed. TAKEN: the number belongs to an account that cannot be joined.
 	 */
-	public async setTelegramPhone(user: TelegramUser, rawPhone: string): Promise<'SAVED' | 'LINKED' | 'TAKEN' | 'INVALID'> {
+	public async setTelegramPhone(
+		user: TelegramUser,
+		rawPhone: string,
+	): Promise<'SAVED' | 'LINKED' | 'TAKEN' | 'INVALID'> {
 		const phone = normalizePhone(rawPhone);
 		if (!isValidPhone(phone)) return 'INVALID';
 		const { member } = await this.telegramMember(user);
 		const owner = await this.memberModel.findOne({ memberPhone: phone }).select('+memberTelegramId').exec();
-		if (!owner || String(owner._id) === String(member._id)) {
+		if (!owner || idString(owner._id) === idString(member._id)) {
 			await this.memberModel.updateOne({ _id: member._id }, { memberPhone: phone, memberPhoneVerified: true }).exec();
 			return 'SAVED';
 		}
@@ -328,7 +331,12 @@ export class MemberService {
 
 	/** a free nickname (3-12 latin letters, digits, "_" or ".") built from the person's name or email */
 	private async freeNick(source: string): Promise<string> {
-		const base = (source.normalize('NFKD').replace(/[^a-zA-Z0-9_.]/g, '').slice(0, 7) || 'user').padEnd(3, '0');
+		const base = (
+			source
+				.normalize('NFKD')
+				.replace(/[^a-zA-Z0-9_.]/g, '')
+				.slice(0, 7) || 'user'
+		).padEnd(3, '0');
 		for (let attempt = 0; attempt < 6; attempt++) {
 			const nick = `${base}${randomInt(1000, 99999)}`.slice(0, 12);
 			if (!(await this.memberModel.exists({ memberNick: nick }))) return nick;

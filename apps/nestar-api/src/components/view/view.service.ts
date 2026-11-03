@@ -46,12 +46,7 @@ export class ViewService {
 				{ $match: { 'visitedProperty.propertyStatus': { $ne: 'DELETE' } } },
 				{
 					$facet: {
-						list: [
-							{ $skip: (page - 1) * limit },
-							{ $limit: limit },
-							lookupVisit,
-							{ $unwind: '$memberData' },
-						],
+						list: [{ $skip: (page - 1) * limit }, { $limit: limit }, lookupVisit, { $unwind: '$memberData' }],
 						metaCounter: [{ $count: 'total' }],
 					},
 				},
