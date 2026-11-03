@@ -3,12 +3,13 @@ import type { NextPage } from 'next';
 import { useTranslation } from 'next-i18next/pages';
 import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
 import { useMutation, useQuery } from '@apollo/client/react';
-import { Box, Button, Stack, TextField, Typography } from '@mui/material';
 import withAdminLayout from '../../../libs/components/layout/LayoutAdmin';
 import AdminPageHeader from '../../../libs/components/admin/AdminPageHeader';
 import { GET_SITE_SETTINGS } from '../../../apollo/user/query';
 import { UPDATE_SITE_SETTINGS } from '../../../apollo/admin/mutation';
 import { sweetErrorHandling, sweetTopSmallSuccessAlert } from '../../../libs/sweetAlert';
+import { cx } from '../../../libs/components/ui/classNames';
+import { AdminCard, AdminField, adminButton, adminInput } from '../../../libs/components/admin/ui';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: { ...(await serverSideTranslations(locale, ['common'])) },
@@ -62,37 +63,34 @@ const AdminSettings: NextPage = () => {
 	};
 
 	return (
-		<Box component={'div'} className={'content'}>
+		<div className="mx-auto w-full max-w-[1440px]">
 			<AdminPageHeader title={t('Site settings')} description={t('Shown in the footer and the help center. Leave a field empty to hide it.') as string} />
-			<Box component={'form'} className={'ma-admin-card'} sx={{ maxWidth: 640 }} onSubmit={saveHandler}>
-				{/* the name sits above each field (not inside it), so it stays readable while typing and spacing is even */}
-				<Stack gap={2}>
-					{FIELDS.map((field) => (
-						<Box key={field.key} component={'label'} className={'ma-admin-field'}>
-							<Typography component={'span'} variant={'subtitle2'} className={'ma-admin-field__label'}>
-								{t(field.label)}
-							</Typography>
-							<TextField
-								fullWidth
-								size="small"
-								placeholder={field.placeholder}
-								value={form[field.key]}
-								error={!!errorOf(field.key)}
-								helperText={errorOf(field.key) || undefined}
-								inputProps={{
-									maxLength: field.key === 'supportPhone' ? 30 : field.key === 'supportEmail' ? 100 : 200,
-									'aria-label': t(field.label) as string,
-								}}
-								onChange={(e) => setForm({ ...form, [field.key]: e.target.value })}
-							/>
-						</Box>
-					))}
-				</Stack>
-				<Button type="submit" variant="contained" size="large" disabled={!valid || loading} sx={{ mt: 3 }}>
-					{t('Save')}
-				</Button>
-			</Box>
-		</Box>
+			<AdminCard className="max-w-[640px]">
+				<form onSubmit={saveHandler}>
+					{/* the name sits above each field (not inside it), so it stays readable while typing and spacing is even */}
+					<div className="flex flex-col gap-4">
+						{FIELDS.map((field) => (
+							<AdminField
+								key={field.key}
+								label={t(field.label)}
+								hint={errorOf(field.key) ? <span className="text-[#c5221f]">{errorOf(field.key)}</span> : undefined}
+							>
+								<input
+									className={cx(adminInput, !!errorOf(field.key) && 'border-[#e5484d]')}
+									placeholder={field.placeholder}
+									value={form[field.key]}
+									maxLength={field.key === 'supportPhone' ? 30 : field.key === 'supportEmail' ? 100 : 200}
+									onChange={(e) => setForm({ ...form, [field.key]: e.target.value })}
+								/>
+							</AdminField>
+						))}
+					</div>
+					<button type="submit" className={adminButton({ className: 'mt-6 h-12 px-6' })} disabled={!valid || loading}>
+						{t('Save')}
+					</button>
+				</form>
+			</AdminCard>
+		</div>
 	);
 };
 

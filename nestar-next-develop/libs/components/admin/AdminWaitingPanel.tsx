@@ -3,7 +3,8 @@ import Link from 'next/link';
 import moment from 'moment';
 import { useTranslation } from 'next-i18next/pages';
 import { useQuery } from '@apollo/client/react';
-import { Skeleton } from '@mui/material';
+import { Skeleton } from '../ui/Feedback';
+import { cx } from '../ui/classNames';
 import { GET_ADMIN_WAITING } from '../../../apollo/admin/query';
 import { imageUrl } from '../../utils';
 import { T } from '../../types/common';
@@ -15,6 +16,13 @@ interface AdminWaitingPanelProps {
 }
 
 const PREVIEW = 3;
+
+const TONES: Record<string, string> = {
+	violet: 'bg-[#7c3aed]/12 text-[#7c3aed]',
+	red: 'bg-[#dc2626]/12 text-[#dc2626]',
+	blue: 'bg-[#1d4ed8]/12 text-[#1d4ed8]',
+};
+const preview = 'h-7 w-9 shrink-0 rounded-[7px] bg-[#edf0f6] object-cover';
 
 /**
  * The admin bell: what waits for a decision, oldest first, so nothing sits forgotten.
@@ -86,42 +94,64 @@ const AdminWaitingPanel = ({ counts, onNavigate }: AdminWaitingPanelProps) => {
 	const total = sections.reduce((sum, section) => sum + section.count, 0);
 
 	return (
-		<div className={'ma-adm-wait'}>
-			<div className={'ma-adm-wait__head'}>
-				<strong>{t('Waiting work')}</strong>
-				<span className={total ? 'is-hot' : ''}>{total ? t('{{count}} items', { count: total }) : t('All done')}</span>
+		<div className="pb-2 font-sans">
+			<div className="sticky top-0 z-[1] flex items-center justify-between border-b border-[#edf0f6] bg-white/96 px-[18px] pt-4 pb-3 backdrop-blur-[4px]">
+				<strong className="text-[15px] text-[#0f172a]">{t('Waiting work')}</strong>
+				<span
+					className={cx(
+						'rounded-full px-2.5 py-[3px] text-xs font-bold',
+						total ? 'bg-[#fdecec] text-[#b42318]' : 'bg-[#e8f7ee] text-[#127a46]',
+					)}
+				>
+					{total ? t('{{count}} items', { count: total }) : t('All done')}
+				</span>
 			</div>
-
 			{!total && !loading ? (
-				<div className={'ma-adm-wait__done'}>
-					<TaskAltRoundedIcon />
-					<strong>{t('Nothing is waiting')}</strong>
+				<div className="flex flex-col items-center gap-1.5 px-6 py-8 text-center text-[13px] text-faint">
+					<TaskAltRoundedIcon className="size-12 rounded-full bg-[#e8f7ee] p-2.5 text-[#127a46]" />
+					<strong className="text-[15px] text-[#0f172a]">{t('Nothing is waiting')}</strong>
 					<span>{t('New cars, reports and questions will appear here.')}</span>
 				</div>
 			) : (
 				sections.map((section) => (
-					<section key={section.key} className={`ma-adm-wait__section ma-adm-wait--${section.tone}`}>
-						<Link href={section.href} className={'ma-adm-wait__title'} onClick={onNavigate}>
-							<span className={'ma-adm-wait__icon'}>{section.icon}</span>
+					<section key={section.key} className="pt-2 pb-1 [&+&]:border-t [&+&]:border-[#edf0f6]">
+						<Link
+							href={section.href}
+							className="mx-2 flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-sm font-semibold text-[#0f172a] hover:bg-[#f3f5fa]"
+							onClick={onNavigate}
+						>
+							<span className={cx('flex size-[30px] items-center justify-center rounded-[10px] [&_svg]:text-lg', TONES[section.tone])}>
+								{section.icon}
+							</span>
 							<span>{t(section.title)}</span>
-							<b className={section.count ? 'is-hot' : ''}>{section.count}</b>
-							<em>{t('Open')} →</em>
-						</Link>
-						{loading && section.count > 0 && !section.rows.length && (
-							<Skeleton variant="rounded" height={44} sx={{ mx: '14px', mb: 1 }} />
-						)}
-						{section.rows.map((row: T) => (
-							<Link key={row.id} href={row.href} className={'ma-adm-wait__row'} onClick={onNavigate}>
-								{row.image ? (
-									<img className={row.avatar ? 'is-avatar' : ''} src={imageUrl(row.image)} alt={''} />
-								) : (
-									<span className={`ma-adm-wait__ph ${row.avatar ? 'is-avatar' : ''}`} />
+							<b
+								className={cx(
+									'min-w-6 rounded-full px-[7px] text-center text-xs leading-[22px]',
+									section.count ? 'bg-[#dc2626] text-white' : 'bg-[#edf0f6] text-faint',
 								)}
-								<span className={'ma-adm-wait__text'}>
-									<strong>{row.title}</strong>
-									<small>{row.meta}</small>
+							>
+								{section.count}
+							</b>
+							<em className="ml-auto text-[12.5px] font-semibold text-[#1d4ed8] not-italic">{t('Open')} →</em>
+						</Link>
+						{loading && section.count > 0 && !section.rows.length && <Skeleton className="mx-3.5 mb-2 h-11 rounded-lg" />}
+						{section.rows.map((row: T) => (
+							<Link
+								key={row.id}
+								href={row.href}
+								className="mx-2 flex items-center gap-2.5 rounded-xl py-[7px] pr-2.5 pl-[50px] hover:bg-[#f3f5fa]"
+								onClick={onNavigate}
+							>
+								{row.image ? (
+									<img className={cx(preview, row.avatar && 'w-7 rounded-full')} src={imageUrl(row.image)} alt={''} />
+								) : (
+									<span className={cx(preview, row.avatar && 'w-7 rounded-full')} />
+								)}
+								<span className="flex min-w-0 flex-1 flex-col [&>*]:overflow-hidden [&>*]:text-ellipsis [&>*]:whitespace-nowrap">
+									<strong className="text-[13px] font-semibold text-[#0f172a]">{row.title}</strong>
+									<small className="text-xs text-faint">{row.meta}</small>
 								</span>
-								<time dateTime={row.at} title={moment(row.at).format('DD.MM.YYYY HH:mm')}>
+								<time className="shrink-0 text-[11.5px] text-faint" dateTime={row.at} title={moment(row.at).format('DD.MM.YYYY HH:mm')}>
 									{moment(row.at).fromNow()}
 								</time>
 							</Link>

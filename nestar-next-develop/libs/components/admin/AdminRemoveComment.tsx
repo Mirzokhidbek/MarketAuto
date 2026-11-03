@@ -5,6 +5,7 @@ import { userVar } from '../../../apollo/store';
 import { REMOVE_COMMENT_BY_ADMIN } from '../../../apollo/admin/mutation';
 import { MemberType } from '../../enums/member.enum';
 import { sweetConfirmAlert, sweetErrorHandling } from '../../sweetAlert';
+import { linkButtonDanger } from '../ui/styles';
 
 interface AdminRemoveCommentProps {
 	commentId: string;
@@ -30,7 +31,7 @@ const AdminRemoveComment = ({ commentId, onRemoved }: AdminRemoveCommentProps) =
 	};
 
 	return (
-		<button className={'ma-link-btn ma-link-btn--danger'} disabled={loading} onClick={removeHandler}>
+		<button className={linkButtonDanger} disabled={loading} onClick={removeHandler}>
 			{t('Remove (admin)')}
 		</button>
 	);

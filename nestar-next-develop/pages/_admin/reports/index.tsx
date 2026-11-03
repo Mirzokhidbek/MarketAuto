@@ -5,22 +5,6 @@ import moment from 'moment';
 import { useTranslation } from 'next-i18next/pages';
 import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
 import { useMutation, useQuery } from '@apollo/client/react';
-import {
-	Box,
-	Button,
-	Divider,
-	List,
-	ListItem,
-	Stack,
-	Table,
-	TableBody,
-	TableCell,
-	TableContainer,
-	TableHead,
-	TablePagination,
-	TableRow,
-	Typography,
-} from '@mui/material';
 import withAdminLayout from '../../../libs/components/layout/LayoutAdmin';
 import AdminPageHeader from '../../../libs/components/admin/AdminPageHeader';
 import { GET_REPORTS_BY_ADMIN } from '../../../apollo/admin/query';
@@ -28,6 +12,8 @@ import { RESOLVE_REPORT } from '../../../apollo/admin/mutation';
 import { sweetConfirmAlert, sweetErrorHandling } from '../../../libs/sweetAlert';
 import { imageUrl } from '../../../libs/utils';
 import { T } from '../../../libs/types/common';
+import { cx } from '../../../libs/components/ui/classNames';
+import { adminButton, AdminPager, AdminTabs, adminTable, caption, NoRows, TableScroll, tableWrap, td, tdActions, tdTitle, th, thumb, tr } from '../../../libs/components/admin/ui';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: { ...(await serverSideTranslations(locale, ['common'])) },
@@ -60,131 +46,107 @@ const AdminReports: NextPage = () => {
 	};
 
 	return (
-		<Box component={'div'} className={'content'}>
+		<div className="mx-auto w-full max-w-[1440px]">
 			<AdminPageHeader title={t('Reports')} description={t('Complaints from buyers about listings. Close the report if the car is fine, or delete the listing.') as string} />
-			<Box component={'div'} className={'table-wrap'}>
-				<List className={'tab-menu'}>
-					{(['OPEN', 'RESOLVED'] as const).map((item) => (
-						<ListItem
-							key={item}
-							className={status === item ? 'li on' : 'li'}
-							onClick={() => {
-								setStatus(item);
-								setPage(1);
-							}}
-						>
-							{t(item === 'OPEN' ? 'Unresolved' : 'Resolved')}
-						</ListItem>
-					))}
-				</List>
-				<Divider />
-				<TableContainer>
-					<Table sx={{ minWidth: 820 }} className={'ma-adm-cards'}>
-						<TableHead>
-							<TableRow>
-								<TableCell>{t('CAR')}</TableCell>
-								<TableCell>{t('REASON')}</TableCell>
-								<TableCell>{t('REPORTED BY')}</TableCell>
-								<TableCell>{t('DATE')}</TableCell>
-								<TableCell align="right">{t('ACTIONS')}</TableCell>
-							</TableRow>
-						</TableHead>
-						<TableBody>
-							{!list.length && (
-								<TableRow>
-									<TableCell colSpan={5} align="center">
-										{loading ? t('Loading...') : t('No reports')}
-									</TableCell>
-								</TableRow>
-							)}
+			<div className={tableWrap}>
+				<AdminTabs
+					className="mb-4"
+					value={status}
+					onChange={(item) => {
+						setStatus(item);
+						setPage(1);
+					}}
+					items={(['OPEN', 'RESOLVED'] as const).map((item) => ({ value: item, label: t(item === 'OPEN' ? 'Unresolved' : 'Resolved') }))}
+				/>
+				<TableScroll>
+					<table className={cx(adminTable, 'border-t border-[#edf0f6] md:min-w-[820px]')}>
+						<thead>
+							<tr>
+								<th className={th}>{t('CAR')}</th>
+								<th className={th}>{t('REASON')}</th>
+								<th className={th}>{t('REPORTED BY')}</th>
+								<th className={th}>{t('DATE')}</th>
+								<th className={cx(th, 'text-right')}>{t('ACTIONS')}</th>
+							</tr>
+						</thead>
+						<tbody>
+							{!list.length && <NoRows colSpan={5}>{loading ? t('Loading...') : t('No reports')}</NoRows>}
 							{list.map((report) => {
 								const car = report.propertyData;
 								return (
-									<TableRow hover key={report._id}>
-										<TableCell className={'ma-adm-cards__title'}>
+									<tr key={report._id} className={tr}>
+										<td className={cx(td, tdTitle)}>
 											{car ? (
-												<Link href={`/property/detail?id=${car._id}`} target={'_blank'}>
-													<Stack direction={'row'} alignItems={'center'} gap={1.5}>
-														{car.propertyImages?.[0] && (
-															<img
-																className={'ma-admin-thumb'}
-																src={imageUrl(car.propertyImages[0])}
-																alt={''}
-																onError={(e) => (e.currentTarget.style.visibility = 'hidden')}
-															/>
-														)}
-														<span>
-															<strong>{car.propertyTitle}</strong>
-															<Typography variant="caption" display="block" color="text.secondary">
-																{t(`status_${car.propertyStatus}`)}
-															</Typography>
-														</span>
-													</Stack>
+												<Link href={`/property/detail?id=${car._id}`} target={'_blank'} className="flex items-center gap-3">
+													{car.propertyImages?.[0] && (
+														<img
+															className={thumb}
+															src={imageUrl(car.propertyImages[0])}
+															alt={''}
+															onError={(e) => (e.currentTarget.style.visibility = 'hidden')}
+														/>
+													)}
+													<span>
+														<strong className="text-[#0f172a]">{car.propertyTitle}</strong>
+														<span className={caption}>{t(`status_${car.propertyStatus}`)}</span>
+													</span>
 												</Link>
 											) : (
 												t('Deleted listing')
 											)}
-										</TableCell>
-										<TableCell data-label={t('REASON')}>
-											<strong>{t(`report_${report.reportReason}`)}</strong>
-											{report.reportComment && (
-												<Typography variant="body2" color="text.secondary">
-													{report.reportComment}
-												</Typography>
-											)}
-										</TableCell>
-										<TableCell data-label={t('REPORTED BY')}>{report.memberData?.memberNick ?? '—'}</TableCell>
-										<TableCell data-label={t('DATE')}>{moment(report.createdAt).format('DD.MM.YYYY HH:mm')}</TableCell>
-										<TableCell align="right" className={'ma-adm-cards__actions'}>
+										</td>
+										<td className={td} data-label={t('REASON')}>
+											<strong className="text-[#0f172a]">{t(`report_${report.reportReason}`)}</strong>
+											{report.reportComment && <p className="m-0 text-sm text-muted">{report.reportComment}</p>}
+										</td>
+										<td className={td} data-label={t('REPORTED BY')}>
+											{report.memberData?.memberNick ?? '—'}
+										</td>
+										<td className={cx(td, 'whitespace-nowrap')} data-label={t('DATE')}>
+											{moment(report.createdAt).format('DD.MM.YYYY HH:mm')}
+										</td>
+										<td className={cx(td, tdActions, 'text-right')}>
 											{report.reportStatus === 'OPEN' ? (
-												<Stack direction={'row'} gap={1} justifyContent={'flex-end'}>
+												<span className="flex justify-end gap-2">
 													{/* "Reject" on the Cars page rejects a listing; here the complaint is closed and the car stays */}
-													<Button
-														size="small"
-														variant="outlined"
-														sx={{ whiteSpace: 'nowrap' }}
+													<button
+														className={adminButton({ size: 'sm', variant: 'outlined', color: 'primary' })}
 														title={t('The listing is fine: close the report and keep the car') as string}
 														onClick={() => resolveHandler(report._id, 'DISMISS')}
 													>
 														{t('Close report')}
-													</Button>
-													<Button
-														size="small"
-														color="error"
-														variant="contained"
-														sx={{ whiteSpace: 'nowrap' }}
+													</button>
+													<button
+														className={adminButton({ size: 'sm', color: 'error' })}
 														disabled={!car || car.propertyStatus === 'DELETE'}
 														onClick={() => resolveHandler(report._id, 'REMOVE_LISTING')}
 													>
 														{t('Delete listing')}
-													</Button>
-												</Stack>
+													</button>
+												</span>
 											) : (
 												<span>{t('Resolved')}</span>
 											)}
-										</TableCell>
-									</TableRow>
+										</td>
+									</tr>
 								);
 							})}
-						</TableBody>
-					</Table>
-				</TableContainer>
-				<TablePagination
-					labelRowsPerPage={t('Rows per page')}
-					labelDisplayedRows={({ from, to, count }: any) => `${from}–${to} / ${count}`}
-					rowsPerPageOptions={[10, 20, 40]}
-					component="div"
-					count={total}
-					rowsPerPage={limit}
-					page={total ? page - 1 : 0}
-					onPageChange={(e: unknown, newPage: number) => setPage(newPage + 1)}
-					onRowsPerPageChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-						setLimit(parseInt(e.target.value, 10));
+						</tbody>
+					</table>
+				</TableScroll>
+				<AdminPager
+					total={total}
+					page={page}
+					limit={limit}
+					options={[10, 20, 40]}
+					onPage={setPage}
+					onLimit={(value) => {
+						setLimit(value);
 						setPage(1);
 					}}
 				/>
-			</Box>
-		</Box>
+			</div>
+		</div>
 	);
 };
 

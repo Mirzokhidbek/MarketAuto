@@ -12,6 +12,8 @@ import { userVar } from '../../apollo/store';
 import { formatterStr, imageUrl } from '../../libs/utils';
 import { T } from '../../libs/types/common';
 import { CarIcon as DirectionsCarFilledOutlinedIcon, FlagIcon as OutlinedFlagIcon, ForumIcon as ForumOutlinedIcon, ChevronRightIcon, EyeIcon as RemoveRedEyeOutlinedIcon, FavoriteBorderIcon, ScheduleIcon } from '../../libs/components/ui/icons';
+import { cx } from '../../libs/components/ui/classNames';
+import { AdminCard, CardHead, cardEmpty } from '../../libs/components/admin/ui';
 
 // categorical slots 1 and 2 of the validated palette, always in this order
 const SERIES_COLORS = { cars: '#2a78d6', members: '#eb6834' };
@@ -33,6 +35,13 @@ const STATS = [
 ];
 
 const PERIODS = [7, 14, 30];
+
+const TASK_TONES: Record<string, { card: string; icon: string }> = {
+	violet: { card: 'bg-[#f1edff]', icon: 'bg-[#7c5cff]' },
+	blue: { card: 'bg-[#e9f2ff]', icon: 'bg-[#2a78d6]' },
+	green: { card: 'bg-[#e7f6ec]', icon: 'bg-[#22a35a]' },
+};
+const raised = 'shadow-[0_1px_2px_rgba(16,24,40,0.04),0_10px_30px_rgba(16,24,40,0.05)]';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: { ...(await serverSideTranslations(locale, ['common'])) },
@@ -68,16 +77,16 @@ const AdminHome: NextPage = () => {
 	const value = (key: string) => (loading && stats[key] === undefined ? '…' : stats[key] ?? 0);
 
 	return (
-		<div className={'content ma-dash'}>
-			<header className={'ma-dash__hello'}>
-				<span className={'ma-dash__sun'} aria-hidden="true">
+		<div className="mx-auto w-full max-w-[1440px]">
+			<header className="mt-3 mb-[26px] flex items-center gap-4">
+				<span className="text-[32px] leading-none md:text-[40px]" aria-hidden="true">
 					{hello.icon}
 				</span>
 				<div>
-					<h1>
+					<h1 className="m-0 text-[26px] leading-[1.15] font-extrabold tracking-[-0.02em] text-[#0f172a] md:text-[34px]">
 						{t(hello.text)}, {user.memberNick}!
 					</h1>
-					<p>
+					<p className="m-0 mt-1.5 text-[15px] text-faint">
 						{waitingTotal > 0
 							? t('Waiting for you today: {{count}}', { count: waitingTotal })
 							: t('Nothing is waiting. Everything is checked.')}
@@ -85,46 +94,57 @@ const AdminHome: NextPage = () => {
 				</div>
 			</header>
 
-			<div className={'ma-dash__top'}>
-				<section className={'ma-card'}>
-					<header className={'ma-card__head'}>
-						<div>
-							<h2>{t('Needs attention')}</h2>
-							<p>{t('Start the day here')}</p>
-						</div>
-					</header>
-					<div className={'ma-dash__tasks'}>
+			<div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(300px,380px)_minmax(0,1fr)]">
+				<AdminCard>
+					<CardHead title={t('Needs attention')} text={t('Start the day here')} />
+					<div className="flex flex-col gap-3.5">
 						{TODO.map((item) => {
 							const count: number = stats[item.key] ?? 0;
 							return (
-								<Link key={item.key} href={item.href} className={`ma-task ma-task--${item.tone}`}>
-									<span className={'ma-task__icon'}>{item.icon}</span>
-									<span className={'ma-task__body'}>
-										<strong>{t(item.label)}</strong>
-										<em>{t(item.desc)}</em>
+								<Link
+									key={item.key}
+									href={item.href}
+									className={cx(
+										'relative grid grid-cols-[44px_minmax(0,1fr)_auto] items-center gap-3.5 rounded-[20px] p-3.5 text-[#0f172a] transition hover:-translate-y-0.5 hover:shadow-[0_10px_24px_rgba(15,23,42,0.08)] min-[481px]:grid-cols-[48px_minmax(0,1fr)_auto_18px] min-[481px]:p-[18px]',
+										TASK_TONES[item.tone].card,
+									)}
+								>
+									<span className={cx('flex size-11 items-center justify-center rounded-[14px] text-white min-[481px]:size-12', TASK_TONES[item.tone].icon)}>
+										{item.icon}
 									</span>
-									<span className={`ma-task__count ${count ? '' : 'is-zero'}`}>{value(item.key)}</span>
-									<ChevronRightIcon className={'ma-task__arrow'} />
+									<span className="flex min-w-0 flex-col gap-1 [overflow-wrap:anywhere]">
+										<strong className="text-base">{t(item.label)}</strong>
+										<em className="text-xs leading-[1.45] text-[#475569] not-italic">{t(item.desc)}</em>
+									</span>
+									<span className={cx('text-[28px]', count ? 'font-extrabold' : 'font-semibold text-faint')}>{value(item.key)}</span>
+									<ChevronRightIcon className="text-faint max-[480px]:hidden" />
 								</Link>
 							);
 						})}
 					</div>
-				</section>
-
-				<section className={'ma-card'}>
-					<header className={'ma-card__head'}>
-						<div>
-							<h2>{t('Activity')}</h2>
-							<p>{t('New cars and new members per day')}</p>
-						</div>
-						<div className={'ma-seg'} role={'group'} aria-label={t('Period') as string}>
-							{PERIODS.map((period) => (
-								<button key={period} className={days === period ? 'is-active' : ''} aria-pressed={days === period} onClick={() => setDays(period)}>
-									{t('{{count}} days', { count: period })}
-								</button>
-							))}
-						</div>
-					</header>
+				</AdminCard>
+				<AdminCard>
+					<CardHead
+						title={t('Activity')}
+						text={t('New cars and new members per day')}
+						action={
+							<div className="inline-flex rounded-full border border-[#edf0f6] p-1" role={'group'} aria-label={t('Period') as string}>
+								{PERIODS.map((period) => (
+									<button
+										key={period}
+										className={cx(
+											'cursor-pointer rounded-full border-0 px-3 py-1.5 font-sans text-xs font-semibold whitespace-nowrap',
+											days === period ? 'bg-[#0f172a] text-white' : 'bg-transparent text-faint',
+										)}
+										aria-pressed={days === period}
+										onClick={() => setDays(period)}
+									>
+										{t('{{count}} days', { count: period })}
+									</button>
+								))}
+							</div>
+						}
+					/>
 					{daily.length > 0 ? (
 						<TrendChart
 							dates={daily.map((day) => day.date)}
@@ -137,61 +157,71 @@ const AdminHome: NextPage = () => {
 							dateLabel={t('Date') as string}
 						/>
 					) : (
-						<div className={'ma-card__empty'}>{t('Loading...')}</div>
+						<div className={cardEmpty}>{t('Loading...')}</div>
 					)}
-				</section>
+				</AdminCard>
 			</div>
 
-			<div className={'ma-dash__bottom'}>
-				<section className={'ma-card'}>
-					<header className={'ma-card__head'}>
-						<div>
-							<h2>{t('Cars to review')}</h2>
-							<p>{t('Oldest first: they have waited the longest')}</p>
-						</div>
-						<Link href={'/_admin/properties?status=PENDING'} className={'ma-pill-btn'}>
-							{t('See all')}
-						</Link>
-					</header>
-					{!pending.length && <div className={'ma-card__empty'}>✓ {t('Nothing waiting. Good job!')}</div>}
-					<div className={'ma-list'}>
+			<div className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-2">
+				<AdminCard>
+					<CardHead
+						title={t('Cars to review')}
+						text={t('Oldest first: they have waited the longest')}
+						action={
+							<Link
+								href={'/_admin/properties?status=PENDING'}
+								className="rounded-full border border-[#edf0f6] px-4 py-2 text-[13px] font-semibold whitespace-nowrap text-[#475569] hover:bg-[#f3f5fa] hover:text-[#0f172a]"
+							>
+								{t('See all')}
+							</Link>
+						}
+					/>
+					{!pending.length && <div className={cardEmpty}>✓ {t('Nothing waiting. Good job!')}</div>}
+					<div className="flex flex-col gap-1.5">
 						{pending.map((car) => (
-							<Link key={car._id} href={'/_admin/properties?status=PENDING'} className={'ma-list__row'}>
-								<span className={'ma-list__thumb'}>
+							<Link
+								key={car._id}
+								href={'/_admin/properties?status=PENDING'}
+								className="-mx-2.5 flex items-center gap-3.5 rounded-2xl p-2.5 text-[#0f172a] hover:bg-[#f3f5fa]"
+							>
+								<span className="flex size-[52px] shrink-0 items-center justify-center overflow-hidden rounded-[14px] bg-[#0f172a] text-white">
 									{car.propertyImages?.[0] ? (
-										<img src={imageUrl(car.propertyImages[0])} alt={''} onError={(e) => (e.currentTarget.style.visibility = 'hidden')} />
+										<img
+											src={imageUrl(car.propertyImages[0])}
+											alt={''}
+											className="size-full object-cover"
+											onError={(e) => (e.currentTarget.style.visibility = 'hidden')}
+										/>
 									) : (
 										<DirectionsCarFilledOutlinedIcon />
 									)}
 								</span>
-								<span className={'ma-list__body'}>
-									<strong>{car.propertyTitle}</strong>
-									<small>
+								<span className="flex min-w-0 flex-1 flex-col gap-1">
+									<strong className="overflow-hidden text-sm font-semibold text-ellipsis whitespace-nowrap">{car.propertyTitle}</strong>
+									<small className="flex items-center gap-1 text-xs text-faint [&_svg]:text-sm">
 										{car.memberData?.memberNick} · <ScheduleIcon /> {moment(car.createdAt).fromNow()}
 									</small>
 								</span>
-								<b className={'ma-list__value'}>${formatterStr(car.propertyPrice)}</b>
+								<b className="text-[15px] font-bold whitespace-nowrap min-[481px]:text-lg">${formatterStr(car.propertyPrice)}</b>
 							</Link>
 						))}
 					</div>
-				</section>
-
-				<section className={'ma-card'}>
-					<header className={'ma-card__head'}>
-						<div>
-							<h2>{t('Top sellers')}</h2>
-							<p>{t('Most cars for sale right now')}</p>
-						</div>
-					</header>
-					{!sellers.length && <div className={'ma-card__empty'}>{t('No cars for sale yet')}</div>}
-					<ol className={'ma-rank'}>
+				</AdminCard>
+				<AdminCard>
+					<CardHead title={t('Top sellers')} text={t('Most cars for sale right now')} />
+					{!sellers.length && <div className={cardEmpty}>{t('No cars for sale yet')}</div>}
+					<ol className="m-0 flex list-none flex-col gap-1.5 p-0">
 						{sellers.map((seller, index) => (
-							<li key={seller.memberId}>
-								<span className={'ma-rank__place'}>{index + 1}</span>
-								<img src={seller.memberImage ? imageUrl(seller.memberImage) : '/img/profile/defaultUser.svg'} alt={''} />
-								<span className={'ma-rank__body'}>
-									<strong>{seller.memberNick}</strong>
-									<small>
+							<li key={seller.memberId} className="flex items-center gap-3.5 border-b border-[#edf0f6] py-2.5 last:border-b-0">
+								<span className="w-[18px] text-center text-[13px] font-bold text-faint">{index + 1}</span>
+								<img
+									src={seller.memberImage ? imageUrl(seller.memberImage) : '/img/profile/defaultUser.svg'}
+									alt={''}
+									className="size-[46px] rounded-full bg-[#f3f5fa] object-cover"
+								/>
+								<span className="flex min-w-0 flex-1 flex-col gap-1">
+									<strong className="text-[15px]">{seller.memberNick}</strong>
+									<small className="flex items-center gap-3 text-xs text-faint [&_span]:inline-flex [&_span]:items-center [&_span]:gap-[3px] [&_svg]:text-sm">
 										{t(seller.memberType === 'AGENT' ? 'Dealer' : 'Private seller')}
 										<span title={t('Views') as string}>
 											<RemoveRedEyeOutlinedIcon /> {formatterStr(seller.views)}
@@ -201,21 +231,21 @@ const AdminHome: NextPage = () => {
 										</span>
 									</small>
 								</span>
-								<span className={'ma-rank__score'}>
-									<b>{seller.cars}</b>
-									<small>{t('cars')}</small>
+								<span className="flex flex-col items-end">
+									<b className="text-[26px] leading-none font-bold">{seller.cars}</b>
+									<small className="text-[11px] text-faint">{t('cars')}</small>
 								</span>
 							</li>
 						))}
 					</ol>
-				</section>
+				</AdminCard>
 			</div>
 
-			<section className={'ma-dash__stats'}>
+			<section className="mt-5 grid grid-cols-2 gap-3.5 md:grid-cols-3 xl:grid-cols-6">
 				{STATS.map((item) => (
-					<Link key={item.key} href={item.href} className={'ma-mini'}>
-						<span>{t(item.label)}</span>
-						<strong>{value(item.key)}</strong>
+					<Link key={item.key} href={item.href} className={cx('group flex flex-col gap-1.5 rounded-[18px] bg-white px-[18px] py-4 text-[#0f172a]', raised)}>
+						<span className="text-xs font-semibold text-faint">{t(item.label)}</span>
+						<strong className="text-2xl font-extrabold group-hover:text-[#1d4ed8]">{value(item.key)}</strong>
 					</Link>
 				))}
 			</section>

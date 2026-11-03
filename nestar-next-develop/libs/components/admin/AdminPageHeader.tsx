@@ -10,12 +10,12 @@ interface AdminPageHeaderProps {
 
 /** same header on every admin page: title, what the page is for, main action on the right */
 const AdminPageHeader = ({ title, description, action }: AdminPageHeaderProps) => (
-	<header className={'ma-admin-head'}>
+	<header className="mt-3 mb-[22px] flex flex-wrap items-end justify-between gap-4 font-sans">
 		<div>
-			<h1>{title}</h1>
-			{description && <p>{description}</p>}
+			<h1 className="m-0 text-[26px] font-extrabold tracking-[-0.02em] text-[#0f172a] md:text-[32px]">{title}</h1>
+			{description && <p className="m-0 mt-1.5 max-w-[720px] text-sm leading-normal text-faint">{description}</p>}
 		</div>
-		{action && <div className={'ma-admin-head__action'}>{action}</div>}
+		{action && <div>{action}</div>}
 	</header>
 );
 

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'next-i18next/pages';
-import { Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, Stack, TextField, Typography } from '@mui/material';
+import Dialog from '../ui/Dialog';
+import { AdminField, adminButton, adminTextarea, chip } from './ui';
 
 interface ReasonDialogProps {
 	open: boolean;
@@ -26,45 +27,34 @@ const ReasonDialog = ({ open, title, description, presets = [], confirmLabel, on
 	const valid = text.length >= 2 && text.length <= 300;
 
 	return (
-		<Dialog open={open} onClose={onClose} fullWidth maxWidth={'sm'}>
-			<DialogTitle>{title}</DialogTitle>
-			<DialogContent>
-				{description && (
-					<Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-						{description}
-					</Typography>
-				)}
-				{presets.length > 0 && (
-					<Stack direction={'row'} flexWrap={'wrap'} gap={1} sx={{ mb: 2 }}>
-						{presets.map((preset) => (
-							<Chip
-								key={preset}
-								label={t(preset)}
-								variant={text === t(preset) ? 'filled' : 'outlined'}
-								color={text === t(preset) ? 'primary' : 'default'}
-								onClick={() => setReason(t(preset) as string)}
-							/>
-						))}
-					</Stack>
-				)}
-				<TextField
-					autoFocus
-					fullWidth
-					multiline
-					minRows={3}
-					label={t('Reason')}
-					value={reason}
-					inputProps={{ maxLength: 300 }}
-					helperText={`${text.length}/300`}
-					onChange={(e) => setReason(e.target.value)}
-				/>
-			</DialogContent>
-			<DialogActions sx={{ px: 3, pb: 2 }}>
-				<Button onClick={onClose}>{t('Cancel')}</Button>
-				<Button variant="contained" color="error" disabled={!valid} onClick={() => onConfirm(text)}>
-					{confirmLabel}
-				</Button>
-			</DialogActions>
+		<Dialog
+			open={open}
+			onClose={onClose}
+			title={title}
+			actions={
+				<>
+					<button className={adminButton({ variant: 'text' })} onClick={onClose}>
+						{t('Cancel')}
+					</button>
+					<button className={adminButton({ color: 'error' })} disabled={!valid} onClick={() => onConfirm(text)}>
+						{confirmLabel}
+					</button>
+				</>
+			}
+		>
+			{description && <p className="m-0 mb-4 text-sm text-muted">{description}</p>}
+			{presets.length > 0 && (
+				<div className="mb-4 flex flex-wrap gap-2">
+					{presets.map((preset) => (
+						<button key={preset} type="button" className={chip(text === t(preset))} onClick={() => setReason(t(preset) as string)}>
+							{t(preset)}
+						</button>
+					))}
+				</div>
+			)}
+			<AdminField label={t('Reason')} hint={`${text.length}/300`}>
+				<textarea autoFocus rows={3} maxLength={300} className={adminTextarea} value={reason} onChange={(e) => setReason(e.target.value)} />
+			</AdminField>
 		</Dialog>
 	);
 };

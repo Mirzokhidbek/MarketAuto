@@ -4,13 +4,18 @@ import { useTranslation } from 'next-i18next/pages';
 import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
 import { useMutation, useQuery } from '@apollo/client/react';
 import moment from 'moment';
-import { Box, Button, IconButton, MenuItem, TextField, Tooltip, Typography } from '@mui/material';
 import withAdminLayout from '../../../libs/components/layout/LayoutAdmin';
 import AdminPageHeader from '../../../libs/components/admin/AdminPageHeader';
 import { GET_IMPORT_TARIFF } from '../../../apollo/admin/query';
 import { UPDATE_IMPORT_TARIFF } from '../../../apollo/admin/mutation';
 import { sweetErrorHandling, sweetTopSmallSuccessAlert } from '../../../libs/sweetAlert';
 import { DeleteIcon as DeleteOutlineIcon, AddIcon } from '../../../libs/components/ui/icons';
+import { cx } from '../../../libs/components/ui/classNames';
+import { AdminCard, AdminField, adminButton, adminInput } from '../../../libs/components/admin/ui';
+
+const tariffRow = 'grid items-end gap-3 border-b border-ink/6 py-3';
+const removeButton =
+	'col-span-full inline-flex size-10 cursor-pointer items-center justify-center justify-self-end rounded-full border-0 bg-transparent text-muted hover:bg-[#fde8e7] hover:text-[#c5221f] disabled:cursor-default disabled:opacity-30 disabled:hover:bg-transparent md:col-span-1';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: { ...(await serverSideTranslations(locale, ['common'])) },
@@ -108,7 +113,7 @@ const AdminImportTariff: NextPage = () => {
 		});
 	}, [saved]);
 
-	if (!form) return <Box component={'div'} className={'content'} />;
+	if (!form) return null;
 
 	const generalValid = GENERAL.every(({ key }) => isNum(form[key] as string));
 	const dutyValid =
@@ -136,17 +141,15 @@ const AdminImportTariff: NextPage = () => {
 		setForm({ ...form, [list]: (form[list] as any[]).filter((_, i) => i !== index) });
 
 	const field = (label: string, value: string, onChange: (v: string) => void, ok: boolean, placeholder?: string) => (
-		<label className={'ma-tariff__cell'}>
-			<span>{t(label)}</span>
-			<TextField
-				size="small"
+		<AdminField label={t(label)}>
+			<input
+				className={cx(adminInput, 'h-10', !ok && 'border-[#e5484d]')}
 				value={value}
+				inputMode="decimal"
 				placeholder={placeholder ? (t(placeholder) as string) : undefined}
-				error={!ok}
-				inputProps={{ inputMode: 'decimal', 'aria-label': t(label) as string }}
 				onChange={(e) => onChange(e.target.value.replace(',', '.'))}
 			/>
-		</label>
+		</AdminField>
 	);
 
 	const saveHandler = async (e: React.FormEvent) => {
@@ -181,48 +184,45 @@ const AdminImportTariff: NextPage = () => {
 	};
 
 	return (
-		<Box component={'div'} className={'content'}>
+		<div className="mx-auto w-full max-w-[1440px]">
 			<AdminPageHeader
 				title={t('Import tariff')}
 				description={
 					t('Rules for "Import cost to Uzbekistan" on every car abroad. A save applies to all cars at once.') as string
 				}
 			/>
-			<Box component={'form'} className={'ma-tariff'} onSubmit={saveHandler}>
-				<p className={'ma-tariff__status'}>
+			<form className="flex max-w-[1040px] flex-col gap-5" onSubmit={saveHandler}>
+				<p className="m-0 text-sm text-[#475569]">
 					{saved?.updatedAt
 						? `${t('Last saved')}: ${moment(saved.updatedAt).format('DD.MM.YYYY HH:mm')}`
 						: t('Starting values are used. Check them against the official rates and save.')}
 				</p>
 
-				<section className={'ma-admin-card'}>
-					<Typography variant={'h6'}>{t('General')}</Typography>
-					<div className={'ma-tariff__general'}>
+				<AdminCard>
+					<h2 className="m-0 mb-1 text-lg font-bold text-[#0f172a]">{t('General')}</h2>
+					<div className="mt-3 grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-4">
 						{GENERAL.map((g) => (
-							<label key={g.key} className={'ma-tariff__cell'}>
-								<span>{t(g.label)}</span>
-								<TextField
-									size="small"
-									value={form[g.key]}
-									error={!isNum(form[g.key] as string)}
-									helperText={t(g.hint)}
-									inputProps={{ inputMode: 'decimal', 'aria-label': t(g.label) as string }}
+							<AdminField key={g.key} label={t(g.label)} hint={t(g.hint)}>
+								<input
+									className={cx(adminInput, 'h-10', !isNum(form[g.key] as string) && 'border-[#e5484d]')}
+									value={form[g.key] as string}
+									inputMode="decimal"
 									onChange={(e) => setForm({ ...form, [g.key]: e.target.value.replace(',', '.') })}
 								/>
-							</label>
+							</AdminField>
 						))}
 					</div>
-				</section>
+				</AdminCard>
 
-				<section className={'ma-admin-card'}>
-					<Typography variant={'h6'}>{t('Customs duty and excise')}</Typography>
-					<p className={'ma-tariff__hint'}>
+				<AdminCard>
+					<h2 className="m-0 mb-1 text-lg font-bold text-[#0f172a]">{t('Customs duty and excise')}</h2>
+					<p className="m-0 mb-4 text-[13px] text-[#475569]">
 						{t(
 							'Petrol, diesel, gas and hybrid cars. The first row that fits the car is used, so go from the narrowest to the widest. Empty limit = any.',
 						)}
 					</p>
 					{form.duty.map((r, i) => (
-						<div key={i} className={'ma-tariff__row ma-tariff__row--duty'}>
+						<div key={i} className={cx(tariffRow, 'grid-cols-2 md:grid-cols-[repeat(5,minmax(0,1fr))_40px]')}>
 							{field(
 								'Age up to, years',
 								r.maxAgeYears,
@@ -245,21 +245,21 @@ const AdminImportTariff: NextPage = () => {
 								(v) => setRow('duty', i, { excisePercent: v }),
 								isNum(r.excisePercent),
 							)}
-							<Tooltip title={t('Remove row')}>
-								<span>
-									<IconButton
-										aria-label={t('Remove row') as string}
-										disabled={form.duty.length < 2}
-										onClick={() => removeRow('duty', i)}
-									>
-										<DeleteOutlineIcon />
-									</IconButton>
-								</span>
-							</Tooltip>
+							<button
+								type="button"
+								className={removeButton}
+								title={t('Remove row') as string}
+								aria-label={t('Remove row') as string}
+								disabled={form.duty.length < 2}
+								onClick={() => removeRow('duty', i)}
+							>
+								<DeleteOutlineIcon />
+							</button>
 						</div>
 					))}
-					<Button
-						startIcon={<AddIcon />}
+					<button
+						type="button"
+						className={adminButton({ variant: 'text', color: 'primary', className: 'mt-3 self-start' })}
 						disabled={form.duty.length >= 30}
 						onClick={() =>
 							setForm({
@@ -271,29 +271,23 @@ const AdminImportTariff: NextPage = () => {
 							})
 						}
 					>
-						{t('Add row')}
-					</Button>
-				</section>
+						<AddIcon /> {t('Add row')}
+					</button>
+				</AdminCard>
 
-				<section className={'ma-admin-card'}>
-					<Typography variant={'h6'}>{t('Utilization fee')}</Typography>
-					<p className={'ma-tariff__hint'}>
+				<AdminCard>
+					<h2 className="m-0 mb-1 text-lg font-bold text-[#0f172a]">{t('Utilization fee')}</h2>
+					<p className="m-0 mb-4 text-[13px] text-[#475569]">
 						{t('In base amounts (BHM). The first row of the car group that fits is used.')}
 					</p>
 					{form.utilization.map((r, i) => (
-						<div key={i} className={'ma-tariff__row ma-tariff__row--util'}>
-							<label className={'ma-tariff__cell'}>
-								<span>{t('Cars')}</span>
-								<TextField
-									select
-									size="small"
-									value={r.group}
-									onChange={(e) => setRow('utilization', i, { group: e.target.value })}
-								>
-									<MenuItem value={'COMBUSTION'}>{t('Petrol, diesel, gas, hybrid')}</MenuItem>
-									<MenuItem value={'ELECTRIC'}>{t('Electric')}</MenuItem>
-								</TextField>
-							</label>
+						<div key={i} className={cx(tariffRow, 'grid-cols-2 md:grid-cols-[minmax(0,1.6fr)_repeat(3,minmax(0,1fr))_40px]')}>
+							<AdminField label={t('Cars')} className="col-span-2 md:col-span-1">
+								<select className={cx(adminInput, 'h-10 cursor-pointer')} value={r.group} onChange={(e) => setRow('utilization', i, { group: e.target.value })}>
+									<option value={'COMBUSTION'}>{t('Petrol, diesel, gas, hybrid')}</option>
+									<option value={'ELECTRIC'}>{t('Electric')}</option>
+								</select>
+							</AdminField>
 							{field(
 								'Age up to, years',
 								r.maxAgeYears,
@@ -309,21 +303,21 @@ const AdminImportTariff: NextPage = () => {
 								'any',
 							)}
 							{field('BHM', r.baseAmounts, (v) => setRow('utilization', i, { baseAmounts: v }), isNum(r.baseAmounts))}
-							<Tooltip title={t('Remove row')}>
-								<span>
-									<IconButton
-										aria-label={t('Remove row') as string}
-										disabled={form.utilization.length < 2}
-										onClick={() => removeRow('utilization', i)}
-									>
-										<DeleteOutlineIcon />
-									</IconButton>
-								</span>
-							</Tooltip>
+							<button
+								type="button"
+								className={removeButton}
+								title={t('Remove row') as string}
+								aria-label={t('Remove row') as string}
+								disabled={form.utilization.length < 2}
+								onClick={() => removeRow('utilization', i)}
+							>
+								<DeleteOutlineIcon />
+							</button>
 						</div>
 					))}
-					<Button
-						startIcon={<AddIcon />}
+					<button
+						type="button"
+						className={adminButton({ variant: 'text', color: 'primary', className: 'mt-3 self-start' })}
 						disabled={form.utilization.length >= 30}
 						onClick={() =>
 							setForm({
@@ -335,16 +329,16 @@ const AdminImportTariff: NextPage = () => {
 							})
 						}
 					>
-						{t('Add row')}
-					</Button>
-				</section>
+						<AddIcon /> {t('Add row')}
+					</button>
+				</AdminCard>
 
-				<section className={'ma-admin-card'}>
-					<Typography variant={'h6'}>{t('Delivery by country')}</Typography>
-					<p className={'ma-tariff__hint'}>{t('Used when the seller did not give a delivery cost.')}</p>
+				<AdminCard>
+					<h2 className="m-0 mb-1 text-lg font-bold text-[#0f172a]">{t('Delivery by country')}</h2>
+					<p className="m-0 mb-4 text-[13px] text-[#475569]">{t('Used when the seller did not give a delivery cost.')}</p>
 					{form.shipping.map((r, i) => (
-						<div key={r.country} className={'ma-tariff__row ma-tariff__row--ship'}>
-							<strong>{t(COUNTRY_LABELS[r.country])}</strong>
+						<div key={r.country} className={cx(tariffRow, 'grid-cols-2 md:grid-cols-[minmax(0,1fr)_160px_120px]')}>
+							<strong className="col-span-full self-center font-semibold md:col-span-1">{t(COUNTRY_LABELS[r.country])}</strong>
 							{field('Cost, $', r.costUsd, (v) => setRow('shipping', i, { costUsd: v }), isNum(r.costUsd))}
 							{field(
 								'Days',
@@ -354,16 +348,16 @@ const AdminImportTariff: NextPage = () => {
 							)}
 						</div>
 					))}
-				</section>
+				</AdminCard>
 
-				<div className={'ma-tariff__save'}>
-					{!valid && <span>{t('Fix the fields marked in red.')}</span>}
-					<Button type="submit" variant="contained" size="large" disabled={!valid || loading}>
+				<div className="sticky bottom-0 z-[2] flex items-center justify-end gap-4 bg-[linear-gradient(to_top,#f3f5fa_70%,transparent)] py-3.5">
+					{!valid && <span className="text-sm text-[#c62828]">{t('Fix the fields marked in red.')}</span>}
+					<button type="submit" className={adminButton({ className: 'h-12 px-6' })} disabled={!valid || loading}>
 						{t('Save')}
-					</Button>
+					</button>
 				</div>
-			</Box>
-		</Box>
+			</form>
+		</div>
 	);
 };
 

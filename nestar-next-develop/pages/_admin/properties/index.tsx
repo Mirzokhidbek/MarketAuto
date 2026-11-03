@@ -5,21 +5,7 @@ import React, { useEffect, useState } from 'react';
 import type { NextPage } from 'next';
 import withAdminLayout from '../../../libs/components/layout/LayoutAdmin';
 import AdminPageHeader from '../../../libs/components/admin/AdminPageHeader';
-import {
-	Box,
-	Button,
-	Chip,
-	Divider,
-	InputAdornment,
-	List,
-	ListItem,
-	MenuItem,
-	OutlinedInput,
-	Select,
-	Stack,
-	TablePagination,
-	Typography,
-} from '@mui/material';
+import { adminButton, AdminPager, AdminSearch, AdminSelect, AdminTabs, pill, searchArea, tableWrap } from '../../../libs/components/admin/ui';
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client/react';
 import ReasonDialog from '../../../libs/components/admin/ReasonDialog';
 import { userVar } from '../../../apollo/store';
@@ -37,7 +23,7 @@ import {
 } from '../../../apollo/admin/mutation';
 import { formatEnumLabel } from '../../../libs/utils';
 import { T } from '../../../libs/types/common';
-import { SearchIcon } from '../../../libs/components/ui/icons';
+import { CloseIcon } from '../../../libs/components/ui/icons';
 
 // ready-made rejection reasons (translation keys), the admin can still edit the text
 const REJECT_PRESETS = [
@@ -126,12 +112,12 @@ const AdminProperties: NextPage = ({ initialInquiry = defaultProps.initialInquir
 		});
 	};
 
-	const changePageHandler = (event: unknown, newPage: number) => {
-		setPropertiesInquiry({ ...propertiesInquiry, page: newPage + 1 });
+	const changePageHandler = (newPage: number) => {
+		setPropertiesInquiry({ ...propertiesInquiry, page: newPage });
 	};
 
-	const changeRowsPerPageHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
-		setPropertiesInquiry({ ...propertiesInquiry, page: 1, limit: parseInt(event.target.value, 10) });
+	const changeRowsPerPageHandler = (limit: number) => {
+		setPropertiesInquiry({ ...propertiesInquiry, page: 1, limit });
 	};
 
 	const tabChangeHandler = (newValue: string) => {
@@ -201,106 +187,79 @@ const AdminProperties: NextPage = ({ initialInquiry = defaultProps.initialInquir
 	};
 
 	return (
-		<Box component={'div'} className={'content'}>
+		<div className="mx-auto w-full max-w-[1440px]">
 			<AdminPageHeader
 				title={t('Cars')}
 				description={t('Approve new listings, reject them with a reason, or change the status of any car.') as string}
 			/>
-			<Box component={'div'} className={'table-wrap'}>
-				<List className={'tab-menu'}>
-					{[
-						'ALL',
-						PropertyStatus.PENDING,
-						PropertyStatus.REJECTED,
-						PropertyStatus.ACTIVE,
-						PropertyStatus.SOLD,
-						PropertyStatus.DELETE,
-					].map((status) => (
-						<ListItem
-							key={status}
-							onClick={() => tabChangeHandler(status)}
-							className={value === status ? 'li on' : 'li'}
-						>
-							{t(
-								{
-									ALL: 'All',
-									PENDING: 'Under review',
-									REJECTED: 'Rejected',
-									ACTIVE: 'Active',
-									SOLD: 'Sold',
-									DELETE: 'Deleted',
-								}[status] as string,
-							)}
-						</ListItem>
-					))}
-				</List>
-				<Divider />
-				<Stack className={'search-area'} sx={{ m: '24px' }} direction={'row'} gap={2}>
-					<OutlinedInput
-						value={searchText}
-						onChange={(e) => setSearchText(e.target.value)}
-						sx={{ flex: 1 }}
-						className={'search'}
-						placeholder={t('Search by title') as string}
-						endAdornment={
-							<InputAdornment position="end">
-								<SearchIcon />
-							</InputAdornment>
-						}
-					/>
-					<Select
-						sx={{ width: '180px' }}
+			<div className={tableWrap}>
+				<AdminTabs
+					value={value}
+					onChange={tabChangeHandler}
+					items={(
+						['ALL', PropertyStatus.PENDING, PropertyStatus.REJECTED, PropertyStatus.ACTIVE, PropertyStatus.SOLD, PropertyStatus.DELETE] as string[]
+					).map((status) => ({
+						value: status,
+						label: t(
+							{
+								ALL: 'All',
+								PENDING: 'Under review',
+								REJECTED: 'Rejected',
+								ACTIVE: 'Active',
+								SOLD: 'Sold',
+								DELETE: 'Deleted',
+							}[status] as string,
+						),
+					}))}
+				/>
+				<div className={searchArea}>
+					<AdminSearch value={searchText} onChange={setSearchText} placeholder={t('Search by title') as string} />
+					<AdminSelect
+						className="md:w-[180px]"
 						value={propertiesInquiry.search.countryList?.[0] ?? 'ALL'}
-						onChange={(e) =>
-							updateSearch({ countryList: e.target.value === 'ALL' ? undefined : [e.target.value as CarCountry] })
-						}
-					>
-						<MenuItem value={'ALL'}>{t('All countries')}</MenuItem>
-						{Object.values(CarCountry).map((country) => (
-							<MenuItem value={country} key={country}>
-								{formatEnumLabel(country)}
-							</MenuItem>
-						))}
-					</Select>
-					<Select
-						sx={{ width: '180px' }}
+						onChange={(country) => updateSearch({ countryList: country === 'ALL' ? undefined : [country as CarCountry] })}
+						options={[
+							{ value: 'ALL', label: t('All countries') },
+							...Object.values(CarCountry).map((country) => ({ value: country, label: formatEnumLabel(country) })),
+						]}
+					/>
+					<AdminSelect
+						className="md:w-[180px]"
 						value={propertiesInquiry.search.brandList?.[0] ?? 'ALL'}
-						onChange={(e) =>
-							updateSearch({ brandList: e.target.value === 'ALL' ? undefined : [e.target.value as CarBrand] })
-						}
-					>
-						<MenuItem value={'ALL'}>{t('All brands')}</MenuItem>
-						{Object.values(CarBrand).map((brand) => (
-							<MenuItem value={brand} key={brand}>
-								{formatEnumLabel(brand)}
-							</MenuItem>
-						))}
-					</Select>
-				</Stack>
+						onChange={(brand) => updateSearch({ brandList: brand === 'ALL' ? undefined : [brand as CarBrand] })}
+						options={[
+							{ value: 'ALL', label: t('All brands') },
+							...Object.values(CarBrand).map((brand) => ({ value: brand, label: formatEnumLabel(brand) })),
+						]}
+					/>
+				</div>
 				{memberFilter && (
-					<Stack direction={'row'} sx={{ mx: '24px', mb: '16px' }}>
-						<Chip
-							label={`${t('Seller')}: ${properties[0]?.memberData?.memberNick ?? '…'}`}
-							onDelete={() => router.push('/_admin/properties', undefined, { shallow: true })}
-						/>
-					</Stack>
+					<div className="mx-4 mb-4 md:mx-6">
+						<button
+							type="button"
+							className={pill('neutral', 'cursor-pointer border-0')}
+							onClick={() => router.push('/_admin/properties', undefined, { shallow: true })}
+						>
+							{t('Seller')}: {properties[0]?.memberData?.memberNick ?? '…'}
+							<CloseIcon className="text-sm" />
+						</button>
+					</div>
 				)}
-				<Divider />
 				{selected.length > 0 && (
-					<Stack className={'ma-admin-bulk'} direction={'row'} alignItems={'center'} gap={1.5}>
+					<div className="flex flex-wrap items-center gap-3 border-y border-[#edf0f6] bg-[#e9f0ff] px-4 py-3 text-sm md:px-6">
 						<strong>
 							{t('Selected')}: {selected.length}
 						</strong>
-						<Button size="small" variant="contained" color="success" onClick={bulkApproveHandler}>
+						<button className={adminButton({ size: 'sm', color: 'success' })} onClick={bulkApproveHandler}>
 							{t('Approve')}
-						</Button>
-						<Button size="small" variant="outlined" color="error" onClick={() => setRejectIds(selected)}>
+						</button>
+						<button className={adminButton({ size: 'sm', variant: 'outlined', color: 'error' })} onClick={() => setRejectIds(selected)}>
 							{t('Reject')}
-						</Button>
-						<Button size="small" onClick={() => setSelected([])}>
+						</button>
+						<button className={adminButton({ size: 'sm', variant: 'text' })} onClick={() => setSelected([])}>
 							{t('Cancel')}
-						</Button>
-					</Stack>
+						</button>
+					</div>
 				)}
 				<PropertyPanelList
 					properties={properties}
@@ -311,29 +270,24 @@ const AdminProperties: NextPage = ({ initialInquiry = defaultProps.initialInquir
 					changeStatusHandler={changeStatusHandler}
 					removePropertyHandler={removePropertyHandler}
 				/>
-				<ReasonDialog
-					open={rejectIds.length > 0}
-					title={rejectIds.length > 1 ? `${t('Reject listings')} (${rejectIds.length})` : t('Reject listing')}
-					description={t('The seller will see this reason and can fix the listing and send it again.') as string}
-					presets={REJECT_PRESETS}
-					confirmLabel={t('Reject')}
-					onConfirm={rejectConfirmHandler}
-					onClose={() => setRejectIds([])}
+				<AdminPager
+					total={propertiesTotal}
+					page={propertiesInquiry?.page}
+					limit={propertiesInquiry?.limit}
+					onPage={changePageHandler}
+					onLimit={changeRowsPerPageHandler}
 				/>
-
-				<TablePagination
-					labelRowsPerPage={t('Rows per page')}
-					labelDisplayedRows={({ from, to, count }: any) => `${from}–${to} / ${count}`}
-					rowsPerPageOptions={[10, 20, 40, 60]}
-					component="div"
-					count={propertiesTotal}
-					rowsPerPage={propertiesInquiry?.limit}
-					page={propertiesTotal ? propertiesInquiry?.page - 1 : 0}
-					onPageChange={changePageHandler}
-					onRowsPerPageChange={changeRowsPerPageHandler}
-				/>
-			</Box>
-		</Box>
+			</div>
+			<ReasonDialog
+				open={rejectIds.length > 0}
+				title={rejectIds.length > 1 ? `${t('Reject listings')} (${rejectIds.length})` : t('Reject listing')}
+				description={t('The seller will see this reason and can fix the listing and send it again.') as string}
+				presets={REJECT_PRESETS}
+				confirmLabel={t('Reject')}
+				onConfirm={rejectConfirmHandler}
+				onClose={() => setRejectIds([])}
+			/>
+		</div>
 	);
 };
 

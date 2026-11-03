@@ -2,25 +2,27 @@ import { useTranslation } from 'next-i18next/pages';
 import { imageUrl } from '../../../utils';
 import React from 'react';
 import Link from 'next/link';
-import {
-	TableCell,
-	TableHead,
-	TableBody,
-	TableRow,
-	Table,
-	TableContainer,
-	Button,
-	Menu,
-	Fade,
-	MenuItem,
-} from '@mui/material';
-import Avatar from '@mui/material/Avatar';
-import Tooltip from '@mui/material/Tooltip';
-import Typography from '@mui/material/Typography';
-import { Stack, Switch } from '@mui/material';
 import { Member } from '../../../types/member/member';
+import { MemberUpdate } from '../../../types/member/member.update';
 import { MemberStatus, MemberType } from '../../../enums/member.enum';
-import { InfoIcon as InfoOutlinedIcon, LockResetIcon as LockResetRoundedIcon } from '../../ui/icons';
+import { LockResetIcon as LockResetRoundedIcon } from '../../ui/icons';
+import { cx } from '../../ui/classNames';
+import { switchInput } from '../../ui/Switch';
+import {
+	adminButton,
+	adminTable,
+	caption,
+	NoRows,
+	PillTone,
+	StatusMenu,
+	TableScroll,
+	td,
+	tdActions,
+	tdTitle,
+	th,
+	ThHint,
+	tr,
+} from '../ui';
 
 interface Data {
 	id: string;
@@ -35,22 +37,9 @@ interface Data {
 	dealer: string;
 }
 
-function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
-	if (b[orderBy] < a[orderBy]) {
-		return -1;
-	}
-	if (b[orderBy] > a[orderBy]) {
-		return 1;
-	}
-	return 0;
-}
-
-type Order = 'asc' | 'desc';
-
 interface HeadCell {
 	/** shown as a tooltip with an (i) icon: what the switch in this column does */
 	hint?: string;
-	disablePadding: boolean;
 	id: keyof Data;
 	label: string;
 	numeric: boolean;
@@ -60,287 +49,186 @@ const headCells: readonly HeadCell[] = [
 	{
 		id: 'nickname',
 		numeric: true,
-		disablePadding: false,
 		label: 'NICKNAME',
 	},
 	{
 		id: 'fullname',
 		numeric: false,
-		disablePadding: false,
 		label: 'FULL NAME',
 	},
 	{
 		id: 'phone',
 		numeric: true,
-		disablePadding: false,
 		label: 'PHONE',
 	},
 	{
 		id: 'type',
 		numeric: false,
-		disablePadding: false,
 		label: 'MEMBER TYPE',
 	},
 	{
 		id: 'warning',
 		numeric: false,
-		disablePadding: false,
 		label: 'PHONE CONFIRMED',
 		hint: 'The member confirmed this phone with an SMS code',
 	},
 	{
 		id: 'block',
 		numeric: false,
-		disablePadding: false,
 		label: 'TRUSTED',
 		hint: 'Trusted sellers publish without moderation. Given automatically after the first approved car.',
 	},
 	{
 		id: 'dealer',
 		numeric: false,
-		disablePadding: false,
 		label: 'VERIFIED DEALER',
 		hint: 'You checked the dealership documents. Buyers see a "Verified dealer" badge.',
 	},
 	{
 		id: 'state',
 		numeric: false,
-		disablePadding: false,
 		label: 'STATUS',
 	},
 	{
 		id: 'actions',
 		numeric: false,
-		disablePadding: false,
 		label: 'ACTIONS',
 	},
 ];
 
-interface EnhancedTableProps {
-	numSelected: number;
-	onRequestSort: (event: React.MouseEvent<unknown>, property: keyof Data) => void;
-	onSelectAllClick: (event: React.ChangeEvent<HTMLInputElement>) => void;
-	order: Order;
-	orderBy: string;
-	rowCount: number;
-}
-
-function EnhancedTableHead(props: EnhancedTableProps) {
-	const { t } = useTranslation('common');
-	const { onSelectAllClick } = props;
-
-	return (
-		<TableHead>
-			<TableRow>
-				{headCells.map((headCell) => (
-					<TableCell
-						key={headCell.id}
-						align={headCell.numeric ? 'left' : 'center'}
-						padding={headCell.disablePadding ? 'none' : 'normal'}
-						// short headers stay on one line; the long switch headers may wrap so the table still fits
-						sx={{ whiteSpace: ['nickname', 'fullname', 'phone', 'state', 'actions'].includes(headCell.id) ? 'nowrap' : 'normal' }}
-					>
-						{headCell.hint ? (
-							<Tooltip title={t(headCell.hint) as string} arrow>
-								<span className={'ma-admin-th-hint'}>
-									{t(headCell.label)} <InfoOutlinedIcon />
-								</span>
-							</Tooltip>
-						) : (
-							t(headCell.label)
-						)}
-					</TableCell>
-				))}
-			</TableRow>
-		</TableHead>
-	);
-}
+const statusTone: Record<string, PillTone> = { ACTIVE: 'success', BLOCK: 'warning', DELETE: 'error' };
 
 interface MemberPanelListType {
 	members: Member[];
 	resetPasswordHandler: (id: string, nick: string) => void;
-	anchorEl: any;
-	menuIconClickHandler: any;
-	menuIconCloseHandler: any;
-	updateMemberHandler: any;
+	updateMemberHandler: (update: MemberUpdate) => void;
 }
 
-export const MemberPanelList = (props: MemberPanelListType) => {
+export const MemberPanelList = ({ members, updateMemberHandler, resetPasswordHandler }: MemberPanelListType) => {
 	const { t } = useTranslation('common');
-	const { members, anchorEl, menuIconClickHandler, menuIconCloseHandler, updateMemberHandler, resetPasswordHandler } =
-		props;
 
 	return (
-		<Stack>
-			<TableContainer>
-				<Table sx={{ minWidth: 750 }} aria-labelledby="tableTitle" size={'medium'} className={'ma-adm-cards'}>
-					{/*@ts-ignore*/}
-					<EnhancedTableHead />
-					<TableBody>
-						{members.length === 0 && (
-							<TableRow>
-								<TableCell align="center" colSpan={10}>
-									<span className={'no-data'}>{t('No members found')}</span>
-								</TableCell>
-							</TableRow>
-						)}
+		<TableScroll>
+			<table className={adminTable} aria-label={t('Members') as string}>
+				<thead>
+					<tr>
+						{headCells.map((headCell) => (
+							<th
+								key={headCell.id}
+								// short headers stay on one line; the long switch headers may wrap so the table still fits
+								className={cx(
+									th,
+									!headCell.numeric && 'text-center',
+									!['nickname', 'fullname', 'phone', 'state', 'actions'].includes(headCell.id) && 'whitespace-normal',
+								)}
+							>
+								{headCell.hint ? <ThHint hint={t(headCell.hint) as string}>{t(headCell.label)}</ThHint> : t(headCell.label)}
+							</th>
+						))}
+					</tr>
+				</thead>
+				<tbody>
+					{members.length === 0 && <NoRows colSpan={10}>{t('No members found')}</NoRows>}
 
-						{members.length !== 0 &&
-							members.map((member: Member, index: number) => {
-								const member_image = member.memberImage
-									? imageUrl(member.memberImage)
-									: '/img/profile/defaultUser.svg';
-								return (
-									<TableRow hover key={member?._id} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-
-										<TableCell align="left" className={'name ma-adm-cards__title'}>
-											<Stack direction={'row'}>
-												<Link href={`/_admin/users/detail?id=${member._id}`}>
-													<div>
-														<Avatar alt={member.memberNick} src={member_image} sx={{ ml: '2px', mr: '10px' }} />
-													</div>
-												</Link>
-												<Link href={`/_admin/users/detail?id=${member._id}`}>
-													<div>
-														{member.memberNick}
-														{member.memberType === 'ADMIN' && member.memberAdminRole && (
-															<Typography variant="caption" display="block" color="text.secondary">
-																{t(`role_${member.memberAdminRole}`)}
-															</Typography>
-														)}
-													</div>
-												</Link>
-											</Stack>
-										</TableCell>
-
-										<TableCell align="center" data-label={t('FULL NAME')}>
-											{member.memberFullName || '—'}
-										</TableCell>
-										<TableCell align="left" sx={{ whiteSpace: 'nowrap' }} data-label={t('PHONE')}>
-											{member.memberPhone ? `+${member.memberPhone}` : '—'}
-										</TableCell>
-
-										<TableCell align="center" data-label={t('MEMBER TYPE')}>
-											<Button
-												onClick={(e: any) => menuIconClickHandler(e, index)}
-												className={'badge success'}
-												sx={{ whiteSpace: 'nowrap' }}
-											>
-												{t(`member_${member.memberType}`)}
-											</Button>
-
-											<Menu
-												className={'menu-modal'}
-												MenuListProps={{
-													'aria-labelledby': 'fade-button',
-												}}
-												anchorEl={anchorEl[index]}
-												open={Boolean(anchorEl[index])}
-												onClose={menuIconCloseHandler}
-												TransitionComponent={Fade}
-												sx={{ p: 1 }}
-											>
-												{Object.values(MemberType)
-													.filter((ele) => ele !== member?.memberType)
-													.map((type: string) => (
-														<MenuItem
-															onClick={() => updateMemberHandler({ _id: member._id, memberType: type })}
-															key={type}
-														>
-															<Typography variant={'subtitle1'} component={'span'}>
-																{t(`member_${type}`)}
-															</Typography>
-														</MenuItem>
-													))}
-											</Menu>
-										</TableCell>
-
-										<TableCell align="center" data-label={t('PHONE CONFIRMED')}>
-											{member.memberPhoneVerified ? '✓' : '—'}
-										</TableCell>
-										{/* trusted sellers publish without moderation; admins do not sell, so no switch for them */}
-										<TableCell align="center" data-label={t('TRUSTED')}>
-											{member.memberType === 'ADMIN' ? (
-												'—'
-											) : (
-												<Switch
-													size="small"
-													checked={!!member.memberTrusted}
-													onChange={(e) => updateMemberHandler({ _id: member._id, memberTrusted: e.target.checked })}
-												/>
+					{members.map((member: Member) => {
+						const memberImage = member.memberImage ? imageUrl(member.memberImage) : '/img/profile/defaultUser.svg';
+						return (
+							<tr key={member?._id} className={tr}>
+								<td className={cx(td, tdTitle)}>
+									<Link href={`/_admin/users/detail?id=${member._id}`} className="flex items-center gap-2.5 text-[#0f172a]">
+										<img alt={member.memberNick} src={memberImage} className="size-10 shrink-0 rounded-full object-cover" />
+										<span>
+											{member.memberNick}
+											{member.memberType === 'ADMIN' && member.memberAdminRole && (
+												<span className={caption}>{t(`role_${member.memberAdminRole}`)}</span>
 											)}
-										</TableCell>
-										{/* documents of the dealership were checked by the admin: dealers only */}
-										<TableCell align="center" data-label={t('VERIFIED DEALER')}>
-											{member.memberType === 'AGENT' ? (
-												<Switch
-													size="small"
-													checked={!!member.memberDealerVerified}
-													onChange={(e) => updateMemberHandler({ _id: member._id, memberDealerVerified: e.target.checked })}
-												/>
-											) : (
-												'—'
-											)}
-										</TableCell>
-										<TableCell align="center" data-label={t('STATUS')}>
-											<Button
-												onClick={(e: any) => menuIconClickHandler(e, member._id)}
-												className={`badge ${member.memberStatus === 'ACTIVE' ? 'success' : member.memberStatus === 'BLOCK' ? 'warning' : 'error'}`}
-											>
-												{t(`status_${member.memberStatus}`)}
-											</Button>
-											{member.memberStatus === 'BLOCK' && member.memberBlockReason && (
-												<Typography variant="caption" display="block" color="text.secondary" sx={{ maxWidth: 180, mx: 'auto' }}>
-													{member.memberBlockReason}
-												</Typography>
-											)}
+										</span>
+									</Link>
+								</td>
 
-											<Menu
-												className={'menu-modal'}
-												MenuListProps={{
-													'aria-labelledby': 'fade-button',
-												}}
-												anchorEl={anchorEl[member._id]}
-												open={Boolean(anchorEl[member._id])}
-												onClose={menuIconCloseHandler}
-												TransitionComponent={Fade}
-												sx={{ p: 1 }}
-											>
-												{Object.values(MemberStatus)
-													.filter((ele: string) => ele !== member?.memberStatus)
-													.map((status: string) => (
-														<MenuItem
-															onClick={() => updateMemberHandler({ _id: member._id, memberStatus: status })}
-															key={status}
-														>
-															<Typography variant={'subtitle1'} component={'span'}>
-																{t(`status_${status}`)}
-															</Typography>
-														</MenuItem>
-													))}
-											</Menu>
-										</TableCell>
-										<TableCell align="center" className={'ma-adm-cards__actions'}>
-											{/* an icon on wide screens keeps the table within the page; the phone card shows the words too */}
-											<Tooltip title={t('Reset password') as string} arrow>
-												<Button
-													size="small"
-													variant="outlined"
-													aria-label={t('Reset password') as string}
-													className={'ma-adm-icon-btn'}
-													onClick={() => resetPasswordHandler(member._id, member.memberNick)}
-												>
-													<LockResetRoundedIcon fontSize="small" />
-													<span className={'ma-adm-icon-btn__text'}>{t('Reset password')}</span>
-												</Button>
-											</Tooltip>
-										</TableCell>
-									</TableRow>
-								);
-							})}
-					</TableBody>
-				</Table>
-			</TableContainer>
-		</Stack>
+								<td className={cx(td, 'text-center')} data-label={t('FULL NAME')}>
+									{member.memberFullName || '—'}
+								</td>
+								<td className={cx(td, 'whitespace-nowrap')} data-label={t('PHONE')}>
+									{member.memberPhone ? `+${member.memberPhone}` : '—'}
+								</td>
+
+								<td className={cx(td, 'text-center')} data-label={t('MEMBER TYPE')}>
+									<StatusMenu
+										value={member.memberType as string}
+										label={t(`member_${member.memberType}`)}
+										tone="success"
+										options={Object.values(MemberType)
+											.filter((type) => type !== member?.memberType)
+											.map((type) => ({ value: type as string, label: t(`member_${type}`) }))}
+										onSelect={(type) => updateMemberHandler({ _id: member._id, memberType: type as MemberType })}
+									/>
+								</td>
+
+								<td className={cx(td, 'text-center')} data-label={t('PHONE CONFIRMED')}>
+									{member.memberPhoneVerified ? '✓' : '—'}
+								</td>
+								{/* trusted sellers publish without moderation; admins do not sell, so no switch for them */}
+								<td className={cx(td, 'text-center')} data-label={t('TRUSTED')}>
+									{member.memberType === 'ADMIN' ? (
+										'—'
+									) : (
+										<input
+											type="checkbox"
+											role="switch"
+											aria-label={t('TRUSTED') as string}
+											className={switchInput}
+											checked={!!member.memberTrusted}
+											onChange={(e) => updateMemberHandler({ _id: member._id, memberTrusted: e.target.checked })}
+										/>
+									)}
+								</td>
+								{/* documents of the dealership were checked by the admin: dealers only */}
+								<td className={cx(td, 'text-center')} data-label={t('VERIFIED DEALER')}>
+									{member.memberType === 'AGENT' ? (
+										<input
+											type="checkbox"
+											role="switch"
+											aria-label={t('VERIFIED DEALER') as string}
+											className={switchInput}
+											checked={!!member.memberDealerVerified}
+											onChange={(e) => updateMemberHandler({ _id: member._id, memberDealerVerified: e.target.checked })}
+										/>
+									) : (
+										'—'
+									)}
+								</td>
+								<td className={cx(td, 'text-center')} data-label={t('STATUS')}>
+									<StatusMenu
+										value={member.memberStatus as string}
+										label={t(`status_${member.memberStatus}`)}
+										tone={statusTone[member.memberStatus] ?? 'neutral'}
+										options={Object.values(MemberStatus)
+											.filter((status) => status !== member?.memberStatus)
+											.map((status) => ({ value: status as string, label: t(`status_${status}`) }))}
+										onSelect={(status) => updateMemberHandler({ _id: member._id, memberStatus: status as MemberStatus })}
+									/>
+									{member.memberStatus === 'BLOCK' && member.memberBlockReason && (
+										<span className={cx(caption, 'mx-auto max-w-[180px]')}>{member.memberBlockReason}</span>
+									)}
+								</td>
+								<td className={cx(td, tdActions, 'text-center')}>
+									{/* an icon on wide screens keeps the table within the page; the phone card shows the words too */}
+									<button
+										className={adminButton({ variant: 'outlined', size: 'sm', className: 'md:w-8 md:px-0' })}
+										title={t('Reset password') as string}
+										aria-label={t('Reset password') as string}
+										onClick={() => resetPasswordHandler(member._id, member.memberNick)}
+									>
+										<LockResetRoundedIcon fontSize="small" />
+										<span className="md:hidden">{t('Reset password')}</span>
+									</button>
+								</td>
+							</tr>
+						);
+					})}
+				</tbody>
+			</table>
+		</TableScroll>
 	);
 };

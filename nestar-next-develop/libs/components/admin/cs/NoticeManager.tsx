@@ -3,41 +3,19 @@ import { imageUrl } from '../../../utils';
 import React, { useState } from 'react';
 import moment from 'moment';
 import { useMutation, useQuery } from '@apollo/client/react';
-import {
-	Box,
-	Button,
-	Dialog,
-	DialogActions,
-	DialogContent,
-	DialogTitle,
-	Divider,
-	InputAdornment,
-	List,
-	ListItem,
-	MenuItem,
-	OutlinedInput,
-	Select,
-	Stack,
-	Table,
-	TableBody,
-	TableCell,
-	TableContainer,
-	TableHead,
-	TablePagination,
-	TableRow,
-	TextField,
-	Typography,
-} from '@mui/material';
 import { GET_ALL_NOTICES_BY_ADMIN } from '../../../../apollo/admin/query';
 import { CREATE_NOTICE, REMOVE_NOTICE_BY_ADMIN, UPDATE_NOTICE_BY_ADMIN } from '../../../../apollo/admin/mutation';
 import { sweetConfirmAlert, sweetErrorHandling, sweetTopSmallSuccessAlert } from '../../../sweetAlert';
 import { REACT_APP_API_URL } from '../../../config';
 import AdminPageHeader from '../AdminPageHeader';
 import { T } from '../../../types/common';
-import { AddIcon as AddRoundedIcon, SearchIcon } from '../../ui/icons';
+import { AddIcon as AddRoundedIcon } from '../../ui/icons';
+import Dialog from '../../ui/Dialog';
+import { cx } from '../../ui/classNames';
+import { AdminField, adminButton, adminInput, AdminPager, AdminSearch, AdminTabs, adminTable, adminTextarea, NoRows, pillTones, PillTone, searchArea, TableScroll, tableWrap, td, tdActions, tdTitle, th, avatar, tr } from '../ui';
 
 /** pill colours, shared with the other admin lists */
-const statusClass: Record<string, string> = { ACTIVE: 'success', HOLD: 'warning', DELETE: 'error' };
+const statusTone: Record<string, PillTone> = { ACTIVE: 'success', HOLD: 'warning', DELETE: 'error' };
 
 type Category = 'FAQ' | 'NOTICE' | 'INQUIRY';
 
@@ -162,89 +140,66 @@ const NoticeManager = ({ category }: NoticeManagerProps) => {
 		: (form?.noticeTitle?.trim().length ?? 0) >= 3 && (form?.noticeContent?.trim().length ?? 0) >= 3;
 
 	return (
-		<Box component={'div'} className={'content'}>
+		<div className="mx-auto w-full max-w-[1440px]">
 			<AdminPageHeader
 				title={t(titles[category])}
 				description={t(descriptions[category]) as string}
 				action={
 					!isInquiry && (
-						<Button variant={'contained'} startIcon={<AddRoundedIcon />} onClick={() => setForm({ ...emptyForm })}>
-							{t('Add')}
-						</Button>
+						<button className={adminButton()} onClick={() => setForm({ ...emptyForm })}>
+							<AddRoundedIcon /> {t('Add')}
+						</button>
 					)
 				}
 			/>
-			<Box component={'div'} className={'table-wrap'}>
-				<List className={'tab-menu'}>
-					{['ALL', 'ACTIVE', 'HOLD', 'DELETE'].map((item) => (
-						<ListItem
-							key={item}
-							className={status === item ? 'li on' : 'li'}
-							onClick={() => {
-								setStatus(item);
-								setPage(1);
-							}}
-						>
-							{item === 'ALL' ? t('All') : t(labels[item])}
-						</ListItem>
-					))}
-				</List>
-				<Divider />
-				<Stack className={'search-area'} sx={{ m: '24px' }}>
-					<OutlinedInput
+			<div className={tableWrap}>
+				<AdminTabs
+					value={status}
+					onChange={(item) => {
+						setStatus(item);
+						setPage(1);
+					}}
+					items={['ALL', 'ACTIVE', 'HOLD', 'DELETE'].map((item) => ({ value: item, label: item === 'ALL' ? t('All') : t(labels[item]) }))}
+				/>
+				<div className={searchArea}>
+					<AdminSearch
 						value={text}
-						onChange={(e) => {
-							setText(e.target.value);
+						onChange={(value) => {
+							setText(value);
 							setPage(1);
 						}}
-						sx={{ width: '100%' }}
-						className={'search'}
 						placeholder={t('Search by title') as string}
-						endAdornment={
-							<InputAdornment position="end">
-								<SearchIcon />
-							</InputAdornment>
-						}
 					/>
-				</Stack>
-				<Divider />
-				<TableContainer>
-					<Table sx={{ minWidth: 750 }} size={'medium'} className={'ma-adm-cards'}>
-						<TableHead>
-							<TableRow>
-								<TableCell>{t('TITLE')}</TableCell>
-								{isInquiry && <TableCell>{t('WRITER')}</TableCell>}
-								<TableCell>{t('DATE')}</TableCell>
-								<TableCell align="center">{t('STATUS')}</TableCell>
-								<TableCell align="right">{t('ACTIONS')}</TableCell>
-							</TableRow>
-						</TableHead>
-						<TableBody>
+				</div>
+				<TableScroll>
+					<table className={adminTable}>
+						<thead>
+							<tr>
+								<th className={th}>{t('TITLE')}</th>
+								{isInquiry && <th className={th}>{t('WRITER')}</th>}
+								<th className={th}>{t('DATE')}</th>
+								<th className={cx(th, 'text-center')}>{t('STATUS')}</th>
+								<th className={cx(th, 'text-right')}>{t('ACTIONS')}</th>
+							</tr>
+						</thead>
+						<tbody>
 							{!list.length && (
-								<TableRow>
-									<TableCell colSpan={5} align="center">
-										{loading ? t('Loading...') : status === 'ALL' ? t(emptyTexts[category]) : t('No items found')}
-									</TableCell>
-								</TableRow>
+								<NoRows colSpan={5}>
+									{loading ? t('Loading...') : status === 'ALL' ? t(emptyTexts[category]) : t('No items found')}
+								</NoRows>
 							)}
 							{list.map((item) => (
-								<TableRow hover key={item._id}>
-									<TableCell sx={{ maxWidth: 420 }} className={'ma-adm-cards__title'}>
-										<strong>{item.noticeTitle}</strong>
-										<Typography variant="body2" color="text.secondary" noWrap>
-											{item.noticeContent}
-										</Typography>
-									</TableCell>
+								<tr key={item._id} className={tr}>
+									<td className={cx(td, tdTitle, 'max-w-[420px]')}>
+										<strong className="text-[#0f172a]">{item.noticeTitle}</strong>
+										<p className="m-0 overflow-hidden text-sm text-ellipsis whitespace-nowrap text-muted">{item.noticeContent}</p>
+									</td>
 									{isInquiry && (
-										<TableCell data-label={t('WRITER')}>
-											<Stack direction="row" alignItems="center" gap={1}>
+										<td className={td} data-label={t('WRITER')}>
+											<span className="flex items-center gap-2">
 												<img
-													className={'ma-admin-avatar'}
-													src={
-														item.memberData?.memberImage
-															? imageUrl(item.memberData.memberImage)
-															: '/img/profile/defaultUser.svg'
-													}
+													className={avatar}
+													src={item.memberData?.memberImage ? imageUrl(item.memberData.memberImage) : '/img/profile/defaultUser.svg'}
 													alt={''}
 												/>
 												<span>
@@ -253,32 +208,33 @@ const NoticeManager = ({ category }: NoticeManagerProps) => {
 													{/* the same "+998..." format as the Members page */}
 													{item.memberData?.memberPhone && <small>+{item.memberData.memberPhone}</small>}
 												</span>
-											</Stack>
-										</TableCell>
+											</span>
+										</td>
 									)}
-									<TableCell data-label={t('DATE')}>{moment(item.createdAt).format('DD.MM.YYYY HH:mm')}</TableCell>
-									<TableCell align="center" data-label={t('STATUS')}>
+									<td className={cx(td, 'whitespace-nowrap')} data-label={t('DATE')}>
+										{moment(item.createdAt).format('DD.MM.YYYY HH:mm')}
+									</td>
+									<td className={cx(td, 'text-center')} data-label={t('STATUS')}>
 										{/* the same coloured status pill as on the Cars and Members pages */}
-										<Select
-											size="small"
-											sx={{ height: 32, minWidth: 140, maxWidth: 200 }}
-											className={`badge ${statusClass[item.noticeStatus] ?? ''}`}
+										<select
+											className={cx(
+												'h-8 max-w-[200px] min-w-[140px] cursor-pointer rounded-full border-0 px-3 font-sans text-xs font-semibold',
+												pillTones[statusTone[item.noticeStatus] ?? 'neutral'],
+											)}
 											value={item.noticeStatus}
-											onChange={(e) => statusHandler(item._id, e.target.value as string)}
+											onChange={(e) => statusHandler(item._id, e.target.value)}
 										>
 											{['ACTIVE', 'HOLD', 'DELETE'].map((option) => (
-												<MenuItem key={option} value={option}>
+												<option key={option} value={option}>
 													{t(labels[option])}
-												</MenuItem>
+												</option>
 											))}
-										</Select>
-									</TableCell>
-									<TableCell align="right" className={'ma-adm-cards__actions'}>
-										<Stack direction="row" gap={1} justifyContent="flex-end">
-											<Button
-												size="small"
-												variant="outlined"
-												sx={{ whiteSpace: 'nowrap' }}
+										</select>
+									</td>
+									<td className={cx(td, tdActions, 'text-right')}>
+										<span className="flex justify-end gap-2">
+											<button
+												className={adminButton({ size: 'sm', variant: 'outlined', color: 'primary' })}
 												onClick={() =>
 													setForm({
 														_id: item._id,
@@ -290,96 +246,97 @@ const NoticeManager = ({ category }: NoticeManagerProps) => {
 												}
 											>
 												{isInquiry ? t('Answer') : t('Edit')}
-											</Button>
+											</button>
 											{item.noticeStatus === 'DELETE' && (
-												<Button size="small" color="error" variant="outlined" onClick={() => removeHandler(item._id)}>
+												<button className={adminButton({ size: 'sm', variant: 'outlined', color: 'error' })} onClick={() => removeHandler(item._id)}>
 													{t('Remove')}
-												</Button>
+												</button>
 											)}
-										</Stack>
-									</TableCell>
-								</TableRow>
+										</span>
+									</td>
+								</tr>
 							))}
-						</TableBody>
-					</Table>
-				</TableContainer>
-				<TablePagination
-					labelRowsPerPage={t('Rows per page')}
-					labelDisplayedRows={({ from, to, count }: any) => `${from}–${to} / ${count}`}
-					rowsPerPageOptions={[10, 20, 40]}
-					component="div"
-					count={total}
-					rowsPerPage={limit}
-					page={total ? page - 1 : 0}
-					onPageChange={(e: unknown, newPage: number) => setPage(newPage + 1)}
-					onRowsPerPageChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-						setLimit(parseInt(e.target.value, 10));
+						</tbody>
+					</table>
+				</TableScroll>
+				<AdminPager
+					total={total}
+					page={page}
+					limit={limit}
+					options={[10, 20, 40]}
+					onPage={setPage}
+					onLimit={(value) => {
+						setLimit(value);
 						setPage(1);
 					}}
 				/>
-			</Box>
-
-			<Dialog open={!!form} onClose={() => setForm(null)} fullWidth maxWidth="sm">
-				<DialogTitle>{isInquiry ? t('Answer inquiry') : form?._id ? t('Edit') : t('Add new')}</DialogTitle>
-				<DialogContent>
-					{isInquiry ? (
-						<>
-							<Typography variant="subtitle1" sx={{ fontWeight: 600, mt: 1 }}>
-								{form?.noticeTitle}
-							</Typography>
-							<Typography variant="body2" color="text.secondary" sx={{ whiteSpace: 'pre-line', mb: 2 }}>
-								{form?.noticeContent}
-							</Typography>
-							<TextField
-								label={t('Answer')}
-								multiline
-								minRows={5}
-								fullWidth
+			</div>
+			<Dialog
+				open={!!form}
+				onClose={() => setForm(null)}
+				title={isInquiry ? t('Answer inquiry') : form?._id ? t('Edit') : t('Add new')}
+				actions={
+					<>
+						<button className={adminButton({ variant: 'text' })} onClick={() => setForm(null)}>
+							{t('Cancel')}
+						</button>
+						<button className={adminButton()} disabled={!formValid} onClick={saveHandler}>
+							{t('Save')}
+						</button>
+					</>
+				}
+			>
+				{isInquiry ? (
+					<>
+						<p className="m-0 mt-1 font-semibold text-ink">{form?.noticeTitle}</p>
+						<p className="m-0 mb-4 text-sm whitespace-pre-line text-muted">{form?.noticeContent}</p>
+						<AdminField label={t('Answer')}>
+							<textarea
+								rows={5}
+								className={adminTextarea}
 								value={form?.noticeAnswer ?? ''}
 								onChange={(e) => setForm({ ...form, noticeAnswer: e.target.value })}
 							/>
-						</>
-					) : (
-						<Stack gap={2} sx={{ mt: 1 }}>
-							<TextField
-								label={t('Title')}
-								fullWidth
-								inputProps={{ maxLength: 150 }}
+						</AdminField>
+					</>
+				) : (
+					<div className="mt-1 flex flex-col gap-4">
+						<AdminField label={t('Title')}>
+							<input
+								className={adminInput}
+								maxLength={150}
 								value={form?.noticeTitle ?? ''}
 								onChange={(e) => setForm({ ...form, noticeTitle: e.target.value })}
 							/>
-							<TextField
-								label={t('Content')}
-								multiline
-								minRows={6}
-								fullWidth
-								inputProps={{ maxLength: 5000 }}
+						</AdminField>
+						<AdminField label={t('Content')}>
+							<textarea
+								rows={6}
+								className={adminTextarea}
+								maxLength={5000}
 								value={form?.noticeContent ?? ''}
 								onChange={(e) => setForm({ ...form, noticeContent: e.target.value })}
 							/>
-							{form?._id && (
-								<Select
+						</AdminField>
+						{form?._id && (
+							<AdminField label={t('STATUS')}>
+								<select
+									className={cx(adminInput, 'cursor-pointer')}
 									value={form?.noticeStatus ?? 'ACTIVE'}
 									onChange={(e) => setForm({ ...form, noticeStatus: e.target.value })}
 								>
 									{['ACTIVE', 'HOLD', 'DELETE'].map((option) => (
-										<MenuItem key={option} value={option}>
+										<option key={option} value={option}>
 											{t(labels[option])}
-										</MenuItem>
+										</option>
 									))}
-								</Select>
-							)}
-						</Stack>
-					)}
-				</DialogContent>
-				<DialogActions>
-					<Button onClick={() => setForm(null)}>{t('Cancel')}</Button>
-					<Button variant="contained" disabled={!formValid} onClick={saveHandler}>
-						{t('Save')}
-					</Button>
-				</DialogActions>
+								</select>
+							</AdminField>
+						)}
+					</div>
+				)}
 			</Dialog>
-		</Box>
+		</div>
 	);
 };
 

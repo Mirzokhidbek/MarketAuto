@@ -58,6 +58,9 @@ const smoothPath = (points: [number, number][]) => {
  * Legend always shown with each series' total, the last day marked on the lines, crosshair tooltip lists every series,
  * arrow keys move the crosshair, and a table view holds the same numbers.
  */
+const wrap = 'flex flex-col gap-3';
+const axis = 'fill-faint font-sans text-[11px]';
+
 const TrendChart = ({ dates, series, tableLabel, chartLabel, dateLabel }: TrendChartProps) => {
 	const boxRef = useRef<HTMLDivElement>(null);
 	const [width, setWidth] = useState<number>(600);
@@ -89,15 +92,15 @@ const TrendChart = ({ dates, series, tableLabel, chartLabel, dateLabel }: TrendC
 	};
 
 	const legend = (
-		<div className={'ma-trend__legend'}>
+		<div className="flex flex-wrap items-center gap-[18px] text-[13px] text-[#475569]">
 			{series.map((item) => (
-				<span key={item.key}>
-					<i style={{ background: item.color }} />
+				<span key={item.key} className="inline-flex items-center gap-2">
+					<i className="h-[3px] w-4 rounded-sm" style={{ background: item.color }} />
 					{item.label}
-					<b>{item.values.reduce((sum, value) => sum + value, 0)}</b>
+					<b className="text-[#0f172a]">{item.values.reduce((sum, value) => sum + value, 0)}</b>
 				</span>
 			))}
-			<button type="button" className={'ma-trend__toggle'} onClick={() => setAsTable(!asTable)} aria-pressed={asTable}>
+			<button type="button" className="ml-auto cursor-pointer rounded-full border border-[#edf0f6] bg-transparent px-2.5 py-1 font-sans text-xs text-[#475569]" onClick={() => setAsTable(!asTable)} aria-pressed={asTable}>
 				{asTable ? chartLabel : tableLabel}
 			</button>
 		</div>
@@ -105,10 +108,10 @@ const TrendChart = ({ dates, series, tableLabel, chartLabel, dateLabel }: TrendC
 
 	if (asTable) {
 		return (
-			<div className={'ma-trend'}>
+			<div className={wrap}>
 				{legend}
-				<div className={'ma-trend__table'}>
-					<table>
+				<div className="max-h-[260px] overflow-y-auto">
+					<table className="w-full border-collapse text-[13px] [&_td]:border-b [&_td]:border-[#edf0f6] [&_td]:px-2.5 [&_td]:py-2 [&_td]:text-right [&_td:first-child]:text-left [&_th]:sticky [&_th]:top-0 [&_th]:border-b [&_th]:border-[#edf0f6] [&_th]:bg-white [&_th]:px-2.5 [&_th]:py-2 [&_th]:text-right [&_th]:font-semibold [&_th]:text-faint [&_th:first-child]:text-left">
 						<thead>
 							<tr>
 								<th>{dateLabel}</th>
@@ -139,11 +142,11 @@ const TrendChart = ({ dates, series, tableLabel, chartLabel, dateLabel }: TrendC
 	const tipLeft = active === null ? 0 : Math.min(Math.max(x(active), 80), width - 80);
 
 	return (
-		<div className={'ma-trend'}>
+		<div className={wrap}>
 			{legend}
 			<div
 				ref={boxRef}
-				className={'ma-trend__plot'}
+				className="relative touch-pan-y rounded-lg outline-none focus-visible:shadow-[0_0_0_2px_#1d4ed8] [&_svg]:block [&_svg]:overflow-visible"
 				tabIndex={0}
 				role={'img'}
 				aria-label={series.map((item) => `${item.label}: ${item.values.reduce((a, b) => a + b, 0)}`).join(', ')}
@@ -159,8 +162,8 @@ const TrendChart = ({ dates, series, tableLabel, chartLabel, dateLabel }: TrendC
 				<svg width={width} height={HEIGHT} aria-hidden="true">
 					{ticks.map((tick) => (
 						<g key={tick}>
-							<line className={'ma-trend__grid'} x1={PAD.left} x2={PAD.left + plotW} y1={y(tick)} y2={y(tick)} />
-							<text className={'ma-trend__axis'} x={width - 4} y={y(tick) + 4} textAnchor="end">
+							<line stroke="#edf0f6" strokeWidth={1} x1={PAD.left} x2={PAD.left + plotW} y1={y(tick)} y2={y(tick)} />
+							<text className={axis} x={width - 4} y={y(tick) + 4} textAnchor="end">
 								{Math.round(tick)}
 							</text>
 						</g>
@@ -178,7 +181,7 @@ const TrendChart = ({ dates, series, tableLabel, chartLabel, dateLabel }: TrendC
 					})}
 					{active !== null && (
 						<>
-							<line className={'ma-trend__cross'} x1={x(active)} x2={x(active)} y1={PAD.top} y2={PAD.top + plotH} />
+							<line stroke="#94a3b8" strokeWidth={1} x1={x(active)} x2={x(active)} y1={PAD.top} y2={PAD.top + plotH} />
 							{series.map((item) => (
 								<circle
 									key={item.key}
@@ -199,20 +202,24 @@ const TrendChart = ({ dates, series, tableLabel, chartLabel, dateLabel }: TrendC
 						))}
 					{dates.map((date, index) =>
 						(last - index) % labelEvery === 0 ? (
-							<text key={date} className={'ma-trend__axis'} x={x(index)} y={HEIGHT - 8} textAnchor="middle">
+							<text key={date} className={axis} x={x(index)} y={HEIGHT - 8} textAnchor="middle">
 								{moment(date).format(dates.length > 10 ? 'DD.MM' : 'dd')}
 							</text>
 						) : null,
 					)}
 				</svg>
 				{active !== null && (
-					<div className={'ma-trend__tip'} style={{ left: tipLeft }} role={'tooltip'}>
-						<small>{moment(dates[active]).format('DD MMMM, dddd')}</small>
+					<div
+						className="pointer-events-none absolute top-0 flex min-w-[150px] -translate-x-1/2 flex-col gap-1 rounded-[14px] bg-[#0f172a] px-3 py-2.5 text-white shadow-[0_12px_30px_rgba(15,23,42,0.25)]"
+						style={{ left: tipLeft }}
+						role={'tooltip'}
+					>
+						<small className="text-[11px] text-[#cbd5e1]">{moment(dates[active]).format('DD MMMM, dddd')}</small>
 						{series.map((item) => (
-							<div key={item.key} className={'ma-trend__tip-row'}>
-								<i style={{ background: item.color }} />
-								<strong>{item.values[active]}</strong>
-								<span>{item.label}</span>
+							<div key={item.key} className="flex items-center gap-2 text-xs">
+								<i className="h-[3px] w-3 rounded-sm" style={{ background: item.color }} />
+								<strong className="min-w-5 text-[15px]">{item.values[active]}</strong>
+								<span className="text-[#cbd5e1]">{item.label}</span>
 							</div>
 						))}
 					</div>

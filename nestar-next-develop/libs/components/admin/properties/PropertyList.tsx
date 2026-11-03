@@ -2,24 +2,28 @@ import { useTranslation } from 'next-i18next/pages';
 import React from 'react';
 import Link from 'next/link';
 import moment from 'moment';
-import {
-	Button,
-	Checkbox,
-	MenuItem,
-	Select,
-	Stack,
-	Table,
-	TableBody,
-	TableCell,
-	TableContainer,
-	TableHead,
-	TableRow,
-	Typography,
-} from '@mui/material';
 import { Property } from '../../../types/property/property';
 import { PropertyStatus } from '../../../enums/property.enum';
 import { formatCarPlace, formatEnumLabel, formatterStr, imageUrl } from '../../../utils';
 import { DeleteIcon } from '../../ui/icons';
+import { cx } from '../../ui/classNames';
+import {
+	adminButton,
+	adminTable,
+	caption,
+	checkbox,
+	NoRows,
+	pillTones,
+	PillTone,
+	TableScroll,
+	td,
+	tdActions,
+	tdCheck,
+	tdTitle,
+	th,
+	thumb,
+	tr,
+} from '../ui';
 
 interface PropertyPanelListType {
 	properties: Property[];
@@ -32,7 +36,7 @@ interface PropertyPanelListType {
 	removePropertyHandler: (id: string) => void;
 }
 
-const statusClass: Record<string, string> = { PENDING: 'warning', REJECTED: 'error', ACTIVE: 'success', SOLD: 'warning', DELETE: 'error' };
+const statusTone: Record<string, PillTone> = { PENDING: 'warning', REJECTED: 'error', ACTIVE: 'success', SOLD: 'warning', DELETE: 'error' };
 
 export const PropertyPanelList = ({
 	properties,
@@ -50,66 +54,68 @@ export const PropertyPanelList = ({
 	const toggle = (id: string) => onSelect(selected.includes(id) ? selected.filter((item) => item !== id) : [...selected, id]);
 
 	return (
-		<TableContainer>
-			<Table sx={{ minWidth: 960 }} size={'medium'} className={'ma-adm-cards'}>
-				<TableHead>
-					<TableRow>
-						<TableCell padding="checkbox">
-							<Checkbox
+		<TableScroll>
+			<table className={cx(adminTable, 'md:min-w-[960px]')}>
+				<thead>
+					<tr>
+						<th className={cx(th, 'w-[50px]')}>
+							<input
+								type="checkbox"
+								className={checkbox}
 								checked={allSelected}
-								indeterminate={!allSelected && selected.length > 0}
+								ref={(input) => {
+									if (input) input.indeterminate = !allSelected && selected.length > 0;
+								}}
 								onChange={() => onSelect(allSelected ? [] : ids)}
-								inputProps={{ 'aria-label': t('Select all') as string }}
+								aria-label={t('Select all') as string}
 							/>
-						</TableCell>
-						<TableCell>{t('CAR')}</TableCell>
-						<TableCell align="right">{t('PRICE')}</TableCell>
-						<TableCell>{t('SELLER')}</TableCell>
-						<TableCell>{t('LOCATION')}</TableCell>
-						<TableCell>{t('LISTED')}</TableCell>
-						<TableCell align="center">{t('STATUS')}</TableCell>
-					</TableRow>
-				</TableHead>
-				<TableBody>
-					{properties.length === 0 && (
-						<TableRow>
-							<TableCell align="center" colSpan={7}>
-								<span className={'no-data'}>{loading ? t('Loading...') : t('No cars found')}</span>
-							</TableCell>
-						</TableRow>
-					)}
-
+						</th>
+						<th className={th}>{t('CAR')}</th>
+						<th className={cx(th, 'text-right')}>{t('PRICE')}</th>
+						<th className={th}>{t('SELLER')}</th>
+						<th className={th}>{t('LOCATION')}</th>
+						<th className={th}>{t('LISTED')}</th>
+						<th className={cx(th, 'text-center')}>{t('STATUS')}</th>
+					</tr>
+				</thead>
+				<tbody>
+					{properties.length === 0 && <NoRows colSpan={7}>{loading ? t('Loading...') : t('No cars found')}</NoRows>}
 					{properties.map((property: Property) => {
 						const image = property.propertyImages?.[0];
 						const status = property.propertyStatus;
 						const title = (
-							<Stack direction={'row'} alignItems={'center'} gap={1.5}>
+							<span className="flex items-center gap-3">
 								{image ? (
 									<img
-										className={'ma-admin-thumb'}
+										className={thumb}
 										src={imageUrl(image)}
 										alt={''}
 										// missing file: keep the grey placeholder box instead of a broken-image icon
 										onError={(e) => (e.currentTarget.style.visibility = 'hidden')}
 									/>
 								) : (
-									<span className={'ma-admin-thumb'} />
+									<span className={thumb} />
 								)}
 								<span>
-									<strong>{property.propertyTitle}</strong>
-									<Typography variant="caption" display="block" color="text.secondary">
+									<strong className="text-[#0f172a]">{property.propertyTitle}</strong>
+									<span className={caption}>
 										{formatEnumLabel(property.carBrand)} · {property.carYear} · {formatterStr(property.carMileage)} km
-									</Typography>
+									</span>
 								</span>
-							</Stack>
+							</span>
 						);
-
 						return (
-							<TableRow hover key={property._id} selected={selected.includes(property._id)}>
-								<TableCell padding="checkbox" className={'ma-adm-cards__check'}>
-									<Checkbox checked={selected.includes(property._id)} onChange={() => toggle(property._id)} />
-								</TableCell>
-								<TableCell className={'name ma-adm-cards__title'}>
+							<tr key={property._id} className={cx(tr, selected.includes(property._id) && 'bg-[#f5f8ff]')}>
+								<td className={cx(td, tdCheck)}>
+									<input
+										type="checkbox"
+										className={checkbox}
+										checked={selected.includes(property._id)}
+										onChange={() => toggle(property._id)}
+										aria-label={property.propertyTitle}
+									/>
+								</td>
+								<td className={cx(td, tdTitle)}>
 									{/* admins can open pending and rejected cars too */}
 									{status !== PropertyStatus.DELETE ? (
 										<Link href={`/property/detail?id=${property._id}`} target={'_blank'}>
@@ -118,85 +124,81 @@ export const PropertyPanelList = ({
 									) : (
 										title
 									)}
-								</TableCell>
-								<TableCell align="right" data-label={t('PRICE')}>
+								</td>
+								<td className={cx(td, 'text-right whitespace-nowrap')} data-label={t('PRICE')}>
 									${formatterStr(property.propertyPrice)}
-								</TableCell>
-								<TableCell data-label={t('SELLER')}>
-									<Link href={sellerHref(property.memberId)}>{property.memberData?.memberNick ?? '-'}</Link>
-									<Typography variant="caption" display="block" color="text.secondary">
-										{t(property.memberData?.memberType === 'AGENT' ? 'Dealer' : 'Private seller')}
-									</Typography>
-								</TableCell>
-								<TableCell data-label={t('LOCATION')}>{formatCarPlace(property, t)}</TableCell>
-								<TableCell data-label={t('LISTED')}>{moment(property.createdAt).format('DD.MM.YYYY')}</TableCell>
-								<TableCell align="center" className={'ma-adm-cards__actions'} sx={{ minWidth: 200 }}>
+								</td>
+								<td className={td} data-label={t('SELLER')}>
+									<Link href={sellerHref(property.memberId)} className="text-[#1d4ed8]">
+										{property.memberData?.memberNick ?? '-'}
+									</Link>
+									<span className={caption}>{t(property.memberData?.memberType === 'AGENT' ? 'Dealer' : 'Private seller')}</span>
+								</td>
+								<td className={td} data-label={t('LOCATION')}>
+									{formatCarPlace(property, t)}
+								</td>
+								<td className={cx(td, 'whitespace-nowrap')} data-label={t('LISTED')}>
+									{moment(property.createdAt).format('DD.MM.YYYY')}
+								</td>
+								<td className={cx(td, tdActions, 'min-w-[200px] text-center')}>
 									{status === PropertyStatus.PENDING ? (
-										<Stack direction={'row'} gap={1} justifyContent={'center'}>
-											<Button
-												size="small"
-												color="success"
-												variant="contained"
+										<span className="flex justify-center gap-2">
+											<button
+												className={adminButton({ size: 'sm', color: 'success' })}
 												onClick={() => changeStatusHandler(property, PropertyStatus.ACTIVE)}
 											>
 												{t('Approve')}
-											</Button>
-											<Button
-												size="small"
-												color="error"
-												variant="outlined"
+											</button>
+											<button
+												className={adminButton({ size: 'sm', variant: 'outlined', color: 'error' })}
 												onClick={() => changeStatusHandler(property, PropertyStatus.REJECTED)}
 											>
 												{t('Reject')}
-											</Button>
-										</Stack>
+											</button>
+										</span>
 									) : (
-										<Stack direction={'row'} gap={1} justifyContent={'center'} alignItems={'center'}>
-											<Select
-												size="small"
+										<span className="flex items-center justify-center gap-2">
+											<select
 												// same height as the Approve / Reject buttons, so every row has the same height
-												sx={{ height: 32, minWidth: 140 }}
-												className={`badge ${statusClass[status]}`}
+												className={cx(
+													'h-8 min-w-[140px] cursor-pointer rounded-full border-0 px-3 font-sans text-xs font-semibold',
+													pillTones[statusTone[status] ?? 'neutral'],
+												)}
 												value={status}
 												onChange={(e) => changeStatusHandler(property, e.target.value as PropertyStatus)}
 											>
 												{Object.values(PropertyStatus).map((item) => (
-													<MenuItem key={item} value={item}>
+													<option key={item} value={item}>
 														{t(`status_${item}`)}
-													</MenuItem>
+													</option>
 												))}
-											</Select>
+											</select>
 											{status === PropertyStatus.DELETE && (
-												<Button
-													color="error"
-													variant="outlined"
-													size="small"
+												<button
+													className={adminButton({ size: 'sm', variant: 'outlined', color: 'error', className: 'w-8 px-0' })}
 													title={t('Remove permanently') as string}
+													aria-label={t('Remove permanently') as string}
 													onClick={() => removePropertyHandler(property._id)}
 												>
 													<DeleteIcon fontSize="small" />
-												</Button>
+												</button>
 											)}
-										</Stack>
+										</span>
 									)}
 									{status === PropertyStatus.REJECTED && property.propertyRejectReason && (
-										<Typography
-											variant="caption"
-											display="block"
-											color="error"
-											noWrap
+										<span
+											className="mx-auto mt-1 block max-w-[220px] overflow-hidden text-xs text-ellipsis whitespace-nowrap text-[#c5221f]"
 											title={property.propertyRejectReason}
-											sx={{ mt: 0.5, maxWidth: 220, mx: 'auto' }}
 										>
 											{property.propertyRejectReason}
-										</Typography>
+										</span>
 									)}
-								</TableCell>
-							</TableRow>
+								</td>
+							</tr>
 						);
 					})}
-				</TableBody>
-			</Table>
-		</TableContainer>
+				</tbody>
+			</table>
+		</TableScroll>
 	);
 };

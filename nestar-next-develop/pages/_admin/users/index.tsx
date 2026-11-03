@@ -7,13 +7,6 @@ import type { NextPage } from 'next';
 import withAdminLayout from '../../../libs/components/layout/LayoutAdmin';
 import AdminPageHeader from '../../../libs/components/admin/AdminPageHeader';
 import { MemberPanelList } from '../../../libs/components/admin/users/MemberList';
-import { Box, InputAdornment, List, ListItem, Stack } from '@mui/material';
-import Typography from '@mui/material/Typography';
-import Divider from '@mui/material/Divider';
-import Select from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
-import OutlinedInput from '@mui/material/OutlinedInput';
-import TablePagination from '@mui/material/TablePagination';
 import { MembersInquiry } from '../../../libs/types/member/member.input';
 import { Member } from '../../../libs/types/member/member';
 import { MemberStatus, MemberType } from '../../../libs/enums/member.enum';
@@ -23,8 +16,8 @@ import { UPDATE_MEMBER_BY_ADMIN } from '../../../apollo/admin/mutation';
 import { GET_ALL_MEMBERS_BY_ADMIN } from '../../../apollo/admin/query';
 import { useMutation, useQuery } from '@apollo/client/react';
 import ReasonDialog from '../../../libs/components/admin/ReasonDialog';
+import { AdminPager, AdminSearch, AdminSelect, AdminTabs, searchArea, tableWrap } from '../../../libs/components/admin/ui';
 import { T } from '../../../libs/types/common';
-import { CancelIcon as CancelRoundedIcon } from '../../../libs/components/ui/icons';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: { ...(await serverSideTranslations(locale, ['common'])) },
@@ -32,7 +25,6 @@ export const getStaticProps = async ({ locale }: any) => ({
 
 const AdminUsers: NextPage = ({ initialInquiry = defaultProps.initialInquiry, ...props }: any) => {
 	const { t } = useTranslation('common');
-	const [anchorEl, setAnchorEl] = useState<[] | HTMLElement[]>([]);
 	const [membersInquiry, setMembersInquiry] = useState<MembersInquiry>(initialInquiry);
 	const [members, setMembers] = useState<Member[]>([]);
 	const [membersTotal, setMembersTotal] = useState<number>(0);
@@ -83,30 +75,20 @@ const AdminUsers: NextPage = ({ initialInquiry = defaultProps.initialInquiry, ..
 	}, [searchText]);
 
 	/** HANDLERS **/
-	const changePageHandler = async (event: unknown, newPage: number) => {
-		membersInquiry.page = newPage + 1;
+	const changePageHandler = async (newPage: number) => {
+		membersInquiry.page = newPage;
 		await getAllMembersRefetch({ input: membersInquiry });
 		setMembersInquiry({ ...membersInquiry });
 	};
 
-	const changeRowsPerPageHandler = async (event: React.ChangeEvent<HTMLInputElement>) => {
-		membersInquiry.limit = parseInt(event.target.value, 10);
+	const changeRowsPerPageHandler = async (limit: number) => {
+		membersInquiry.limit = limit;
 		membersInquiry.page = 1;
 		await getAllMembersRefetch({ input: membersInquiry });
 		setMembersInquiry({ ...membersInquiry });
 	};
 
-	const menuIconClickHandler = (e: any, index: number) => {
-		const tempAnchor = anchorEl.slice();
-		tempAnchor[index] = e.currentTarget;
-		setAnchorEl(tempAnchor);
-	};
-
-	const menuIconCloseHandler = () => {
-		setAnchorEl([]);
-	};
-
-	const tabChangeHandler = async (event: any, newValue: string) => {
+	const tabChangeHandler = async (newValue: string) => {
 		setValue(newValue);
 		setSearchText('');
 
@@ -133,7 +115,6 @@ const AdminUsers: NextPage = ({ initialInquiry = defaultProps.initialInquiry, ..
 	const updateMemberHandler = async (updateData: MemberUpdate) => {
 		const member = members.find((item) => item._id === updateData._id);
 		if (updateData.memberStatus === MemberStatus.BLOCK && !updateData.memberBlockReason) {
-			menuIconCloseHandler();
 			setBlockTarget(member ?? null);
 			return;
 		}
@@ -154,7 +135,6 @@ const AdminUsers: NextPage = ({ initialInquiry = defaultProps.initialInquiry, ..
 				},
 			});
 
-			menuIconCloseHandler();
 			await getAllMembersRefetch({ input: membersInquiry });
 		} catch (err: any) {
 			sweetErrorHandling(err).then();
@@ -208,120 +188,61 @@ const AdminUsers: NextPage = ({ initialInquiry = defaultProps.initialInquiry, ..
 	};
 
 	return (
-		<Box component={'div'} className={'content'}>
+		<div className="mx-auto w-full max-w-[1440px]">
 			<AdminPageHeader
 				title={t('Members')}
 				description={
 					t('Find a member by nick, name or phone. Open a member to see their cars, reports and chats.') as string
 				}
 			/>
-			<Box component={'div'} className={'table-wrap'}>
-				<Box component={'div'} sx={{ width: '100%', typography: 'body1' }}>
-					<>
-						<Box component={'div'}>
-							<List className={'tab-menu'}>
-								<ListItem
-									onClick={(e: React.MouseEvent) => tabChangeHandler(e, 'ALL')}
-									value="ALL"
-									className={value === 'ALL' ? 'li on' : 'li'}
-								>
-									{t('All')}
-								</ListItem>
-								<ListItem
-									onClick={(e: React.MouseEvent) => tabChangeHandler(e, 'ACTIVE')}
-									value="ACTIVE"
-									className={value === 'ACTIVE' ? 'li on' : 'li'}
-								>
-									{t('Active')}
-								</ListItem>
-								<ListItem
-									onClick={(e: React.MouseEvent) => tabChangeHandler(e, 'BLOCK')}
-									value="BLOCK"
-									className={value === 'BLOCK' ? 'li on' : 'li'}
-								>
-									{t('Blocked')}
-								</ListItem>
-								<ListItem
-									onClick={(e: React.MouseEvent) => tabChangeHandler(e, 'DELETE')}
-									value="DELETE"
-									className={value === 'DELETE' ? 'li on' : 'li'}
-								>
-									{t('Deleted')}
-								</ListItem>
-							</List>
-							<Divider />
-							<Stack className={'search-area'} sx={{ m: '24px' }}>
-								<OutlinedInput
-									value={searchText}
-									onChange={(e: any) => textHandler(e.target.value)}
-									sx={{ width: '100%' }}
-									className={'search'}
-									placeholder={t('Nickname, name or phone') as string}
-									endAdornment={
-										<>
-											{searchText && (
-												<CancelRoundedIcon style={{ cursor: 'pointer' }} onClick={() => setSearchText('')} />
-											)}
-											<InputAdornment position="end">
-												<img src="/img/icons/search_icon.png" alt={'searchIcon'} />
-											</InputAdornment>
-										</>
-									}
-								/>
-								<Select sx={{ width: '160px', ml: '20px' }} value={searchType}>
-									<MenuItem value={'ALL'} onClick={() => searchTypeHandler('ALL')}>
-										{t('All types')}
-									</MenuItem>
-									<MenuItem value={'USER'} onClick={() => searchTypeHandler('USER')}>
-										{t('Private sellers')}
-									</MenuItem>
-									<MenuItem value={'AGENT'} onClick={() => searchTypeHandler('AGENT')}>
-										{t('Dealers')}
-									</MenuItem>
-									<MenuItem value={'ADMIN'} onClick={() => searchTypeHandler('ADMIN')}>
-										{t('Admins')}
-									</MenuItem>
-								</Select>
-							</Stack>
-							<Divider />
-						</Box>
-						<MemberPanelList
-							members={members}
-							anchorEl={anchorEl}
-							menuIconClickHandler={menuIconClickHandler}
-							menuIconCloseHandler={menuIconCloseHandler}
-							updateMemberHandler={updateMemberHandler}
-							resetPasswordHandler={resetPasswordHandler}
-						/>
-
-						<TablePagination
-							labelRowsPerPage={t('Rows per page')}
-							labelDisplayedRows={({ from, to, count }: any) => `${from}–${to} / ${count}`}
-							rowsPerPageOptions={[10, 20, 40, 60]}
-							component="div"
-							count={membersTotal}
-							rowsPerPage={membersInquiry?.limit}
-							page={membersInquiry?.page - 1}
-							onPageChange={changePageHandler}
-							onRowsPerPageChange={changeRowsPerPageHandler}
-						/>
-					</>
-					<ReasonDialog
-						open={!!blockTarget}
-						title={`${t('Block')} ${blockTarget?.memberNick ?? ''}`}
-						description={t('The member is logged out everywhere and sees this reason when trying to log in.') as string}
-						presets={['Fraud or fake listings', 'Spam', 'Insulting other members', 'Selling forbidden goods']}
-						confirmLabel={t('Block')}
-						onConfirm={(reason) => {
-							const id = blockTarget?._id ?? '';
-							setBlockTarget(null);
-							updateMemberHandler({ _id: id, memberStatus: MemberStatus.BLOCK, memberBlockReason: reason });
-						}}
-						onClose={() => setBlockTarget(null)}
+			<div className={tableWrap}>
+				<AdminTabs
+					value={value}
+					onChange={tabChangeHandler}
+					items={[
+						{ value: 'ALL', label: t('All') },
+						{ value: 'ACTIVE', label: t('Active') },
+						{ value: 'BLOCK', label: t('Blocked') },
+						{ value: 'DELETE', label: t('Deleted') },
+					]}
+				/>
+				<div className={searchArea}>
+					<AdminSearch value={searchText} onChange={textHandler} placeholder={t('Nickname, name or phone') as string} />
+					<AdminSelect
+						className="md:w-40"
+						value={searchType}
+						onChange={searchTypeHandler}
+						options={[
+							{ value: 'ALL', label: t('All types') },
+							{ value: 'USER', label: t('Private sellers') },
+							{ value: 'AGENT', label: t('Dealers') },
+							{ value: 'ADMIN', label: t('Admins') },
+						]}
 					/>
-				</Box>
-			</Box>
-		</Box>
+				</div>
+				<MemberPanelList members={members} updateMemberHandler={updateMemberHandler} resetPasswordHandler={resetPasswordHandler} />
+				<AdminPager
+					total={membersTotal}
+					page={membersInquiry?.page}
+					limit={membersInquiry?.limit}
+					onPage={changePageHandler}
+					onLimit={changeRowsPerPageHandler}
+				/>
+			</div>
+			<ReasonDialog
+				open={!!blockTarget}
+				title={`${t('Block')} ${blockTarget?.memberNick ?? ''}`}
+				description={t('The member is logged out everywhere and sees this reason when trying to log in.') as string}
+				presets={['Fraud or fake listings', 'Spam', 'Insulting other members', 'Selling forbidden goods']}
+				confirmLabel={t('Block')}
+				onConfirm={(reason) => {
+					const id = blockTarget?._id ?? '';
+					setBlockTarget(null);
+					updateMemberHandler({ _id: id, memberStatus: MemberStatus.BLOCK, memberBlockReason: reason });
+				}}
+				onClose={() => setBlockTarget(null)}
+			/>
+		</div>
 	);
 };
 

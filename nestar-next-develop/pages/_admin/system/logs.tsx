@@ -5,24 +5,12 @@ import moment from 'moment';
 import { useTranslation } from 'next-i18next/pages';
 import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
 import { useQuery } from '@apollo/client/react';
-import {
-	Box,
-	Divider,
-	List,
-	ListItem,
-	Table,
-	TableBody,
-	TableCell,
-	TableContainer,
-	TableHead,
-	TablePagination,
-	TableRow,
-	Typography,
-} from '@mui/material';
 import withAdminLayout from '../../../libs/components/layout/LayoutAdmin';
 import AdminPageHeader from '../../../libs/components/admin/AdminPageHeader';
 import { GET_ADMIN_LOGS } from '../../../apollo/admin/query';
 import { T } from '../../../libs/types/common';
+import { cx } from '../../../libs/components/ui/classNames';
+import { AdminPager, AdminTabs, adminTable, NoRows, TableScroll, tableWrap, td, tdTitle, th, tr } from '../../../libs/components/admin/ui';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: { ...(await serverSideTranslations(locale, ['common'])) },
@@ -56,7 +44,7 @@ const formatDetails = (details: string | undefined, t: (key: string) => string):
 	if (!details) return '—';
 	if (/^[a-f0-9]{24}$/.test(details))
 		return (
-			<code className={'ma-admin-id'} title={details}>
+			<code className="rounded-md bg-[#f3f5fa] px-1.5 py-0.5 text-xs text-[#475569]" title={details}>
 				#{details.slice(-6)}
 			</code>
 		);
@@ -64,7 +52,7 @@ const formatDetails = (details: string | undefined, t: (key: string) => string):
 		try {
 			const entries = Object.entries(JSON.parse(details) as Record<string, unknown>);
 			return (
-				<span className={'ma-admin-kv'}>
+				<span className="flex flex-col gap-0.5 [&_b]:font-semibold [&_b]:text-[#475569]">
 					{entries.map(([key, value]) => (
 						<span key={key}>
 							<b>{t(SETTING_LABELS[key] ?? key)}:</b> {String(value ?? '') || '—'}
@@ -90,84 +78,71 @@ const AdminLogs: NextPage = () => {
 	const total: number = data?.getAdminLogs?.metaCounter?.[0]?.total ?? 0;
 
 	return (
-		<Box component={'div'} className={'content'}>
+		<div className="mx-auto w-full max-w-[1440px]">
 			<AdminPageHeader title={t('Action log')} description={t('Every action of every admin: who did what and when. Kept for one year.') as string} />
-			<Box component={'div'} className={'table-wrap'}>
-				<List className={'tab-menu'}>
-					{TYPES.map((item) => (
-						<ListItem
-							key={item}
-							className={type === item ? 'li on' : 'li'}
-							onClick={() => {
-								setType(item);
-								setPage(1);
-							}}
-						>
-							{t(item === 'ALL' ? 'All' : `log_type_${item}`)}
-						</ListItem>
-					))}
-				</List>
-				<Divider />
-				<TableContainer>
-					<Table sx={{ minWidth: 760 }} className={'ma-adm-cards'}>
-						<TableHead>
-							<TableRow>
-								<TableCell>{t('DATE')}</TableCell>
-								<TableCell>{t('ADMIN')}</TableCell>
-								<TableCell>{t('ACTION')}</TableCell>
-								<TableCell>{t('DETAILS')}</TableCell>
-							</TableRow>
-						</TableHead>
-						<TableBody>
-							{!list.length && (
-								<TableRow>
-									<TableCell colSpan={4} align="center">
-										{loading ? t('Loading...') : t('No actions yet')}
-									</TableCell>
-								</TableRow>
-							)}
+			<div className={tableWrap}>
+				<AdminTabs
+					className="mb-4"
+					value={type}
+					onChange={(item) => {
+						setType(item);
+						setPage(1);
+					}}
+					items={TYPES.map((item) => ({ value: item, label: t(item === 'ALL' ? 'All' : `log_type_${item}`) }))}
+				/>
+				<TableScroll>
+					<table className={cx(adminTable, 'border-t border-[#edf0f6] md:min-w-[760px]')}>
+						<thead>
+							<tr>
+								<th className={th}>{t('DATE')}</th>
+								<th className={th}>{t('ADMIN')}</th>
+								<th className={th}>{t('ACTION')}</th>
+								<th className={th}>{t('DETAILS')}</th>
+							</tr>
+						</thead>
+						<tbody>
+							{!list.length && <NoRows colSpan={4}>{loading ? t('Loading...') : t('No actions yet')}</NoRows>}
 							{list.map((log) => {
 								const href = targetHref(log);
 								return (
-									<TableRow hover key={log._id}>
-										<TableCell sx={{ whiteSpace: 'nowrap' }} data-label={t('DATE')}>
+									<tr key={log._id} className={tr}>
+										<td className={cx(td, 'whitespace-nowrap')} data-label={t('DATE')}>
 											{moment(log.createdAt).format('DD.MM.YYYY HH:mm')}
-										</TableCell>
-										<TableCell data-label={t('ADMIN')}>{log.adminData?.memberNick ?? '—'}</TableCell>
-										<TableCell className={'ma-adm-cards__title'}>
+										</td>
+										<td className={td} data-label={t('ADMIN')}>
+											{log.adminData?.memberNick ?? '—'}
+										</td>
+										<td className={cx(td, tdTitle, 'text-[#0f172a]')}>
 											{href ? (
-												<Link href={href} target={'_blank'}>
+												<Link href={href} target={'_blank'} className="text-[#1d4ed8]">
 													{t(`log_${log.action}`, { defaultValue: log.action })}
 												</Link>
 											) : (
 												t(`log_${log.action}`, { defaultValue: log.action })
 											)}
-										</TableCell>
-										<TableCell sx={{ maxWidth: 360, color: 'text.secondary' }} data-label={t('DETAILS')}>
+										</td>
+										<td className={cx(td, 'max-w-[360px] text-muted')} data-label={t('DETAILS')}>
 											{formatDetails(log.details, t)}
-										</TableCell>
-									</TableRow>
+										</td>
+									</tr>
 								);
 							})}
-						</TableBody>
-					</Table>
-				</TableContainer>
-				<TablePagination
-					labelRowsPerPage={t('Rows per page')}
-					labelDisplayedRows={({ from, to, count }: any) => `${from}–${to} / ${count}`}
-					rowsPerPageOptions={[20, 50, 100]}
-					component="div"
-					count={total}
-					rowsPerPage={limit}
-					page={total ? page - 1 : 0}
-					onPageChange={(e: unknown, newPage: number) => setPage(newPage + 1)}
-					onRowsPerPageChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-						setLimit(parseInt(e.target.value, 10));
+						</tbody>
+					</table>
+				</TableScroll>
+				<AdminPager
+					total={total}
+					page={page}
+					limit={limit}
+					options={[20, 50, 100]}
+					onPage={setPage}
+					onLimit={(value) => {
+						setLimit(value);
 						setPage(1);
 					}}
 				/>
-			</Box>
-		</Box>
+			</div>
+		</div>
 	);
 };
 
