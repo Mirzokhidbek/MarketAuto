@@ -1,8 +1,8 @@
 import React from 'react';
 import Link from 'next/link';
 import moment from 'moment';
-import { useTranslation } from 'next-i18next';
-import { useQuery } from '@apollo/client';
+import { useTranslation } from 'next-i18next/pages';
+import { useQuery } from '@apollo/client/react';
 import { Skeleton } from '@mui/material';
 import DirectionsCarFilledRoundedIcon from '@mui/icons-material/DirectionsCarFilledRounded';
 import FlagRoundedIcon from '@mui/icons-material/FlagRounded';
@@ -26,7 +26,7 @@ const PREVIEW = 3;
 const AdminWaitingPanel = ({ counts, onNavigate }: AdminWaitingPanelProps) => {
 	const { t } = useTranslation('common');
 	const oldestFirst = { page: 1, limit: PREVIEW };
-	const { data, loading } = useQuery(GET_ADMIN_WAITING, {
+	const { data, loading } = useQuery<any>(GET_ADMIN_WAITING, {
 		fetchPolicy: 'network-only',
 		variables: {
 			cars: { ...oldestFirst, sort: 'createdAt', direction: 'ASC', search: { propertyStatus: 'PENDING' } },

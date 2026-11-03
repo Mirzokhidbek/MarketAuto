@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
-import { useQuery } from '@apollo/client';
-import { useTranslation } from 'next-i18next';
+import { useQuery } from '@apollo/client/react';
+import { useTranslation } from 'next-i18next/pages';
 import moment from 'moment';
 import numeral from 'numeral';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
@@ -40,7 +40,7 @@ const WARNINGS: Record<string, string> = {
 };
 
 const useImportCost = (propertyId: string, propertyPrice?: number) => {
-	const query = useQuery(GET_IMPORT_COST, {
+	const query = useQuery<any>(GET_IMPORT_COST, {
 		variables: { propertyId },
 		skip: !propertyId,
 		pollInterval: REFRESH_MS,

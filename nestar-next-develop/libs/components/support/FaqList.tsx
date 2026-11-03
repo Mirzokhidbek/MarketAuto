@@ -4,9 +4,9 @@ import { AccordionDetails, Box, Stack, Typography } from '@mui/material';
 import MuiAccordionSummary, { AccordionSummaryProps } from '@mui/material/AccordionSummary';
 import { useRouter } from 'next/router';
 import { styled } from '@mui/material/styles';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'next-i18next/pages';
 import ExpandMoreRoundedIcon from '@mui/icons-material/ExpandMoreRounded';
-import { useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client/react';
 import { GET_NOTICES } from '../../../apollo/user/query';
 import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
 
@@ -41,7 +41,7 @@ const FaqList = () => {
 
 	/** APOLLO REQUESTS **/
 	// questions added by admins (Admin > CS > FAQ) are shown under their own tab
-	const { data: supportFaqData } = useQuery(GET_NOTICES, {
+	const { data: supportFaqData } = useQuery<any>(GET_NOTICES, {
 		fetchPolicy: 'network-only',
 		variables: { input: { page: 1, limit: 50, search: { noticeCategory: 'FAQ' } } },
 	});

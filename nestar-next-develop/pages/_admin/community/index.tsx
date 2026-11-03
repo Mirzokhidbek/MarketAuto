@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 import type { NextPage } from 'next';
 import Link from 'next/link';
 import moment from 'moment';
-import { useTranslation } from 'next-i18next';
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
+import { useTranslation } from 'next-i18next/pages';
+import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
+import { useMutation, useQuery, useReactiveVar } from '@apollo/client/react';
 import {
 	Box,
 	Button,
@@ -56,13 +56,13 @@ const AdminCommunity: NextPage = () => {
 	});
 	const [searchText, setSearchText] = useState<string>('');
 
-	const { data, loading, refetch } = useQuery(GET_ALL_BOARD_ARTICLES_BY_ADMIN, {
+	const { data, loading, refetch } = useQuery<any>(GET_ALL_BOARD_ARTICLES_BY_ADMIN, {
 		fetchPolicy: 'network-only',
 		variables: { input: inquiry },
 		notifyOnNetworkStatusChange: true,
 	});
-	const [updateBoardArticleByAdmin] = useMutation(UPDATE_BOARD_ARTICLE_BY_ADMIN);
-	const [removeBoardArticleByAdmin] = useMutation(REMOVE_BOARD_ARTICLE_BY_ADMIN);
+	const [updateBoardArticleByAdmin] = useMutation<any>(UPDATE_BOARD_ARTICLE_BY_ADMIN);
+	const [removeBoardArticleByAdmin] = useMutation<any>(REMOVE_BOARD_ARTICLE_BY_ADMIN);
 	const list: T[] = data?.getAllBoardArticlesByAdmin?.list ?? [];
 	const total: number = data?.getAllBoardArticlesByAdmin?.metaCounter?.[0]?.total ?? 0;
 

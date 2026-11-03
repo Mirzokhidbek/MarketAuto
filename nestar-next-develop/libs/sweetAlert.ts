@@ -1,6 +1,6 @@
 import Swal from 'sweetalert2';
 import 'animate.css';
-import { i18n } from 'next-i18next';
+import { i18n } from 'next-i18next/pages';
 import { Messages } from './config';
 
 /** alerts show backend/front messages in the current site language when a translation exists */

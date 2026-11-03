@@ -1,8 +1,8 @@
 import Link from 'next/link';
 import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
-import { useTranslation } from 'next-i18next';
-import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
+import { useTranslation } from 'next-i18next/pages';
+import { useMutation, useQuery, useReactiveVar } from '@apollo/client/react';
 import CloudUploadOutlinedIcon from '@mui/icons-material/CloudUploadOutlined';
 import CloseIcon from '@mui/icons-material/Close';
 import { Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
@@ -66,14 +66,14 @@ const AddCarForm = () => {
 	const abroad = !!car.carCountry && !isUzbekistan;
 
 	/** APOLLO REQUESTS **/
-	const [createProperty, { loading: creating }] = useMutation(CREATE_PROPERTY);
-	const [updateProperty, { loading: updating }] = useMutation(UPDATE_PROPERTY);
-	const { data: propertyData } = useQuery(GET_PROPERTY, {
+	const [createProperty, { loading: creating }] = useMutation<any>(CREATE_PROPERTY);
+	const [updateProperty, { loading: updating }] = useMutation<any>(UPDATE_PROPERTY);
+	const { data: propertyData } = useQuery<any>(GET_PROPERTY, {
 		fetchPolicy: 'network-only',
 		variables: { input: editId },
 		skip: !editId,
 	});
-	const { data: modelsData } = useQuery(GET_CAR_MODELS, { skip: !car.carBrand, variables: { brand: car.carBrand } });
+	const { data: modelsData } = useQuery<any>(GET_CAR_MODELS, { skip: !car.carBrand, variables: { brand: car.carBrand } });
 
 	/** LIFECYCLES **/
 	// editing: load the car; new listing: restore the unfinished draft

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'next-i18next/pages';
 import Link from 'next/link';
 import { articleCategoryLabels, fetchWithTimeout, imageUrl } from '../../libs/utils';
 import { print } from 'graphql';
@@ -10,7 +10,7 @@ import Seo from '../../libs/components/common/Seo';
 import { Pagination } from '@mui/material';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
-import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
+import { useMutation, useQuery, useReactiveVar } from '@apollo/client/react';
 import Moment from 'react-moment';
 import { userVar } from '../../apollo/store';
 import ThumbUpOffAltIcon from '@mui/icons-material/ThumbUpOffAlt';
@@ -24,7 +24,7 @@ import dynamic from 'next/dynamic';
 import { CommentGroup, CommentStatus } from '../../libs/enums/comment.enum';
 import { T } from '../../libs/types/common';
 import EditIcon from '@mui/icons-material/Edit';
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
 import { BoardArticle } from '../../libs/types/board-article/board-article';
 import { CREATE_COMMENT, LIKE_TARGET_BOARD_ARTICLE, UPDATE_COMMENT } from '../../apollo/user/mutation';
 import { GET_BOARD_ARTICLE, GET_COMMENTS } from '../../apollo/user/query';
@@ -75,7 +75,7 @@ export const getServerSideProps = async ({ locale, query }: any) => ({
 	},
 });
 
-const CommunityDetail: NextPage = ({ initialInput, initialArticle, ...props }: T) => {
+const CommunityDetail: NextPage = ({ initialInput = defaultProps.initialInput, initialArticle, ...props }: T) => {
 	const { t } = useTranslation('common');
 	const router = useRouter();
 	const { query } = router;
@@ -93,7 +93,9 @@ const CommunityDetail: NextPage = ({ initialInput, initialArticle, ...props }: T
 		...initialInput,
 	});
 	const [memberImage, setMemberImage] = useState<string>(
-		initialArticle?.memberData?.memberImage ? imageUrl(initialArticle.memberData.memberImage) : '/img/community/articleImg.png',
+		initialArticle?.memberData?.memberImage
+			? imageUrl(initialArticle.memberData.memberImage)
+			: '/img/community/articleImg.png',
 	);
 	const [anchorEl, setAnchorEl] = useState<any | null>(null);
 	const open = Boolean(anchorEl);
@@ -105,47 +107,53 @@ const CommunityDetail: NextPage = ({ initialInput, initialArticle, ...props }: T
 	const [boardArticle, setBoardArticle] = useState<BoardArticle | undefined>(initialArticle ?? undefined);
 
 	/** APOLLO REQUESTS **/
-	const [likeTargetBoardArticle] = useMutation(LIKE_TARGET_BOARD_ARTICLE);
-	const [createComment] = useMutation(CREATE_COMMENT);
-	const [updateComment] = useMutation(UPDATE_COMMENT);
+	const [likeTargetBoardArticle] = useMutation<any>(LIKE_TARGET_BOARD_ARTICLE);
+	const [createComment] = useMutation<any>(CREATE_COMMENT);
+	const [updateComment] = useMutation<any>(UPDATE_COMMENT);
 
 	const {
 		loading: boardArticleLoading,
 		data: boardArticleData,
 		error: getBoardArticleError,
 		refetch: boardArticleRefetch,
-	} = useQuery(GET_BOARD_ARTICLE, {
+	} = useQuery<any>(GET_BOARD_ARTICLE, {
 		fetchPolicy: 'network-only',
 		variables: {
 			input: articleId,
 		},
 		skip: !articleId, // router query is empty on the first render
 		notifyOnNetworkStatusChange: true,
-		onCompleted(data: any) {
-			setBoardArticle(data?.getBoardArticle);
-			if (data?.getBoardArticle?.memberData?.memberImage) {
-				setMemberImage(imageUrl(data?.getBoardArticle?.memberData?.memberImage));
-			}
-		},
 	});
+	// Apollo 4 has no onCompleted: the same work runs whenever a new response arrives
+	useEffect(() => {
+		if (!boardArticleData) return;
+		const data: any = boardArticleData;
+		setBoardArticle(data?.getBoardArticle);
+		if (data?.getBoardArticle?.memberData?.memberImage) {
+			setMemberImage(imageUrl(data?.getBoardArticle?.memberData?.memberImage));
+		}
+	}, [boardArticleData]);
 
 	const {
 		loading: getCommentsLoading,
 		data: getCommentsData,
 		error: getCommentsError,
 		refetch: getCommentsRefetch,
-	} = useQuery(GET_COMMENTS, {
+	} = useQuery<any>(GET_COMMENTS, {
 		fetchPolicy: 'network-only',
 		variables: {
 			input: searchFilter,
 		},
 		skip: !searchFilter?.search?.commentRefId,
 		notifyOnNetworkStatusChange: true,
-		onCompleted(data: any) {
-			setComments(data.getComments.list);
-			setTotal(data.getComments?.metaCounter?.[0]?.total || 0);
-		},
 	});
+	// Apollo 4 has no onCompleted: the same work runs whenever a new response arrives
+	useEffect(() => {
+		if (!getCommentsData) return;
+		const data: any = getCommentsData;
+		setComments(data.getComments.list);
+		setTotal(data.getComments?.metaCounter?.[0]?.total || 0);
+	}, [getCommentsData]);
 
 	/** LIFECYCLES **/
 	useEffect(() => {
@@ -452,7 +460,8 @@ const CommunityDetail: NextPage = ({ initialInput, initialArticle, ...props }: T
 	);
 };
 
-CommunityDetail.defaultProps = {
+// React 19 has no defaultProps on function components: used as the default value below
+const defaultProps = {
 	initialInput: {
 		page: 1,
 		limit: 5,

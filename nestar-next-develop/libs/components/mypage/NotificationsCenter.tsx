@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'next-i18next/pages';
 import { Switch } from '@mui/material';
 import DoneAllRoundedIcon from '@mui/icons-material/DoneAllRounded';
 import DeleteSweepOutlinedIcon from '@mui/icons-material/DeleteSweepOutlined';

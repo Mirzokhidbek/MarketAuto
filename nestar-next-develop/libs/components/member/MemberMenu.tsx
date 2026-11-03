@@ -1,9 +1,9 @@
 import SellerTrust from '../seller/SellerTrust';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useTranslation } from 'next-i18next';
-import { useQuery, useReactiveVar } from '@apollo/client';
+import { useTranslation } from 'next-i18next/pages';
+import { useQuery, useReactiveVar } from '@apollo/client/react';
 import DirectionsCarOutlinedIcon from '@mui/icons-material/DirectionsCarOutlined';
 import GroupOutlinedIcon from '@mui/icons-material/GroupOutlined';
 import PersonAddAltOutlinedIcon from '@mui/icons-material/PersonAddAltOutlined';
@@ -32,15 +32,18 @@ const MemberMenu = (props: MemberMenuProps) => {
 	const { memberId } = router.query;
 
 	/** APOLLO REQUESTS **/
-	const { refetch: getMemberRefetch } = useQuery(GET_MEMBER, {
+	const { data: completedData1, refetch: getMemberRefetch } = useQuery<any>(GET_MEMBER, {
 		fetchPolicy: 'network-only',
 		variables: { input: memberId },
 		skip: !memberId,
 		notifyOnNetworkStatusChange: true,
-		onCompleted: (data: T) => {
-			setMember(data?.getMember);
-		},
 	});
+	// Apollo 4 has no onCompleted: the same work runs whenever a new response arrives
+	useEffect(() => {
+		if (!completedData1) return;
+		const data: any = completedData1;
+		setMember(data?.getMember);
+	}, [completedData1]);
 
 	const isSeller = member?.memberType !== 'ADMIN';
 	const following = !!(member?.meFollowed && member?.meFollowed[0]?.myFollowing);
@@ -69,7 +72,9 @@ const MemberMenu = (props: MemberMenuProps) => {
 					alt={member?.memberNick}
 				/>
 				<strong>{member?.memberFullName || member?.memberNick}</strong>
-				<span className={'ma-badge ma-badge--primary'}>{t(member?.memberType === 'AGENT' ? 'Dealer' : 'Private seller')}</span>
+				<span className={'ma-badge ma-badge--primary'}>
+					{t(member?.memberType === 'AGENT' ? 'Dealer' : 'Private seller')}
+				</span>
 				{member?.memberPhone && <span className={'ma-side-menu__phone'}>{formatPhone(member?.memberPhone)}</span>}
 				<SellerTrust member={member} />
 				{member?.memberDesc && <p>{member.memberDesc}</p>}

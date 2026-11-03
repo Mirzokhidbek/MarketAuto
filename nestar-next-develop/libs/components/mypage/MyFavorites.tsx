@@ -1,15 +1,15 @@
 import Link from 'next/link';
 import EmptyState from '../ui/EmptyState';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NextPage } from 'next';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'next-i18next/pages';
 import { Pagination } from '@mui/material';
 import CarCard from '../car/CarCard';
 import { Property } from '../../types/property/property';
 import { T } from '../../types/common';
 import { GET_FAVORITES } from '../../../apollo/user/query';
 import { LIKE_TARGET_PROPERTY } from '../../../apollo/user/mutation';
-import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
+import { useMutation, useQuery, useReactiveVar } from '@apollo/client/react';
 import { userVar } from '../../../apollo/store';
 import { Messages } from '../../config';
 import { sweetMixinErrorAlert } from '../../sweetAlert';
@@ -22,24 +22,27 @@ const MyFavorites: NextPage = () => {
 	const [searchFavorites, setSearchFavorites] = useState<T>({ page: 1, limit: 6 });
 
 	/** APOLLO REQUESTS **/
-	const [likeTargetProperty] = useMutation(LIKE_TARGET_PROPERTY);
+	const [likeTargetProperty] = useMutation<any>(LIKE_TARGET_PROPERTY);
 
 	const {
 		loading: getFavoritesLoading,
 		data: getFavoritesData,
 		error: getFavoritesError,
 		refetch: getFavoritesRefetch,
-	} = useQuery(GET_FAVORITES, {
+	} = useQuery<any>(GET_FAVORITES, {
 		fetchPolicy: 'network-only',
 		variables: {
 			input: searchFavorites,
 		},
 		notifyOnNetworkStatusChange: true,
-		onCompleted: (data: T) => {
-			setMyFavorites(data.getFavorites?.list);
-			setTotal(data.getFavorites?.metaCounter?.[0]?.total || 0);
-		},
 	});
+	// Apollo 4 has no onCompleted: the same work runs whenever a new response arrives
+	useEffect(() => {
+		if (!getFavoritesData) return;
+		const data: any = getFavoritesData;
+		setMyFavorites(data.getFavorites?.list);
+		setTotal(data.getFavorites?.metaCounter?.[0]?.total || 0);
+	}, [getFavoritesData]);
 
 	/** HANDLERS **/
 	const paginationHandler = (e: T, value: number) => {
@@ -82,7 +85,12 @@ const MyFavorites: NextPage = () => {
 					{myFavorites.map((property: Property) => (
 						// every car here is a favorite: the heart shows filled (the list does not carry meLiked)
 						<CarCard
-							property={{ ...property, meLiked: [{ memberId: user._id, likeRefId: property._id, myFavorite: true }] } as Property}
+							property={
+								{
+									...property,
+									meLiked: [{ memberId: user._id, likeRefId: property._id, myFavorite: true }],
+								} as Property
+							}
 							key={property._id}
 							onLike={(id) => likePropertyHandler(user, id)}
 						/>

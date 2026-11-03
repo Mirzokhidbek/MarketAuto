@@ -3,9 +3,9 @@ import type { NextPage } from 'next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import moment from 'moment';
-import { useTranslation } from 'next-i18next';
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import { useLazyQuery, useMutation, useQuery } from '@apollo/client';
+import { useTranslation } from 'next-i18next/pages';
+import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
+import { useLazyQuery, useMutation, useQuery } from '@apollo/client/react';
 import { Alert, Avatar, Box, Button, Chip, MenuItem, Select, Stack, Typography } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import withAdminLayout from '../../../libs/components/layout/LayoutAdmin';
@@ -31,15 +31,15 @@ const AdminMemberDetail: NextPage = () => {
 	const [blockOpen, setBlockOpen] = useState<boolean>(false);
 	const [chatId, setChatId] = useState<string>('');
 
-	const { data, refetch } = useQuery(GET_MEMBER_ADMIN_DETAIL, {
+	const { data, refetch } = useQuery<any>(GET_MEMBER_ADMIN_DETAIL, {
 		fetchPolicy: 'network-only',
 		skip: !memberId,
 		variables: { memberId },
 	});
-	const [updateMemberByAdmin] = useMutation(UPDATE_MEMBER_BY_ADMIN);
+	const [updateMemberByAdmin] = useMutation<any>(UPDATE_MEMBER_BY_ADMIN);
 	// chats are private: loaded only after the admin confirms, and every look is written to the action log
-	const [loadChats, { data: chatsData, called: chatsOpened }] = useLazyQuery(GET_CONVERSATIONS_BY_ADMIN, { fetchPolicy: 'network-only' });
-	const [loadMessages, { data: messagesData, loading: messagesLoading }] = useLazyQuery(GET_MESSAGES_BY_ADMIN, {
+	const [loadChats, { data: chatsData, called: chatsOpened }] = useLazyQuery<any>(GET_CONVERSATIONS_BY_ADMIN, { fetchPolicy: 'network-only' });
+	const [loadMessages, { data: messagesData, loading: messagesLoading }] = useLazyQuery<any>(GET_MESSAGES_BY_ADMIN, {
 		fetchPolicy: 'network-only',
 	});
 

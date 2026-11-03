@@ -1,10 +1,10 @@
 import { imageUrl } from '../../utils';
 import React, { ChangeEvent, useEffect, useState } from 'react';
 import { Pagination } from '@mui/material';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'next-i18next/pages';
 import { useRouter } from 'next/router';
 import { FollowInquiry } from '../../types/follow/follow.input';
-import { useQuery, useReactiveVar } from '@apollo/client';
+import { useQuery, useReactiveVar } from '@apollo/client/react';
 import { Following } from '../../types/follow/follow';
 import { REACT_APP_API_URL } from '../../config';
 import FavoriteIcon from '@mui/icons-material/Favorite';
@@ -37,16 +37,19 @@ const MemberFollowings = (props: MemberFollowingsProps) => {
 		data: getMemberFollowingsData,
 		error: getMemberFollowersError,
 		refetch: getMemberFollowingsRefetch,
-	} = useQuery(GET_MEMBER_FOLLOWINGS, {
+	} = useQuery<any>(GET_MEMBER_FOLLOWINGS, {
 		fetchPolicy: 'network-only',
 		variables: { input: followInquiry },
 		skip: !followInquiry?.search?.followerId,
 		notifyOnNetworkStatusChange: true,
-		onCompleted: (data: T) => {
-			setMemberFollowings(data?.getMemberFollowings?.list);
-			setTotal(data?.getMemberFollowings?.metaCounter[0]?.total);
-		},
 	});
+	// Apollo 4 has no onCompleted: the same work runs whenever a new response arrives
+	useEffect(() => {
+		if (!getMemberFollowingsData) return;
+		const data: any = getMemberFollowingsData;
+		setMemberFollowings(data?.getMemberFollowings?.list);
+		setTotal(data?.getMemberFollowings?.metaCounter[0]?.total);
+	}, [getMemberFollowingsData]);
 
 	/** LIFECYCLES **/
 	useEffect(() => {
@@ -54,7 +57,6 @@ const MemberFollowings = (props: MemberFollowingsProps) => {
 			setFollowInquiry({ ...followInquiry, search: { followerId: router.query.memberId as string } });
 		else setFollowInquiry({ ...followInquiry, search: { followerId: user?._id } });
 	}, [router]);
-
 
 	/** HANDLERS **/
 	const paginationHandler = async (event: ChangeEvent<unknown>, value: number) => {
@@ -81,9 +83,7 @@ const MemberFollowings = (props: MemberFollowingsProps) => {
 						return (
 							<div className={'ma-person'} key={following._id}>
 								<img
-									src={
-										person?.memberImage ? imageUrl(person?.memberImage) : '/img/profile/defaultUser.svg'
-									}
+									src={person?.memberImage ? imageUrl(person?.memberImage) : '/img/profile/defaultUser.svg'}
 									alt={person?.memberNick}
 									onClick={() => redirectToMemberPageHandler(person?._id)}
 								/>

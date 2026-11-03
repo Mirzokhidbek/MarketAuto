@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useTranslation } from 'next-i18next';
-import { useReactiveVar } from '@apollo/client';
+import { useTranslation } from 'next-i18next/pages';
+import { useReactiveVar } from '@apollo/client/react';
 import { Badge, CircularProgress, Popover } from '@mui/material';
 import NotificationsOutlinedIcon from '@mui/icons-material/NotificationsOutlined';
 import NotificationsNoneRoundedIcon from '@mui/icons-material/NotificationsNoneRounded';

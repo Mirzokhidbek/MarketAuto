@@ -1,8 +1,8 @@
 import React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useReactiveVar } from '@apollo/client';
-import { useTranslation } from 'next-i18next';
+import { useReactiveVar } from '@apollo/client/react';
+import { useTranslation } from 'next-i18next/pages';
 import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
 import SearchIcon from '@mui/icons-material/Search';
 import AddIcon from '@mui/icons-material/Add';

@@ -1,11 +1,12 @@
 import { useMemo } from 'react';
-import { ApolloClient, ApolloLink, InMemoryCache, from, NormalizedCacheObject, Observable } from '@apollo/client';
-import createUploadLink from 'apollo-upload-client/public/createUploadLink.js';
-import { onError } from '@apollo/client/link/error';
+import { ApolloClient, ApolloLink, CombinedGraphQLErrors, InMemoryCache } from '@apollo/client';
+import { ErrorLink } from '@apollo/client/link/error';
 import { getMainDefinition } from '@apollo/client/utilities';
+import UploadHttpLink from 'apollo-upload-client/UploadHttpLink.mjs';
+import { Observable } from 'rxjs';
 import { getJwtToken, hasSession, isTokenExpired, logOut, refreshAccessToken } from '../libs/auth';
 import { sweetErrorAlert } from '../libs/sweetAlert';
-let apolloClient: ApolloClient<NormalizedCacheObject>;
+let apolloClient: ApolloClient;
 
 function getHeaders() {
 	const headers = {} as HeadersInit;
@@ -45,19 +46,18 @@ function createIsomorphicLink() {
 			return forward(operation);
 		});
 
-		// @ts-ignore
-		const link = new createUploadLink({
+		const link = new UploadHttpLink({
 			uri: process.env.REACT_APP_API_GRAPHQL_URL,
 			// login/signup responses set the httpOnly refresh cookie; the browser keeps it only with credentials
 			credentials: 'include',
 		});
 
-		const errorLink = onError(({ graphQLErrors, networkError, operation }) => {
+		const errorLink = new ErrorLink(({ error, operation }) => {
 			// mutations are started by a form/button that shows its own error (inline or popup); only queries alert here
 			const isMutation = getMainDefinition(operation.query)?.kind === 'OperationDefinition' &&
 				(getMainDefinition(operation.query) as any).operation === 'mutation';
-			if (graphQLErrors) {
-				graphQLErrors.forEach(({ message }) => {
+			if (CombinedGraphQLErrors.is(error)) {
+				error.errors.forEach(({ message }) => {
 					// blocked/removed account or a dead session: end it instead of failing every request
 					const sessionEnded = SESSION_ENDED.some((text) => message.startsWith(text));
 					if (sessionEnded && getJwtToken()) {
@@ -69,11 +69,13 @@ function createIsomorphicLink() {
 					if (!isMutation && !message.includes('input')) sweetErrorAlert(message);
 				});
 			}
-			if (networkError) console.warn(`[Network error]: ${networkError}`);
+			else if (error) console.warn(`[Network error]: ${error}`);
 		});
 
-		return from([errorLink, refreshLink, authLink, link]);
+		return ApolloLink.from([errorLink, refreshLink, authLink, link]);
 	}
+	// server render: pages fetch their server data themselves, Apollo only runs in the browser
+	return ApolloLink.empty();
 }
 
 function createApolloClient() {
@@ -81,11 +83,10 @@ function createApolloClient() {
 		ssrMode: typeof window === 'undefined',
 		link: createIsomorphicLink(),
 		cache: new InMemoryCache(),
-		resolvers: {},
 	});
 }
 
-export function initializeApollo(initialState = null) {
+export function initializeApollo(initialState: any = null) {
 	const _apolloClient = apolloClient ?? createApolloClient();
 	if (initialState) _apolloClient.cache.restore(initialState);
 	if (typeof window === 'undefined') return _apolloClient;

@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
-import { useTranslation } from 'next-i18next';
-import { useQuery, useReactiveVar } from '@apollo/client';
+import { useTranslation } from 'next-i18next/pages';
+import { useQuery, useReactiveVar } from '@apollo/client/react';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import VerifiedIcon from '@mui/icons-material/Verified';
 import DirectionsCarOutlinedIcon from '@mui/icons-material/DirectionsCarOutlined';
@@ -39,7 +39,7 @@ const ProfileHub = () => {
 	const isAdmin = user?.memberType === 'ADMIN';
 
 	// only the count is needed
-	const { data } = useQuery(GET_FAVORITES, {
+	const { data } = useQuery<any>(GET_FAVORITES, {
 		fetchPolicy: 'cache-and-network',
 		variables: { input: { page: 1, limit: 1 } },
 		skip: !user?._id,

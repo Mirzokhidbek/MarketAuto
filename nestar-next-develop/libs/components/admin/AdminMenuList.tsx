@@ -1,8 +1,8 @@
 import React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useTranslation } from 'next-i18next';
-import { useQuery, useReactiveVar } from '@apollo/client';
+import { useTranslation } from 'next-i18next/pages';
+import { useQuery, useReactiveVar } from '@apollo/client/react';
 import { ChartBar, Car, Flag, User, Article, Question, Megaphone, ChatCircleDots, ListChecks, GearSix, Calculator } from 'phosphor-react';
 import { GET_ADMIN_BADGES } from '../../../apollo/admin/query';
 import { userVar } from '../../../apollo/store';
@@ -67,7 +67,7 @@ const AdminMenuList = () => {
 	// moderators work with cars, reports, articles and support; members, logs and settings are for full admins
 	const isSuper = user.memberAdminRole !== 'MODERATOR';
 	// waiting work shown as badges; refreshed every minute
-	const { data } = useQuery(GET_ADMIN_BADGES, { fetchPolicy: 'network-only', pollInterval: 60000 });
+	const { data } = useQuery<any>(GET_ADMIN_BADGES, { fetchPolicy: 'network-only', pollInterval: 60000 });
 	const counts = data?.getDashboardStats ?? {};
 
 	const isActive = (href: string) =>

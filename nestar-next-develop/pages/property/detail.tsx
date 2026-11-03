@@ -28,9 +28,9 @@ import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 import DirectionsCarOutlinedIcon from '@mui/icons-material/DirectionsCarOutlined';
 import EngineeringOutlinedIcon from '@mui/icons-material/EngineeringOutlined';
 import { useAppBar } from '../../libs/hooks/useAppBar';
-import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
+import { useMutation, useQuery, useReactiveVar } from '@apollo/client/react';
 import { useRouter } from 'next/router';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'next-i18next/pages';
 import { Property } from '../../libs/types/property/property';
 import moment from 'moment';
 import {
@@ -40,11 +40,13 @@ import {
 	formatEnumLabel,
 	formatMileage,
 	formatPhone,
-	formatterStr, imageUrl } from '../../libs/utils';
+	formatterStr,
+	imageUrl,
+} from '../../libs/utils';
 import { REACT_APP_API_URL } from '../../libs/config';
 import { compareVar, userVar } from '../../apollo/store';
 import Link from 'next/link';
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
 import { print } from 'graphql';
 import { GET_PROPERTIES, GET_PROPERTY } from '../../apollo/user/query';
 import { T } from '../../libs/types/common';
@@ -115,30 +117,33 @@ const PropertyDetail: NextPage = ({ carSeo }: any) => {
 	const [destinationProperties, setDestinationProperties] = useState<Property[]>([]);
 
 	/** APOLLO REQUESTS **/
-	const [likeTargetProperty] = useMutation(LIKE_TARGET_PROPERTY);
+	const [likeTargetProperty] = useMutation<any>(LIKE_TARGET_PROPERTY);
 
 	const {
 		loading: getPropertyLoading,
 		data: getPropertyData,
 		error: getPropertyError,
 		refetch: getPropertyRefetch,
-	} = useQuery(GET_PROPERTY, {
+	} = useQuery<any>(GET_PROPERTY, {
 		fetchPolicy: 'network-only',
 		variables: { input: propertyId },
 		skip: !propertyId,
 		notifyOnNetworkStatusChange: true,
-		onCompleted: (data: T) => {
-			if (data?.getProperty) setProperty(data?.getProperty);
-			if (data?.getProperty) setSlideImage(data?.getProperty?.propertyImages[0]);
-		},
 	});
+	// Apollo 4 has no onCompleted: the same work runs whenever a new response arrives
+	useEffect(() => {
+		if (!getPropertyData) return;
+		const data: any = getPropertyData;
+		if (data?.getProperty) setProperty(data?.getProperty);
+		if (data?.getProperty) setSlideImage(data?.getProperty?.propertyImages[0]);
+	}, [getPropertyData]);
 
 	const {
 		loading: getPropertiesLoading,
 		data: getPropertiesData,
 		error: getPropertiesError,
 		refetch: getPropertiesRefetch,
-	} = useQuery(GET_PROPERTIES, {
+	} = useQuery<any>(GET_PROPERTIES, {
 		fetchPolicy: 'network-only',
 		variables: {
 			input: {
@@ -153,10 +158,13 @@ const PropertyDetail: NextPage = ({ carSeo }: any) => {
 		},
 		skip: !propertyId && !property,
 		notifyOnNetworkStatusChange: true,
-		onCompleted: (data: T) => {
-			if (data?.getProperties?.list) setDestinationProperties(data?.getProperties?.list);
-		},
 	});
+	// Apollo 4 has no onCompleted: the same work runs whenever a new response arrives
+	useEffect(() => {
+		if (!getPropertiesData) return;
+		const data: any = getPropertiesData;
+		if (data?.getProperties?.list) setDestinationProperties(data?.getProperties?.list);
+	}, [getPropertiesData]);
 
 	/** LIFECYCLES **/
 	// moving from one car to another: show the new server-rendered car right away
@@ -171,7 +179,6 @@ const PropertyDetail: NextPage = ({ carSeo }: any) => {
 			setPropertyId(router.query.id as string);
 		}
 	}, [router]);
-
 
 	/** HANDLERS **/
 	const changeImageHandler = (image: string) => {
@@ -209,8 +216,7 @@ const PropertyDetail: NextPage = ({ carSeo }: any) => {
 		try {
 			await navigator.clipboard.writeText(window.location.href);
 			await sweetTopSmallSuccessAlert(t('Link copied') as string, 900);
-		} catch (err: any) {
-		}
+		} catch (err: any) {}
 	};
 
 	const seo = carSeo ? (
@@ -244,7 +250,7 @@ const PropertyDetail: NextPage = ({ carSeo }: any) => {
 							</button>
 						</>
 					),
-			  }
+				}
 			: {},
 		[property?._id, property?.propertyTitle, appBarLiked, user?._id],
 	);
@@ -313,17 +319,25 @@ const PropertyDetail: NextPage = ({ carSeo }: any) => {
 		{ label: 'Owners', value: property.carOwners ?? '—' },
 		{
 			label: 'Customs cleared in Uzbekistan',
-			value: property.carCustomsCleared === undefined || property.carCustomsCleared === null ? '—' : t(property.carCustomsCleared ? 'Yes' : 'No'),
+			value:
+				property.carCustomsCleared === undefined || property.carCustomsCleared === null
+					? '—'
+					: t(property.carCustomsCleared ? 'Yes' : 'No'),
 		},
 		...(property.carCountry !== 'UZBEKISTAN'
 			? [
 					{ label: 'Delivery time (days)', value: property.carDeliveryDays ?? '—' },
-					{ label: 'Delivery cost ($)', value: property.carDeliveryCost ? `$${formatterStr(property.carDeliveryCost)}` : '—' },
-			  ]
+					{
+						label: 'Delivery cost ($)',
+						value: property.carDeliveryCost ? `$${formatterStr(property.carDeliveryCost)}` : '—',
+					},
+				]
 			: []),
 	];
 	// a row with no value is noise for the buyer: only filled fields are listed
-	const filledDetails = details.filter((item) => item.value !== '—' && item.value !== '' && item.value !== undefined && item.value !== null);
+	const filledDetails = details.filter(
+		(item) => item.value !== '—' && item.value !== '' && item.value !== undefined && item.value !== null,
+	);
 	const inCompare = compareIds.includes(property._id);
 	const isOwner = user?._id === property.memberId;
 
@@ -342,7 +356,8 @@ const PropertyDetail: NextPage = ({ carSeo }: any) => {
 				{property.propertyStatus === 'REJECTED' && (
 					<div className={'ma-note ma-note--warn'}>
 						{t('This listing was rejected by moderation')}
-						{property.propertyRejectReason ? `: ${property.propertyRejectReason}` : ''}. {t('Edit it and it goes back to review.')}
+						{property.propertyRejectReason ? `: ${property.propertyRejectReason}` : ''}.{' '}
+						{t('Edit it and it goes back to review.')}
 					</div>
 				)}
 				{property.propertyStatus === 'PENDING' && (
@@ -384,7 +399,8 @@ const PropertyDetail: NextPage = ({ carSeo }: any) => {
 						<button
 							className={`ma-icon-btn ${inCompare ? 'is-liked' : ''}`}
 							onClick={() => {
-								if (!toggleCompare(property._id)) sweetMixinErrorAlert(t('You can compare up to 3 cars.') as string).then();
+								if (!toggleCompare(property._id))
+									sweetMixinErrorAlert(t('You can compare up to 3 cars.') as string).then();
 							}}
 						>
 							<CompareArrowsIcon />
@@ -529,23 +545,27 @@ const PropertyDetail: NextPage = ({ carSeo }: any) => {
 							<ImportCostLine propertyId={property._id} propertyPrice={property.propertyPrice} />
 							<div className={'ma-price-card__badges'}>
 								<span className={`ma-status ma-status--${property.propertyStatus.toLowerCase()}`}>
-									{t(property.propertyStatus === 'SOLD' ? 'Sold' : property.propertyStatus === 'PENDING' ? 'Under review' : 'For sale')}
+									{t(
+										property.propertyStatus === 'SOLD'
+											? 'Sold'
+											: property.propertyStatus === 'PENDING'
+												? 'Under review'
+												: 'For sale',
+									)}
 								</span>
-								{property.carCustomsCleared && <span className={'ma-badge ma-badge--primary'}>{t('Customs cleared')}</span>}
+								{property.carCustomsCleared && (
+									<span className={'ma-badge ma-badge--primary'}>{t('Customs cleared')}</span>
+								)}
 								{property.carAccidentHistory === 'NONE' && (
 									<span className={'ma-badge ma-badge--primary'}>{t('No accidents')}</span>
 								)}
 								{property.propertyBarter && <span className={'ma-badge ma-badge--primary'}>{t('Barter')}</span>}
-								{property.propertyNegotiable && (
-									<span className={'ma-badge ma-badge--primary'}>{t('Negotiable')}</span>
-								)}
+								{property.propertyNegotiable && <span className={'ma-badge ma-badge--primary'}>{t('Negotiable')}</span>}
 							</div>
 
 							<div className={'ma-seller'}>
 								<img
-									src={
-										seller?.memberImage ? imageUrl(seller.memberImage) : '/img/profile/defaultUser.svg'
-									}
+									src={seller?.memberImage ? imageUrl(seller.memberImage) : '/img/profile/defaultUser.svg'}
 									alt={seller?.memberNick}
 								/>
 								<div>
@@ -603,7 +623,9 @@ const PropertyDetail: NextPage = ({ carSeo }: any) => {
 							<PhoneOutlinedIcon /> {t('Call')}
 						</a>
 						<Link
-							href={user?._id ? `/mypage?category=messages&to=${seller?._id}&propertyId=${property._id}` : '/account/join'}
+							href={
+								user?._id ? `/mypage?category=messages&to=${seller?._id}&propertyId=${property._id}` : '/account/join'
+							}
 						>
 							<span className={'ma-btn ma-btn--outline'}>
 								<ChatBubbleOutlineIcon /> {t('Write')}
@@ -616,7 +638,12 @@ const PropertyDetail: NextPage = ({ carSeo }: any) => {
 					<section className={'ma-similar'}>
 						<div className={'ma-similar__head'}>
 							<h2 className={'ma-title'}>{t('Similar Cars')}</h2>
-							<Link href={{ pathname: '/property', query: { input: JSON.stringify({ page: 1, limit: 9, search: { brandList: [property.carBrand] } }) } }}>
+							<Link
+								href={{
+									pathname: '/property',
+									query: { input: JSON.stringify({ page: 1, limit: 9, search: { brandList: [property.carBrand] } }) },
+								}}
+							>
 								{t('See all')}
 							</Link>
 						</div>
@@ -631,6 +658,5 @@ const PropertyDetail: NextPage = ({ carSeo }: any) => {
 		</div>
 	);
 };
-
 
 export default withLayoutFull(PropertyDetail);

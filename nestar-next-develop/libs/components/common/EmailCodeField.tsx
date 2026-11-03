@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { useTranslation } from 'next-i18next';
-import { useMutation } from '@apollo/client';
+import { useTranslation } from 'next-i18next/pages';
+import { useMutation } from '@apollo/client/react';
 import { REQUEST_EMAIL_CODE } from '../../../apollo/user/mutation';
 import { sweetErrorHandling } from '../../sweetAlert';
 
@@ -21,7 +21,7 @@ export const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 /** email + "Send code" button + 6-digit code input (the same flow as PhoneCodeField) */
 const EmailCodeField = ({ purpose, email, code, onEmailChange, onCodeChange, emailLabel }: EmailCodeFieldProps) => {
 	const { t } = useTranslation('common');
-	const [requestEmailCode, { loading }] = useMutation(REQUEST_EMAIL_CODE);
+	const [requestEmailCode, { loading }] = useMutation<any>(REQUEST_EMAIL_CODE);
 	const [cooldown, setCooldown] = useState<number>(0);
 	const [sent, setSent] = useState<boolean>(false);
 	const [devCode, setDevCode] = useState<string>('');

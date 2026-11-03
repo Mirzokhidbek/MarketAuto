@@ -1,4 +1,4 @@
-import decodeJWT from 'jwt-decode';
+import { jwtDecode as decodeJWT } from 'jwt-decode';
 import { initializeApollo } from '../../apollo/client';
 import { userVar } from '../../apollo/store';
 import { CustomJwtPayload } from '../types/customJwtPayload';
@@ -61,7 +61,7 @@ export interface LoginResult {
 export const logIn = async (nick: string, password: string): Promise<LoginResult> => {
 	const apolloClient = await initializeApollo();
 	try {
-		const result = await apolloClient.mutate({
+		const result = await apolloClient.mutate<any>({
 			mutation: LOGIN,
 			variables: { input: { memberNick: nick, memberPassword: password } },
 			fetchPolicy: 'network-only',
@@ -79,7 +79,7 @@ export const logIn = async (nick: string, password: string): Promise<LoginResult
 export const verifyAdminLogin = async (nick: string, code: string): Promise<void> => {
 	const apolloClient = await initializeApollo();
 	try {
-		const result = await apolloClient.mutate({
+		const result = await apolloClient.mutate<any>({
 			mutation: VERIFY_ADMIN_LOGIN,
 			variables: { input: { memberNick: nick, code } },
 			fetchPolicy: 'network-only',
@@ -94,7 +94,7 @@ export const verifyAdminLogin = async (nick: string, code: string): Promise<void
 export const logInWithCode = async (phone: string, code: string): Promise<void> => {
 	const apolloClient = await initializeApollo();
 	try {
-		const result = await apolloClient.mutate({
+		const result = await apolloClient.mutate<any>({
 			mutation: LOGIN_WITH_CODE,
 			variables: { input: { phone, code } },
 			fetchPolicy: 'network-only',
@@ -114,7 +114,7 @@ export const logInWithFirebase = async (user: FirebaseUser, memberType?: string)
 	const apolloClient = await initializeApollo();
 	try {
 		const idToken = await user.getIdToken();
-		const result = await apolloClient.mutate({
+		const result = await apolloClient.mutate<any>({
 			mutation: LOGIN_WITH_FIREBASE,
 			variables: { input: { idToken, ...(memberType && { memberType }) } },
 			fetchPolicy: 'network-only',
@@ -133,7 +133,7 @@ export const logInWithFirebase = async (user: FirebaseUser, memberType?: string)
 export const logInWithTelegram = async (initData: string): Promise<void> => {
 	const apolloClient = await initializeApollo();
 	try {
-		const result = await apolloClient.mutate({
+		const result = await apolloClient.mutate<any>({
 			mutation: LOGIN_WITH_TELEGRAM,
 			variables: { input: { initData } },
 			fetchPolicy: 'network-only',
@@ -155,7 +155,7 @@ interface SignUpInput {
 export const signUp = async ({ nick, password, phone, type, code }: SignUpInput): Promise<void> => {
 	const apolloClient = await initializeApollo();
 	try {
-		const result = await apolloClient.mutate({
+		const result = await apolloClient.mutate<any>({
 			mutation: SIGN_UP,
 			variables: {
 				input: { memberNick: nick, memberPassword: password, memberPhone: phone, memberType: type, verificationCode: code },
@@ -172,7 +172,7 @@ export const signUp = async ({ nick, password, phone, type, code }: SignUpInput)
 export const signUpWithEmail = async ({ nick, password, email, type, code }: Omit<SignUpInput, 'phone'> & { email: string }) => {
 	const apolloClient = await initializeApollo();
 	try {
-		const result = await apolloClient.mutate({
+		const result = await apolloClient.mutate<any>({
 			mutation: SIGN_UP_WITH_EMAIL,
 			variables: {
 				input: { memberNick: nick, memberPassword: password, memberEmail: email, memberType: type, verificationCode: code },
@@ -193,7 +193,7 @@ export const resetPassword = async (
 ): Promise<void> => {
 	const apolloClient = await initializeApollo();
 	try {
-		const result = await apolloClient.mutate({
+		const result = await apolloClient.mutate<any>({
 			mutation: RESET_PASSWORD,
 			variables: { input: { ...target, code, newPassword } },
 			fetchPolicy: 'network-only',
@@ -303,7 +303,7 @@ const loadMe = async (jwtToken: string): Promise<void> => {
 	meLoadedAt = Date.now();
 	try {
 		const apolloClient = await initializeApollo();
-		const { data } = await apolloClient.query({ query: GET_ME, fetchPolicy: 'network-only' });
+		const { data } = await apolloClient.query<any>({ query: GET_ME, fetchPolicy: 'network-only' });
 		const me = data?.getMe;
 		if (!me || me._id !== userVar()._id) return;
 		userVar({

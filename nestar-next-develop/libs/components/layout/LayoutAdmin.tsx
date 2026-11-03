@@ -4,8 +4,8 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Link from 'next/link';
-import { useTranslation } from 'next-i18next';
-import { useQuery, useReactiveVar } from '@apollo/client';
+import { useTranslation } from 'next-i18next/pages';
+import { useQuery, useReactiveVar } from '@apollo/client/react';
 import { Badge, Menu, MenuItem, Popover } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import SearchIcon from '@mui/icons-material/Search';
@@ -66,7 +66,7 @@ const withAdminLayout = (Component: ComponentType) => {
 		const isSuper = user.memberAdminRole !== 'MODERATOR';
 		const isAdmin = user?.memberType === MemberType.ADMIN;
 
-		const { data: badgeData } = useQuery(GET_ADMIN_BADGES, { fetchPolicy: 'cache-and-network', pollInterval: 60000, skip: !isAdmin });
+		const { data: badgeData } = useQuery<any>(GET_ADMIN_BADGES, { fetchPolicy: 'cache-and-network', pollInterval: 60000, skip: !isAdmin });
 		const counts = badgeData?.getDashboardStats ?? {};
 		const waiting = [
 			{ label: 'Cars to review', count: counts.carsPending ?? 0, href: '/_admin/properties?status=PENDING' },

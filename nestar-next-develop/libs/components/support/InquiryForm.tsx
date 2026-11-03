@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
-import { useTranslation } from 'next-i18next';
+import { useMutation, useQuery, useReactiveVar } from '@apollo/client/react';
+import { useTranslation } from 'next-i18next/pages';
 import moment from 'moment';
 import ExpandMoreRoundedIcon from '@mui/icons-material/ExpandMoreRounded';
 import { userVar } from '../../../apollo/store';
@@ -15,8 +15,8 @@ const InquiryForm = () => {
 	const { t } = useTranslation('common');
 	const user = useReactiveVar(userVar);
 	const [form, setForm] = useState({ noticeTitle: '', noticeContent: '' });
-	const [createInquiry, { loading: sending }] = useMutation(CREATE_INQUIRY);
-	const { data, refetch } = useQuery(GET_MY_INQUIRIES, {
+	const [createInquiry, { loading: sending }] = useMutation<any>(CREATE_INQUIRY);
+	const { data, refetch } = useQuery<any>(GET_MY_INQUIRIES, {
 		fetchPolicy: 'network-only',
 		skip: !user?._id,
 		variables: { input: { page: 1, limit: 20, search: {} } },

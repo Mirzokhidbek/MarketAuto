@@ -1,10 +1,10 @@
 import { uploadImage as uploadFile } from '../../upload';
 import React, { useCallback, useEffect, useState } from 'react';
 import { NextPage } from 'next';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'next-i18next/pages';
 import { Messages, REACT_APP_API_URL } from '../../config';
 import { getJwtToken, updateStorage, updateUserInfo } from '../../auth';
-import { useMutation, useReactiveVar } from '@apollo/client';
+import { useMutation, useReactiveVar } from '@apollo/client/react';
 import { userVar } from '../../../apollo/store';
 import { MemberUpdate } from '../../types/member/member.update';
 import { sweetErrorHandling, sweetMixinSuccessAlert } from '../../sweetAlert';
@@ -16,17 +16,17 @@ import MySessions from './MySessions';
 import { isStrongPassword, PASSWORD_MAX } from '../../password';
 import { formatPhone, imageUrl } from '../../utils';
 
-const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
+const MyProfile: NextPage = ({ initialValues = defaultProps.initialValues, ...props }: any) => {
 	const { t } = useTranslation('common');
 	const token = getJwtToken();
 	const user = useReactiveVar(userVar);
 	const [updateData, setUpdateData] = useState<MemberUpdate>(initialValues);
 
 	/** APOLLO REQUESTS **/
-	const [updateMember] = useMutation(UPDATE_MEMBER);
-	const [changePassword] = useMutation(CHANGE_PASSWORD);
-	const [changePhone] = useMutation(CHANGE_PHONE);
-	const [changeEmail] = useMutation(CHANGE_EMAIL);
+	const [updateMember] = useMutation<any>(UPDATE_MEMBER);
+	const [changePassword] = useMutation<any>(CHANGE_PASSWORD);
+	const [changePhone] = useMutation<any>(CHANGE_PHONE);
+	const [changeEmail] = useMutation<any>(CHANGE_EMAIL);
 	const [phoneEdit, setPhoneEdit] = useState<boolean>(false);
 	const [newPhone, setNewPhone] = useState({ phone: '', code: '' });
 	const [emailEdit, setEmailEdit] = useState<boolean>(false);
@@ -36,7 +36,11 @@ const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 		try {
 			const result = await changeEmail({ variables: { input: newEmail } });
 			const saved = result.data?.changeEmail;
-			userVar({ ...userVar(), memberEmail: saved?.memberEmail ?? '', memberEmailVerified: !!saved?.memberEmailVerified });
+			userVar({
+				...userVar(),
+				memberEmail: saved?.memberEmail ?? '',
+				memberEmailVerified: !!saved?.memberEmailVerified,
+			});
 			setEmailEdit(false);
 			setNewEmail({ email: '', code: '' });
 			await sweetMixinSuccessAlert(t('Email confirmed.') as string);
@@ -152,9 +156,7 @@ const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 
 			<div className={'ma-avatar-upload'}>
 				<img
-					src={
-						updateData?.memberImage ? imageUrl(updateData?.memberImage) : '/img/profile/defaultUser.svg'
-					}
+					src={updateData?.memberImage ? imageUrl(updateData?.memberImage) : '/img/profile/defaultUser.svg'}
 					alt={''}
 				/>
 				<div>
@@ -196,7 +198,11 @@ const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 						onEmailChange={(email) => setNewEmail({ ...newEmail, email })}
 						onCodeChange={(code) => setNewEmail({ ...newEmail, code })}
 					/>
-					<button className={'ma-btn ma-btn--primary'} disabled={newEmail.code.length !== 6} onClick={changeEmailHandler}>
+					<button
+						className={'ma-btn ma-btn--primary'}
+						disabled={newEmail.code.length !== 6}
+						onClick={changeEmailHandler}
+					>
 						{t('Confirm email')}
 					</button>
 				</div>
@@ -329,7 +335,8 @@ const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 	);
 };
 
-MyProfile.defaultProps = {
+// React 19 has no defaultProps on function components: used as the default value below
+const defaultProps = {
 	initialValues: {
 		_id: '',
 		memberImage: '',

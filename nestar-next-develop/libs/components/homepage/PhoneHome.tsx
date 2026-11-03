@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
-import { useTranslation } from 'next-i18next';
-import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
+import { useTranslation } from 'next-i18next/pages';
+import { useMutation, useQuery, useReactiveVar } from '@apollo/client/react';
 import VerifiedUserOutlinedIcon from '@mui/icons-material/VerifiedUserOutlined';
 import PublicOutlinedIcon from '@mui/icons-material/PublicOutlined';
 import ManageSearchOutlinedIcon from '@mui/icons-material/ManageSearchOutlined';
@@ -46,8 +46,8 @@ const LATEST = { page: 1, limit: 8, sort: 'createdAt', direction: Direction.DESC
 export const LatestCars = () => {
 	const { t } = useTranslation('common');
 	const user = useReactiveVar(userVar);
-	const [likeTargetProperty] = useMutation(LIKE_TARGET_PROPERTY);
-	const { data, refetch } = useQuery(GET_PROPERTIES, { fetchPolicy: 'cache-and-network', variables: { input: LATEST } });
+	const [likeTargetProperty] = useMutation<any>(LIKE_TARGET_PROPERTY);
+	const { data, refetch } = useQuery<any>(GET_PROPERTIES, { fetchPolicy: 'cache-and-network', variables: { input: LATEST } });
 	const cars: Property[] = data?.getProperties?.list ?? [];
 
 	const likeHandler = async (id: string) => {

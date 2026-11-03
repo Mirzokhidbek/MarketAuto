@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import type { NextPage } from 'next';
 import Link from 'next/link';
 import moment from 'moment';
-import { useTranslation } from 'next-i18next';
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import { useMutation, useQuery } from '@apollo/client';
+import { useTranslation } from 'next-i18next/pages';
+import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
+import { useMutation, useQuery } from '@apollo/client/react';
 import {
 	Box,
 	Button,
@@ -40,12 +40,12 @@ const AdminReports: NextPage = () => {
 	const [page, setPage] = useState<number>(1);
 	const [limit, setLimit] = useState<number>(10);
 	const input = { page, limit, reportStatus: status };
-	const { data, loading, refetch } = useQuery(GET_REPORTS_BY_ADMIN, {
+	const { data, loading, refetch } = useQuery<any>(GET_REPORTS_BY_ADMIN, {
 		fetchPolicy: 'network-only',
 		variables: { input },
 		notifyOnNetworkStatusChange: true,
 	});
-	const [resolveReport] = useMutation(RESOLVE_REPORT);
+	const [resolveReport] = useMutation<any>(RESOLVE_REPORT);
 	const list: T[] = data?.getReportsByAdmin?.list ?? [];
 	const total: number = data?.getReportsByAdmin?.metaCounter?.[0]?.total ?? 0;
 

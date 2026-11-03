@@ -1178,5 +1178,15 @@
 	"Filters find the right car fast": "Filtrlar kerakli mashinani tez topadi",
 	"Direct contact": "Toʻgʻridan-toʻgʻri aloqa",
 	"Call or write to the seller, no middlemen": "Sotuvchiga qoʻngʻiroq qiling yoki yozing, vositachisiz",
-	"New listings": "Yangi eʼlonlar"
+	"New listings": "Yangi eʼlonlar",
+	"Heading": "Sarlavha",
+	"Subheading": "Kichik sarlavha",
+	"Bold": "Qalin",
+	"Italic": "Kursiv",
+	"Strikethrough": "Ustidan chizilgan",
+	"Bulleted list": "Belgili roʻyxat",
+	"Numbered list": "Raqamli roʻyxat",
+	"Quote": "Iqtibos",
+	"Link": "Havola",
+	"Insert image": "Rasm qoʻshish"
 }

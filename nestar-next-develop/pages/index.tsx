@@ -12,7 +12,7 @@ import {
 	TopDealers,
 } from '../libs/components/homepage/HomeSections';
 import { LatestCars, WhyCarPort } from '../libs/components/homepage/PhoneHome';
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {

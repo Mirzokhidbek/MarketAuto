@@ -1,6 +1,6 @@
 import React from 'react';
 import moment from 'moment';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'next-i18next/pages';
 import VerifiedIcon from '@mui/icons-material/Verified';
 import StorefrontOutlinedIcon from '@mui/icons-material/StorefrontOutlined';
 import ScheduleOutlinedIcon from '@mui/icons-material/ScheduleOutlined';

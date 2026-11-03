@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
-import { useTranslation } from 'next-i18next';
-import { useQuery, useReactiveVar } from '@apollo/client';
+import { useTranslation } from 'next-i18next/pages';
+import { useQuery, useReactiveVar } from '@apollo/client/react';
 import SupportAgentOutlinedIcon from '@mui/icons-material/SupportAgentOutlined';
 import ExpandMoreRoundedIcon from '@mui/icons-material/ExpandMoreRounded';
 import { GET_AGENTS, GET_BOARD_ARTICLES } from '../../../apollo/user/query';
@@ -111,7 +111,7 @@ export const HowItWorks = () => {
 /** TOP DEALERS **/
 export const TopDealers = () => {
 	const { t } = useTranslation('common');
-	const { data } = useQuery(GET_AGENTS, {
+	const { data } = useQuery<any>(GET_AGENTS, {
 		fetchPolicy: 'cache-and-network',
 		variables: { input: { page: 1, limit: 4, sort: 'memberRank', direction: Direction.DESC, search: {} } },
 	});
@@ -187,7 +187,7 @@ export const SellCta = () => {
 /** LATEST FROM COMMUNITY (real member articles instead of sample testimonials) **/
 export const LatestArticles = () => {
 	const { t } = useTranslation('common');
-	const { data } = useQuery(GET_BOARD_ARTICLES, {
+	const { data } = useQuery<any>(GET_BOARD_ARTICLES, {
 		fetchPolicy: 'cache-and-network',
 		variables: { input: { page: 1, limit: 3, sort: 'createdAt', direction: Direction.DESC, search: {} } },
 	});

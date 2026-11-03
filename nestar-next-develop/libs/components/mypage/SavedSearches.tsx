@@ -1,8 +1,8 @@
 import React from 'react';
 import Link from 'next/link';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'next-i18next/pages';
 import moment from 'moment';
-import { useMutation, useQuery } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client/react';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import NotificationsActiveOutlinedIcon from '@mui/icons-material/NotificationsActiveOutlined';
 import { GET_SAVED_SEARCHES } from '../../../apollo/user/query';
@@ -27,8 +27,8 @@ const describe = (search: T, t: any): string => {
 
 const SavedSearches = () => {
 	const { t } = useTranslation('common');
-	const { data, loading, refetch } = useQuery(GET_SAVED_SEARCHES, { fetchPolicy: 'network-only' });
-	const [removeSavedSearch] = useMutation(REMOVE_SAVED_SEARCH);
+	const { data, loading, refetch } = useQuery<any>(GET_SAVED_SEARCHES, { fetchPolicy: 'network-only' });
+	const [removeSavedSearch] = useMutation<any>(REMOVE_SAVED_SEARCH);
 	const list: T[] = data?.getSavedSearches ?? [];
 
 	const removeHandler = async (id: string) => {

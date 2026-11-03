@@ -1,7 +1,7 @@
 import React from 'react';
 import { NextPage } from 'next';
 import dynamic from 'next/dynamic';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'next-i18next/pages';
 const ArticleEditor = dynamic(() => import('../community/ArticleEditor'), { ssr: false });
 
 const WriteArticle: NextPage = () => {

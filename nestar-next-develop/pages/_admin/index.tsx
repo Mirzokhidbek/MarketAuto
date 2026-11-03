@@ -1,9 +1,9 @@
-import { useTranslation } from 'next-i18next';
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { useTranslation } from 'next-i18next/pages';
+import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
 import React, { useState } from 'react';
 import type { NextPage } from 'next';
 import Link from 'next/link';
-import { useQuery, useReactiveVar } from '@apollo/client';
+import { useQuery, useReactiveVar } from '@apollo/client/react';
 import moment from 'moment';
 import DirectionsCarFilledOutlinedIcon from '@mui/icons-material/DirectionsCarFilledOutlined';
 import OutlinedFlagIcon from '@mui/icons-material/OutlinedFlag';
@@ -56,7 +56,7 @@ const AdminHome: NextPage = () => {
 	const { t } = useTranslation('common');
 	const user = useReactiveVar(userVar);
 	const [days, setDays] = useState<number>(14);
-	const { data, loading } = useQuery(GET_DASHBOARD_STATS, {
+	const { data, loading } = useQuery<any>(GET_DASHBOARD_STATS, {
 		fetchPolicy: 'cache-and-network',
 		variables: { days },
 		pollInterval: 60000,
@@ -64,7 +64,7 @@ const AdminHome: NextPage = () => {
 	const stats: T = data?.getDashboardStats ?? {};
 	const daily: T[] = stats.daily ?? [];
 	const sellers: T[] = stats.topSellers ?? [];
-	const { data: pendingData } = useQuery(GET_ALL_PROPERTIES_BY_ADMIN, {
+	const { data: pendingData } = useQuery<any>(GET_ALL_PROPERTIES_BY_ADMIN, {
 		fetchPolicy: 'cache-and-network',
 		variables: { input: { page: 1, limit: 4, sort: 'createdAt', direction: 'ASC', search: { propertyStatus: 'PENDING' } } },
 	});

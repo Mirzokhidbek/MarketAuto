@@ -1,6 +1,6 @@
 import React from 'react';
-import { useQuery } from '@apollo/client';
-import { useTranslation } from 'next-i18next';
+import { useQuery } from '@apollo/client/react';
+import { useTranslation } from 'next-i18next/pages';
 import moment from 'moment';
 import ExpandMoreRoundedIcon from '@mui/icons-material/ExpandMoreRounded';
 import { GET_NOTICES } from '../../../apollo/user/query';
@@ -9,7 +9,7 @@ import { T } from '../../types/common';
 /** announcements published by admins (Admin > CS > Notice) */
 const NoticeList = () => {
 	const { t } = useTranslation('common');
-	const { data, loading } = useQuery(GET_NOTICES, {
+	const { data, loading } = useQuery<any>(GET_NOTICES, {
 		fetchPolicy: 'network-only',
 		variables: { input: { page: 1, limit: 50, search: { noticeCategory: 'NOTICE' } } },
 	});

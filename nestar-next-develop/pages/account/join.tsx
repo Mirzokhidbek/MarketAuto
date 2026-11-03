@@ -7,8 +7,8 @@ import { logIn, logInWithCode, resetPassword, signUp, signUpWithEmail, verifyAdm
 import { sweetMixinSuccessAlert } from '../../libs/sweetAlert';
 import { userVar } from '../../apollo/store';
 import { MemberType } from '../../libs/enums/member.enum';
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import { useTranslation } from 'next-i18next';
+import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
+import { useTranslation } from 'next-i18next/pages';
 import PhoneCodeField from '../../libs/components/common/PhoneCodeField';
 import EmailCodeField, { EMAIL_PATTERN } from '../../libs/components/common/EmailCodeField';
 import PasswordRules from '../../libs/components/common/PasswordRules';

@@ -1,6 +1,6 @@
 import React from 'react';
 import moment from 'moment';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'next-i18next/pages';
 import DoneRoundedIcon from '@mui/icons-material/DoneRounded';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import { imageUrl } from '../../utils';

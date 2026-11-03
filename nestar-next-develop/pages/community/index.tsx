@@ -1,9 +1,9 @@
 import React from 'react';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { useQuery } from '@apollo/client';
-import { useTranslation } from 'next-i18next';
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { useQuery } from '@apollo/client/react';
+import { useTranslation } from 'next-i18next/pages';
+import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
 import withLayoutBasic from '../../libs/components/layout/LayoutBasic';
 import ArticleCard from '../../libs/components/community/ArticleCard';
 import PageContainer from '../../libs/components/ui/PageContainer';
@@ -53,7 +53,7 @@ const Community: NextPage = () => {
 		search: { articleCategory: category },
 	};
 
-	const { data, previousData, loading, refetch } = useQuery(GET_BOARD_ARTICLES, {
+	const { data, previousData, loading, refetch } = useQuery<any>(GET_BOARD_ARTICLES, {
 		fetchPolicy: 'network-only',
 		variables: { input },
 		skip: !router.isReady,

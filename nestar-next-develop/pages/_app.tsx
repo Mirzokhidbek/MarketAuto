@@ -4,9 +4,9 @@ import { CssBaseline } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import Head from 'next/head';
 import { light } from '../styles/mui-theme';
-import { ApolloProvider } from '@apollo/client';
+import { ApolloProvider } from '@apollo/client/react';
 import { useApollo } from '../apollo/client';
-import { appWithTranslation } from 'next-i18next';
+import { appWithTranslation } from 'next-i18next/pages';
 import * as Sentry from '@sentry/browser';
 
 // browser error tracking in production: set NEXT_PUBLIC_SENTRY_DSN; nothing is sent without it

@@ -1,4 +1,4 @@
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'next-i18next/pages';
 import { imageUrl } from '../../../utils';
 import React from 'react';
 import Link from 'next/link';

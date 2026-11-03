@@ -1,6 +1,6 @@
 import React from 'react';
-import { useQuery } from '@apollo/client';
-import { useTranslation } from 'next-i18next';
+import { useQuery } from '@apollo/client/react';
+import { useTranslation } from 'next-i18next/pages';
 import { GET_PRICE_ESTIMATE } from '../../../apollo/user/query';
 import { usePrice } from '../../hooks/usePrice';
 
@@ -14,7 +14,7 @@ const labels: Record<string, { text: string; className: string }> = {
 const PriceEstimate = ({ propertyId }: { propertyId: string }) => {
 	const { t } = useTranslation('common');
 	const { price } = usePrice();
-	const { data } = useQuery(GET_PRICE_ESTIMATE, { variables: { propertyId }, skip: !propertyId, fetchPolicy: 'cache-first' });
+	const { data } = useQuery<any>(GET_PRICE_ESTIMATE, { variables: { propertyId }, skip: !propertyId, fetchPolicy: 'cache-first' });
 	const estimate = data?.getPriceEstimate;
 	const label = labels[estimate?.verdict];
 	if (!label) return null;

@@ -1,8 +1,8 @@
 import React from 'react';
 import { NextPage } from 'next';
 import Link from 'next/link';
-import { useTranslation } from 'next-i18next';
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { useTranslation } from 'next-i18next/pages';
+import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
 import PublicOutlinedIcon from '@mui/icons-material/PublicOutlined';
 import ForumOutlinedIcon from '@mui/icons-material/ForumOutlined';
 import SellOutlinedIcon from '@mui/icons-material/SellOutlined';

@@ -1,4 +1,5 @@
-import { DocumentNode, useMutation, useReactiveVar } from '@apollo/client';
+import { DocumentNode } from '@apollo/client';
+import { useMutation, useReactiveVar } from '@apollo/client/react';
 import { userVar } from '../../apollo/store';
 import { LIKE_TARGET_BOARD_ARTICLE, LIKE_TARGET_MEMBER } from '../../apollo/user/mutation';
 import { Messages } from '../config';
@@ -10,7 +11,7 @@ import { sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../sweetAlert';
  */
 const useLikeToggle = (mutation: DocumentNode, afterLike: () => unknown) => {
 	const user = useReactiveVar(userVar);
-	const [like] = useMutation(mutation);
+	const [like] = useMutation<any>(mutation);
 
 	return async (id: string) => {
 		try {

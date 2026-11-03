@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import Link from 'next/link';
-import { useTranslation } from 'next-i18next';
-import { useQuery, useReactiveVar } from '@apollo/client';
+import { useTranslation } from 'next-i18next/pages';
+import { useQuery, useReactiveVar } from '@apollo/client/react';
 import { Badge } from '@mui/material';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import { GET_EXCHANGE_RATE, GET_UNREAD_MESSAGES_COUNT } from '../../../apollo/user/query';
@@ -11,8 +11,8 @@ import { connectSocket, disconnectSocket } from '../../socket';
 /** app-wide state that every page needs: rate, chosen currency, compare list, live messages */
 export const useGlobalSync = () => {
 	const user = useReactiveVar(userVar);
-	const { data: rateData } = useQuery(GET_EXCHANGE_RATE, { fetchPolicy: 'cache-first' });
-	const { data: unreadData } = useQuery(GET_UNREAD_MESSAGES_COUNT, {
+	const { data: rateData } = useQuery<any>(GET_EXCHANGE_RATE, { fetchPolicy: 'cache-first' });
+	const { data: unreadData } = useQuery<any>(GET_UNREAD_MESSAGES_COUNT, {
 		fetchPolicy: 'network-only',
 		skip: !user?._id,
 		pollInterval: 120000,

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { useTranslation } from 'next-i18next';
-import { useMutation } from '@apollo/client';
+import { useTranslation } from 'next-i18next/pages';
+import { useMutation } from '@apollo/client/react';
 import { REQUEST_PHONE_CODE } from '../../../apollo/user/mutation';
 import { sweetErrorHandling } from '../../sweetAlert';
 
@@ -23,7 +23,7 @@ const RESEND_SECONDS = 60;
  */
 const PhoneCodeField = ({ purpose, phone, code, onPhoneChange, onCodeChange, phoneLabel }: PhoneCodeFieldProps) => {
 	const { t } = useTranslation('common');
-	const [requestPhoneCode, { loading }] = useMutation(REQUEST_PHONE_CODE);
+	const [requestPhoneCode, { loading }] = useMutation<any>(REQUEST_PHONE_CODE);
 	const [cooldown, setCooldown] = useState<number>(0);
 	const [sent, setSent] = useState<boolean>(false);
 	const [devCode, setDevCode] = useState<string>('');

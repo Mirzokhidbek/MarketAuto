@@ -1,6 +1,6 @@
 import React from 'react';
 import { NextPage } from 'next';
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
 import withLayoutBasic from '../libs/components/layout/LayoutBasic';
 import LegalDocument from '../libs/components/legal/LegalDocument';
 import { privacy } from '../libs/legal';

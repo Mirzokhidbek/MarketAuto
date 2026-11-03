@@ -1,8 +1,8 @@
-import { useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client/react';
 import { GET_CAR_MODELS } from '../../../apollo/user/query';
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'next-i18next/pages';
 import SearchIcon from '@mui/icons-material/Search';
 import { CarBrand, CarCountry } from '../../enums/property.enum';
 import { formatEnumLabel } from '../../utils';
@@ -49,7 +49,7 @@ const HomeHero = () => {
 	const [year, setYear] = useState(0);
 	const [model, setModel] = useState('');
 	// model hints for the chosen brand
-	const { data: modelsData } = useQuery(GET_CAR_MODELS, { skip: !brand, variables: { brand } });
+	const { data: modelsData } = useQuery<any>(GET_CAR_MODELS, { skip: !brand, variables: { brand } });
 
 	const searchHandler = async () => {
 		const search: PropertiesInquiry['search'] = {};

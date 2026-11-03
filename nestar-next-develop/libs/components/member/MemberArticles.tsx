@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { NextPage } from 'next';
 import { Pagination } from '@mui/material';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'next-i18next/pages';
 import { useRouter } from 'next/router';
 import ArticleCard from '../community/ArticleCard';
 import { T } from '../../types/common';
 import { BoardArticle } from '../../types/board-article/board-article';
 import { BoardArticlesInquiry } from '../../types/board-article/board-article.input';
 import { GET_BOARD_ARTICLES } from '../../../apollo/user/query';
-import { useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client/react';
 import { useLikeArticle } from '../../hooks/useLike';
 
-const MemberArticles: NextPage = ({ initialInput, ...props }: any) => {
+const MemberArticles: NextPage = ({ initialInput = defaultProps.initialInput, ...props }: any) => {
 	const { t } = useTranslation('common');
 	const router = useRouter();
 	const [total, setTotal] = useState<number>(0);
@@ -25,17 +25,20 @@ const MemberArticles: NextPage = ({ initialInput, ...props }: any) => {
 		data: boardArticles,
 		error: getBoardArticlesError,
 		refetch: boardArticlesRefetch,
-	} = useQuery(GET_BOARD_ARTICLES, {
+	} = useQuery<any>(GET_BOARD_ARTICLES, {
 		fetchPolicy: 'network-only',
 		variables: {
 			input: searchFilter,
 		},
 		notifyOnNetworkStatusChange: true,
-		onCompleted: (data: any) => {
-			setMemberBoArticles(data?.getBoardArticles?.list);
-			setTotal(data?.getBoardArticles?.metaCounter?.[0]?.total || 0);
-		},
 	});
+	// Apollo 4 has no onCompleted: the same work runs whenever a new response arrives
+	useEffect(() => {
+		if (!boardArticles) return;
+		const data: any = boardArticles;
+		setMemberBoArticles(data?.getBoardArticles?.list);
+		setTotal(data?.getBoardArticles?.metaCounter?.[0]?.total || 0);
+	}, [boardArticles]);
 
 	/** LIFECYCLES **/
 	useEffect(() => {
@@ -82,7 +85,8 @@ const MemberArticles: NextPage = ({ initialInput, ...props }: any) => {
 	);
 };
 
-MemberArticles.defaultProps = {
+// React 19 has no defaultProps on function components: used as the default value below
+const defaultProps = {
 	initialInput: {
 		page: 1,
 		limit: 6,

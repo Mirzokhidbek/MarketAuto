@@ -1,8 +1,8 @@
 import React from 'react';
 import Swal from 'sweetalert2';
 import { useRouter } from 'next/router';
-import { useTranslation } from 'next-i18next';
-import { useMutation, useReactiveVar } from '@apollo/client';
+import { useTranslation } from 'next-i18next/pages';
+import { useMutation, useReactiveVar } from '@apollo/client/react';
 import FlagOutlinedIcon from '@mui/icons-material/FlagOutlined';
 import { REPORT_PROPERTY } from '../../../apollo/user/mutation';
 import { userVar } from '../../../apollo/store';
@@ -14,7 +14,7 @@ const ReportButton = ({ propertyId }: { propertyId: string }) => {
 	const { t } = useTranslation('common');
 	const router = useRouter();
 	const user = useReactiveVar(userVar);
-	const [reportProperty] = useMutation(REPORT_PROPERTY);
+	const [reportProperty] = useMutation<any>(REPORT_PROPERTY);
 
 	const reportHandler = async () => {
 		if (!user?._id) {

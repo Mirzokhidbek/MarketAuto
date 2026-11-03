@@ -1,6 +1,6 @@
 import React from 'react';
-import { useTranslation } from 'next-i18next';
-import { useMutation, useReactiveVar } from '@apollo/client';
+import { useTranslation } from 'next-i18next/pages';
+import { useMutation, useReactiveVar } from '@apollo/client/react';
 import { userVar } from '../../../apollo/store';
 import { REMOVE_COMMENT_BY_ADMIN } from '../../../apollo/admin/mutation';
 import { MemberType } from '../../enums/member.enum';
@@ -16,7 +16,7 @@ interface AdminRemoveCommentProps {
 const AdminRemoveComment = ({ commentId, onRemoved }: AdminRemoveCommentProps) => {
 	const { t } = useTranslation('common');
 	const user = useReactiveVar(userVar);
-	const [removeComment, { loading }] = useMutation(REMOVE_COMMENT_BY_ADMIN);
+	const [removeComment, { loading }] = useMutation<any>(REMOVE_COMMENT_BY_ADMIN);
 	if (user?.memberType !== MemberType.ADMIN) return null;
 
 	const removeHandler = async () => {

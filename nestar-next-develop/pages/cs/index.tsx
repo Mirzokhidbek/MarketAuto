@@ -1,7 +1,7 @@
 import React from 'react';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'next-i18next/pages';
 import PhoneOutlinedIcon from '@mui/icons-material/PhoneOutlined';
 import MailOutlineIcon from '@mui/icons-material/MailOutline';
 import withLayoutBasic from '../../libs/components/layout/LayoutBasic';
@@ -9,7 +9,7 @@ import NoticeList from '../../libs/components/support/NoticeList';
 import FaqList from '../../libs/components/support/FaqList';
 import InquiryForm from '../../libs/components/support/InquiryForm';
 import { useSiteSettings } from '../../libs/hooks/useSiteSettings';
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {

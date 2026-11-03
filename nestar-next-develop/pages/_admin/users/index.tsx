@@ -1,5 +1,5 @@
-import { useTranslation } from 'next-i18next';
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { useTranslation } from 'next-i18next/pages';
+import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
 import Swal from 'sweetalert2';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
@@ -12,7 +12,6 @@ import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
-import { TabContext } from '@mui/lab';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import TablePagination from '@mui/material/TablePagination';
 import CancelRoundedIcon from '@mui/icons-material/CancelRounded';
@@ -23,16 +22,15 @@ import { sweetConfirmAlert, sweetTopSmallSuccessAlert, sweetErrorHandling } from
 import { MemberUpdate } from '../../../libs/types/member/member.update';
 import { UPDATE_MEMBER_BY_ADMIN } from '../../../apollo/admin/mutation';
 import { GET_ALL_MEMBERS_BY_ADMIN } from '../../../apollo/admin/query';
-import { useMutation, useQuery } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client/react';
 import ReasonDialog from '../../../libs/components/admin/ReasonDialog';
 import { T } from '../../../libs/types/common';
-
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: { ...(await serverSideTranslations(locale, ['common'])) },
 });
 
-const AdminUsers: NextPage = ({ initialInquiry, ...props }: any) => {
+const AdminUsers: NextPage = ({ initialInquiry = defaultProps.initialInquiry, ...props }: any) => {
 	const { t } = useTranslation('common');
 	const [anchorEl, setAnchorEl] = useState<[] | HTMLElement[]>([]);
 	const [membersInquiry, setMembersInquiry] = useState<MembersInquiry>(initialInquiry);
@@ -47,22 +45,25 @@ const AdminUsers: NextPage = ({ initialInquiry, ...props }: any) => {
 	const [blockTarget, setBlockTarget] = useState<Member | null>(null);
 
 	/** APOLLO REQUESTS **/
-	const [updateMemberByAdmin] = useMutation(UPDATE_MEMBER_BY_ADMIN);
+	const [updateMemberByAdmin] = useMutation<any>(UPDATE_MEMBER_BY_ADMIN);
 
 	const {
 		loading: getAllMembersByAdminLoading,
 		data: getAllMembersByAdminData,
 		error: getAllMembersByAdminError,
 		refetch: getAllMembersRefetch,
-	} = useQuery(GET_ALL_MEMBERS_BY_ADMIN, {
+	} = useQuery<any>(GET_ALL_MEMBERS_BY_ADMIN, {
 		fetchPolicy: 'network-only',
 		variables: { input: membersInquiry },
 		notifyOnNetworkStatusChange: true,
-		onCompleted: (data: T) => {
-			setMembers(data?.getAllMembersByAdmin?.list);
-			setMembersTotal(data?.getAllMembersByAdmin?.metaCounter[0]?.total ?? 0);
-		},
 	});
+	// Apollo 4 has no onCompleted: the same work runs whenever a new response arrives
+	useEffect(() => {
+		if (!getAllMembersByAdminData) return;
+		const data: any = getAllMembersByAdminData;
+		setMembers(data?.getAllMembersByAdmin?.list);
+		setMembersTotal(data?.getAllMembersByAdmin?.metaCounter[0]?.total ?? 0);
+	}, [getAllMembersByAdminData]);
 
 	/** LIFECYCLES **/
 	// the search box in the top bar sends ?q=
@@ -136,8 +137,15 @@ const AdminUsers: NextPage = ({ initialInquiry, ...props }: any) => {
 			setBlockTarget(member ?? null);
 			return;
 		}
-		if (updateData.memberStatus === MemberStatus.DELETE && !(await sweetConfirmAlert(t('Delete this account?') as string))) return;
-		if (updateData.memberType === MemberType.ADMIN && !(await sweetConfirmAlert(t('Give admin rights (moderator) to this member?') as string)))
+		if (
+			updateData.memberStatus === MemberStatus.DELETE &&
+			!(await sweetConfirmAlert(t('Delete this account?') as string))
+		)
+			return;
+		if (
+			updateData.memberType === MemberType.ADMIN &&
+			!(await sweetConfirmAlert(t('Give admin rights (moderator) to this member?') as string))
+		)
 			return;
 		try {
 			await updateMemberByAdmin({
@@ -175,8 +183,7 @@ const AdminUsers: NextPage = ({ initialInquiry, ...props }: any) => {
 	const textHandler = useCallback((value: string) => {
 		try {
 			setSearchText(value);
-		} catch (err: any) {
-		}
+		} catch (err: any) {}
 	}, []);
 
 	const searchTypeHandler = async (newValue: string) => {
@@ -197,16 +204,20 @@ const AdminUsers: NextPage = ({ initialInquiry, ...props }: any) => {
 				delete membersInquiry?.search?.memberType;
 				setMembersInquiry({ ...membersInquiry });
 			}
-		} catch (err: any) {
-		}
+		} catch (err: any) {}
 	};
 
 	return (
 		<Box component={'div'} className={'content'}>
-			<AdminPageHeader title={t('Members')} description={t('Find a member by nick, name or phone. Open a member to see their cars, reports and chats.') as string} />
+			<AdminPageHeader
+				title={t('Members')}
+				description={
+					t('Find a member by nick, name or phone. Open a member to see their cars, reports and chats.') as string
+				}
+			/>
 			<Box component={'div'} className={'table-wrap'}>
 				<Box component={'div'} sx={{ width: '100%', typography: 'body1' }}>
-					<TabContext value={value}>
+					<>
 						<Box component={'div'}>
 							<List className={'tab-menu'}>
 								<ListItem
@@ -294,7 +305,7 @@ const AdminUsers: NextPage = ({ initialInquiry, ...props }: any) => {
 							onPageChange={changePageHandler}
 							onRowsPerPageChange={changeRowsPerPageHandler}
 						/>
-					</TabContext>
+					</>
 					<ReasonDialog
 						open={!!blockTarget}
 						title={`${t('Block')} ${blockTarget?.memberNick ?? ''}`}
@@ -314,7 +325,8 @@ const AdminUsers: NextPage = ({ initialInquiry, ...props }: any) => {
 	);
 };
 
-AdminUsers.defaultProps = {
+// React 19 has no defaultProps on function components: used as the default value below
+const defaultProps = {
 	initialInquiry: {
 		page: 1,
 		limit: 10,

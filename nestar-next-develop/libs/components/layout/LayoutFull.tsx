@@ -6,7 +6,7 @@ import Footer from './Footer';
 import CompareBar from '../car/CompareBar';
 import { Stack } from '@mui/material';
 import { getJwtToken, updateUserInfo } from '../../auth';
-import { useReactiveVar } from '@apollo/client';
+import { useReactiveVar } from '@apollo/client/react';
 import { userVar } from '../../../apollo/store';
 
 const withLayoutFull = (Component: any) => {

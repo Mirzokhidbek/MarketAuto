@@ -10,12 +10,12 @@ import CarGridSkeleton from '../../libs/components/car/CarGridSkeleton';
 import { useRouter } from 'next/router';
 import { PropertiesInquiry } from '../../libs/types/property/property.input';
 import { Property } from '../../libs/types/property/property';
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
 import { Direction, Message } from '../../libs/enums/common.enum';
 import { GET_PROPERTIES } from '../../apollo/user/query';
-import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
+import { useMutation, useQuery, useReactiveVar } from '@apollo/client/react';
 import { userVar } from '../../apollo/store';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'next-i18next/pages';
 import { T } from '../../libs/types/common';
 import { LIKE_TARGET_PROPERTY } from '../../apollo/user/mutation';
 import { sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../libs/sweetAlert';
@@ -48,14 +48,17 @@ export const getServerSideProps = async ({ locale, query }: any) => {
 	let initialList: Property[] = [];
 	let initialTotal = 0;
 	try {
-		const response = await fetchWithTimeout((process.env.API_INTERNAL_GRAPHQL_URL || process.env.REACT_APP_API_GRAPHQL_URL) as string, {
-			method: 'POST',
-			headers: { 'content-type': 'application/json' },
-			body: JSON.stringify({
-				query: `query($input: PropertiesInquiry!){ getProperties(input: $input){ ${SSR_FIELDS} } }`,
-				variables: { input: parseInput(query?.input) },
-			}),
-		});
+		const response = await fetchWithTimeout(
+			(process.env.API_INTERNAL_GRAPHQL_URL || process.env.REACT_APP_API_GRAPHQL_URL) as string,
+			{
+				method: 'POST',
+				headers: { 'content-type': 'application/json' },
+				body: JSON.stringify({
+					query: `query($input: PropertiesInquiry!){ getProperties(input: $input){ ${SSR_FIELDS} } }`,
+					variables: { input: parseInput(query?.input) },
+				}),
+			},
+		);
 		const { data } = await response.json();
 		initialList = data?.getProperties?.list ?? [];
 		initialTotal = data?.getProperties?.metaCounter?.[0]?.total ?? 0;
@@ -82,22 +85,25 @@ const PropertyList: NextPage = ({ initialList = [], initialTotal = 0 }: any) => 
 	const { t } = useTranslation('common');
 
 	/** APOLLO REQUESTS **/
-	const [likeTargetProperty] = useMutation(LIKE_TARGET_PROPERTY);
+	const [likeTargetProperty] = useMutation<any>(LIKE_TARGET_PROPERTY);
 
 	const {
 		loading: getPropertiesLoading,
 		data: getPropertiesData,
 		error: getPropertiesError,
 		refetch: getPropertiesRefetch,
-	} = useQuery(GET_PROPERTIES, {
+	} = useQuery<any>(GET_PROPERTIES, {
 		fetchPolicy: 'network-only',
 		variables: { input: searchFilter },
 		notifyOnNetworkStatusChange: true,
-		onCompleted: (data: T) => {
-			setProperties(data?.getProperties?.list);
-			setTotal(data?.getProperties?.metaCounter[0]?.total);
-		},
 	});
+	// Apollo 4 has no onCompleted: the same work runs whenever a new response arrives
+	useEffect(() => {
+		if (!getPropertiesData) return;
+		const data: any = getPropertiesData;
+		setProperties(data?.getProperties?.list);
+		setTotal(data?.getProperties?.metaCounter[0]?.total);
+	}, [getPropertiesData]);
 
 	/** LIFECYCLES **/
 	useEffect(() => {
@@ -105,7 +111,6 @@ const PropertyList: NextPage = ({ initialList = [], initialTotal = 0 }: any) => 
 
 		setCurrentPage(searchFilter.page === undefined ? 1 : searchFilter.page);
 	}, [router]);
-
 
 	/** HANDLERS **/
 	const handlePaginationChange = async (event: ChangeEvent<unknown>, value: number) => {
@@ -164,7 +169,12 @@ const PropertyList: NextPage = ({ initialList = [], initialTotal = 0 }: any) => 
 		<div id="property-list-page" className={'ma-page ma-list-page'}>
 			<div className={'ma-container ma-list-layout'}>
 				{/* @ts-ignore */}
-				<CarFilter searchFilter={searchFilter} setSearchFilter={setSearchFilter} initialInput={initialInput} total={total} />
+				<CarFilter
+					searchFilter={searchFilter}
+					setSearchFilter={setSearchFilter}
+					initialInput={initialInput}
+					total={total}
+				/>
 
 				<section className={'ma-results'}>
 					<div className={'ma-results__bar'}>
@@ -199,7 +209,11 @@ const PropertyList: NextPage = ({ initialList = [], initialTotal = 0 }: any) => 
 					) : properties?.length === 0 ? (
 						<div className={'ma-empty ma-empty--cta'}>
 							<strong>{t('No cars found')}</strong>
-							<p>{t('Try changing or clearing your filters, or save this search to get an alert when such a car appears.')}</p>
+							<p>
+								{t(
+									'Try changing or clearing your filters, or save this search to get an alert when such a car appears.',
+								)}
+							</p>
 							<button
 								className={'ma-btn ma-btn--outline'}
 								onClick={() => router.replace(`/property?input=${JSON.stringify(defaultInput)}`)}

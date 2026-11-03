@@ -2,9 +2,9 @@ import EmptyState from '../ui/EmptyState';
 import React, { useEffect, useState } from 'react';
 import { NextPage } from 'next';
 import { Pagination } from '@mui/material';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'next-i18next/pages';
 import ManageCarRow from './ManageCarRow';
-import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
+import { useMutation, useQuery, useReactiveVar } from '@apollo/client/react';
 import { Property } from '../../types/property/property';
 import { AgentPropertiesInquiry } from '../../types/property/property.input';
 import { T } from '../../types/common';
@@ -15,7 +15,7 @@ import { GET_AGENT_PROPERTIES } from '../../../apollo/user/query';
 import { UPDATE_PROPERTY } from '../../../apollo/user/mutation';
 import { sweetConfirmAlert, sweetErrorHandling } from '../../sweetAlert';
 
-const MyCars: NextPage = ({ initialInput, ...props }: any) => {
+const MyCars: NextPage = ({ initialInput = defaultProps.initialInput, ...props }: any) => {
 	const { t } = useTranslation('common');
 	const [searchFilter, setSearchFilter] = useState<AgentPropertiesInquiry>(initialInput);
 	const [agentProperties, setAgentProperties] = useState<Property[]>([]);
@@ -24,22 +24,25 @@ const MyCars: NextPage = ({ initialInput, ...props }: any) => {
 	const router = useRouter();
 
 	/** APOLLO REQUESTS **/
-	const [updateProperty] = useMutation(UPDATE_PROPERTY);
+	const [updateProperty] = useMutation<any>(UPDATE_PROPERTY);
 
 	const {
 		loading: getAgentPropertiesLoading,
 		data: getAgentPropertiesData,
 		error: getAgentPropertiesError,
 		refetch: getAgentPropertiesRefetch,
-	} = useQuery(GET_AGENT_PROPERTIES, {
+	} = useQuery<any>(GET_AGENT_PROPERTIES, {
 		fetchPolicy: 'network-only',
 		variables: { input: searchFilter },
 		notifyOnNetworkStatusChange: true,
-		onCompleted: (data: T) => {
-			setAgentProperties(data?.getAgentProperties?.list);
-			setTotal(data?.getAgentProperties?.metaCounter[0]?.total ?? 0);
-		},
 	});
+	// Apollo 4 has no onCompleted: the same work runs whenever a new response arrives
+	useEffect(() => {
+		if (!getAgentPropertiesData) return;
+		const data: any = getAgentPropertiesData;
+		setAgentProperties(data?.getAgentProperties?.list);
+		setTotal(data?.getAgentProperties?.metaCounter[0]?.total ?? 0);
+	}, [getAgentPropertiesData]);
 
 	// the bell links straight to a tab, e.g. ?status=REJECTED
 	useEffect(() => {
@@ -175,7 +178,8 @@ const MyCars: NextPage = ({ initialInput, ...props }: any) => {
 	);
 };
 
-MyCars.defaultProps = {
+// React 19 has no defaultProps on function components: used as the default value below
+const defaultProps = {
 	initialInput: {
 		page: 1,
 		limit: 5,

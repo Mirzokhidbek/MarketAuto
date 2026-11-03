@@ -2,16 +2,16 @@ import EmptyState from '../ui/EmptyState';
 import React, { useEffect, useState } from 'react';
 import { NextPage } from 'next';
 import { Pagination } from '@mui/material';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'next-i18next/pages';
 import CarCard from '../car/CarCard';
 import { Property } from '../../types/property/property';
 import { PropertiesInquiry } from '../../types/property/property.input';
 import { T } from '../../types/common';
 import { useRouter } from 'next/router';
-import { useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client/react';
 import { GET_PROPERTIES } from '../../../apollo/user/query';
 
-const MyCars: NextPage = ({ initialInput, ...props }: any) => {
+const MyCars: NextPage = ({ initialInput = defaultProps.initialInput, ...props }: any) => {
 	const { t } = useTranslation('common');
 	const router = useRouter();
 	const { memberId } = router.query;
@@ -25,16 +25,19 @@ const MyCars: NextPage = ({ initialInput, ...props }: any) => {
 		data: getPropertiesData,
 		error: getPropertiesError,
 		refetch: getPropertiesRefetch,
-	} = useQuery(GET_PROPERTIES, {
+	} = useQuery<any>(GET_PROPERTIES, {
 		fetchPolicy: 'network-only',
 		variables: { input: searchFilter },
 		skip: !searchFilter?.search?.memberId,
 		notifyOnNetworkStatusChange: true,
-		onCompleted: (data: any) => {
-			setAgentProperties(data?.getProperties?.list);
-			setTotal(data?.getProperties?.metaCounter[0]?.total ?? 0);
-		},
 	});
+	// Apollo 4 has no onCompleted: the same work runs whenever a new response arrives
+	useEffect(() => {
+		if (!getPropertiesData) return;
+		const data: any = getPropertiesData;
+		setAgentProperties(data?.getProperties?.list);
+		setTotal(data?.getProperties?.metaCounter[0]?.total ?? 0);
+	}, [getPropertiesData]);
 
 	/** LIFECYCLES **/
 	useEffect(() => {
@@ -84,7 +87,8 @@ const MyCars: NextPage = ({ initialInput, ...props }: any) => {
 	);
 };
 
-MyCars.defaultProps = {
+// React 19 has no defaultProps on function components: used as the default value below
+const defaultProps = {
 	initialInput: {
 		page: 1,
 		limit: 5,

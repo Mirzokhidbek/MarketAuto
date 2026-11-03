@@ -1,13 +1,13 @@
 import EmptyState from '../ui/EmptyState';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NextPage } from 'next';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'next-i18next/pages';
 import { Pagination } from '@mui/material';
 import CarCard from '../car/CarCard';
 import { Property } from '../../types/property/property';
 import { T } from '../../types/common';
 import { GET_VISITED } from '../../../apollo/user/query';
-import { useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client/react';
 
 const RecentlyVisited: NextPage = () => {
 	const { t } = useTranslation('common');
@@ -21,16 +21,19 @@ const RecentlyVisited: NextPage = () => {
 		data: getVisitedData,
 		error: getVisitedError,
 		refetch: getVisitedRefetch,
-	} = useQuery(GET_VISITED, {
+	} = useQuery<any>(GET_VISITED, {
 		fetchPolicy: 'network-only',
 		variables: {
 			input: searchVisited,
 		},
-		onCompleted: (data: T) => {
-			setRecentlyVisited(data.getVisited?.list);
-			setTotal(data.getVisited?.metaCounter?.[0]?.total || 0);
-		},
 	});
+	// Apollo 4 has no onCompleted: the same work runs whenever a new response arrives
+	useEffect(() => {
+		if (!getVisitedData) return;
+		const data: any = getVisitedData;
+		setRecentlyVisited(data.getVisited?.list);
+		setTotal(data.getVisited?.metaCounter?.[0]?.total || 0);
+	}, [getVisitedData]);
 
 	/** HANDLERS **/
 	const paginationHandler = (e: T, value: number) => {

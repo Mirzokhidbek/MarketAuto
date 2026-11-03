@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router';
-import { useTranslation } from 'next-i18next';
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { useTranslation } from 'next-i18next/pages';
+import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
 import React, { useEffect, useState } from 'react';
 import type { NextPage } from 'next';
 import withAdminLayout from '../../../libs/components/layout/LayoutAdmin';
@@ -21,7 +21,7 @@ import {
 	Typography,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
-import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
+import { useMutation, useQuery, useReactiveVar } from '@apollo/client/react';
 import ReasonDialog from '../../../libs/components/admin/ReasonDialog';
 import { userVar } from '../../../apollo/store';
 import { PropertyPanelList } from '../../../libs/components/admin/properties/PropertyList';
@@ -31,10 +31,13 @@ import { CarBrand, CarCountry, PropertyStatus } from '../../../libs/enums/proper
 import { sweetConfirmAlert, sweetErrorHandling, sweetTopSmallSuccessAlert } from '../../../libs/sweetAlert';
 import { PropertyUpdate } from '../../../libs/types/property/property.update';
 import { GET_ALL_PROPERTIES_BY_ADMIN } from '../../../apollo/admin/query';
-import { BULK_MODERATE_BY_ADMIN, REMOVE_PROPERTY_BY_ADMIN, UPDATE_PROPERTY_BY_ADMIN } from '../../../apollo/admin/mutation';
+import {
+	BULK_MODERATE_BY_ADMIN,
+	REMOVE_PROPERTY_BY_ADMIN,
+	UPDATE_PROPERTY_BY_ADMIN,
+} from '../../../apollo/admin/mutation';
 import { formatEnumLabel } from '../../../libs/utils';
 import { T } from '../../../libs/types/common';
-
 
 // ready-made rejection reasons (translation keys), the admin can still edit the text
 const REJECT_PRESETS = [
@@ -49,7 +52,7 @@ export const getStaticProps = async ({ locale }: any) => ({
 	props: { ...(await serverSideTranslations(locale, ['common'])) },
 });
 
-const AdminProperties: NextPage = ({ initialInquiry, ...props }: any) => {
+const AdminProperties: NextPage = ({ initialInquiry = defaultProps.initialInquiry, ...props }: any) => {
 	const router = useRouter();
 	const { t } = useTranslation('common');
 	const [propertiesInquiry, setPropertiesInquiry] = useState<AllPropertiesInquiry>(initialInquiry);
@@ -65,20 +68,27 @@ const AdminProperties: NextPage = ({ initialInquiry, ...props }: any) => {
 	const memberFilter = (router.query.memberId as string) || '';
 
 	/** APOLLO REQUESTS **/
-	const [updatePropertyByAdmin] = useMutation(UPDATE_PROPERTY_BY_ADMIN);
-	const [removePropertyByAdmin] = useMutation(REMOVE_PROPERTY_BY_ADMIN);
-	const [bulkModerateByAdmin] = useMutation(BULK_MODERATE_BY_ADMIN);
+	const [updatePropertyByAdmin] = useMutation<any>(UPDATE_PROPERTY_BY_ADMIN);
+	const [removePropertyByAdmin] = useMutation<any>(REMOVE_PROPERTY_BY_ADMIN);
+	const [bulkModerateByAdmin] = useMutation<any>(BULK_MODERATE_BY_ADMIN);
 
-	const { loading, refetch: getAllPropertiesByAdminRefetch } = useQuery(GET_ALL_PROPERTIES_BY_ADMIN, {
+	const {
+		data: completedData1,
+		loading,
+		refetch: getAllPropertiesByAdminRefetch,
+	} = useQuery<any>(GET_ALL_PROPERTIES_BY_ADMIN, {
 		fetchPolicy: 'network-only',
 		variables: { input: propertiesInquiry },
 		notifyOnNetworkStatusChange: true,
-		onCompleted: (data: T) => {
-			setProperties(data?.getAllPropertiesByAdmin?.list ?? []);
-			setPropertiesTotal(data?.getAllPropertiesByAdmin?.metaCounter[0]?.total ?? 0);
-			setSelected([]);
-		},
 	});
+	// Apollo 4 has no onCompleted: the same work runs whenever a new response arrives
+	useEffect(() => {
+		if (!completedData1) return;
+		const data: any = completedData1;
+		setProperties(data?.getAllPropertiesByAdmin?.list ?? []);
+		setPropertiesTotal(data?.getAllPropertiesByAdmin?.metaCounter[0]?.total ?? 0);
+		setSelected([]);
+	}, [completedData1]);
 
 	/** LIFECYCLES **/
 	// dashboard links straight to a tab, e.g. ?status=PENDING
@@ -94,9 +104,9 @@ const AdminProperties: NextPage = ({ initialInquiry, ...props }: any) => {
 
 	// member card links here with ?memberId= to show all cars of one seller
 	useEffect(() => {
-		if (router.isReady && (propertiesInquiry.search.memberId ?? '') !== memberFilter) updateSearch({ memberId: memberFilter || undefined });
+		if (router.isReady && (propertiesInquiry.search.memberId ?? '') !== memberFilter)
+			updateSearch({ memberId: memberFilter || undefined });
 	}, [router.isReady, memberFilter]);
-
 
 	// search by title after the admin stops typing
 	useEffect(() => {
@@ -148,7 +158,9 @@ const AdminProperties: NextPage = ({ initialInquiry, ...props }: any) => {
 
 	const bulkApproveHandler = async () => {
 		try {
-			const { data } = await bulkModerateByAdmin({ variables: { input: { ids: selected, propertyStatus: PropertyStatus.ACTIVE } } });
+			const { data } = await bulkModerateByAdmin({
+				variables: { input: { ids: selected, propertyStatus: PropertyStatus.ACTIVE } },
+			});
 			await sweetTopSmallSuccessAlert(`${t('Done')}: ${data?.bulkModerateByAdmin ?? 0}`, 900);
 			await getAllPropertiesByAdminRefetch({ input: propertiesInquiry });
 		} catch (err: any) {
@@ -159,10 +171,17 @@ const AdminProperties: NextPage = ({ initialInquiry, ...props }: any) => {
 	const rejectConfirmHandler = async (reason: string) => {
 		const ids = rejectIds;
 		setRejectIds([]);
-		if (ids.length === 1) await updatePropertyHandler({ _id: ids[0], propertyStatus: PropertyStatus.REJECTED, propertyRejectReason: reason });
+		if (ids.length === 1)
+			await updatePropertyHandler({
+				_id: ids[0],
+				propertyStatus: PropertyStatus.REJECTED,
+				propertyRejectReason: reason,
+			});
 		else {
 			try {
-				await bulkModerateByAdmin({ variables: { input: { ids, propertyStatus: PropertyStatus.REJECTED, propertyRejectReason: reason } } });
+				await bulkModerateByAdmin({
+					variables: { input: { ids, propertyStatus: PropertyStatus.REJECTED, propertyRejectReason: reason } },
+				});
 				await getAllPropertiesByAdminRefetch({ input: propertiesInquiry });
 			} catch (err: any) {
 				sweetErrorHandling(err).then();
@@ -183,12 +202,35 @@ const AdminProperties: NextPage = ({ initialInquiry, ...props }: any) => {
 
 	return (
 		<Box component={'div'} className={'content'}>
-			<AdminPageHeader title={t('Cars')} description={t('Approve new listings, reject them with a reason, or change the status of any car.') as string} />
+			<AdminPageHeader
+				title={t('Cars')}
+				description={t('Approve new listings, reject them with a reason, or change the status of any car.') as string}
+			/>
 			<Box component={'div'} className={'table-wrap'}>
 				<List className={'tab-menu'}>
-					{['ALL', PropertyStatus.PENDING, PropertyStatus.REJECTED, PropertyStatus.ACTIVE, PropertyStatus.SOLD, PropertyStatus.DELETE].map((status) => (
-						<ListItem key={status} onClick={() => tabChangeHandler(status)} className={value === status ? 'li on' : 'li'}>
-							{t({ ALL: 'All', PENDING: 'Under review', REJECTED: 'Rejected', ACTIVE: 'Active', SOLD: 'Sold', DELETE: 'Deleted' }[status] as string)}
+					{[
+						'ALL',
+						PropertyStatus.PENDING,
+						PropertyStatus.REJECTED,
+						PropertyStatus.ACTIVE,
+						PropertyStatus.SOLD,
+						PropertyStatus.DELETE,
+					].map((status) => (
+						<ListItem
+							key={status}
+							onClick={() => tabChangeHandler(status)}
+							className={value === status ? 'li on' : 'li'}
+						>
+							{t(
+								{
+									ALL: 'All',
+									PENDING: 'Under review',
+									REJECTED: 'Rejected',
+									ACTIVE: 'Active',
+									SOLD: 'Sold',
+									DELETE: 'Deleted',
+								}[status] as string,
+							)}
 						</ListItem>
 					))}
 				</List>
@@ -295,7 +337,8 @@ const AdminProperties: NextPage = ({ initialInquiry, ...props }: any) => {
 	);
 };
 
-AdminProperties.defaultProps = {
+// React 19 has no defaultProps on function components: used as the default value below
+const defaultProps = {
 	initialInquiry: {
 		page: 1,
 		limit: 10,

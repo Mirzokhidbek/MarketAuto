@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import type { NextPage } from 'next';
-import { useTranslation } from 'next-i18next';
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import { useMutation, useQuery } from '@apollo/client';
+import { useTranslation } from 'next-i18next/pages';
+import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
+import { useMutation, useQuery } from '@apollo/client/react';
 import moment from 'moment';
 import { Box, Button, IconButton, MenuItem, TextField, Tooltip, Typography } from '@mui/material';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
@@ -76,8 +76,8 @@ const limit = (v: string) => (v.trim() === '' ? null : Number(v));
 const AdminImportTariff: NextPage = () => {
 	const { t } = useTranslation('common');
 	const [form, setForm] = useState<Form | null>(null);
-	const { data } = useQuery(GET_IMPORT_TARIFF, { fetchPolicy: 'network-only' });
-	const [updateImportTariff, { loading }] = useMutation(UPDATE_IMPORT_TARIFF, { refetchQueries: [GET_IMPORT_TARIFF] });
+	const { data } = useQuery<any>(GET_IMPORT_TARIFF, { fetchPolicy: 'network-only' });
+	const [updateImportTariff, { loading }] = useMutation<any>(UPDATE_IMPORT_TARIFF, { refetchQueries: [GET_IMPORT_TARIFF] });
 	const saved = data?.getImportTariff;
 
 	useEffect(() => {

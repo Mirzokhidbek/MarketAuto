@@ -1,5 +1,5 @@
 import Swal from 'sweetalert2';
-import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
+import { useMutation, useQuery, useReactiveVar } from '@apollo/client/react';
 import NotificationsActiveOutlinedIcon from '@mui/icons-material/NotificationsActiveOutlined';
 import { currencyVar, usdRateVar, userVar } from '../../../apollo/store';
 import { GET_CAR_MODELS } from '../../../apollo/user/query';
@@ -35,7 +35,7 @@ import { formatEnumLabel, formatMileage } from '../../utils';
 import CarOrigin from './CarOrigin';
 import SearchIcon from '@mui/icons-material/Search';
 import TuneIcon from '@mui/icons-material/Tune';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'next-i18next/pages';
 
 const MenuProps = {
 	PaperProps: {
@@ -84,10 +84,10 @@ const CarFilter = (props: FilterType) => {
 	const currency = useReactiveVar(currencyVar);
 	const usdRate = useReactiveVar(usdRateVar);
 	const [modelText, setModelText] = useState<string>(searchFilter?.search?.model ?? '');
-	const [saveSearch] = useMutation(SAVE_SEARCH);
+	const [saveSearch] = useMutation<any>(SAVE_SEARCH);
 	// model suggestions once exactly one brand is ticked
 	const singleBrand = searchFilter?.search?.brandList?.length === 1 ? searchFilter.search.brandList[0] : null;
-	const { data: modelsData } = useQuery(GET_CAR_MODELS, { skip: !singleBrand, variables: { brand: singleBrand } });
+	const { data: modelsData } = useQuery<any>(GET_CAR_MODELS, { skip: !singleBrand, variables: { brand: singleBrand } });
 	const models: string[] = modelsData?.getCarModels ?? [];
 
 	const pushSearch = async (patch: Record<string, any>) => {

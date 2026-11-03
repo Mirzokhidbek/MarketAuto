@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { useQuery } from '@apollo/client';
-import { useTranslation } from 'next-i18next';
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { useQuery } from '@apollo/client/react';
+import { useTranslation } from 'next-i18next/pages';
+import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
 import withLayoutBasic from '../../libs/components/layout/LayoutBasic';
 import SellerCard from '../../libs/components/seller/SellerCard';
 import PageContainer from '../../libs/components/ui/PageContainer';
@@ -47,7 +47,7 @@ const SellerList: NextPage = () => {
 	const filter = parseQueryJson<AgentsInquiry>(router.query.input, DEFAULT_FILTER);
 	const [searchText, setSearchText] = useState<string>(filter.search?.text ?? '');
 
-	const { data, previousData, loading, refetch } = useQuery(GET_AGENTS, {
+	const { data, previousData, loading, refetch } = useQuery<any>(GET_AGENTS, {
 		fetchPolicy: 'network-only',
 		variables: { input: filter },
 		skip: !router.isReady,

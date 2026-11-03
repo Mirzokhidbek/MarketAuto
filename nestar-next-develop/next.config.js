@@ -25,8 +25,6 @@ const nextConfig = {
 	reactStrictMode: true,
 	// this app has its own lockfile and node_modules; the repo root belongs to the API
 	outputFileTracingRoot: __dirname,
-	// the only ESLint config Next would find is the API's flat config at the repo root
-	eslint: { ignoreDuringBuilds: true },
 	// no U+FEFF / @charset in compiled Sass: a BOM in the middle of a merged CSS chunk breaks the minifier
 	sassOptions: { charset: false },
 	env: {

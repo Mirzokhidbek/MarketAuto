@@ -1178,5 +1178,15 @@
 	"Filters find the right car fast": "Фильтры быстро находят нужную машину",
 	"Direct contact": "Прямая связь",
 	"Call or write to the seller, no middlemen": "Звоните или пишите продавцу без посредников",
-	"New listings": "Новые объявления"
+	"New listings": "Новые объявления",
+	"Heading": "Заголовок",
+	"Subheading": "Подзаголовок",
+	"Bold": "Жирный",
+	"Italic": "Курсив",
+	"Strikethrough": "Зачёркнутый",
+	"Bulleted list": "Маркированный список",
+	"Numbered list": "Нумерованный список",
+	"Quote": "Цитата",
+	"Link": "Ссылка",
+	"Insert image": "Вставить изображение"
 }

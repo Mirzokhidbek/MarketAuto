@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
+import { useMutation, useQuery, useReactiveVar } from '@apollo/client/react';
 import { GET_NOTIFICATIONS } from '../../../apollo/user/query';
 import { MARK_NOTIFICATIONS_READ, REMOVE_NOTIFICATIONS } from '../../../apollo/user/mutation';
 import { notificationPingVar, unreadNotificationsVar } from '../../../apollo/store';
@@ -21,15 +21,15 @@ interface Options {
 export const useNotifications = ({ limit, category = 'ALL', unreadOnly = false, skip = false }: Options) => {
 	const ping = useReactiveVar(notificationPingVar);
 	const input = { page: 1, limit, unreadOnly, ...(category !== 'ALL' ? { category } : {}) };
-	const { data, loading, refetch, fetchMore } = useQuery(GET_NOTIFICATIONS, {
+	const { data, loading, refetch, fetchMore } = useQuery<any>(GET_NOTIFICATIONS, {
 		variables: { input },
 		fetchPolicy: 'cache-and-network',
 		notifyOnNetworkStatusChange: true,
 		pollInterval: 60000,
 		skip,
 	});
-	const [markMutation] = useMutation(MARK_NOTIFICATIONS_READ);
-	const [removeMutation] = useMutation(REMOVE_NOTIFICATIONS);
+	const [markMutation] = useMutation<any>(MARK_NOTIFICATIONS_READ);
+	const [removeMutation] = useMutation<any>(REMOVE_NOTIFICATIONS);
 
 	const result = data?.getNotifications;
 	const list: T[] = result?.list ?? [];

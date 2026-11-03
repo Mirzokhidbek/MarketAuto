@@ -1,5 +1,5 @@
-import { useReactiveVar } from '@apollo/client';
-import { useTranslation } from 'next-i18next';
+import { useReactiveVar } from '@apollo/client/react';
+import { useTranslation } from 'next-i18next/pages';
 import numeral from 'numeral';
 import { currencyVar, usdRateVar } from '../../apollo/store';
 

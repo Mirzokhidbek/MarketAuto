@@ -1,6 +1,6 @@
 import React from 'react';
-import { useMutation, useQuery } from '@apollo/client';
-import { useTranslation } from 'next-i18next';
+import { useMutation, useQuery } from '@apollo/client/react';
+import { useTranslation } from 'next-i18next/pages';
 import moment from 'moment';
 import ComputerOutlinedIcon from '@mui/icons-material/ComputerOutlined';
 import PhoneIphoneOutlinedIcon from '@mui/icons-material/PhoneIphoneOutlined';
@@ -48,9 +48,9 @@ export const describeDevice = (ua: string): { name: string; mobile: boolean } =>
 /** Profile → Devices: where the account is logged in, with "log out" per device and for all others */
 const MySessions = () => {
 	const { t } = useTranslation('common');
-	const { data, refetch } = useQuery(GET_MY_SESSIONS, { fetchPolicy: 'network-only' });
-	const [revokeMySession] = useMutation(REVOKE_MY_SESSION);
-	const [logoutOtherSessions, { loading }] = useMutation(LOGOUT_OTHER_SESSIONS);
+	const { data, refetch } = useQuery<any>(GET_MY_SESSIONS, { fetchPolicy: 'network-only' });
+	const [revokeMySession] = useMutation<any>(REVOKE_MY_SESSION);
+	const [logoutOtherSessions, { loading }] = useMutation<any>(LOGOUT_OTHER_SESSIONS);
 	const sessions: Session[] = data?.getMySessions ?? [];
 	const others = sessions.filter((session) => !session.current).length;
 

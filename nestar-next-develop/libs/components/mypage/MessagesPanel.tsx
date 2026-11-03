@@ -3,9 +3,9 @@ import { uploadImage } from '../../upload';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'next-i18next/pages';
 import moment from 'moment';
-import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
+import { useMutation, useQuery, useReactiveVar } from '@apollo/client/react';
 import SendIcon from '@mui/icons-material/Send';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { GET_CONVERSATIONS, GET_MEMBER, GET_MESSAGES, GET_PROPERTY } from '../../../apollo/user/query';
@@ -42,7 +42,7 @@ const Messages = () => {
 		data: conversationsData,
 		loading: conversationsLoading,
 		refetch: refetchConversations,
-	} = useQuery(GET_CONVERSATIONS, {
+	} = useQuery<any>(GET_CONVERSATIONS, {
 		fetchPolicy: 'network-only',
 		variables: { input: { page: 1, limit: 50 } },
 	});
@@ -58,22 +58,31 @@ const Messages = () => {
 	);
 	const activeId = existing?._id ?? (toId ? '' : conversationId);
 
-	const { refetch: refetchMessages } = useQuery(GET_MESSAGES, {
+	const { data: completedData1, refetch: refetchMessages } = useQuery<any>(GET_MESSAGES, {
 		fetchPolicy: 'network-only',
 		skip: !activeId,
 		variables: { input: { conversationId: activeId, page: 1, limit: 100 } },
-		onCompleted: (data: T) => {
-			setMessages([...(data?.getMessages?.list ?? [])].reverse());
-			refetchConversations().then(({ data: fresh }) => {
-				const unread = (fresh?.getConversations?.list ?? []).reduce((sum: number, item: T) => sum + (item.unreadCount ?? 0), 0);
-				unreadMessagesVar(unread);
-			});
-		},
 	});
+	// Apollo 4 has no onCompleted: the same work runs whenever a new response arrives
+	useEffect(() => {
+		if (!completedData1) return;
+		const data: any = completedData1;
+		setMessages([...(data?.getMessages?.list ?? [])].reverse());
+		refetchConversations().then(({ data: fresh }) => {
+			const unread = (fresh?.getConversations?.list ?? []).reduce(
+				(sum: number, item: T) => sum + (item.unreadCount ?? 0),
+				0,
+			);
+			unreadMessagesVar(unread);
+		});
+	}, [completedData1]);
 	// header data for a brand-new dialog
-	const { data: newMemberData } = useQuery(GET_MEMBER, { skip: !toId || !!existing, variables: { input: toId } });
-	const { data: newPropertyData } = useQuery(GET_PROPERTY, { skip: !propertyId || !!existing, variables: { input: propertyId } });
-	const [sendMessage, { loading: sending }] = useMutation(SEND_MESSAGE);
+	const { data: newMemberData } = useQuery<any>(GET_MEMBER, { skip: !toId || !!existing, variables: { input: toId } });
+	const { data: newPropertyData } = useQuery<any>(GET_PROPERTY, {
+		skip: !propertyId || !!existing,
+		variables: { input: propertyId },
+	});
+	const [sendMessage, { loading: sending }] = useMutation<any>(SEND_MESSAGE);
 
 	const other = existing?.otherMember ?? newMemberData?.getMember;
 	const car = existing?.propertyData ?? newPropertyData?.getProperty;
@@ -92,7 +101,9 @@ const Messages = () => {
 	useEffect(() => {
 		if (!incoming) return;
 		if (incoming.conversationId === activeId) {
-			setMessages((prev) => (prev.some((item) => item._id === incoming.message._id) ? prev : [...prev, incoming.message]));
+			setMessages((prev) =>
+				prev.some((item) => item._id === incoming.message._id) ? prev : [...prev, incoming.message],
+			);
 			if (String(incoming.message.senderId) !== String(user._id)) refetchMessages().then(); // marks it read
 		} else {
 			refetchConversations().then();
@@ -100,7 +111,8 @@ const Messages = () => {
 	}, [incoming]);
 
 	/** HANDLERS **/
-	const open = (id: string) => router.push({ pathname: '/mypage', query: { category: 'messages', c: id } }, undefined, { shallow: true });
+	const open = (id: string) =>
+		router.push({ pathname: '/mypage', query: { category: 'messages', c: id } }, undefined, { shallow: true });
 
 	const sendHandler = async (e?: React.FormEvent, image?: string) => {
 		e?.preventDefault();
@@ -175,7 +187,9 @@ const Messages = () => {
 							>
 								<img src={avatar(item.otherMember?.memberImage)} alt={''} />
 								<div>
-									<strong>{item.otherMember?.memberFullName || item.otherMember?.memberNick || t('Deleted member')}</strong>
+									<strong>
+										{item.otherMember?.memberFullName || item.otherMember?.memberNick || t('Deleted member')}
+									</strong>
 									{item.propertyData && <em>{item.propertyData.propertyTitle}</em>}
 									<span>{item.lastMessage}</span>
 								</div>
@@ -192,7 +206,10 @@ const Messages = () => {
 					{threadOpen && other ? (
 						<>
 							<header className={'ma-messages__head'}>
-								<button className={'ma-icon-btn ma-messages__back'} onClick={() => router.push('/mypage?category=messages')}>
+								<button
+									className={'ma-icon-btn ma-messages__back'}
+									onClick={() => router.push('/mypage?category=messages')}
+								>
 									<ArrowBackIcon />
 								</button>
 								<img src={avatar(other.memberImage)} alt={''} />
@@ -217,7 +234,11 @@ const Messages = () => {
 										<div key={message._id} className={`ma-bubble ${mine ? 'is-mine' : ''}`}>
 											{message.image && (
 												<a href={imageUrl(message.image)} target={'_blank'} rel={'noopener noreferrer'}>
-													<img className={'ma-bubble__image'} src={imageUrl(message.image)} alt={t('Photo') as string} />
+													<img
+														className={'ma-bubble__image'}
+														src={imageUrl(message.image)}
+														alt={t('Photo') as string}
+													/>
 												</a>
 											)}
 											{message.text && <p>{message.text}</p>}
@@ -231,9 +252,18 @@ const Messages = () => {
 								<div ref={bottomRef} />
 							</div>
 							<form className={'ma-messages__form'} onSubmit={(e) => sendHandler(e)}>
-								<label className={`ma-icon-btn ma-messages__attach ${attaching ? 'is-busy' : ''}`} aria-label={t('Send a photo') as string}>
+								<label
+									className={`ma-icon-btn ma-messages__attach ${attaching ? 'is-busy' : ''}`}
+									aria-label={t('Send a photo') as string}
+								>
 									<AttachFileIcon />
-									<input type="file" hidden accept="image/jpeg, image/png, image/webp" onChange={attachHandler} disabled={attaching} />
+									<input
+										type="file"
+										hidden
+										accept="image/jpeg, image/png, image/webp"
+										onChange={attachHandler}
+										disabled={attaching}
+									/>
 								</label>
 								<textarea
 									maxLength={1000}
@@ -245,7 +275,11 @@ const Messages = () => {
 										if (e.key === 'Enter' && !e.shiftKey) sendHandler(e as any);
 									}}
 								/>
-								<button className={'ma-btn ma-btn--primary'} disabled={!text.trim() || sending} aria-label={t('Send') as string}>
+								<button
+									className={'ma-btn ma-btn--primary'}
+									disabled={!text.trim() || sending}
+									aria-label={t('Send') as string}
+								>
 									<SendIcon />
 								</button>
 							</form>

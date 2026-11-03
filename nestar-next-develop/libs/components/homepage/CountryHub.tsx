@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { useTranslation } from 'next-i18next';
-import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
+import { useTranslation } from 'next-i18next/pages';
+import { useMutation, useQuery, useReactiveVar } from '@apollo/client/react';
 import { GET_PROPERTIES } from '../../../apollo/user/query';
 import { LIKE_TARGET_PROPERTY } from '../../../apollo/user/mutation';
 import { userVar } from '../../../apollo/store';
@@ -35,9 +35,9 @@ const CountryHub = () => {
 	const { t } = useTranslation('common');
 	const user = useReactiveVar(userVar);
 	const [country, setCountry] = useState<CarCountry | null>(null);
-	const [likeTargetProperty] = useMutation(LIKE_TARGET_PROPERTY);
+	const [likeTargetProperty] = useMutation<any>(LIKE_TARGET_PROPERTY);
 
-	const { data, loading, refetch } = useQuery(GET_PROPERTIES, {
+	const { data, loading, refetch } = useQuery<any>(GET_PROPERTIES, {
 		fetchPolicy: 'cache-and-network',
 		variables: { input: buildInput(country) },
 		notifyOnNetworkStatusChange: true,

@@ -10,7 +10,7 @@ import RecentlyVisited from '../../libs/components/mypage/RecentlyVisited';
 import AddCarForm from '../../libs/components/mypage/AddCarForm';
 import MyProfile from '../../libs/components/mypage/MyProfile';
 import MyArticles from '../../libs/components/mypage/MyArticles';
-import { useMutation, useReactiveVar } from '@apollo/client';
+import { useMutation, useReactiveVar } from '@apollo/client/react';
 import { userVar } from '../../apollo/store';
 import MyPageMenu from '../../libs/components/mypage/MyPageMenu';
 import ProfileHub from '../../libs/components/mypage/ProfileHub';
@@ -21,7 +21,7 @@ import WriteArticle from '../../libs/components/mypage/WriteArticle';
 import MemberFollowers from '../../libs/components/member/MemberFollowers';
 import { sweetErrorHandling, sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../libs/sweetAlert';
 import MemberFollowings from '../../libs/components/member/MemberFollowings';
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
 import { LIKE_TARGET_MEMBER, SUBSCRIBE, UNSUBSCRIBE } from '../../apollo/user/mutation';
 import { Messages } from '../../libs/config';
 import { joinHref } from '../../libs/utils';
@@ -38,9 +38,9 @@ const MyPage: NextPage = () => {
 	const category = (router.query?.category as string) ?? 'myProfile';
 
 	/** APOLLO REQUESTS **/
-	const [subscribe] = useMutation(SUBSCRIBE);
-	const [unsubscribe] = useMutation(UNSUBSCRIBE);
-	const [likeTargetMember] = useMutation(LIKE_TARGET_MEMBER);
+	const [subscribe] = useMutation<any>(SUBSCRIBE);
+	const [unsubscribe] = useMutation<any>(UNSUBSCRIBE);
+	const [likeTargetMember] = useMutation<any>(LIKE_TARGET_MEMBER);
 
 	/** LIFECYCLES **/
 	useEffect(() => {

@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { NextPage } from 'next';
 import Link from 'next/link';
-import { useTranslation } from 'next-i18next';
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import { useQuery, useReactiveVar } from '@apollo/client';
+import { useTranslation } from 'next-i18next/pages';
+import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
+import { useQuery, useReactiveVar } from '@apollo/client/react';
 import DirectionsCarFilledOutlinedIcon from '@mui/icons-material/DirectionsCarFilledOutlined';
 import withLayoutBasic from '../libs/components/layout/LayoutBasic';
 import { compareVar } from '../apollo/store';
@@ -19,7 +19,7 @@ export const getStaticProps = async ({ locale }: any) => ({
 
 /** loads one car of the comparison (each id is fetched separately and cached by Apollo) */
 const useCar = (id?: string): Property | null => {
-	const { data } = useQuery(GET_PROPERTY, { skip: !id, variables: { input: id }, fetchPolicy: 'cache-first' });
+	const { data } = useQuery<any>(GET_PROPERTY, { skip: !id, variables: { input: id }, fetchPolicy: 'cache-first' });
 	return data?.getProperty ?? null;
 };
 

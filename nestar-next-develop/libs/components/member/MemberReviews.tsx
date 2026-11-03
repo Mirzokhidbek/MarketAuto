@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
-import { useTranslation } from 'next-i18next';
-import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
+import { useTranslation } from 'next-i18next/pages';
+import { useMutation, useQuery, useReactiveVar } from '@apollo/client/react';
 import { Pagination } from '@mui/material';
 import { GET_COMMENTS } from '../../../apollo/user/query';
 import { CREATE_COMMENT } from '../../../apollo/user/mutation';
@@ -22,12 +22,12 @@ const MemberReviews = () => {
 	const [page, setPage] = useState<number>(1);
 	const [content, setContent] = useState<string>('');
 
-	const { data, refetch } = useQuery(GET_COMMENTS, {
+	const { data, refetch } = useQuery<any>(GET_COMMENTS, {
 		fetchPolicy: 'network-only',
 		skip: !memberId,
 		variables: { input: { page, limit: LIMIT, sort: 'createdAt', direction: 'DESC', search: { commentRefId: memberId } } },
 	});
-	const [createComment, { loading: sending }] = useMutation(CREATE_COMMENT);
+	const [createComment, { loading: sending }] = useMutation<any>(CREATE_COMMENT);
 
 	const reviews: Comment[] = data?.getComments?.list ?? [];
 	const total: number = data?.getComments?.metaCounter?.[0]?.total ?? 0;

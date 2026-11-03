@@ -1,8 +1,8 @@
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'next-i18next/pages';
 import { imageUrl } from '../../../utils';
 import React, { useState } from 'react';
 import moment from 'moment';
-import { useMutation, useQuery } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client/react';
 import {
 	Box,
 	Button,
@@ -95,14 +95,14 @@ const NoticeManager = ({ category }: NoticeManagerProps) => {
 		},
 	};
 
-	const { data, loading, refetch } = useQuery(GET_ALL_NOTICES_BY_ADMIN, {
+	const { data, loading, refetch } = useQuery<any>(GET_ALL_NOTICES_BY_ADMIN, {
 		fetchPolicy: 'network-only',
 		variables: { input },
 		notifyOnNetworkStatusChange: true,
 	});
-	const [createNotice] = useMutation(CREATE_NOTICE);
-	const [updateNoticeByAdmin] = useMutation(UPDATE_NOTICE_BY_ADMIN);
-	const [removeNoticeByAdmin] = useMutation(REMOVE_NOTICE_BY_ADMIN);
+	const [createNotice] = useMutation<any>(CREATE_NOTICE);
+	const [updateNoticeByAdmin] = useMutation<any>(UPDATE_NOTICE_BY_ADMIN);
+	const [removeNoticeByAdmin] = useMutation<any>(REMOVE_NOTICE_BY_ADMIN);
 
 	const list: T[] = data?.getAllNoticesByAdmin?.list ?? [];
 	const total: number = data?.getAllNoticesByAdmin?.metaCounter?.[0]?.total ?? 0;

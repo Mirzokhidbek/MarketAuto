@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import type { NextPage } from 'next';
-import { useTranslation } from 'next-i18next';
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import { useMutation, useQuery } from '@apollo/client';
+import { useTranslation } from 'next-i18next/pages';
+import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
+import { useMutation, useQuery } from '@apollo/client/react';
 import { Box, Button, Stack, TextField, Typography } from '@mui/material';
 import withAdminLayout from '../../../libs/components/layout/LayoutAdmin';
 import AdminPageHeader from '../../../libs/components/admin/AdminPageHeader';
@@ -33,8 +33,8 @@ const isPhone = (value: string) => !value || /^\+?[\d\s()-]{7,20}$/.test(value);
 const AdminSettings: NextPage = () => {
 	const { t } = useTranslation('common');
 	const [form, setForm] = useState<Settings>(EMPTY);
-	const { data } = useQuery(GET_SITE_SETTINGS, { fetchPolicy: 'network-only' });
-	const [updateSiteSettings, { loading }] = useMutation(UPDATE_SITE_SETTINGS, { refetchQueries: [GET_SITE_SETTINGS] });
+	const { data } = useQuery<any>(GET_SITE_SETTINGS, { fetchPolicy: 'network-only' });
+	const [updateSiteSettings, { loading }] = useMutation<any>(UPDATE_SITE_SETTINGS, { refetchQueries: [GET_SITE_SETTINGS] });
 
 	useEffect(() => {
 		const saved = data?.getSiteSettings;

@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import type { NextPage } from 'next';
 import Link from 'next/link';
 import moment from 'moment';
-import { useTranslation } from 'next-i18next';
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import { useQuery } from '@apollo/client';
+import { useTranslation } from 'next-i18next/pages';
+import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
+import { useQuery } from '@apollo/client/react';
 import {
 	Box,
 	Divider,
@@ -85,7 +85,7 @@ const AdminLogs: NextPage = () => {
 	const [page, setPage] = useState<number>(1);
 	const [limit, setLimit] = useState<number>(20);
 	const input: T = { page, limit, ...(type !== 'ALL' && { targetType: type }) };
-	const { data, loading } = useQuery(GET_ADMIN_LOGS, { fetchPolicy: 'network-only', variables: { input } });
+	const { data, loading } = useQuery<any>(GET_ADMIN_LOGS, { fetchPolicy: 'network-only', variables: { input } });
 	const list: T[] = data?.getAdminLogs?.list ?? [];
 	const total: number = data?.getAdminLogs?.metaCounter?.[0]?.total ?? 0;
 

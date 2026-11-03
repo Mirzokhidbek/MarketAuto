@@ -1,18 +1,18 @@
 import EmptyState from '../ui/EmptyState';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NextPage } from 'next';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'next-i18next/pages';
 import { useRouter } from 'next/router';
 import { Pagination, Stack, Typography } from '@mui/material';
 import ArticleCard from '../community/ArticleCard';
-import { useQuery, useReactiveVar } from '@apollo/client';
+import { useQuery, useReactiveVar } from '@apollo/client/react';
 import { userVar } from '../../../apollo/store';
 import { T } from '../../types/common';
 import { BoardArticle } from '../../types/board-article/board-article';
 import { GET_BOARD_ARTICLES } from '../../../apollo/user/query';
 import { useLikeArticle } from '../../hooks/useLike';
 
-const MyArticles: NextPage = ({ initialInput, ...props }: T) => {
+const MyArticles: NextPage = ({ initialInput = defaultProps.initialInput, ...props }: T) => {
 	const { t } = useTranslation('common');
 	const router = useRouter();
 	const user = useReactiveVar(userVar);
@@ -29,17 +29,20 @@ const MyArticles: NextPage = ({ initialInput, ...props }: T) => {
 		data: boardArticlesData,
 		error: getBoardArticlesError,
 		refetch: boardArticlesRefetch,
-	} = useQuery(GET_BOARD_ARTICLES, {
+	} = useQuery<any>(GET_BOARD_ARTICLES, {
 		fetchPolicy: 'network-only',
 		variables: {
 			input: searchCommunity,
 		},
 		notifyOnNetworkStatusChange: true,
-		onCompleted: (data: T) => {
-			setBoardArticles(data?.getBoardArticles?.list);
-			setTotalCount(data?.getBoardArticles?.metaCounter[0]?.total);
-		},
 	});
+	// Apollo 4 has no onCompleted: the same work runs whenever a new response arrives
+	useEffect(() => {
+		if (!boardArticlesData) return;
+		const data: any = boardArticlesData;
+		setBoardArticles(data?.getBoardArticles?.list);
+		setTotalCount(data?.getBoardArticles?.metaCounter[0]?.total);
+	}, [boardArticlesData]);
 
 	/** HANDLERS **/
 	const paginationHandler = (e: T, value: number) => {
@@ -86,7 +89,8 @@ const MyArticles: NextPage = ({ initialInput, ...props }: T) => {
 	);
 };
 
-MyArticles.defaultProps = {
+// React 19 has no defaultProps on function components: used as the default value below
+const defaultProps = {
 	initialInput: {
 		page: 1,
 		limit: 6,
