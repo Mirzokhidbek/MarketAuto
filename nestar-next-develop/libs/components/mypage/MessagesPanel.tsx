@@ -3,7 +3,6 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next/pages';
-import moment from 'moment';
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client/react';
 import { GET_CONVERSATIONS, GET_MEMBER, GET_MESSAGES, GET_PROPERTY } from '../../../apollo/user/query';
 import { SEND_MESSAGE } from '../../../apollo/user/mutation';
@@ -17,6 +16,7 @@ import { AttachFileIcon, SendIcon, ArrowBackIcon } from '../ui/icons';
 import { accountPanel, accountPanelHead, iconButton } from '../ui/styles';
 import { cx } from '../ui/classNames';
 import { buttonClasses } from '../ui/Button';
+import { formatDate, fromNow } from '../../date';
 
 const avatar = (image?: string) => (image ? imageUrl(image) : '/img/profile/defaultUser.svg');
 
@@ -198,7 +198,7 @@ const Messages = () => {
 									<span className="overflow-hidden text-[13px] text-ellipsis whitespace-nowrap text-muted">{item.lastMessage}</span>
 								</div>
 								<div className="flex flex-col items-end gap-1.5">
-									<small className="text-[11px] whitespace-nowrap text-muted">{moment(item.lastMessageAt).fromNow()}</small>
+									<small className="text-[11px] whitespace-nowrap text-muted">{fromNow(item.lastMessageAt)}</small>
 									{item.unreadCount > 0 && (
 										<b className="min-w-5 rounded-full bg-primary px-1.5 py-px text-center text-[11px] text-white">{item.unreadCount}</b>
 									)}
@@ -257,7 +257,7 @@ const Messages = () => {
 											)}
 											{message.text && <p className="m-0 text-sm leading-[1.45] break-words whitespace-pre-wrap">{message.text}</p>}
 											<small className={cx('mt-1 block text-right text-[11px]', mine ? 'text-white' : 'text-muted')}>
-												{moment(message.createdAt).format('HH:mm')}
+												{formatDate(message.createdAt, 'HH:mm')}
 												{mine && message.readAt ? ' ✓✓' : mine ? ' ✓' : ''}
 											</small>
 										</div>

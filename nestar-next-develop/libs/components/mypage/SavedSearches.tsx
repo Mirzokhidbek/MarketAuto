@@ -1,7 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
 import { useTranslation } from 'next-i18next/pages';
-import moment from 'moment';
 import { useMutation, useQuery } from '@apollo/client/react';
 import { GET_SAVED_SEARCHES } from '../../../apollo/user/query';
 import { REMOVE_SAVED_SEARCH } from '../../../apollo/user/mutation';
@@ -12,6 +11,7 @@ import { T } from '../../types/common';
 import { DeleteIcon as DeleteOutlineIcon, BellRingIcon as NotificationsActiveOutlinedIcon } from '../ui/icons';
 import { accountPanel, accountPanelHead, iconButtonDanger } from '../ui/styles';
 import { buttonClasses } from '../ui/Button';
+import { formatDate, fromNow } from '../../date';
 
 /** short human summary of the saved filters: "Kia, Hyundai · South Korea · 2020–2026" */
 const describe = (search: T, t: any): string => {
@@ -65,8 +65,8 @@ const SavedSearches = () => {
 									<span className="text-[13px] text-muted">{describe(search, t)}</span>
 									<small className="text-xs text-muted">
 										{item.lastNotifiedAt
-											? `${t('Last match')}: ${moment(item.lastNotifiedAt).fromNow()}`
-											: `${t('Saved')}: ${moment(item.createdAt).format('DD.MM.YYYY')}`}
+											? `${t('Last match')}: ${fromNow(item.lastNotifiedAt)}`
+											: `${t('Saved')}: ${formatDate(item.createdAt, 'DD.MM.YYYY')}`}
 									</small>
 								</div>
 								<Link href={href} className={buttonClasses({ variant: 'outline', className: 'max-sm:hidden' })}>

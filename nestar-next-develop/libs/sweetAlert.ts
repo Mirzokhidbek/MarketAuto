@@ -1,5 +1,4 @@
 import Swal from 'sweetalert2';
-import 'animate.css';
 import { i18n } from 'next-i18next/pages';
 import { Messages } from './config';
 
@@ -30,9 +29,6 @@ export const sweetTopSuccessAlert = async (msg: string, duration: number = 2000)
 export const sweetContactAlert = async (msg: string, duration: number = 10000) => {
 	await Swal.fire({
 		title: tr(msg),
-		showClass: {
-			popup: 'animate__bounceIn',
-		},
 		showConfirmButton: false,
 		timer: duration,
 	}).then();
@@ -43,9 +39,6 @@ export const sweetConfirmAlert = (msg: string) => {
 		await Swal.fire({
 			icon: 'question',
 			text: tr(msg),
-			showClass: {
-				popup: 'animate__bounceIn',
-			},
 			showCancelButton: true,
 			showConfirmButton: true,
 			confirmButtonColor: '#015dea',

@@ -1,7 +1,6 @@
 import { useTranslation } from 'next-i18next/pages';
 import { imageUrl } from '../../../utils';
 import React, { useState } from 'react';
-import moment from 'moment';
 import { useMutation, useQuery } from '@apollo/client/react';
 import { GET_ALL_NOTICES_BY_ADMIN } from '../../../../apollo/admin/query';
 import { CREATE_NOTICE, REMOVE_NOTICE_BY_ADMIN, UPDATE_NOTICE_BY_ADMIN } from '../../../../apollo/admin/mutation';
@@ -13,6 +12,7 @@ import { AddIcon as AddRoundedIcon } from '../../ui/icons';
 import Dialog from '../../ui/Dialog';
 import { cx } from '../../ui/classNames';
 import { AdminField, adminButton, adminInput, AdminPager, AdminSearch, AdminTabs, adminTable, adminTextarea, NoRows, pillTones, PillTone, searchArea, TableScroll, tableWrap, td, tdActions, tdTitle, th, avatar, tr } from '../ui';
+import { formatDate } from '../../../date';
 
 /** pill colours, shared with the other admin lists */
 const statusTone: Record<string, PillTone> = { ACTIVE: 'success', HOLD: 'warning', DELETE: 'error' };
@@ -212,7 +212,7 @@ const NoticeManager = ({ category }: NoticeManagerProps) => {
 										</td>
 									)}
 									<td className={cx(td, 'whitespace-nowrap')} data-label={t('DATE')}>
-										{moment(item.createdAt).format('DD.MM.YYYY HH:mm')}
+										{formatDate(item.createdAt, 'DD.MM.YYYY HH:mm')}
 									</td>
 									<td className={cx(td, 'text-center')} data-label={t('STATUS')}>
 										{/* the same coloured status pill as on the Cars and Members pages */}

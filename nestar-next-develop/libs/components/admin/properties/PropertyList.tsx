@@ -1,7 +1,6 @@
 import { useTranslation } from 'next-i18next/pages';
 import React from 'react';
 import Link from 'next/link';
-import moment from 'moment';
 import { Property } from '../../../types/property/property';
 import { PropertyStatus } from '../../../enums/property.enum';
 import { formatCarPlace, formatEnumLabel, formatterStr, imageUrl } from '../../../utils';
@@ -24,6 +23,7 @@ import {
 	thumb,
 	tr,
 } from '../ui';
+import { formatDate } from '../../../date';
 
 interface PropertyPanelListType {
 	properties: Property[];
@@ -138,7 +138,7 @@ export const PropertyPanelList = ({
 									{formatCarPlace(property, t)}
 								</td>
 								<td className={cx(td, 'whitespace-nowrap')} data-label={t('LISTED')}>
-									{moment(property.createdAt).format('DD.MM.YYYY')}
+									{formatDate(property.createdAt, 'DD.MM.YYYY')}
 								</td>
 								<td className={cx(td, tdActions, 'min-w-[200px] text-center')}>
 									{status === PropertyStatus.PENDING ? (

@@ -2,13 +2,13 @@ import { usePrice } from '../../hooks/usePrice';
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next/pages';
-import moment from 'moment';
 import { Property } from '../../types/property/property';
 import { PropertyStatus } from '../../enums/property.enum';
 import { REACT_APP_API_URL } from '../../config';
 import { formatCountry, formatEnumLabel, formatMileage, formatterStr, imageUrl } from '../../utils';
 import { EditIcon as EditOutlinedIcon, DeleteIcon as DeleteOutlineIcon, EyeIcon as RemoveRedEyeOutlinedIcon, FavoriteBorderIcon, CarIcon as DirectionsCarFilledOutlinedIcon } from '../ui/icons';
 import { iconButton, iconButtonDanger, linkButton, statusPill, statusTone } from '../ui/styles';
+import { formatDate } from '../../date';
 
 interface ManageCarRowProps {
 	property: Property;
@@ -67,7 +67,7 @@ const ManageCarRow = ({ property, onDelete, onStatusChange }: ManageCarRowProps)
 						<FavoriteBorderIcon /> {property.propertyLikes}
 					</span>
 					<span>
-						{t('Listed')} {moment(property.createdAt).format('DD MMM YYYY')}
+						{t('Listed')} {formatDate(property.createdAt, 'DD MMM YYYY')}
 					</span>
 				</div>
 			</div>

@@ -4,7 +4,6 @@ import React, { useState } from 'react';
 import type { NextPage } from 'next';
 import Link from 'next/link';
 import { useQuery, useReactiveVar } from '@apollo/client/react';
-import moment from 'moment';
 import withAdminLayout from '../../libs/components/layout/LayoutAdmin';
 import TrendChart from '../../libs/components/admin/TrendChart';
 import { GET_ALL_PROPERTIES_BY_ADMIN, GET_DASHBOARD_STATS } from '../../apollo/admin/query';
@@ -14,6 +13,7 @@ import { T } from '../../libs/types/common';
 import { CarIcon as DirectionsCarFilledOutlinedIcon, FlagIcon as OutlinedFlagIcon, ForumIcon as ForumOutlinedIcon, ChevronRightIcon, EyeIcon as RemoveRedEyeOutlinedIcon, FavoriteBorderIcon, ScheduleIcon } from '../../libs/components/ui/icons';
 import { cx } from '../../libs/components/ui/classNames';
 import { AdminCard, CardHead, cardEmpty } from '../../libs/components/admin/ui';
+import { fromNow } from '../../libs/date';
 
 // categorical slots 1 and 2 of the validated palette, always in this order
 const SERIES_COLORS = { cars: '#2a78d6', members: '#eb6834' };
@@ -199,7 +199,7 @@ const AdminHome: NextPage = () => {
 								<span className="flex min-w-0 flex-1 flex-col gap-1">
 									<strong className="overflow-hidden text-sm font-semibold text-ellipsis whitespace-nowrap">{car.propertyTitle}</strong>
 									<small className="flex items-center gap-1 text-xs text-faint [&_svg]:text-sm">
-										{car.memberData?.memberNick} · <ScheduleIcon /> {moment(car.createdAt).fromNow()}
+										{car.memberData?.memberNick} · <ScheduleIcon /> {fromNow(car.createdAt)}
 									</small>
 								</span>
 								<b className="text-[15px] font-bold whitespace-nowrap min-[481px]:text-lg">${formatterStr(car.propertyPrice)}</b>

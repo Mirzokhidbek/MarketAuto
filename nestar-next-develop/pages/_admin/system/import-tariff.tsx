@@ -3,7 +3,6 @@ import type { NextPage } from 'next';
 import { useTranslation } from 'next-i18next/pages';
 import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
 import { useMutation, useQuery } from '@apollo/client/react';
-import moment from 'moment';
 import withAdminLayout from '../../../libs/components/layout/LayoutAdmin';
 import AdminPageHeader from '../../../libs/components/admin/AdminPageHeader';
 import { GET_IMPORT_TARIFF } from '../../../apollo/admin/query';
@@ -12,6 +11,7 @@ import { sweetErrorHandling, sweetTopSmallSuccessAlert } from '../../../libs/swe
 import { DeleteIcon as DeleteOutlineIcon, AddIcon } from '../../../libs/components/ui/icons';
 import { cx } from '../../../libs/components/ui/classNames';
 import { AdminCard, AdminField, adminButton, adminInput } from '../../../libs/components/admin/ui';
+import { formatDate } from '../../../libs/date';
 
 const tariffRow = 'grid items-end gap-3 border-b border-ink/6 py-3';
 const removeButton =
@@ -194,7 +194,7 @@ const AdminImportTariff: NextPage = () => {
 			<form className="flex max-w-[1040px] flex-col gap-5" onSubmit={saveHandler}>
 				<p className="m-0 text-sm text-[#475569]">
 					{saved?.updatedAt
-						? `${t('Last saved')}: ${moment(saved.updatedAt).format('DD.MM.YYYY HH:mm')}`
+						? `${t('Last saved')}: ${formatDate(saved.updatedAt, 'DD.MM.YYYY HH:mm')}`
 						: t('Starting values are used. Check them against the official rates and save.')}
 				</p>
 

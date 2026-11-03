@@ -1,5 +1,5 @@
 import React from 'react';
-import moment from 'moment';
+import { startOfDay } from '../../date';
 import { NotificationCategory } from '../../enums/notification.enum';
 import { T } from '../../types/common';
 import { FavoriteIcon as FavoriteRoundedIcon, ChatFilledIcon as ChatBubbleRoundedIcon, PersonAddIcon as PersonAddAlt1RoundedIcon, CheckCircleIcon as CheckCircleRoundedIcon, ErrorIcon as ErrorRoundedIcon, CarFilledIcon as DirectionsCarFilledRoundedIcon, TrendingDownIcon as TrendingDownRoundedIcon, BellFilledIcon as NotificationsRoundedIcon } from '../ui/icons';
@@ -55,9 +55,7 @@ export const NOTIFICATION_TABS: { key: NotificationCategory | 'ALL'; label: stri
 
 /** "Today", "Yesterday", "This week", "Earlier": the list is split by these headings */
 export const dateGroup = (date: string | Date): string => {
-	const day = moment(date).startOf('day');
-	const today = moment().startOf('day');
-	const diff = today.diff(day, 'days');
+	const diff = Math.round((startOfDay().getTime() - startOfDay(date).getTime()) / 86400000);
 	if (diff <= 0) return 'Today';
 	if (diff === 1) return 'Yesterday';
 	if (diff < 7) return 'This week';

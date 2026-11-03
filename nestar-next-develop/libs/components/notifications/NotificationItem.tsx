@@ -1,11 +1,11 @@
 import React from 'react';
-import moment from 'moment';
 import { useTranslation } from 'next-i18next/pages';
 import { imageUrl } from '../../utils';
 import { T } from '../../types/common';
 import { isSystemNotification, NOTIFICATION_MESSAGES, typeLook } from './notificationMeta';
 import { DoneIcon as DoneRoundedIcon, CloseIcon as CloseRoundedIcon } from '../ui/icons';
 import { cx } from '../ui/classNames';
+import { formatDate, fromNow } from '../../date';
 
 const BADGE_TONES: Record<string, string> = {
 	rose: 'bg-[#e11d48]',
@@ -100,8 +100,8 @@ const NotificationItem = ({ item, onOpen, onMarkRead, onRemove, wide }: Notifica
 							{t('Reason')}: {item.notificationDesc}
 						</span>
 					)}
-					<time className="text-xs text-faint" dateTime={item.createdAt} title={moment(item.createdAt).format('DD.MM.YYYY HH:mm')}>
-						{wide ? `${moment(item.createdAt).fromNow()} · ${moment(item.createdAt).format('DD MMM, HH:mm')}` : moment(item.createdAt).fromNow()}
+					<time className="text-xs text-faint" dateTime={item.createdAt} title={formatDate(item.createdAt, 'DD.MM.YYYY HH:mm')}>
+						{wide ? `${fromNow(item.createdAt)} · ${formatDate(item.createdAt, 'DD MMM, HH:mm')}` : fromNow(item.createdAt)}
 					</time>
 				</span>
 				{unread && <span className="size-[9px] shrink-0 self-center rounded-full bg-primary" aria-label={t('Unread') as string} />}

@@ -1,6 +1,5 @@
 import React from 'react';
 import Link from 'next/link';
-import moment from 'moment';
 import { useTranslation } from 'next-i18next/pages';
 import { useQuery } from '@apollo/client/react';
 import { Skeleton } from '../ui/Feedback';
@@ -9,6 +8,7 @@ import { GET_ADMIN_WAITING } from '../../../apollo/admin/query';
 import { imageUrl } from '../../utils';
 import { T } from '../../types/common';
 import { CarFilledIcon as DirectionsCarFilledRoundedIcon, FlagIcon as FlagRoundedIcon, ForumIcon as QuestionAnswerRoundedIcon, CheckCircleIcon as TaskAltRoundedIcon } from '../ui/icons';
+import { formatDate, fromNow } from '../../date';
 
 interface AdminWaitingPanelProps {
 	counts: { carsPending?: number; reportsOpen?: number; inquiriesWaiting?: number };
@@ -151,8 +151,8 @@ const AdminWaitingPanel = ({ counts, onNavigate }: AdminWaitingPanelProps) => {
 									<strong className="text-[13px] font-semibold text-[#0f172a]">{row.title}</strong>
 									<small className="text-xs text-faint">{row.meta}</small>
 								</span>
-								<time className="shrink-0 text-[11.5px] text-faint" dateTime={row.at} title={moment(row.at).format('DD.MM.YYYY HH:mm')}>
-									{moment(row.at).fromNow()}
+								<time className="shrink-0 text-[11.5px] text-faint" dateTime={row.at} title={formatDate(row.at, 'DD.MM.YYYY HH:mm')}>
+									{fromNow(row.at)}
 								</time>
 							</Link>
 						))}

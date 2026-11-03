@@ -29,7 +29,6 @@ import { useMutation, useQuery, useReactiveVar } from '@apollo/client/react';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next/pages';
 import { Property } from '../../libs/types/property/property';
-import moment from 'moment';
 import {
 	formatCarPlace,
 	formatCountry,
@@ -51,6 +50,7 @@ import { Direction, Message } from '../../libs/enums/common.enum';
 import { sweetErrorHandling, sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../libs/sweetAlert';
 import { LIKE_TARGET_PROPERTY } from '../../apollo/user/mutation';
 import { CompareArrowsIcon, ChatIcon as ChatBubbleOutlineIcon, FavoriteIcon, FavoriteBorderIcon, EyeIcon as RemoveRedEyeIcon, ShareIcon as ShareOutlinedIcon, PhoneIcon as PhoneOutlinedIcon, CarIcon as DirectionsCarFilledOutlinedIcon, CalendarIcon as CalendarMonthOutlinedIcon, SpeedIcon as SpeedOutlinedIcon, FuelIcon as LocalGasStationOutlinedIcon, SettingsIcon as SettingsOutlinedIcon, CarIcon as DirectionsCarOutlinedIcon, EngineIcon as EngineeringOutlinedIcon } from '../../libs/components/ui/icons';
+import { fromNow } from '../../libs/date';
 
 /**
  * The car is fetched on the server too, so search engines and link previews (Telegram etc.) get the real page
@@ -377,7 +377,7 @@ const PropertyDetail: NextPage = ({ carSeo }: any) => {
 						<div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm text-muted">
 							<CarOrigin country={property.carCountry} label={formatCarPlace(property, t)} />
 							<span>
-								{t('Posted')} {moment(property.createdAt).fromNow()}
+								{t('Posted')} {fromNow(property.createdAt)}
 							</span>
 							<span className="inline-flex items-center gap-1" title={t('Views') as string}>
 								<RemoveRedEyeIcon className="text-lg" /> {property.propertyViews}

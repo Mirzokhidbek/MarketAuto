@@ -9,6 +9,10 @@ export default function Document() {
 				<link rel="icon" type="image/png" sizes="32x32" href="/img/logo/favicon-32.png" />
 				<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 				<link rel="manifest" href="/site.webmanifest" />
+				{/* Inter, the site font */}
+				<link rel="preconnect" href="https://fonts.googleapis.com" />
+				<link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+				<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 				<meta name="theme-color" content="#015DEA" />
 				{/* "Add to Home Screen" opens CarPort full screen like an app */}
 				<meta name="mobile-web-app-capable" content="yes" />

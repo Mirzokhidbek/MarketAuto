@@ -1,4 +1,3 @@
-import axios from 'axios';
 import { getFreshToken } from './auth';
 
 export type UploadTarget = 'member' | 'property' | 'article' | 'message';
@@ -9,15 +8,16 @@ const postMultipart = async <R>(field: string, query: string, variables: object,
 	formData.append('operations', JSON.stringify({ query, variables }));
 	formData.append('map', JSON.stringify(map));
 	files.forEach((file, index) => formData.append(String(index), file));
-	const response = await axios.post(`${process.env.REACT_APP_API_GRAPHQL_URL}`, formData, {
-		headers: {
-			'Content-Type': 'multipart/form-data',
-			'apollo-require-preflight': true,
-			Authorization: `Bearer ${await getFreshToken()}`,
-		},
+	// the browser sets the multipart boundary itself, so no Content-Type here
+	const response = await fetch(`${process.env.REACT_APP_API_GRAPHQL_URL}`, {
+		method: 'POST',
+		body: formData,
+		headers: { 'apollo-require-preflight': 'true', Authorization: `Bearer ${await getFreshToken()}` },
 	});
-	if (response.data?.errors?.length) throw new Error(response.data.errors[0].message);
-	return response.data.data[field] as R;
+	const body = await response.json().catch(() => null);
+	if (body?.errors?.length) throw new Error(body.errors[0].message);
+	if (!response.ok || !body?.data) throw new Error(`Upload failed (${response.status})`);
+	return body.data[field] as R;
 };
 
 /** uploads one image and returns its stored path, or throws with the server message */

@@ -2,11 +2,11 @@ import { imageUrl } from '../../utils';
 import React from 'react';
 import { Comment } from '../../types/comment/comment';
 import { REACT_APP_API_URL } from '../../config';
-import Moment from 'react-moment';
 import { useRouter } from 'next/router';
 import { useReactiveVar } from '@apollo/client/react';
 import { userVar } from '../../../apollo/store';
 import AdminRemoveComment from '../admin/AdminRemoveComment';
+import { formatDate } from '../../date';
 
 interface ReviewItemProps {
 	comment: Comment;
@@ -33,7 +33,7 @@ const ReviewItem = (props: ReviewItemProps) => {
 				<div className="mb-1 flex items-center gap-2.5">
 					<strong className="cursor-pointer text-sm text-ink" onClick={() => goMemberPage(comment?.memberData?._id as string)}>{comment.memberData?.memberNick}</strong>
 					<span className="text-xs text-muted">
-						<Moment format={'DD MMM YYYY'}>{comment.createdAt}</Moment>
+						{formatDate(comment.createdAt, 'DD MMM YYYY')}
 					</span>
 					{onRemoved && (
 						<span className="ml-auto inline-flex gap-2.5">

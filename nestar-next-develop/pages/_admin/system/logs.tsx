@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import type { NextPage } from 'next';
 import Link from 'next/link';
-import moment from 'moment';
 import { useTranslation } from 'next-i18next/pages';
 import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
 import { useQuery } from '@apollo/client/react';
@@ -11,6 +10,7 @@ import { GET_ADMIN_LOGS } from '../../../apollo/admin/query';
 import { T } from '../../../libs/types/common';
 import { cx } from '../../../libs/components/ui/classNames';
 import { AdminPager, AdminTabs, adminTable, NoRows, TableScroll, tableWrap, td, tdTitle, th, tr } from '../../../libs/components/admin/ui';
+import { formatDate } from '../../../libs/date';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: { ...(await serverSideTranslations(locale, ['common'])) },
@@ -107,7 +107,7 @@ const AdminLogs: NextPage = () => {
 								return (
 									<tr key={log._id} className={tr}>
 										<td className={cx(td, 'whitespace-nowrap')} data-label={t('DATE')}>
-											{moment(log.createdAt).format('DD.MM.YYYY HH:mm')}
+											{formatDate(log.createdAt, 'DD.MM.YYYY HH:mm')}
 										</td>
 										<td className={td} data-label={t('ADMIN')}>
 											{log.adminData?.memberNick ?? '—'}

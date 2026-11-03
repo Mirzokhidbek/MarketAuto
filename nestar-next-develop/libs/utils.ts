@@ -1,4 +1,4 @@
-import numeral from 'numeral';
+import { formatNumber } from './format';
 
 const enumLabelExceptions: Record<string, string> = {
 	BMW: 'BMW',
@@ -87,11 +87,11 @@ export const articleCategoryLabels: Record<string, string> = {
 };
 
 export const formatMileage = (value: number | undefined): string => {
-	return `${numeral(value ?? 0).format('0,0')} km`;
+	return `${formatNumber(value)} km`;
 };
 
 export const formatterStr = (value: number | undefined): string => {
-	return numeral(value).format('0,0') != '0' ? numeral(value).format('0,0') : '';
+	return formatNumber(value) != '0' ? formatNumber(value) : '';
 };
 
 /** JSON from a URL query param (?input=...); a broken or hand-edited link falls back instead of crashing the page */

@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import type { NextPage } from 'next';
 import Link from 'next/link';
-import moment from 'moment';
 import { useTranslation } from 'next-i18next/pages';
 import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client/react';
@@ -18,6 +17,7 @@ import { T } from '../../../libs/types/common';
 import { DeleteIcon } from '../../../libs/components/ui/icons';
 import { cx } from '../../../libs/components/ui/classNames';
 import { adminButton, AdminPager, AdminSearch, AdminSelect, AdminTabs, adminTable, NoRows, searchArea, TableScroll, tableWrap, td, tdActions, tdTitle, th, thumb, tr } from '../../../libs/components/admin/ui';
+import { formatDate } from '../../../libs/date';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: { ...(await serverSideTranslations(locale, ['common'])) },
@@ -174,7 +174,7 @@ const AdminCommunity: NextPage = () => {
 											{article.articleLikes}
 										</td>
 										<td className={cx(td, 'whitespace-nowrap')} data-label={t('DATE')}>
-											{moment(article.createdAt).format('DD.MM.YYYY')}
+											{formatDate(article.createdAt, 'DD.MM.YYYY')}
 										</td>
 										<td className={cx(td, tdActions, 'text-right')}>
 											<span className="flex justify-end gap-2">

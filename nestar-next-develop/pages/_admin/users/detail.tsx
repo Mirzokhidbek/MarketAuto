@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import type { NextPage } from 'next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import moment from 'moment';
 import { useTranslation } from 'next-i18next/pages';
 import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
 import { useLazyQuery, useMutation, useQuery } from '@apollo/client/react';
@@ -17,6 +16,7 @@ import { T } from '../../../libs/types/common';
 import { ArrowBackIcon } from '../../../libs/components/ui/icons';
 import { cx } from '../../../libs/components/ui/classNames';
 import { AdminCard, adminButton, adminSelect, pill } from '../../../libs/components/admin/ui';
+import { formatDate } from '../../../libs/date';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: { ...(await serverSideTranslations(locale, ['common'])) },
@@ -109,7 +109,7 @@ const AdminMemberDetail: NextPage = () => {
 						</div>
 						<p className="m-0 mt-1 text-muted">
 							@{member.memberNick} · +{member.memberPhone} {member.memberPhoneVerified ? '✓' : ''} · {t('Joined')}{' '}
-							{moment(member.createdAt).format('DD.MM.YYYY')}
+							{formatDate(member.createdAt, 'DD.MM.YYYY')}
 						</p>
 						{blocked && member.memberBlockReason && (
 							<p className="m-0 mt-3 rounded-[10px] bg-[#fde8e7] px-4 py-3 text-sm text-[#a50e0e]">
@@ -203,7 +203,7 @@ const AdminMemberDetail: NextPage = () => {
 									<span className="flex min-w-0 flex-col [&_em]:text-xs [&_em]:text-faint [&_em]:not-italic [&_small]:text-xs [&_small]:text-faint">
 										<strong className="text-[#0f172a]">{chat.otherMember?.memberNick ?? t('Deleted member')}</strong>
 										{chat.propertyData && <em>{chat.propertyData.propertyTitle}</em>}
-										<small>{moment(chat.lastMessageAt).format('DD.MM.YYYY HH:mm')}</small>
+										<small>{formatDate(chat.lastMessageAt, 'DD.MM.YYYY HH:mm')}</small>
 									</span>
 								</button>
 							))}
@@ -229,7 +229,7 @@ const AdminMemberDetail: NextPage = () => {
 											)}
 											{message.text && <p className="m-0 text-sm leading-[1.45] break-words whitespace-pre-wrap">{message.text}</p>}
 											<small className={cx('mt-1 block text-right text-[11px]', mine ? 'text-white' : 'text-muted')}>
-												{moment(message.createdAt).format('DD.MM HH:mm')}
+												{formatDate(message.createdAt, 'DD.MM HH:mm')}
 											</small>
 										</div>
 									);

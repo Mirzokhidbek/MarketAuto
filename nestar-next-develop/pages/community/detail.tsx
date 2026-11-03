@@ -8,7 +8,6 @@ import { print } from 'graphql';
 import withLayoutFull from '../../libs/components/layout/LayoutFull';
 import Seo from '../../libs/components/common/Seo';
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client/react';
-import Moment from 'react-moment';
 import { userVar } from '../../apollo/store';
 import { CommentInput, CommentsInquiry } from '../../libs/types/comment/comment.input';
 import { Comment } from '../../libs/types/comment/comment';
@@ -34,6 +33,7 @@ import { buttonClasses } from '../../libs/components/ui/Button';
 import Pagination from '../../libs/components/ui/Pagination';
 import PageContainer from '../../libs/components/ui/PageContainer';
 import Badge from '../../libs/components/ui/Badge';
+import { formatDate } from '../../libs/date';
 
 const panelBox = 'rounded-[10px] border border-line bg-white p-[18px] shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:p-6';
 const commentForm = 'mb-5 flex flex-col items-end gap-2.5';
@@ -318,7 +318,7 @@ const CommunityDetail: NextPage = ({ initialInput = defaultProps.initialInput, i
 								{boardArticle?.memberData?.memberNick}
 							</strong>
 							<span className="text-[13px] text-muted">
-								{boardArticle?.createdAt && <Moment format={'DD MMM YYYY, HH:mm'}>{boardArticle.createdAt}</Moment>}
+								{boardArticle?.createdAt && formatDate(boardArticle.createdAt, 'DD MMM YYYY, HH:mm')}
 							</span>
 						</div>
 						<div className="flex items-center gap-4 text-muted max-sm:w-full sm:ml-auto [&>span]:inline-flex [&>span]:items-center [&>span]:gap-1 [&_svg]:text-lg">
@@ -386,7 +386,7 @@ const CommunityDetail: NextPage = ({ initialInput = defaultProps.initialInput, i
 											{commentData?.memberData?.memberNick}
 										</strong>
 										<span className="text-xs text-muted">
-											<Moment format={'DD MMM YYYY, HH:mm'}>{commentData?.createdAt}</Moment>
+											{formatDate(commentData?.createdAt, 'DD MMM YYYY, HH:mm')}
 										</span>
 										{isMine && !editing && (
 											<span className="ml-auto inline-flex gap-2.5">

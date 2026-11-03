@@ -1,13 +1,13 @@
 import React from 'react';
 import { useMutation, useQuery } from '@apollo/client/react';
 import { useTranslation } from 'next-i18next/pages';
-import moment from 'moment';
 import { GET_MY_SESSIONS } from '../../../apollo/user/query';
 import { LOGOUT_OTHER_SESSIONS, REVOKE_MY_SESSION } from '../../../apollo/user/mutation';
 import { sweetConfirmAlert, sweetErrorHandling, sweetTopSmallSuccessAlert } from '../../sweetAlert';
 import { ComputerIcon as ComputerOutlinedIcon, SmartphoneIcon as PhoneIphoneOutlinedIcon } from '../ui/icons';
 import { linkButton } from '../ui/styles';
 import { buttonClasses } from '../ui/Button';
+import { formatDate, fromNow } from '../../date';
 
 interface Session {
 	_id: string;
@@ -105,8 +105,8 @@ const MySessions = () => {
 									{session.current && <em className="rounded-full bg-[#e6f4ea] px-2 py-px text-[11px] font-semibold text-[#127a46] not-italic">{t('This device')}</em>}
 								</strong>
 								<span className="text-xs text-muted">
-									{t('Logged in')} {moment(session.startedAt).format('DD.MM.YYYY')} · {t('Active')}{' '}
-									{moment(session.lastActiveAt).fromNow()}
+									{t('Logged in')} {formatDate(session.startedAt, 'DD.MM.YYYY')} · {t('Active')}{' '}
+									{fromNow(session.lastActiveAt)}
 								</span>
 							</div>
 							{!session.current && (

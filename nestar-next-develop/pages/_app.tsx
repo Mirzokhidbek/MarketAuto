@@ -11,38 +11,16 @@ if (typeof window !== 'undefined' && process.env.NEXT_PUBLIC_SENTRY_DSN) {
 	Sentry.init({ dsn: process.env.NEXT_PUBLIC_SENTRY_DSN, environment: process.env.NODE_ENV, tracesSampleRate: 0.1 });
 }
 import { useRouter } from 'next/router';
-import moment from 'moment';
-import 'moment/locale/ru';
-import 'moment/locale/uz-latn';
-// moment's own Uzbek gives "Bir necha 2 kun oldin"; natural wording instead: "2 kun oldin", "hozirgina"
-moment.updateLocale('uz-latn', {
-	relativeTime: {
-		future: '%s dan keyin',
-		past: '%s oldin',
-		s: 'bir necha soniya',
-		ss: '%d soniya',
-		m: '1 daqiqa',
-		mm: '%d daqiqa',
-		h: '1 soat',
-		hh: '%d soat',
-		d: '1 kun',
-		dd: '%d kun',
-		M: '1 oy',
-		MM: '%d oy',
-		y: '1 yil',
-		yy: '%d yil',
-	},
-});
+import { setDateLocale } from '../libs/date';
 import { useTelegramMiniApp } from '../libs/hooks/useTelegramMiniApp';
 import { useBackHistory } from '../libs/hooks/useBack';
-import '../styles/index.scss';
 import '../styles/tailwind.css';
 
 const App = ({ Component, pageProps }: AppProps) => {
 	const client = useApollo(pageProps.initialApolloState);
 	// dates ("2 hours ago", month names) follow the site language; set before children render
 	const { locale } = useRouter();
-	moment.locale(locale === 'uz' ? 'uz-latn' : locale === 'ru' ? 'ru' : 'en');
+	setDateLocale(locale);
 
 	useBackHistory();
 	useTelegramMiniApp();

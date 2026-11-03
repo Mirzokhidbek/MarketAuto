@@ -107,7 +107,7 @@ const Header = () => {
 				</Link>
 
 				{/* larger screens: the main menu in the bar */}
-				<nav className="mx-3 hidden items-center gap-4 md:flex lg:mx-8 lg:gap-6">
+				<nav className="mx-3 hidden items-center gap-4 whitespace-nowrap md:flex lg:mx-8 lg:gap-6">
 					{links.map((link) => (
 						<Link
 							key={link.path}

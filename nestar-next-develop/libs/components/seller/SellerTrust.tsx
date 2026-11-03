@@ -1,5 +1,5 @@
 import React from 'react';
-import moment from 'moment';
+import { formatDate, humanize } from '../../date';
 import { useTranslation } from 'next-i18next/pages';
 import { Member } from '../../types/member/member';
 import { cx } from '../ui/classNames';
@@ -20,11 +20,11 @@ const SellerTrust = ({ member, compact = false, className = 'mb-3.5' }: SellerTr
 	if (member.memberDealerVerified) items.push({ icon: <StorefrontOutlinedIcon />, text: t('Verified dealer'), strong: true });
 	if (member.memberPhoneVerified) items.push({ icon: <VerifiedIcon />, text: t('Phone confirmed'), strong: true });
 	if (!compact && member.createdAt)
-		items.push({ icon: <EventAvailableOutlinedIcon />, text: `${t('On CarPort since')} ${moment(member.createdAt).format('MMMM YYYY')}` });
+		items.push({ icon: <EventAvailableOutlinedIcon />, text: `${t('On CarPort since')} ${formatDate(member.createdAt, 'MMMM YYYY')}` });
 	if (!compact && member.memberResponseMinutes)
 		items.push({
 			icon: <ScheduleOutlinedIcon />,
-			text: `${t('Usually replies within')} ${moment.duration(Math.max(member.memberResponseMinutes, 5), 'minutes').humanize()}`,
+			text: `${t('Usually replies within')} ${humanize(Math.max(member.memberResponseMinutes, 5) * 60)}`,
 		});
 	if (!items.length) return null;
 	return (

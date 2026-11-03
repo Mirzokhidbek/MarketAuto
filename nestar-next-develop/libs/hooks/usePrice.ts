@@ -1,6 +1,6 @@
 import { useReactiveVar } from '@apollo/client/react';
 import { useTranslation } from 'next-i18next/pages';
-import numeral from 'numeral';
+import { formatNumber } from '../format';
 import { currencyVar, usdRateVar } from '../../apollo/store';
 
 /** a car (or just a USD amount): prices are stored in USD, plus the seller's own so'm amount when typed in so'm */
@@ -24,11 +24,11 @@ export const usePrice = () => {
 		return { usd: value ?? 0, uzs: undefined as number | undefined };
 	};
 
-	const usd = (amount: number) => `$${numeral(amount).format('0,0')}`;
-	const exactUzs = (amount: number) => `${numeral(amount).format('0,0').replace(/,/g, ' ')} ${t("so'm")}`;
+	const usd = (amount: number) => `$${formatNumber(amount)}`;
+	const exactUzs = (amount: number) => `${formatNumber(amount).replace(/,/g, ' ')} ${t("so'm")}`;
 	const roundUzs = (amount: number) => {
-		if (amount >= 1e9) return `${numeral(amount / 1e9).format('0.[0]')} ${t('bln')} ${t("so'm")}`.replace('.', ',');
-		if (amount >= 1e6) return `${numeral(amount / 1e6).format(amount >= 1e8 ? '0' : '0.[0]')} ${t('mln')} ${t("so'm")}`.replace('.', ',');
+		if (amount >= 1e9) return `${formatNumber(amount / 1e9, { decimals: 1, grouping: false })} ${t('bln')} ${t("so'm")}`.replace('.', ',');
+		if (amount >= 1e6) return `${formatNumber(amount / 1e6, { decimals: amount >= 1e8 ? 0 : 1, grouping: false })} ${t('mln')} ${t("so'm")}`.replace('.', ',');
 		return exactUzs(Math.round(amount / 1000) * 1000);
 	};
 

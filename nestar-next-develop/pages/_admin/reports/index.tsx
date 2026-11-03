@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import type { NextPage } from 'next';
 import Link from 'next/link';
-import moment from 'moment';
 import { useTranslation } from 'next-i18next/pages';
 import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
 import { useMutation, useQuery } from '@apollo/client/react';
@@ -14,6 +13,7 @@ import { imageUrl } from '../../../libs/utils';
 import { T } from '../../../libs/types/common';
 import { cx } from '../../../libs/components/ui/classNames';
 import { adminButton, AdminPager, AdminTabs, adminTable, caption, NoRows, TableScroll, tableWrap, td, tdActions, tdTitle, th, thumb, tr } from '../../../libs/components/admin/ui';
+import { formatDate } from '../../../libs/date';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: { ...(await serverSideTranslations(locale, ['common'])) },
@@ -103,7 +103,7 @@ const AdminReports: NextPage = () => {
 											{report.memberData?.memberNick ?? '—'}
 										</td>
 										<td className={cx(td, 'whitespace-nowrap')} data-label={t('DATE')}>
-											{moment(report.createdAt).format('DD.MM.YYYY HH:mm')}
+											{formatDate(report.createdAt, 'DD.MM.YYYY HH:mm')}
 										</td>
 										<td className={cx(td, tdActions, 'text-right')}>
 											{report.reportStatus === 'OPEN' ? (

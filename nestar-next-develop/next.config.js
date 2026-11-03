@@ -26,7 +26,6 @@ const nextConfig = {
 	// this app has its own lockfile and node_modules; the repo root belongs to the API
 	outputFileTracingRoot: __dirname,
 	// no U+FEFF / @charset in compiled Sass: a BOM in the middle of a merged CSS chunk breaks the minifier
-	sassOptions: { charset: false },
 	env: {
 		REACT_APP_API_URL: process.env.REACT_APP_API_URL,
 		REACT_APP_API_GRAPHQL_URL: process.env.REACT_APP_API_GRAPHQL_URL,

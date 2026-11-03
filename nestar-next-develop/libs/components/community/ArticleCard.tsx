@@ -1,12 +1,12 @@
 import React from 'react';
 import Link from 'next/link';
-import Moment from 'react-moment';
 import { useTranslation } from 'next-i18next/pages';
 import Badge from '../ui/Badge';
 import { cx } from '../ui/classNames';
 import { articleCategoryLabels, formatEnumLabel, imageUrl } from '../../utils';
 import { BoardArticle } from '../../types/board-article/board-article';
 import { EyeIcon as RemoveRedEyeIcon, FavoriteIcon, FavoriteBorderIcon } from '../ui/icons';
+import { formatDate } from '../../date';
 
 interface ArticleCardProps {
 	article: BoardArticle;
@@ -51,9 +51,9 @@ const ArticleCard = ({ article, onLike }: ArticleCardProps) => {
 					>
 						{article.memberData?.memberNick}
 					</Link>
-					<Moment format={'DD MMM YYYY'} className={'shrink-0'}>
-						{article.createdAt}
-					</Moment>
+					<time className="shrink-0" dateTime={article.createdAt as unknown as string}>
+						{formatDate(article.createdAt, 'DD MMM YYYY')}
+					</time>
 				</div>
 
 				<div

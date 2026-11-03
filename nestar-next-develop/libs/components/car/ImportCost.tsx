@@ -1,11 +1,11 @@
 import React, { useEffect } from 'react';
 import { useQuery } from '@apollo/client/react';
 import { useTranslation } from 'next-i18next/pages';
-import moment from 'moment';
-import numeral from 'numeral';
+import { formatNumber } from '../../format';
 import { GET_IMPORT_COST } from '../../../apollo/user/query';
 import { usePrice } from '../../hooks/usePrice';
 import { InfoIcon as InfoOutlinedIcon } from '../ui/icons';
+import { formatDate } from '../../date';
 
 /** the estimate follows the Central Bank rate, the saved tariff and price edits: refreshed every minute */
 const REFRESH_MS = 60 * 1000;
@@ -106,7 +106,7 @@ const ImportCostCard = ({ propertyId, propertyPrice }: { propertyId: string; pro
 	const items: CostItem[] = cost.items;
 	const shares = [{ key: 'CAR', amountUsd: cost.carPriceUsd }, ...items].filter((item) => item.amountUsd > 0);
 	const comparison = cost.comparison;
-	const percent = (value: number) => `${numeral(value).format('0.[0]')}%`;
+	const percent = (value: number) => `${formatNumber(value, { decimals: 1, grouping: false })}%`;
 	const tone = comparison ? COMPARE_TONES[comparison.verdict] : undefined;
 
 	return (
@@ -121,7 +121,7 @@ const ImportCostCard = ({ propertyId, propertyPrice }: { propertyId: string; pro
 					title={t('Refreshed every minute') as string}
 				>
 					<i aria-hidden className="size-[7px] animate-pulse rounded-full bg-[#127a46] motion-reduce:animate-none" />
-					{t('Updated')} {moment(cost.calculatedAt).format('HH:mm')}
+					{t('Updated')} {formatDate(cost.calculatedAt, 'HH:mm')}
 				</span>
 			</header>
 
@@ -197,7 +197,7 @@ const ImportCostCard = ({ propertyId, propertyPrice }: { propertyId: string; pro
 				</li>
 				{cost.engineCc && (
 					<li>
-						{t('Engine')}: <b>{numeral(cost.engineCc).format('0,0').replace(/,/g, ' ')} cm³</b>
+						{t('Engine')}: <b>{formatNumber(cost.engineCc).replace(/,/g, ' ')} cm³</b>
 						{cost.warnings.includes('ENGINE_ASSUMED') && ` (${t('assumed')})`}
 					</li>
 				)}
@@ -236,7 +236,7 @@ const ImportCostCard = ({ propertyId, propertyPrice }: { propertyId: string; pro
 					{cost.warnings.map((code: string) => (
 						<li key={code} className="flex gap-2 text-[13px] leading-normal text-text">
 							<InfoOutlinedIcon fontSize={'small'} className="mt-px shrink-0 text-[#a05a00]" />
-							{t(WARNINGS[code] ?? code, { cc: numeral(cost.engineCc).format('0,0').replace(/,/g, ' ') })}
+							{t(WARNINGS[code] ?? code, { cc: formatNumber(cost.engineCc).replace(/,/g, ' ') })}
 						</li>
 					))}
 				</ul>
@@ -244,13 +244,13 @@ const ImportCostCard = ({ propertyId, propertyPrice }: { propertyId: string; pro
 
 			<footer className="mt-4 flex flex-wrap gap-x-4 gap-y-1 border-t border-dashed border-[#cfd5df] pt-3 text-xs text-muted">
 				<span>
-					{t('Rate')}: 1 USD = {numeral(cost.usdToUzs).format('0,0.[00]').replace(/,/g, ' ')} {t("so'm")} (
+					{t('Rate')}: 1 USD = {formatNumber(cost.usdToUzs, { decimals: 2 }).replace(/,/g, ' ')} {t("so'm")} (
 					{t(cost.rateSource === 'CBU' ? 'Central Bank' : 'last known rate')},{' '}
-					{moment(cost.rateUpdatedAt).format('DD.MM HH:mm')})
+					{formatDate(cost.rateUpdatedAt, 'DD.MM HH:mm')})
 				</span>
 				<span>
 					{t('Customs rates')}:{' '}
-					{cost.tariffUpdatedAt ? moment(cost.tariffUpdatedAt).format('DD.MM.YYYY') : t('starting values')}
+					{cost.tariffUpdatedAt ? formatDate(cost.tariffUpdatedAt, 'DD.MM.YYYY') : t('starting values')}
 				</span>
 				<p className="m-0 basis-full">{t('This is an estimate. Confirm the exact amount with a customs broker before you buy.')}</p>
 			</footer>

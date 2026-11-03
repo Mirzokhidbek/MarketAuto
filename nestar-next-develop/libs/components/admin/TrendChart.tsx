@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import moment from 'moment';
+import { formatDate } from '../../date';
 
 export interface TrendSeries {
 	key: string;
@@ -125,7 +125,7 @@ const TrendChart = ({ dates, series, tableLabel, chartLabel, dateLabel }: TrendC
 								const index = last - reversed;
 								return (
 									<tr key={date}>
-										<td>{moment(date).format('DD.MM.YYYY')}</td>
+										<td>{formatDate(date, 'DD.MM.YYYY')}</td>
 										{series.map((item) => (
 											<td key={item.key}>{item.values[index]}</td>
 										))}
@@ -203,7 +203,7 @@ const TrendChart = ({ dates, series, tableLabel, chartLabel, dateLabel }: TrendC
 					{dates.map((date, index) =>
 						(last - index) % labelEvery === 0 ? (
 							<text key={date} className={axis} x={x(index)} y={HEIGHT - 8} textAnchor="middle">
-								{moment(date).format(dates.length > 10 ? 'DD.MM' : 'dd')}
+								{formatDate(date, dates.length > 10 ? 'DD.MM' : 'dd')}
 							</text>
 						) : null,
 					)}
@@ -214,7 +214,7 @@ const TrendChart = ({ dates, series, tableLabel, chartLabel, dateLabel }: TrendC
 						style={{ left: tipLeft }}
 						role={'tooltip'}
 					>
-						<small className="text-[11px] text-[#cbd5e1]">{moment(dates[active]).format('DD MMMM, dddd')}</small>
+						<small className="text-[11px] text-[#cbd5e1]">{formatDate(dates[active], 'DD MMMM, dddd')}</small>
 						{series.map((item) => (
 							<div key={item.key} className="flex items-center gap-2 text-xs">
 								<i className="h-[3px] w-3 rounded-sm" style={{ background: item.color }} />
