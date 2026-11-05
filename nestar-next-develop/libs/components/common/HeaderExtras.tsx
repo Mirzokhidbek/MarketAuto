@@ -73,7 +73,7 @@ export const CurrencySwitch = ({ className }: { className?: string }) => {
 	};
 	return (
 		<div
-			className={cx('inline-flex rounded-full bg-surface-alt p-[3px]', className)}
+			className={cx('inline-flex shrink-0 whitespace-nowrap rounded-full bg-surface-alt p-[3px]', className)}
 			role={'group'}
 			aria-label={t('Show prices in') as string}
 			title={t('Show prices in') as string}

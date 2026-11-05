@@ -165,10 +165,13 @@ const Header = () => {
 					) : (
 						<Link
 							href={'/account/join'}
-							className="flex h-[38px] items-center gap-2 rounded-md border border-line-strong px-2.5 text-sm font-medium text-text hover:border-ink md:px-3.5"
+							aria-label={`${t('Login')} / ${t('Register')}`}
+							className="inline-flex size-10 shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-[10px] border border-line bg-white text-sm font-medium text-ink hover:border-ink sm:size-[42px] md:h-[38px] md:w-auto md:rounded-md md:border-line-strong md:px-3.5"
 						>
 							<AccountCircleIcon />
-							<span className="hidden md:inline">
+							{/* Short label while the menu fills the bar; the full one only where it fits on one line */}
+							<span className="hidden md:inline xl:hidden">{t('Login')}</span>
+							<span className="hidden xl:inline">
 								{t('Login')} / {t('Register')}
 							</span>
 						</Link>

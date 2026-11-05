@@ -27,7 +27,15 @@ const App = ({ Component, pageProps }: AppProps) => {
 
 	// installable app + offline page; only in production builds (in development it would cache stale code)
 	useEffect(() => {
-		if (process.env.NODE_ENV !== 'production' || !('serviceWorker' in navigator)) return;
+		if (!('serviceWorker' in navigator)) return;
+		if (process.env.NODE_ENV !== 'production') {
+			// a worker left over from a production run on this address would keep serving old code
+			navigator.serviceWorker
+				.getRegistrations()
+				.then((registrations) => registrations.forEach((registration) => registration.unregister()))
+				.catch(() => undefined);
+			return;
+		}
 		navigator.serviceWorker.register('/sw.js').catch(() => undefined);
 	}, []);
 
