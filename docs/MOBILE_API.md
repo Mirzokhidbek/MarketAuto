@@ -130,4 +130,4 @@ Errors come as GraphQL `errors[0].message` with an English sentence (e.g. `Wrong
 
 The site itself installs as an app: Android Chrome offers "Install", iOS Safari "Add to Home Screen". It opens
 full screen with the CarPort icon, keeps public pages and assets for poor connections, and shows an offline
-page without a network (`public/sw.js`, `public/site.webmanifest`).
+page without a network (`public/service-worker.js`, `public/site.webmanifest`).

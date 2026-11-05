@@ -36,7 +36,7 @@ const App = ({ Component, pageProps }: AppProps) => {
 				.catch(() => undefined);
 			return;
 		}
-		navigator.serviceWorker.register('/sw.js').catch(() => undefined);
+		navigator.serviceWorker.register('/service-worker.js').catch(() => undefined);
 	}, []);
 
 	return (
