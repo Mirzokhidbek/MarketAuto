@@ -1,14 +1,20 @@
-import { App, applicationDefault, getApps, initializeApp } from 'firebase-admin/app';
+import { App, applicationDefault, cert, getApps, initializeApp } from 'firebase-admin/app';
 import { GoogleAuth } from 'google-auth-library';
 import type { MongooseModuleOptions } from '@nestjs/mongoose';
 
 /**
  * Server-side access to Firebase project FIREBASE_PROJECT_ID.
- * Credentials (Google Application Default Credentials, looked up only when first needed):
+ * Credentials, looked up only when first needed: the service account JSON itself in GOOGLE_CREDENTIALS_JSON
+ * (hosts without a file system for secrets, e.g. Railway), else Google Application Default Credentials:
  * the service account JSON named by GOOGLE_APPLICATION_CREDENTIALS, else the developer's own login
  * from `gcloud auth application-default login`, else the service account attached on Google Cloud.
  * Without any of them only ID-token verification works (it needs just the project id).
  */
+const serviceAccount = (): Record<string, any> | undefined => {
+	const json = process.env.GOOGLE_CREDENTIALS_JSON;
+	return json ? JSON.parse(json) : undefined;
+};
+
 export const firebaseAdminApp = (): App => {
 	const existing = getApps().find((app) => app.name === 'admin');
 	if (existing) return existing;
@@ -16,7 +22,7 @@ export const firebaseAdminApp = (): App => {
 		{
 			projectId: process.env.FIREBASE_PROJECT_ID,
 			storageBucket: process.env.FIREBASE_STORAGE_BUCKET || undefined,
-			credential: applicationDefault(),
+			credential: serviceAccount() ? cert(serviceAccount() as any) : applicationDefault(),
 		},
 		'admin',
 	);
@@ -29,7 +35,7 @@ export const firebaseAdminApp = (): App => {
  */
 export const mongooseOptions = (uri?: string): MongooseModuleOptions => {
 	if (!uri || !uri.includes('.firestore.goog')) return { uri };
-	const auth = new GoogleAuth({ scopes: ['https://www.googleapis.com/auth/cloud-platform'] });
+	const auth = new GoogleAuth({ credentials: serviceAccount(), scopes: ['https://www.googleapis.com/auth/cloud-platform'] });
 	// Firestore requirements: load-balanced mode (the driver accepts it only in the URI), TLS, no retryable writes
 	if (!/[?&]loadBalanced=true/.test(uri)) uri += `${uri.includes('?') ? '&' : '?'}loadBalanced=true`;
 	return {

@@ -45,7 +45,8 @@ export const settings = {
 		return env('NODE_ENV') ?? 'development';
 	},
 	get port(): number {
-		return Number(env('PORT_API') ?? 3000);
+		// PORT: the port a host such as Railway assigns
+		return Number(env('PORT_API') ?? env('PORT') ?? 3000);
 	},
 	get mongoUri(): string | undefined {
 		return settings.production ? env('MONGO_PROD') : env('MONGO_DEV');

@@ -38,7 +38,8 @@ if (!uri) fail('MONGO_PROD / MONGO_DEV is not set');
 
 // Firestore with MongoDB compatibility signs in with a Google access token, like the API (src/libs/firebase-admin.ts)
 const firestoreOptions = () => {
-	const auth = new GoogleAuth({ scopes: ['https://www.googleapis.com/auth/cloud-platform'] });
+	const credentials = process.env.GOOGLE_CREDENTIALS_JSON ? JSON.parse(process.env.GOOGLE_CREDENTIALS_JSON) : undefined;
+	const auth = new GoogleAuth({ credentials, scopes: ['https://www.googleapis.com/auth/cloud-platform'] });
 	return {
 		tls: true,
 		retryWrites: false,
