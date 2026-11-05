@@ -11,6 +11,7 @@
 import 'dotenv/config';
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
+import { GoogleAuth } from 'google-auth-library';
 
 const arg = (name) => {
 	const index = process.argv.indexOf(`--${name}`);
@@ -35,7 +36,26 @@ if (password.length < 12 || !/[A-Za-z]/.test(password) || !/\d/.test(password) |
 	fail('ADMIN_PASSWORD: at least 12 characters with letters and digits, not containing the nickname');
 if (!uri) fail('MONGO_PROD / MONGO_DEV is not set');
 
-await mongoose.connect(uri, { serverSelectionTimeoutMS: 8000 }).catch((err) => fail(`cannot reach the database: ${err.message}`));
+// Firestore with MongoDB compatibility signs in with a Google access token, like the API (src/libs/firebase-admin.ts)
+const firestoreOptions = () => {
+	const auth = new GoogleAuth({ scopes: ['https://www.googleapis.com/auth/cloud-platform'] });
+	return {
+		tls: true,
+		retryWrites: false,
+		authMechanism: 'MONGODB-OIDC',
+		authMechanismProperties: {
+			ALLOWED_HOSTS: ['*.firestore.goog'],
+			OIDC_CALLBACK: async () => {
+				const { token } = await (await auth.getClient()).getAccessToken();
+				if (!token) throw new Error('no Google access token (run: gcloud auth application-default login)');
+				return { accessToken: token, expiresInSeconds: 50 * 60 };
+			},
+		},
+	};
+};
+const options = uri.includes('.firestore.goog') ? firestoreOptions() : {};
+
+await mongoose.connect(uri, { serverSelectionTimeoutMS: 8000, ...options }).catch((err) => fail(`cannot reach the database: ${err.message}`));
 const members = mongoose.connection.collection('members');
 const existing = await members.findOne({ $or: [{ memberNick: nick }, { memberPhone: phone }] });
 if (existing && (existing.memberNick !== nick || existing.memberPhone !== phone)) {
