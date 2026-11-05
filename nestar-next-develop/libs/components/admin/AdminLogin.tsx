@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useTranslation } from 'next-i18next/pages';
-import { logIn, verifyAdminLogin } from '../../auth';
+import { logIn, logInWithFirebase, verifyAdminLogin } from '../../auth';
+import { firebaseEnabled } from '../../firebase';
 import { userVar } from '../../../apollo/store';
 import { MemberType } from '../../enums/member.enum';
 import { field, fieldHint, formError } from '../ui/styles';
@@ -44,6 +45,23 @@ const AdminLogin = () => {
 			if (userVar()?.memberType !== MemberType.ADMIN) setError(t('This account is not an admin.') as string);
 		} catch (err: any) {
 			setError(t(err.message) as string);
+		} finally {
+			setBusy(false);
+		}
+	};
+
+	// admins whose Gmail is listed on the server (ADMIN_GOOGLE_EMAILS) may sign in with Google instead
+	const googleLogin = async () => {
+		setBusy(true);
+		setError('');
+		try {
+			const [{ GoogleAuthProvider, signInWithPopup }, { firebaseAuth }] = await Promise.all([import('firebase/auth'), import('../../firebase')]);
+			const result = await signInWithPopup(firebaseAuth(), new GoogleAuthProvider());
+			await logInWithFirebase(result.user);
+			if (userVar()?.memberType !== MemberType.ADMIN) setError(t('This account is not an admin.') as string);
+		} catch (err: any) {
+			const cancelled = err?.code === 'auth/popup-closed-by-user' || err?.code === 'auth/cancelled-popup-request';
+			setError(t(cancelled ? 'Sign-in was cancelled' : err.message) as string);
 		} finally {
 			setBusy(false);
 		}
@@ -113,6 +131,24 @@ const AdminLogin = () => {
 				<button type="submit" disabled={!canSubmit} className={buttonClasses({ className: 'mt-2 w-full' })}>
 					{step === 'password' ? t('Login') : t('Confirm')}
 				</button>
+				{step === 'password' && firebaseEnabled && (
+					<>
+						<div className="my-3 flex items-center gap-3 text-xs text-muted">
+							<span className="h-px flex-1 bg-line" />
+							{t('or')}
+							<span className="h-px flex-1 bg-line" />
+						</div>
+						<button
+							type="button"
+							disabled={busy}
+							onClick={googleLogin}
+							className="flex h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-[10px] border border-line bg-white font-sans text-sm font-semibold text-ink hover:border-ink disabled:cursor-not-allowed disabled:opacity-50"
+						>
+							<img src={'/img/icons/google.svg'} alt={''} width={18} height={18} />
+							{t('Continue with Google')}
+						</button>
+					</>
+				)}
 				<div className="mt-4 flex justify-between text-sm">
 					{step === 'code' ? (
 						<button

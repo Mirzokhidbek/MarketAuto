@@ -190,8 +190,9 @@ export class MemberService {
 		if (member) {
 			if (member.memberStatus === MemberStatus.DELETE) throw new BadRequestException(Message.WRONG_LOGIN);
 			if (member.memberStatus === MemberStatus.BLOCK) throw new ForbiddenException(blockedMessage(member));
-			// admins keep the password + SMS second step
-			if (member.memberType === MemberType.ADMIN) throw new BadRequestException(Message.NOT_ALLOWED_REQUEST);
+			// admins keep the password + SMS second step, unless their Google address is listed in ADMIN_GOOGLE_EMAILS
+			if (member.memberType === MemberType.ADMIN && !this.isGoogleAdmin(identity))
+				throw new BadRequestException(Message.NOT_ALLOWED_REQUEST);
 			return await this.startSession(member, userAgent);
 		}
 
@@ -239,6 +240,10 @@ export class MemberService {
 	}
 
 	/** a Telegram user allowed to use an admin account through the bot and the Mini App */
+	public isGoogleAdmin(identity: { provider?: string; email?: string }): boolean {
+		return identity.provider === 'google.com' && !!identity.email && settings.adminGoogleEmails.includes(identity.email);
+	}
+
 	public isTelegramAdmin(telegramId: number | string): boolean {
 		return settings.telegram.adminIds.includes(String(telegramId));
 	}

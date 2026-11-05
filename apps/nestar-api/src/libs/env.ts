@@ -103,6 +103,13 @@ export const settings = {
 	get firebase() {
 		return { projectId: env('FIREBASE_PROJECT_ID'), storageBucket: env('FIREBASE_STORAGE_BUCKET') };
 	},
+	// Google accounts (verified Gmail addresses) whose admin account may sign in with Google (no password + SMS step)
+	get adminGoogleEmails() {
+		return (env('ADMIN_GOOGLE_EMAILS') ?? '')
+			.split(',')
+			.map((email) => email.trim().toLowerCase())
+			.filter(Boolean);
+	},
 	// Telegram bot (sign-up with /start + contact) and Mini App login; the Mini App URL must be https
 	get telegram() {
 		return {
