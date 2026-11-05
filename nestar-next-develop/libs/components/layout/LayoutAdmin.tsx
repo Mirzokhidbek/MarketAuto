@@ -11,6 +11,7 @@ import { CountBadge } from '../ui/Feedback';
 import { cx } from '../ui/classNames';
 import MenuList, { isSuperOnlyPath } from '../admin/AdminMenuList';
 import AdminWaitingPanel from '../admin/AdminWaitingPanel';
+import AdminLogin from '../admin/AdminLogin';
 import { getJwtToken, logOut, updateUserInfo } from '../../auth';
 import { userVar } from '../../../apollo/store';
 import { GET_ADMIN_BADGES } from '../../../apollo/admin/query';
@@ -103,10 +104,8 @@ const withAdminLayout = (Component: ComponentType<any>) => {
 					.finally(() => setTelegramChecked(true));
 				return;
 			}
-			// not logged in: log in first and come back here; logged in but not an admin: home page
-			if (!getJwtToken()) router.replace(`/account/join?referrer=${encodeURIComponent(router.asPath)}`).then();
-			else router.replace('/').then();
-		}, [loading, user, router, telegramChecked]);
+			// everyone else gets the admin login form (rendered below) right on this address
+		}, [loading, user, telegramChecked]);
 
 		useEffect(() => {
 			if (forbidden) router.replace('/_admin').then();
@@ -128,7 +127,9 @@ const withAdminLayout = (Component: ComponentType<any>) => {
 
 		const isQuickActive = (href: string) => (href === '/_admin' ? router.pathname === '/_admin' : router.pathname.startsWith(href));
 
-		if (!user || !isAdmin || forbidden) return null;
+		if (loading || (!isAdmin && isInsideTelegram() && !telegramChecked)) return null;
+		if (!isAdmin) return <AdminLogin />;
+		if (forbidden) return null;
 
 		return (
 			<main className="min-h-screen bg-[radial-gradient(900px_420px_at_85%_-10%,rgba(120,140,255,0.16),transparent_60%),radial-gradient(700px_380px_at_30%_-20%,rgba(90,200,250,0.1),transparent_60%),#f3f5fa] font-sans text-[#0f172a]">

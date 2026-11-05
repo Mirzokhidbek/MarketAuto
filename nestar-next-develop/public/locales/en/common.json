@@ -1191,5 +1191,8 @@
 	"Insert image": "Insert image",
 	"Pages": "Pages",
 	"Previous page": "Previous page",
-	"Next page": "Next page"
+	"Next page": "Next page",
+	"This account is not an admin.": "This account is not an admin.",
+	"Log in with an admin account.": "Log in with an admin account.",
+	"Enter the code sent to the admin phone.": "Enter the code sent to the admin phone."
 }

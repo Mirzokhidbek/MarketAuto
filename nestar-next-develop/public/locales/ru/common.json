@@ -1191,5 +1191,8 @@
 	"Insert image": "Вставить изображение",
 	"Pages": "Страницы",
 	"Previous page": "Предыдущая страница",
-	"Next page": "Следующая страница"
+	"Next page": "Следующая страница",
+	"This account is not an admin.": "Этот аккаунт не является администратором.",
+	"Log in with an admin account.": "Войдите с аккаунтом администратора.",
+	"Enter the code sent to the admin phone.": "Введите код, отправленный на телефон администратора."
 }
